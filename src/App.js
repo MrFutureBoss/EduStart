@@ -6,11 +6,9 @@ import ProfessionManagement from "./pages/ProfessionManagement.jsx";
 
 function App() {
   return (
-    <BrowserRouter>
       <Routes>
         <Route path="/" element={<ProfessionManagement />} />
       </Routes>
-    </BrowserRouter>
   );
 }
 

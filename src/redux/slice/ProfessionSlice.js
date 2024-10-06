@@ -12,6 +12,7 @@ const professionSlice = createSlice({
   reducers: {
     setProfessions: (state, action) => {
       state.professions = action.payload;
+      state.professions.total = action.payload.length;
     },
   },
 });
