@@ -1,14 +1,15 @@
-import "./App.css";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
-import ProfessionManagement from "./pages/ProfessionManagement.jsx";
-
-//Route tạm thời để code không dùng thì comment lại
+import React from 'react';
+import ChangePassword from './ChangePassword';
+import './App.css';
 
 function App() {
   return (
-      <Routes>
-        <Route path="/" element={<ProfessionManagement />} />
-      </Routes>
+    <div className="App">
+      <header className="App-header">
+        <h1>Change Password Page</h1>
+        <ChangePassword />
+      </header>
+    </div>
   );
 }
 
