@@ -20,7 +20,7 @@ const UserAddModal = ({ visible, onOk, onCancel }) => {
   return (
     <Modal
       title="Thêm người dùng thủ công"
-      visible={visible}
+      open={visible}
       onOk={handleOk}
       onCancel={onCancel}
     >
