@@ -2,22 +2,23 @@ import axios from "axios";
 import { BASE_URL } from "../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfessions } from "../redux/slice/ProfessionSlice.js";
-import { useEffect, useState } from "react";
-import { Card, Button, Col, Container, Row} from "react-bootstrap";
+import { useEffect, useState} from "react";
+import { Card, Button, Col, Container, Row } from "react-bootstrap";
 import {
   EditOutlined,
   LockOutlined,
   PlusCircleOutlined,
   UnlockOutlined,
 } from "@ant-design/icons";
-import  {Pagination} from "antd"
-import DefaultNavbar from "../components/Navbar/index.js";
+import { Pagination } from "antd";
+import AddNewProfession from "./AddNewProfession.jsx";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
   const professions = useSelector((state) => state.profession.professions.data);
-  const total = useSelector((state) => state.profession.professions.total);
-  const [status, setStatus] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+
   // Call profession data
   useEffect(() => {
     axios
@@ -47,20 +48,31 @@ const ProfessionManagement = () => {
         );
       })
       .catch((err) => console.log("Error updating profession status", err));
-  };  
+  };
 
   const onChange = (pageNumber) => {
-    console.log('Page: ', pageNumber);
+    console.log("Page: ", pageNumber);
   };
-  
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <Container fluid>
-      <DefaultNavbar/>
+      <AddNewProfession show={isModalOpen} close={handleCloseModal}/>
       <Row>
-        <h1>Profession & Specialty Management</h1>
+        <h1>Quản lý lĩnh vực và chuyên môn</h1>
       </Row>
       <Row style={{ marginBottom: "10px" }}>
-        <Button style={{ width: "10rem" }} variant="primary">
+        <Button
+          style={{ width: "10rem" }}
+          variant="primary"
+          onClick={handleOpenModal}
+        >
           <PlusCircleOutlined /> Thêm lĩnh vực
         </Button>
       </Row>
@@ -84,7 +96,7 @@ const ProfessionManagement = () => {
                       gap: "4px",
                     }}
                   >
-                     {pro.status ? (
+                    {pro.status ? (
                       <LockOutlined
                         style={{
                           color: "red",
@@ -119,7 +131,12 @@ const ProfessionManagement = () => {
         ))}
       </Row>
       <Row>
-      <Pagination showQuickJumper defaultCurrent={2} total={500} onChange={onChange} />
+        <Pagination
+          showQuickJumper
+          defaultCurrent={2}
+          total={500}
+          onChange={onChange}
+        />
       </Row>
     </Container>
   );
