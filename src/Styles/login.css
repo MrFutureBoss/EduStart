@@ -1,0 +1,56 @@
+.sign-in-container {
+  width: 100%;
+  min-height: 100%;
+  overflow: auto;
+  background-image: url("./../assets/images/bg-sign-in-basic.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sign-in-full-height {
+  width: 100%;
+  height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.card-title {
+  background-color: #1890ff;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  margin-bottom: 10%;
+}
+
+.error-message-response {
+  color: red;
+}
+
+.input-email,
+.input-password {
+  border: none;
+  border-bottom: 1px solid #1890ff;
+  border-radius: 0;
+  outline: none;
+  width: 100%;
+  padding: 8px 0;
+  transition: border-bottom 0.3s;
+}
+
+.input-email.error,
+.input-password.error {
+  border-bottom: 1px solid red;
+}
+
+.input-email:focus,
+.input-password:focus {
+  border-bottom: 1px solid #40a9ff;
+}
+
+.lg_error_message {
+  color: red;
+  font-size: 0.875rem;
+}
