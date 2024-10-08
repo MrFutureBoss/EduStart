@@ -1,0 +1,16 @@
+.hint_addspecialty{
+    font-style: italic;
+    font-weight: 450;
+    color: gray;
+}
+
+
+.speicalty_tag{
+    display: flex;
+    align-items: center;
+    background-color: rgb(68, 81, 197);
+    color: #FFF;
+    border-radius: 8px;
+    width: fit-content;
+    padding: 4px 7px;
+}
