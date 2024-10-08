@@ -14,6 +14,7 @@ import {
   Modal,
   Progress,
   message,
+  notification,
 } from "antd";
 import { Link } from "react-router-dom";
 import {
@@ -22,7 +23,8 @@ import {
   UserAddOutlined,
 } from "@ant-design/icons";
 import UserAddModal from "./UserAddModal";
-import Dragger from "antd/es/upload/Dragger";
+import axios from "axios";
+import { BASE_URL } from "../../utilities/initalValue";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -40,10 +42,15 @@ const UserListSemester = () => {
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
+  const [isRoleSelectModalVisible, setIsRoleSelectModalVisible] =
+    useState(false);
   const [uploadPercent, setUploadPercent] = useState(0);
-  const [uploadStatus, setUploadStatus] = useState("active"); // Trạng thái upload
-  const [fileList, setFileList] = useState([]); // Theo dõi danh sách tệp
-
+  const [uploadStatus, setUploadStatus] = useState("active");
+  const [fileList, setFileList] = useState([]);
+  const [selectedUploadRole, setSelectedUploadRole] = useState(null);
+  const [duplicateEmails, setDuplicateEmails] = useState([]);
+  const [fullClassUsers, setFullClassUsers] = useState([]);
+  const [successCount, setSuccessCount] = useState(0);
   const handleTableChange = (pagination) => {
     setPagination(pagination);
   };
@@ -55,69 +62,34 @@ const UserListSemester = () => {
     { id: 5, name: "Người dùng khác" },
   ];
 
-  const draggerProps = {
-    name: "file",
-    multiple: true,
-    action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-    onChange(info) {
-      const { status } = info.file;
-      if (status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (status === "done") {
-        message.success(`${info.file.name} file uploaded successfully.`);
-      } else if (status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-    onDrop(e) {
-      console.log("Dropped files", e.dataTransfer.files);
-    },
+  // Hàm mở modal chọn vai trò người dùng
+  const showRoleSelectModal = () => {
+    setIsRoleSelectModalVisible(true);
   };
 
-  const props = {
-    action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-    onChange({ file, fileList, event }) {
-      setFileList(fileList);
-
-      if (file.status === "uploading" && !isUploadModalVisible) {
-        setIsUploadModalVisible(true);
-      }
-
-      if (event) {
-        setUploadPercent(Math.round((event.loaded / event.total) * 100));
-      }
-
-      if (file.status === "done") {
-        setUploadStatus("success");
-        setTimeout(() => {
-          setIsUploadModalVisible(false);
-          setUploadPercent(0);
-          setFileList([]);
-        }, 1000);
-      }
-
-      if (file.status === "error") {
-        setUploadStatus("exception");
-      }
-    },
-    onRemove: () => {
-      setTimeout(() => {
-        if (fileList.length === 1) {
-          setUploadPercent(0);
-          setUploadStatus("active");
-          setIsUploadModalVisible(false);
-        }
-      }, 0);
-    },
-    showUploadList: true,
+  // Hàm xử lý khi xác nhận chọn vai trò
+  const handleRoleSelectOk = () => {
+    if (!selectedUploadRole) {
+      message.error("Vui lòng chọn vai trò người dùng trước khi tiếp tục.");
+      return;
+    }
+    setIsRoleSelectModalVisible(false);
+    setIsUploadModalVisible(true);
   };
 
+  // Hàm xử lý khi hủy chọn vai trò
+  const handleRoleSelectCancel = () => {
+    setIsRoleSelectModalVisible(false);
+    setSelectedUploadRole(null);
+  };
+
+  // Hàm xử lý khi nhấn menu
   const handleMenuClick = (e) => {
     if (e.key === "1") {
       setIsModalVisible(true);
     } else if (e.key === "2") {
-      setIsUploadModalVisible(true);
+      // Mở modal chọn vai trò người dùng trước khi tải file
+      showRoleSelectModal();
     }
   };
 
@@ -135,6 +107,10 @@ const UserListSemester = () => {
     setUploadPercent(0);
     setUploadStatus("active");
     setFileList([]);
+    setSelectedUploadRole(null);
+    setDuplicateEmails([]);
+    setFullClassUsers([]);
+    setSuccessCount(0);
   };
 
   const menu = (
@@ -143,9 +119,7 @@ const UserListSemester = () => {
         Thêm người dùng thủ công
       </Menu.Item>
       <Menu.Item key="2" icon={<UploadOutlined />}>
-        <Upload {...props} fileList={fileList} showUploadList={true}>
-          Tải file
-        </Upload>
+        Tải file
       </Menu.Item>
     </Menu>
   );
@@ -166,7 +140,8 @@ const UserListSemester = () => {
       !(
         user.username.toLowerCase().includes(searchText.toLowerCase()) ||
         user.email.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.phoneNumber?.toLowerCase().includes(searchText.toLowerCase())
+        user.phoneNumber?.toLowerCase().includes(searchText.toLowerCase()) ||
+        user.rollNumber?.toLowerCase().includes(searchText.toLowerCase())
       )
     ) {
       return false;
@@ -176,6 +151,7 @@ const UserListSemester = () => {
 
   const handleRoleSelect = (roleId) => {
     setSelectedRole(roleId);
+    setSelectedUploadRole(roleId); // Cập nhật vai trò cho upload
     setSelectedClass(null);
   };
 
@@ -201,6 +177,11 @@ const UserListSemester = () => {
     },
     ...(selectedRole === 4
       ? [
+          {
+            title: "MSSV",
+            dataIndex: "rollNumber",
+            key: "rollNumber",
+          },
           {
             title: "Lớp học",
             dataIndex: "classId",
@@ -283,6 +264,91 @@ const UserListSemester = () => {
     return <p>Lỗi: {error}</p>;
   }
 
+  const uploadProps = {
+    customRequest: async (options) => {
+      const { file, onSuccess, onError, onProgress } = options;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("role", selectedUploadRole);
+      formData.append("semesterId", sid);
+
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/admins/import-users`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: ({ total, loaded }) => {
+              const percent = Math.round((loaded / total) * 100);
+              setUploadPercent(percent);
+              onProgress({ percent }, file);
+            },
+          }
+        );
+        console.log("Response data:", response.data);
+
+        onSuccess(response.data, file);
+
+        // Xử lý dữ liệu phản hồi
+        const {
+          successCount,
+          duplicateEmails,
+          fullClassUsers,
+          message: serverMessage,
+        } = response.data;
+        setDuplicateEmails(duplicateEmails);
+        setFullClassUsers(fullClassUsers);
+        setSuccessCount(successCount);
+
+        // Hiển thị thông báo phù hợp dựa trên kết quả
+        if (
+          successCount > 0 &&
+          duplicateEmails.length === 0 &&
+          fullClassUsers.length === 0
+        ) {
+          // Tất cả người dùng được thêm thành công
+          notification.success({
+            message: "Upload thành công",
+            description: `${successCount} người dùng đã được thêm thành công.`,
+          });
+        } else if (
+          successCount > 0 &&
+          (duplicateEmails.length > 0 || fullClassUsers.length > 0)
+        ) {
+          // Một số người dùng được thêm thành công, một số có lỗi
+          notification.warning({
+            message: "Upload thành công với một số lỗi",
+            description: `${successCount} người dùng đã được thêm thành công. Có ${duplicateEmails.length} email trùng và ${fullClassUsers.length} người dùng không thể thêm do lớp đã đầy.`,
+          });
+        } else if (
+          successCount === 0 &&
+          (duplicateEmails.length > 0 || fullClassUsers.length > 0)
+        ) {
+          // Không có người dùng nào được thêm thành công và có lỗi
+          notification.error({
+            message: "Upload thất bại",
+            description: `Không thêm được người dùng nào. Có ${duplicateEmails.length} email trùng và ${fullClassUsers.length} người dùng không thể thêm do lớp đã đầy.`,
+          });
+        }
+      } catch (error) {
+        onError(error);
+        notification.error({
+          message: "Upload thất bại",
+          description: error.response?.data || error.message,
+        });
+      }
+    },
+    onRemove: () => {
+      setFileList([]);
+      setUploadPercent(0);
+      setUploadStatus("active");
+    },
+    fileList,
+    showUploadList: true,
+  };
+
   return (
     <div className="user-details">
       <h2 style={{ marginBottom: 18 }}>Chi tiết kỳ học: {semesterName}</h2>
@@ -295,24 +361,23 @@ const UserListSemester = () => {
             height: "50vh",
           }}
         >
-          <Dragger {...draggerProps}>
+          {/* <Dragger {...draggerProps}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
-            <p className="ant-upload-text">Kỳ học chưa có dự liệu!</p>
+            <p className="ant-upload-text">Kỳ học chưa có dữ liệu!</p>
             <p className="ant-upload-hint">
               Ấn vào để lựa chọn file cho việc thêm người dùng
             </p>
-          </Dragger>
+          </Dragger> */}
         </div>
       ) : (
         <div>
           <div
             style={{
               display: "flex",
-              gap: "134px",
+              gap: "80px",
               marginBottom: "25px",
-              justifyContent: "center",
             }}
           >
             {roles.map((role) => (
@@ -334,7 +399,11 @@ const UserListSemester = () => {
           </div>
           <div>
             <div
-              style={{ float: "left", marginBottom: "-5px", marginTop: "15px" }}
+              style={{
+                float: "left",
+                marginBottom: "-5px",
+                marginTop: "15px",
+              }}
             >
               <Search
                 placeholder="Tìm theo tên, email, số điện thoại"
@@ -379,24 +448,103 @@ const UserListSemester = () => {
             </div>
           </div>
           <UserAddModal
-            visible={isModalVisible}
+            open={isModalVisible}
             onOk={handleModalOk}
             onCancel={handleModalCancel}
           />
-          {/* Modal hiển thị tiến trình tải file */}
+          {/* Modal chọn vai trò người dùng */}
           <Modal
-            title=" Tải file"
+            title="Chọn loại người dùng"
+            visible={isRoleSelectModalVisible}
+            onOk={handleRoleSelectOk}
+            onCancel={handleRoleSelectCancel}
+            okText="Tiếp tục"
+            cancelText="Hủy"
+          >
+            <Select
+              placeholder="Chọn vai trò người dùng"
+              style={{ width: "100%", marginTop: 10 }}
+              onChange={(value) => setSelectedUploadRole(value)}
+              value={selectedUploadRole}
+            >
+              {roles
+                .filter((role) => [2, 3, 4].includes(role.id))
+                .map((role) => (
+                  <Option key={role.id} value={role.id}>
+                    {role.name}
+                  </Option>
+                ))}
+            </Select>
+          </Modal>
+          {/* Modal tải file */}
+          {/* Modal tải file */}
+          <Modal
+            title="Tải file"
             visible={isUploadModalVisible}
             footer={null}
             onCancel={handleUploadModalCancel}
           >
-            <Upload {...props} fileList={fileList}>
-              <Button icon={<UploadOutlined />}>Chọn file để tải lên</Button>
+            <Upload
+              {...uploadProps}
+              onChange={({ file, fileList, event }) => {
+                setFileList(fileList);
+
+                if (file.status === "done") {
+                  setUploadStatus("success");
+                  setTimeout(() => {
+                    setIsUploadModalVisible(false);
+                    setUploadPercent(0);
+                    setFileList([]);
+                  }, 1000);
+                }
+
+                if (file.status === "error") {
+                  setUploadStatus("exception");
+                }
+              }}
+            >
+              <Button
+                icon={<UploadOutlined />}
+                style={{ marginBottom: "20px" }}
+              >
+                Chọn file để tải lên
+              </Button>
             </Upload>
             {uploadPercent > 0 && (
               <Progress percent={uploadPercent} status={uploadStatus} />
             )}
+
+            {/* Hiển thị danh sách email trùng lặp và người dùng không thêm được */}
+            {duplicateEmails.length > 0 && (
+              <div style={{ marginTop: "20px" }}>
+                <strong>Email đã tồn tại:</strong>
+                <ul>
+                  {duplicateEmails.map((email) => (
+                    <li key={email}>{email}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {fullClassUsers.length > 0 && (
+              <div style={{ marginTop: "20px" }}>
+                <strong>Không thể thêm vì lớp đã đầy:</strong>
+                <ul>
+                  {fullClassUsers.map((user) => (
+                    <li key={user.email}>
+                      {user.username} ({user.email})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {successCount > 0 && (
+              <div style={{ marginTop: "20px" }}>
+                <strong>Thành công:</strong>
+                <p>{successCount} người dùng đã được thêm thành công.</p>
+              </div>
+            )}
           </Modal>
+
           <Table
             dataSource={filteredUsers}
             columns={columns}

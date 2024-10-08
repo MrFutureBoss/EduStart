@@ -9,7 +9,7 @@ import {
 } from "../../redux/slice/semesterSlide";
 import { useDispatch } from "react-redux";
 import axios from "axios";
-import { BASE_URL } from "../../utilities/initialValue";
+import { BASE_URL } from "../../utilities/initalValue";
 import { Layout, Spin } from "antd";
 
 const { Sider, Content } = Layout;
