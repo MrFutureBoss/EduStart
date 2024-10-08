@@ -45,7 +45,6 @@ function SignIn() {
       if (result) {
         localStorage.setItem("jwt", result);
         dispatch(setFetchError(false));
-
         showAutoCloseAlert(
           "Đăng nhập thành công!",
           "Chào mừng bạn đã trở lại."
