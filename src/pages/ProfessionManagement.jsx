@@ -2,7 +2,8 @@ import axios from "axios";
 import { BASE_URL } from "../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfessions } from "../redux/slice/ProfessionSlice.js";
-import { useEffect, useState} from "react";
+import { setSpecialties } from "../redux/slice/SpecialtySlice.js";
+import { useEffect, useState } from "react";
 import { Card, Button, Col, Container, Row } from "react-bootstrap";
 import {
   EditOutlined,
@@ -10,34 +11,61 @@ import {
   PlusCircleOutlined,
   UnlockOutlined,
 } from "@ant-design/icons";
-import { Pagination } from "antd";
+import { Pagination, Tag } from "antd";
 import AddNewProfession from "./AddNewProfession.jsx";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
   const professions = useSelector((state) => state.profession.professions.data);
+  const specialties = useSelector(
+    (state) => state.specialty.specialties.data || []
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  //Phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [pageSize, setPageSize] = useState(10); // Define page size state
 
-
-  // Call profession data
   useEffect(() => {
+    console.log(`Fetching data for page: ${currentPage}, limit: ${pageSize}`); // Debugging
+
     axios
-      .get(`${BASE_URL}/profession`)
+      .get(`${BASE_URL}/profession`, {
+        params: {
+          page: currentPage, // Make sure this is sent correctly
+          limit: pageSize, // Send the correct page size
+        },
+      })
       .then((res) => {
-        console.log("Total: " + res.data.total);
-        dispatch(setProfessions(res.data)); // Pass the entire response to the reducer
+        setTotalItems(res.data.total); // Update total number of items
+        dispatch(setProfessions(res.data)); // Update the profession data
       })
       .catch((err) => console.log("Error fetching professions", err));
+  }, [dispatch, currentPage, pageSize]); // This ensures the fetch happens when currentPage or pageSize changes
+
+  //Gọi data specialty
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/specialty`)
+      .then((res) => {
+        console.log("Total Specialties: " + res.data.total);
+        dispatch(setSpecialties(res.data));
+      })
+      .catch((err) => console.log("Error fetching specialties", err));
   }, [dispatch]);
 
+  const getSpecialtyNameById = (id) => {
+    const define = specialties.find((sp) => sp._id === id);
+    return define ? define.name : "Unknown";
+  };
+
+  //Đổi status lĩnh vực
   const toggleStatus = (id, currentStatus) => {
-    // Create the new status object
     const updatedStatus = { status: !currentStatus };
 
     axios
       .patch(`${BASE_URL}/profession/${id}`, updatedStatus)
       .then((res) => {
-        // Update the local state after a successful request
         dispatch(
           setProfessions({
             ...professions,
@@ -50,20 +78,27 @@ const ProfessionManagement = () => {
       .catch((err) => console.log("Error updating profession status", err));
   };
 
-  const onChange = (pageNumber) => {
-    console.log("Page: ", pageNumber);
+  const onPageChange = (pageNumber) => {
+    console.log(`Changing to page: ${pageNumber}`); // Debugging
+    setCurrentPage(pageNumber); // This updates the current page
+  };
+
+  const onPageSizeChange = (current, size) => {
+    setPageSize(size); // Update page size
+    setCurrentPage(1); // Reset to first page when changing page size
   };
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
   return (
     <Container fluid>
-      <AddNewProfession show={isModalOpen} close={handleCloseModal}/>
+      <AddNewProfession show={isModalOpen} close={handleCloseModal} />
       <Row>
         <h1>Quản lý lĩnh vực và chuyên môn</h1>
       </Row>
@@ -124,7 +159,16 @@ const ProfessionManagement = () => {
                     </Button>
                   </Col>
                 </Row>
-                <Card.Text>Chuyên môn:</Card.Text>
+                <Card.Text>
+                  Chuyên môn:
+                  {pro.specialty.length > 0 ? (
+                    pro.specialty.map((sp) => (
+                      <Tag key={sp}>{getSpecialtyNameById(sp)}</Tag>
+                    ))
+                  ) : (
+                    <span>Không có chuyên môn</span>
+                  )}
+                </Card.Text>
               </Card.Body>
             </Card>
           </Col>
@@ -132,10 +176,10 @@ const ProfessionManagement = () => {
       </Row>
       <Row>
         <Pagination
-          showQuickJumper
-          defaultCurrent={2}
-          total={500}
-          onChange={onChange}
+          current={currentPage}
+          pageSize={pageSize}
+          total={totalItems} // Total number of items (e.g., 500)
+          onChange={onPageChange} // Trigger onPageChange when a new page is clicked
         />
       </Row>
     </Container>

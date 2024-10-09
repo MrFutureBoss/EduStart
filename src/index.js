@@ -5,13 +5,15 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import store from "./redux/store.js";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import 'react-toastify/dist/ReactToastify.css';
 const container = document.getElementById("root");
 
 // Create a root.
 const root = ReactDOMClient.createRoot(container);
 
 root.render(
+
     <Provider store={store}>
       <App />
     </Provider>

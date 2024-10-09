@@ -1,3 +1,9 @@
+
+.limitwords{
+    font-weight: 500;
+    font-style: italic;
+}
+
 .hint_addspecialty{
     font-style: italic;
     font-weight: 450;
