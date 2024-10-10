@@ -27,18 +27,17 @@ const ProfessionManagement = () => {
   const [pageSize, setPageSize] = useState(10); // Define page size state
 
   useEffect(() => {
-    console.log(`Fetching data for page: ${currentPage}, limit: ${pageSize}`); // Debugging
-
+    console.log(`Fetching data for page: ${currentPage}, limit: ${pageSize}`);
     axios
       .get(`${BASE_URL}/profession`, {
         params: {
-          page: currentPage, // Make sure this is sent correctly
-          limit: pageSize, // Send the correct page size
+          page: currentPage,
+          limit: pageSize,
         },
       })
       .then((res) => {
-        setTotalItems(res.data.total); // Update total number of items
-        dispatch(setProfessions(res.data)); // Update the profession data
+        setTotalItems(res.data.total);
+        dispatch(setProfessions(res.data));
       })
       .catch((err) => console.log("Error fetching professions", err));
   }, [dispatch, currentPage, pageSize]); // This ensures the fetch happens when currentPage or pageSize changes
@@ -84,8 +83,20 @@ const ProfessionManagement = () => {
   };
 
   const onPageSizeChange = (current, size) => {
-    setPageSize(size); // Update page size
-    setCurrentPage(1); // Reset to first page when changing page size
+    setPageSize(size);
+    setCurrentPage(1);
+    axios
+      .get(`${BASE_URL}/profession`, {
+        params: {
+          page: 1,
+          limit: size,
+        },
+      })
+      .then((res) => {
+        setTotalItems(res.data.total);
+        dispatch(setProfessions(res.data));
+      })
+      .catch((err) => console.log("Error fetching professions", err));
   };
 
   const handleOpenModal = () => {
@@ -115,7 +126,7 @@ const ProfessionManagement = () => {
         {professions.map((pro) => (
           <Col sm={6} key={pro._id} style={{ margin: "auto" }}>
             <Card style={{ width: "100%", marginBottom: "5px" }}>
-              <Card.Img variant="top" src="holder.js/100px180" />
+              {/* <Card.Img variant="top" src="holder.js/100px180" /> */}
               <Card.Body>
                 <Row>
                   <Col sm={9}>
@@ -132,18 +143,18 @@ const ProfessionManagement = () => {
                     }}
                   >
                     {pro.status ? (
-                      <LockOutlined
+                      <UnlockOutlined
                         style={{
-                          color: "red",
+                          color: "green",
                           fontSize: "34px",
                           cursor: "pointer",
                         }}
                         onClick={() => toggleStatus(pro._id, pro.status)}
                       />
                     ) : (
-                      <UnlockOutlined
+                      <LockOutlined
                         style={{
-                          color: "green",
+                          color: "red",
                           fontSize: "34px",
                           cursor: "pointer",
                         }}
@@ -166,7 +177,7 @@ const ProfessionManagement = () => {
                       <Tag key={sp}>{getSpecialtyNameById(sp)}</Tag>
                     ))
                   ) : (
-                    <span>Không có chuyên môn</span>
+                    <span>Chưa có chuyên môn nào </span>
                   )}
                 </Card.Text>
               </Card.Body>
