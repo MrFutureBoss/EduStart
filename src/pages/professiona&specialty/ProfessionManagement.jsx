@@ -1,8 +1,8 @@
 import axios from "axios";
-import { BASE_URL } from "../utilities/initalValue.js";
+import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
-import { setProfessions } from "../redux/slice/ProfessionSlice.js";
-import { setSpecialties } from "../redux/slice/SpecialtySlice.js";
+import { setProfessions } from "../../redux/slice/ProfessionSlice.js";
+import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
 import { useEffect, useState } from "react";
 import { Card, Button, Col, Container, Row } from "react-bootstrap";
 import {
@@ -13,6 +13,8 @@ import {
 } from "@ant-design/icons";
 import { Pagination, Tag } from "antd";
 import AddNewProfession from "./AddNewProfession.jsx";
+import EditProfession from "./EditProfession.jsx";
+import Search from "antd/es/transfer/search.js";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
@@ -21,10 +23,12 @@ const ProfessionManagement = () => {
     (state) => state.specialty.specialties.data || []
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [professionId, setProfessionId] = useState("");
   //Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [pageSize, setPageSize] = useState(10); // Define page size state
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     console.log(`Fetching data for page: ${currentPage}, limit: ${pageSize}`);
@@ -40,7 +44,7 @@ const ProfessionManagement = () => {
         dispatch(setProfessions(res.data));
       })
       .catch((err) => console.log("Error fetching professions", err));
-  }, [dispatch, currentPage, pageSize]); // This ensures the fetch happens when currentPage or pageSize changes
+  }, [dispatch, currentPage, pageSize]);
 
   //Gọi data specialty
   useEffect(() => {
@@ -78,8 +82,8 @@ const ProfessionManagement = () => {
   };
 
   const onPageChange = (pageNumber) => {
-    console.log(`Changing to page: ${pageNumber}`); // Debugging
-    setCurrentPage(pageNumber); // This updates the current page
+    console.log(`Changing to page: ${pageNumber}`);
+    setCurrentPage(pageNumber);
   };
 
   const onPageSizeChange = (current, size) => {
@@ -107,20 +111,46 @@ const ProfessionManagement = () => {
     setIsModalOpen(false);
   };
 
+  const handleOpenEditModal = (id) => {
+    setProfessionId(id);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setProfessionId("");
+    setIsEditModalOpen(false);
+  };
+
   return (
     <Container fluid>
       <AddNewProfession show={isModalOpen} close={handleCloseModal} />
-      <Row>
-        <h1>Quản lý lĩnh vực và chuyên môn</h1>
+      <EditProfession
+        _id={professionId}
+        show={isEditModalOpen}
+        close={handleCloseEditModal}
+      />
+      <Row style={{ display: "flex", justifyContent: "center" }}>
+        <h1 style={{ width: "fit-content" }}>Quản lý lĩnh vực và chuyên môn</h1>
       </Row>
       <Row style={{ marginBottom: "10px" }}>
-        <Button
-          style={{ width: "10rem" }}
-          variant="primary"
-          onClick={handleOpenModal}
-        >
-          <PlusCircleOutlined /> Thêm lĩnh vực
-        </Button>
+        <Col sm={2}>
+          <Button
+            style={{ width: "10rem" }}
+            variant="primary"
+            onClick={handleOpenModal}
+          >
+            <PlusCircleOutlined /> Thêm lĩnh vực
+          </Button>
+        </Col>
+        <Col sm={5}>
+          <Search
+            style={{ height: "4rem", width: "10rem" }}
+            placeholder="Nhập tên lĩnh vực và chuyên môn cần tìm"
+            allowClear
+            enterButton="Search"
+            size="large"
+          />
+        </Col>
       </Row>
       <Row>
         {professions.map((pro) => (
@@ -165,19 +195,22 @@ const ProfessionManagement = () => {
                       style={{ borderWidth: "2px" }}
                       Button
                       variant="outline-primary"
+                      onClick={() => handleOpenEditModal(pro._id)}
                     >
                       <EditOutlined twoToneColor="#FFF" />
                     </Button>
                   </Col>
                 </Row>
                 <Card.Text>
-                  Chuyên môn:
+                  Chuyên môn: &nbsp;
                   {pro.specialty.length > 0 ? (
                     pro.specialty.map((sp) => (
                       <Tag key={sp}>{getSpecialtyNameById(sp)}</Tag>
                     ))
                   ) : (
-                    <span>Chưa có chuyên môn nào </span>
+                    <Tag style={{ fontStyle: "italic", color: "grey", fontSize:'14px' }}>
+                      Chưa có chuyên môn nào{" "}
+                    </Tag>
                   )}
                 </Card.Text>
               </Card.Body>
@@ -187,10 +220,15 @@ const ProfessionManagement = () => {
       </Row>
       <Row>
         <Pagination
+          showQuickJumper
+          style={{
+            display: "flex",
+            justifyContent: "center",
+          }}
           current={currentPage}
           pageSize={pageSize}
-          total={totalItems} // Total number of items (e.g., 500)
-          onChange={onPageChange} // Trigger onPageChange when a new page is clicked
+          total={totalItems}
+          onChange={onPageChange}
         />
       </Row>
     </Container>

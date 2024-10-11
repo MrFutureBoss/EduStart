@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import CustomModal from "../components/Modal/LargeModal.jsx";
-import ConfirmModal from "../components/Modal/ConfirmModal.jsx";
+import CustomModal from "../../components/Modal/LargeModal.jsx";
+import ConfirmModal from "../../components/Modal/ConfirmModal.jsx";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { Checkbox, Tag, message } from "antd";
-import "../style/Admin/Profession.css";
+import "../../style/Admin/Profession.css";
 import { CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
-import { BASE_URL } from "../utilities/initalValue.js";
+import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
-import { setProfessions } from "../redux/slice/ProfessionSlice.js";
+import { setProfessions } from "../../redux/slice/ProfessionSlice.js";
 
 const AddNewProfession = ({ show, close }) => {
   const dispatch = useDispatch();
@@ -175,7 +175,7 @@ const AddNewProfession = ({ show, close }) => {
               <Form.Control
                 style={{ marginBottom: "5px" }}
                 type="text"
-                placeholder="Trí tuệ nhân tạo"
+                placeholder="Công nghệ thông tin"
               />
               <small
                 className="limitwords"
@@ -223,7 +223,7 @@ const AddNewProfession = ({ show, close }) => {
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Deep fake"
+                placeholder="Lập trình Web"
                 value={specialtyInput}
                 onChange={handleSpecialtyInputChange}
                 onKeyDown={handleSpecialtyKeyDown}

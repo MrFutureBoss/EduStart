@@ -1,7 +1,7 @@
 import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-import ProfessionManagement from "./pages/ProfessionManagement.jsx";
 import { ToastContainer } from "react-toastify";
+import ProfessionManagement from "./pages/professiona&specialty/ProfessionManagement";
 // import SemesterIndex from "./pages/semester/index.js";
 // import SignIn from "./pages/SignIn.jsx";
 
