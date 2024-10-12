@@ -1,4 +1,3 @@
-// SemesterList.jsx
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -9,6 +8,8 @@ import {
   setError,
   setSemesterName,
   setSemesters,
+  setCounts,
+  setSemester,
 } from "../../redux/slice/semesterSlide";
 import { BASE_URL } from "../../utilities/initalValue";
 import {
@@ -17,50 +18,62 @@ import {
   Typography,
   Tag,
   Button,
-  Dropdown,
-  Menu,
   message,
+  Spin,
+  Row,
+  Col,
 } from "antd";
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import EditSemesterModal from "./EditSemesterModel";
-import CreateSemesterModal from "./CreateSemesterModel";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import EditSemesterModal from "./semesterModel/EditSemesterModel";
+import CreateSemesterModal from "./semesterModel/CreateSemesterModel";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 
 const SemesterList = () => {
   const dispatch = useDispatch();
-  const { semesters, loading, error, sid } = useSelector(
+  const navigate = useNavigate();
+  const { semesters, loading, error, sid, currentSemester } = useSelector(
     (state) => state.semester
   );
+
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 9 });
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [currentSemester, setCurrentSemester] = useState(null);
   const [createApiErrors, setCreateApiErrors] = useState(null);
   const [editApiErrors, setEditApiErrors] = useState(null);
 
   const handleSelectSemester = async (semester) => {
-    dispatch(setSid(semester._id));
-    dispatch(setSemesterName(semester.name));
+    dispatch(setSemester(semester));
+    dispatch(
+      setCounts({
+        studentCount: semester.studentCount,
+        teacherCount: semester.teacherCount,
+        mentorCount: semester.mentorCount,
+        classCount: semester.classCount,
+        endDate: semester.endDate,
+        startDate: semester.startDate,
+        semesterName: semester.name,
+        status: semester.status,
+      })
+    );
     try {
       dispatch(setLoading(true));
       const response = await axios.get(
         `${BASE_URL}/semester/${semester._id}/users`
       );
+
       dispatch(setUsersInSmt(response.data));
-      dispatch(setLoading(false));
+      navigate("/user-semester");
     } catch (err) {
       dispatch(setError(err.message));
+    } finally {
       dispatch(setLoading(false));
     }
   };
 
-  const handleEditSemester = (semester) => {
-    setCurrentSemester(semester);
+  const handleEditSemester = () => {
     setIsEditModalVisible(true);
   };
 
@@ -70,87 +83,67 @@ const SemesterList = () => {
         `${BASE_URL}/semester/update/${updatedSemester._id}`,
         updatedSemester
       );
+      message.success("Cập nhật thành công!");
+      refreshSemesters();
       setIsEditModalVisible(false);
-      setCurrentSemester(null);
       setEditApiErrors(null);
-      const semestersResponse = await axios.get(`${BASE_URL}/semester/all`);
-      dispatch(setSemesters(semestersResponse.data));
     } catch (err) {
-      if (err.response && err.response.status === 400) {
-        const errorFields = err.response.data.fields;
-        if (errorFields) {
-          setEditApiErrors(errorFields);
-          console.log(errorFields);
-        } else {
-          message.error(
-            err.response.data.message || "Cập nhật kỳ học thất bại!"
-          );
-        }
-      } else {
-        message.error("Có lỗi không mong đợi xảy ra.");
-        console.error("Error:", err);
-      }
+      handleError(err, setEditApiErrors);
     }
   };
+
   const handleCreateModalOk = async (newSemester) => {
     try {
       await axios.post(`${BASE_URL}/semester/create`, newSemester);
+      message.success("Tạo kỳ học thành công!");
+      refreshSemesters();
       setIsCreateModalVisible(false);
       setCreateApiErrors(null);
-
-      const semestersResponse = await axios.get(`${BASE_URL}/semester/all`);
-      dispatch(setSemesters(semestersResponse.data));
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        const errorFields = error.response.data.fields;
-
-        if (errorFields) {
-          setCreateApiErrors(errorFields);
-        } else {
-          message.error(
-            error.response.data.message || "Có lỗi xảy ra khi tạo kỳ học"
-          );
-        }
-      } else {
-        message.error("Đã xảy ra lỗi không mong đợi.");
-        console.error("Error:", error);
-      }
+      handleError(error, setCreateApiErrors);
     }
   };
 
-  const handleCreateModalCancel = () => {
-    setIsCreateModalVisible(false);
-    setCreateApiErrors(null);
+  const refreshSemesters = async () => {
+    try {
+      const semestersResponse = await axios.get(`${BASE_URL}/semester/all`);
+      dispatch(setSemesters(semestersResponse.data));
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
   };
 
-  const handleEditModalCancel = () => {
-    setIsEditModalVisible(false);
-    setCurrentSemester(null);
-    setEditApiErrors(null);
+  const handleError = (err, setApiErrors) => {
+    if (err.response && err.response.status === 400) {
+      const errorFields = err.response.data.fields;
+      if (errorFields) {
+        setApiErrors(errorFields);
+      } else {
+        message.error(err.response.data.message || "Có lỗi xảy ra.");
+      }
+    } else {
+      message.error("Có lỗi không mong đợi xảy ra.");
+    }
   };
 
-  const menu = (semester) => (
-    <Menu>
-      <Menu.Item
-        key="edit"
-        icon={<EditOutlined />}
-        onClick={(e) => {
-          e.domEvent.stopPropagation();
-          handleEditSemester(semester);
+  const handlePaginationChange = (page, pageSize) => {
+    setPagination({ current: page, pageSize });
+  };
+
+  if (loading)
+    return (
+      <Spin
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
         }}
-      >
-        Chỉnh sửa
-      </Menu.Item>
-    </Menu>
-  );
-
-  if (loading) {
-    return <p>Đang tải dữ liệu...</p>;
-  }
-
-  if (error) {
-    return <p>Lỗi: {error}</p>;
-  }
+        tip="Đang tải dữ liệu..."
+        size="large"
+      />
+    );
+  if (error) return <p>Lỗi: {error}</p>;
 
   return (
     <div className="semester-list">
@@ -158,11 +151,12 @@ const SemesterList = () => {
         style={{
           display: "flex",
           justifyContent: "center",
-          marginBottom: "20px",
+          marginBottom: "6px",
           marginLeft: "auto",
         }}
       >
         <Button
+          style={{ backgroundColor: "#4682B4", color: "#FFF" }}
           type="primary"
           shape="circle"
           icon={<PlusOutlined />}
@@ -171,9 +165,12 @@ const SemesterList = () => {
       </div>
 
       <List
+        grid={{ gutter: 16, column: 3 }} // Hiển thị thành 3 cột
         dataSource={semesters}
         pagination={{
-          pageSize: 3,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          onChange: handlePaginationChange,
         }}
         renderItem={(semester) => (
           <List.Item>
@@ -192,21 +189,25 @@ const SemesterList = () => {
               }}
               onClick={() => handleSelectSemester(semester)}
             >
-              <Dropdown overlay={menu(semester)} trigger={["click"]}>
+              {(semester.status === "Ongoing" ||
+                semester.status === "Upcoming") && (
                 <Button
-                  shape="circle"
-                  icon={<EllipsisOutlined />}
+                  type="link"
+                  icon={<EditOutlined />}
                   style={{
                     position: "absolute",
                     top: "10px",
                     right: "10px",
-                    border: "none",
-                    boxShadow: "none",
+                    backgroundColor: "#4682B4",
+                    color: "#FFF",
+                    borderRadius: "50%",
                   }}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </Dropdown>
-
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditSemester(semester);
+                  }}
+                ></Button>
+              )}
               <div>
                 <h3 style={{ marginBottom: "10px" }}>{semester.name}</h3>
                 <div style={{ marginBottom: "10px" }}>
@@ -232,15 +233,14 @@ const SemesterList = () => {
       <EditSemesterModal
         visible={isEditModalVisible}
         onOk={handleEditModalOk}
-        onCancel={handleEditModalCancel}
+        onCancel={() => setIsEditModalVisible(false)}
         semester={currentSemester}
         apiErrors={editApiErrors}
       />
-
       <CreateSemesterModal
         visible={isCreateModalVisible}
         onOk={handleCreateModalOk}
-        onCancel={handleCreateModalCancel}
+        onCancel={() => setIsCreateModalVisible(false)}
         apiErrors={createApiErrors}
       />
     </div>
