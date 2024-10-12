@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { setFetchError } from "../redux/slice/ErrorSlice.js";
 import { useEffect } from "react";
 import { Card, Row, Col, Button, Input, Typography, Modal } from "antd";
-import "../Styles/login.css";
+import "../style/login.css";
 import {
   showAutoCloseAlert,
   showErrorAlert,
