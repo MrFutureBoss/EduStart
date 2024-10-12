@@ -1,0 +1,313 @@
+import React from "react";
+import { Modal, Form, Input } from "antd";
+import { useDispatch } from "react-redux";
+import { BASE_URL } from "../../../utilities/initalValue";
+import {
+  setCounts,
+  setCurrentSemester,
+  setSemesterName,
+  setSid,
+  setUsersInSmt,
+} from "../../../redux/slice/semesterSlide";
+import axios from "axios";
+import {
+  showSuccessAlert,
+  showErrorAlert,
+  showWarningAlert,
+} from "../../SweetAlert/index"; // Adjust the import path as needed
+
+const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
+  const [form] = Form.useForm();
+  const dispatch = useDispatch();
+
+  // Auto-fill email when memberCode changes
+  const handleMemberCodeChange = (e) => {
+    const value = e.target.value.trim().toLowerCase();
+    if (value) {
+      const email = `${value}@fpt.edu.vn`;
+      form.setFieldsValue({ email, memberCode: value });
+    } else {
+      form.setFieldsValue({ email: "" });
+    }
+  };
+
+  // Handle modal OK with confirmation
+  const handleModalOk = () => {
+    form
+      .validateFields()
+      .then(() => {
+        // Show confirmation alert
+        showWarningAlert(
+          "Xác nhận thêm người dùng",
+          "Bạn có chắc chắn muốn thêm người dùng này không?"
+        ).then((result) => {
+          if (result.isConfirmed) {
+            submitForm();
+          }
+        });
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  };
+  console.log(semesterId);
+
+  // Submit form data
+  const submitForm = async () => {
+    try {
+      const values = await form.validateFields();
+      const response = await axios.post(`${BASE_URL}/admins/add-user-hand`, {
+        semesterId,
+        role,
+        userInput: {
+          username: values.username,
+          rollNumber: values.rollNumber,
+          memberCode: values.memberCode,
+          Email: values.email,
+          phoneNumber: values.phoneNumber,
+        },
+      });
+
+      if (response.status === 201) {
+        showSuccessAlert("Thành công", response.data.message);
+        onOk();
+        await fetchSemesterData();
+        form.resetFields();
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        if (error.response.data.errors) {
+          // Handle multiple errors
+          error.response.data.errors.forEach((err) => {
+            form.setFields([
+              {
+                name: err.field,
+                errors: [err.message],
+              },
+            ]);
+          });
+        } else if (error.response.data.field && error.response.data.message) {
+          // Handle single error
+          const { field, message: errorMessage } = error.response.data;
+          form.setFields([
+            {
+              name: field,
+              errors: [errorMessage],
+            },
+          ]);
+        }
+      } else {
+        showErrorAlert(
+          "Lỗi",
+          error.message || "Có lỗi xảy ra khi thêm người dùng."
+        );
+      }
+    }
+  };
+
+  // Fetch and update semester data
+  const fetchSemesterData = async () => {
+    try {
+      const responses = await axios.get(`${BASE_URL}/semester/current`);
+      const semester = responses.data;
+      dispatch(setSid(semester._id));
+      dispatch(setSemesterName(semester.name));
+      dispatch(setCurrentSemester(semester));
+      dispatch(
+        setCounts({
+          studentCount: semester.studentCount,
+          teacherCount: semester.teacherCount,
+          mentorCount: semester.mentorCount,
+          classCount: semester.classCount,
+          endDate: semester.endDate,
+          startDate: semester.startDate,
+          semesterName: semester.name,
+          status: semester.status,
+        })
+      );
+      const userResponse = await axios.get(
+        `${BASE_URL}/semester/${semesterId}/users`
+      );
+      dispatch(setUsersInSmt(userResponse.data));
+    } catch (error) {
+      showErrorAlert("Lỗi", "Không thể lấy dữ liệu học kỳ hiện tại.");
+      console.error(error);
+    }
+  };
+
+  // Handle modal cancel
+  const handleModalCancel = () => {
+    onCancel();
+    form.resetFields();
+  };
+
+  // Custom validator for username when role === 4
+  const validateUsername = (_, value) => {
+    if (role !== 4) {
+      if (!value || value.trim() === "") {
+        return Promise.reject("Vui lòng nhập tên người dùng!");
+      }
+      return Promise.resolve();
+    }
+
+    if (!value || value.trim() === "") {
+      return Promise.reject("Vui lòng nhập họ và tên!");
+    }
+
+    const hasConsecutiveUpperCase = /[A-Z]{2,}/.test(value);
+    if (hasConsecutiveUpperCase) {
+      return Promise.reject(
+        "Tên không hợp lệ: Không được có hai chữ cái viết hoa liền kề."
+      );
+    }
+
+    // Optionally, format the username to have capitalized words
+    const formattedValue = value
+      .split(" ")
+      .map((word) =>
+        word.length > 0
+          ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          : ""
+      )
+      .join(" ");
+    form.setFieldsValue({ username: formattedValue });
+
+    return Promise.resolve();
+  };
+
+  // Custom validator for rollNumber when role === 4
+  const validateRollNumber = (_, value) => {
+    if (role !== 4) {
+      return Promise.resolve();
+    }
+
+    if (!value) {
+      return Promise.reject("Vui lòng nhập MSSV!");
+    }
+
+    const isValid = /^HE\d{6}$|^HS\d{6}$|^HA\d{6}$/.test(value);
+    if (!isValid) {
+      return Promise.reject("MSSV phải có định dạng HE/HS/HA + 6 chữ số");
+    }
+
+    return Promise.resolve();
+  };
+
+  return (
+    <Modal
+      title="Thêm người dùng thủ công"
+      open={visible}
+      onOk={handleModalOk}
+      onCancel={handleModalCancel}
+      okText="Thêm"
+      cancelText="Hủy"
+      destroyOnClose
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={{
+          username: "",
+          rollNumber: "",
+          memberCode: "",
+          Email: "",
+          phoneNumber: "",
+        }}
+      >
+        {role === 4 ? (
+          <>
+            <Form.Item
+              name="username"
+              label="Họ và tên"
+              rules={[
+                {
+                  validator: validateUsername,
+                },
+              ]}
+              hasFeedback
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="rollNumber"
+              label="MSSV"
+              rules={[
+                {
+                  validator: validateRollNumber,
+                },
+              ]}
+              hasFeedback
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="memberCode"
+              label="Member Code"
+              rules={[
+                { required: true, message: "Vui lòng nhập mã thành viên!" },
+                {
+                  pattern: /^[a-z0-9]+$/,
+                  message: "Mã thành viên chỉ chứa chữ thường và số!",
+                },
+              ]}
+              hasFeedback
+            >
+              <Input onChange={handleMemberCodeChange} />
+            </Form.Item>
+            <Form.Item
+              name="email"
+              label="Email"
+              rules={[
+                { required: true, message: "Vui lòng nhập email!" },
+                { type: "email", message: "Email không hợp lệ!" },
+              ]}
+              hasFeedback
+            >
+              <Input />
+            </Form.Item>
+          </>
+        ) : (
+          <>
+            <Form.Item
+              name="username"
+              label="Tên người dùng"
+              rules={[
+                { required: true, message: "Vui lòng nhập tên người dùng!" },
+              ]}
+              hasFeedback
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="email"
+              label="Email"
+              rules={[
+                { required: true, message: "Vui lòng nhập email!" },
+                { type: "email", message: "Email không hợp lệ!" },
+              ]}
+              hasFeedback
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="phoneNumber"
+              label="Số điện thoại"
+              rules={[
+                { required: true, message: "Vui lòng nhập số điện thoại!" },
+                {
+                  pattern: /^[0-9]{10,15}$/,
+                  message: "Số điện thoại không hợp lệ!",
+                },
+              ]}
+              hasFeedback
+            >
+              <Input />
+            </Form.Item>
+          </>
+        )}
+      </Form>
+    </Modal>
+  );
+};
+
+export default UserAddModal;
