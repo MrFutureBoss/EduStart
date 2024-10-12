@@ -20,3 +20,19 @@
     width: fit-content;
     padding: 4px 7px;
 }
+
+.speicalty_edittag{
+    display: flex;
+    align-items: center;
+    background-color: rgb(68, 81, 197);
+    color: #FFF;
+    border-radius: 8px;
+    width: fit-content;
+    padding: 4px 7px;
+    cursor: pointer;
+}
+
+.key_enter{
+    border: 1px solid gray;
+    padding: 2px;
+}

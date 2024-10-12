@@ -4,23 +4,72 @@ import ConfirmModal from "../../components/Modal/ConfirmModal.jsx";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { Checkbox, Tag, message } from "antd";
 import "../../style/Admin/Profession.css";
-import { CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import {
+  CloseCircleOutlined,
+  CheckCircleOutlined,
+  LockOutlined,
+  UnlockOutlined,
+  EnterOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfessions } from "../../redux/slice/ProfessionSlice.js";
+import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
 
 const AddNewProfession = ({ show, close }) => {
   const dispatch = useDispatch();
   const professions = useSelector((state) => state.profession.professions.data);
-  const [specialties, setSpecialties] = useState([]);
+  // const specialtiesData = useSelector(
+  //   (state) => state.specialty.specialties.data || []
+  // );
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [specialties, setSpecialtiesData] = useState([]);
   const [specialtyInput, setSpecialtyInput] = useState("");
   const [professionName, setProfessionName] = useState("");
   const [isActive, setIsActive] = useState(false);
+  const [isNameDuplicate, setIsNameDuplicate] = useState(false);
+  const [isInvalidWhitespace, setIsInvalidWhitespace] = useState(false);
+  const [isOnlyNumber, setIsOnlyNumber] = useState(false);
+  const [isNameDuplicate2, setIsNameDuplicate2] = useState(false);
+  const [isInvalidWhitespace2, setIsInvalidWhitespace2] = useState(false);
+  const [isOnlyNumber2, setIsOnlyNumber2] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
   const MAX_LENGTH = 30;
   const REGEX =
-    /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠưăâêôơưẠ-ỹ\s-]+$/u;
+    /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂÊÔƠưăâêôơưẠ-ỹ0-9\s-]+$/u;
+
+  //Check điều kiện để được submit thêm vào
+  useEffect(() => {
+    const isProfessionValid =
+      professionName.length > 1 &&
+      professionName.length <= MAX_LENGTH &&
+      !isInvalidWhitespace &&
+      REGEX.test(professionName) &&
+      !isNameDuplicate &&
+      !isOnlyNumber;
+
+    const isSpecialtyValid =
+      specialtyInput.length === 0 ||
+      (specialtyInput.length > 1 &&
+        specialtyInput.length <= MAX_LENGTH &&
+        REGEX.test(specialtyInput) &&
+        !isNameDuplicate2 &&
+        !isInvalidWhitespace2 &&
+        !isOnlyNumber2);
+
+    setIsFormValid(isProfessionValid && isSpecialtyValid);
+  }, [
+    professionName,
+    isInvalidWhitespace,
+    isNameDuplicate,
+    specialtyInput,
+    isNameDuplicate2,
+    specialties,
+    isInvalidWhitespace2,
+    isOnlyNumber2,
+  ]);
 
   const handleSubmit = async () => {
     // Validate data before sending
@@ -57,30 +106,113 @@ const AddNewProfession = ({ show, close }) => {
           data: [newProfession, ...professions],
           total: professions.length + 1,
         };
-        dispatch(setProfessions(updatedProfessions));
+        // const newSpecialties =
+        //   specialties.length > 0
+        //     ? specialties.map((specialty) => ({
+        //         name: specialty,
+        //         status: isActive,
+        //       }))
+        //     : [];
 
+        // const updateSpecialties = {
+        //   data: [...newSpecialties, ...specialtiesData],
+        //   total: specialtiesData.length + newSpecialties.length,
+        // };
+
+        // Fetch specialties again to ensure UI updates correctly
+        const specialtiesResponse = await axios.get(`${BASE_URL}/specialty`);
+        if (specialtiesResponse.status === 200) {
+          dispatch(setSpecialties(specialtiesResponse.data));
+        }
+
+        dispatch(setProfessions(updatedProfessions));
+        // console.log("Check redux: " + JSON.stringify(newSpecialties, null, 2))
+        // dispatch(setSpecialties(updateSpecialties.data));
         // Reset form
         setProfessionName("");
-        setSpecialties([]);
+        setSpecialtiesData([]);
         setIsActive(false);
 
         setShowConfirmModal(false);
         close();
+      }
+    } catch (error) {
+      // Kiểm tra nếu back-end trả về lỗi cụ thể
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        message.error(error.response.data.message); // Hiển thị lỗi từ back-end (VD: "Lĩnh vực đã tồn tại")
       } else {
         message.error("Có lỗi xảy ra khi thêm lĩnh vực.");
       }
-    } catch (error) {
-      message.error("Có lỗi xảy ra khi thêm lĩnh vực.");
       console.error("Error adding profession:", error);
     }
   };
 
+  const resetFormAndClose = () => {
+    // Reset các trạng thái của form về mặc định
+    setProfessionName("");
+    setSpecialties([]);
+    setIsActive(false);
+    setIsNameDuplicate(false);
+    setIsInvalidWhitespace(false);
+    setIsOnlyNumber(false);
+    setIsNameDuplicate2(false);
+    setIsInvalidWhitespace2(false);
+    setIsOnlyNumber2(false);
+    setShowConfirmModal(false);
+
+    // Đóng modal
+    close();
+  };
+
+  const handleClose = () => {
+    // Nếu có nội dung đã nhập, yêu cầu xác nhận trước khi đóng
+    if (professionName.length > 1 || specialtyInput.length > 1) {
+      setShowExitConfirmModal(true);
+    } else {
+      // Nếu không có nội dung, đóng modal và reset trạng thái
+      resetFormAndClose();
+    }
+  };
+
+  //Hàm xử lí chữ cái đầu luôn viết hoa
+  const capitalizeEachWord = (str) => {
+    return str
+      .trim()
+      .split(/\s+/) // Tách chuỗi thành các từ dựa trên khoảng trắng
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" "); // Ghép lại thành một chuỗi
+  };
+
   //Hàm xử lý nhập chuyên môn
   const handleSpecialtyInputChange = (e) => {
-    const value = e.target.value.normalize("NFC");
-    //  Validate giới hạn ký tự
+    let value = e.target.value.normalize("NFC");
+    //Validate giới hạn ký tự
     if (value.length <= MAX_LENGTH) {
       setSpecialtyInput(value);
+      //Validate có trùng tên chuyên môn hoặc lĩnh vực nào trong data không
+      checkDuplicateSpecialtyName(value);
+      //Validate có spam khoảng trắng không
+      if (value.length === 0) {
+        setIsInvalidWhitespace2(false);
+        setIsOnlyNumber2(false);
+      } else if (/^\s*$/.test(value) || /\s{2,}/.test(value)) {
+        setIsInvalidWhitespace2(true);
+      } else {
+        setIsInvalidWhitespace2(false);
+      }
+      // Validate nếu chuỗi chỉ chứa số
+      if (/^[0-9\s]+$/.test(value)) {
+        setIsOnlyNumber2(true);
+      } else {
+        setIsOnlyNumber2(false);
+      }
+
+      // Reset trạng thái kiểm tra trùng tên
+      setIsNameDuplicate2(false);
     } else {
       message.warning(`Tên chuyên môn không được dài quá ${MAX_LENGTH} ký tự.`);
     }
@@ -88,7 +220,7 @@ const AddNewProfession = ({ show, close }) => {
 
   const handleSpecialtyKeyDown = (e) => {
     if (e.key === "Enter") {
-      const trimmedSpecialty = specialtyInput.trim();
+      const trimmedSpecialty = capitalizeEachWord(specialtyInput.trim());
 
       // Validate chuyên môn nhập lớn hơn 1 kí tự
       if (trimmedSpecialty.length <= 1) {
@@ -98,27 +230,74 @@ const AddNewProfession = ({ show, close }) => {
       }
       // Validate chuyên môn không trùng nhau
       if (specialties.includes(trimmedSpecialty)) {
-        message.error("Tên chuyên môn lúc thêm đã tồn tại.");
+        message.error(
+          "Tên chuyên môn của bạn đang trùng chuyên môn mà bạn vừa thêm."
+        );
         e.preventDefault();
         return;
       }
 
-      setSpecialties([...specialties, trimmedSpecialty]);
-      setSpecialtyInput(""); // Reset input after add new
+      //Validate chuyên môn có trùng lĩnh vực vừa nhập không
+      if (trimmedSpecialty === professionName) {
+        message.error(
+          "Tên chuyên môn của bạn đang trùng tên lĩnh vực mà bạn vừa nhập."
+        );
+        e.preventDefault();
+        return;
+      }
+
+      //Validate chuyên môn trùng với chuyên môn trong data
+      if (isNameDuplicate2) {
+        message.error(
+          "Tên chuyên môn đang trùng với lĩnh vực hoặc chuyên môn đã tồn tại khác."
+        );
+        e.preventDefault();
+        return;
+      }
+
+      if (isOnlyNumber2 || isInvalidWhitespace2) {
+        message.error("Hãy điền đúng điều kiện nhập trước khi Enter");
+        e.preventDefault();
+        return;
+      }
+      setSpecialtiesData([...specialties, trimmedSpecialty]);
+      setSpecialtyInput("");
       e.preventDefault();
     }
   };
 
   const handleRemoveSpecialty = (removedSpecialty) => {
-    setSpecialties(
+    setSpecialtiesData(
       specialties.filter((specialty) => specialty !== removedSpecialty)
     );
   };
 
   //Hàm xử lý nhập lĩnh vực
   const handleProfessionNameChange = (e) => {
-    const value = e.target.value.normalize("NFC"); // Normalize the input
+    let value = e.target.value.normalize("NFC");
+    value = capitalizeEachWord(value);
+    // Validate nếu chuỗi chỉ chứa khoảng trắng hoặc có khoảng trắng liên tục
+    if (value.length === 0) {
+      setIsInvalidWhitespace(false);
+    } else if (/^\s*$/.test(value) || /\s{2,}/.test(value)) {
+      setIsInvalidWhitespace(true);
+    } else {
+      setIsInvalidWhitespace(false);
+    }
+
+    // Validate nếu chuỗi chỉ chứa số
+    if (/^[0-9\s]+$/.test(value)) {
+      setIsOnlyNumber(true);
+    } else {
+      setIsOnlyNumber(false);
+    }
     setProfessionName(value);
+    // Reset trạng thái kiểm tra trùng tên
+    setIsNameDuplicate(false);
+    // Gọi API để kiểm tra tên trùng nếu có ít nhất 2 ký tự
+    if (value.length > 1) {
+      checkDuplicateProfessionName(value);
+    }
   };
 
   const handleProfessionNameKeyDown = (e) => {
@@ -144,6 +323,58 @@ const AddNewProfession = ({ show, close }) => {
 
   const handleCancelSubmit = () => {
     setShowConfirmModal(false);
+  };
+
+  const checkDuplicateProfessionName = async (name) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/profession/search?name=${name}`
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        if (
+          response.data.professions.length > 0 ||
+          response.data.specialties.length > 0
+        ) {
+          setIsNameDuplicate(true);
+        } else {
+          setIsNameDuplicate(false);
+        }
+      } else if (response.status === 404) {
+        setIsNameDuplicate(false);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setIsNameDuplicate(false);
+      } else {
+        console.error("Error checking profession name:", error);
+      }
+    }
+  };
+
+  const checkDuplicateSpecialtyName = async (name) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/profession/search?name=${name}`
+      );
+      console.log("dup name:" + name);
+      console.log("dup name2:" + professionName);
+      if (
+        response.data.professions.length > 0 ||
+        response.data.specialties.length > 0 ||
+        name === professionName
+      ) {
+        setIsNameDuplicate2(true);
+      } else {
+        setIsNameDuplicate2(false);
+      }
+
+      if (response.status === 404) {
+        console.log("Your specialty is not duplicate");
+      }
+    } catch (error) {
+      console.error("Error checking profession name:", error);
+    }
   };
 
   //Pop-up thêm chuyên môn và lĩnh vực
@@ -175,12 +406,40 @@ const AddNewProfession = ({ show, close }) => {
               <Form.Control
                 style={{ marginBottom: "5px" }}
                 type="text"
-                placeholder="Công nghệ thông tin"
-              />
+                placeholder="VD: Công nghệ thông tin"
+              />{" "}
               <small
                 className="limitwords"
                 style={{
-                  display: professionName.length === 0 ? "none" : "block",
+                  display: professionName.length > 1 ? "none" : "block",
+                }}
+              >
+                {/* <ExclamationCircleOutlined style={{ color: "red" }} /> */}
+                <span style={{ color: "red" }}>*</span>
+                &nbsp;Điền ít nhất 2 kí tự
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: isInvalidWhitespace ? "block" : "none",
+                }}
+              >
+                <CloseCircleOutlined style={{ color: "red" }} />
+                &nbsp;Không được bắt đầu hoặc liên tục chứa khoảng trắng
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: isOnlyNumber ? "block" : "none",
+                }}
+              >
+                <CloseCircleOutlined style={{ color: "red" }} />
+                &nbsp;Tên không được chỉ mỗi số
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: professionName.length <= 1 ? "none" : "block",
                 }}
               >
                 {professionName.length > 1 &&
@@ -203,7 +462,7 @@ const AddNewProfession = ({ show, close }) => {
               <small
                 className="limitwords"
                 style={{
-                  display: professionName.length === 0 ? "none" : "block",
+                  display: professionName.length <= 1 ? "none" : "block",
                 }}
               >
                 {REGEX.test(professionName) ? (
@@ -211,7 +470,20 @@ const AddNewProfession = ({ show, close }) => {
                 ) : (
                   <CloseCircleOutlined style={{ color: "red" }} />
                 )}
-                &nbsp;Không bao gồm số và kí tự đặc biệt
+                &nbsp;Không bao gồm kí tự đặc biệt
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: professionName.length <= 1 ? "none" : "block",
+                }}
+              >
+                {isNameDuplicate ? (
+                  <CloseCircleOutlined style={{ color: "red" }} />
+                ) : (
+                  <CheckCircleOutlined style={{ color: "green" }} />
+                )}
+                &nbsp;Tên không trùng với lĩnh vực hoặc chuyên môn khác
               </small>
             </Form.Group>
             <Form.Group
@@ -223,7 +495,7 @@ const AddNewProfession = ({ show, close }) => {
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Lập trình Web"
+                placeholder="VD: Lập trình Web"
                 value={specialtyInput}
                 onChange={handleSpecialtyInputChange}
                 onKeyDown={handleSpecialtyKeyDown}
@@ -232,7 +504,35 @@ const AddNewProfession = ({ show, close }) => {
               <small
                 className="limitwords"
                 style={{
-                  display: specialtyInput.length === 0 ? "none" : "block",
+                  display: specialtyInput.length > 1 ? "none" : "block",
+                }}
+              >
+                {/* <ExclamationCircleOutlined style={{ color: "red" }} /> */}
+                <span style={{ color: "red" }}>*</span>
+                &nbsp;Điền ít nhất 2 kí tự
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: isInvalidWhitespace2 ? "block" : "none",
+                }}
+              >
+                <CloseCircleOutlined style={{ color: "red" }} />
+                &nbsp;Không được bắt đầu hoặc liên tục chứa khoảng trắng
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: isOnlyNumber2 ? "block" : "none",
+                }}
+              >
+                <CloseCircleOutlined style={{ color: "red" }} />
+                &nbsp;Tên không được chỉ mỗi số
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: specialtyInput.length <= 1 ? "none" : "block",
                 }}
               >
                 {specialtyInput.length > 1 &&
@@ -255,7 +555,7 @@ const AddNewProfession = ({ show, close }) => {
               <small
                 className="limitwords"
                 style={{
-                  display: specialtyInput.length === 0 ? "none" : "block",
+                  display: specialtyInput.length <= 1 ? "none" : "block",
                 }}
               >
                 {REGEX.test(specialtyInput) ? (
@@ -263,11 +563,27 @@ const AddNewProfession = ({ show, close }) => {
                 ) : (
                   <CloseCircleOutlined style={{ color: "red" }} />
                 )}
-                &nbsp;Không bao gồm số và kí tự đặc biệt
+                &nbsp;Không bao gồm kí tự đặc biệt
+              </small>
+              <small
+                className="limitwords"
+                style={{
+                  display: specialtyInput.length <= 1 ? "none" : "block",
+                }}
+              >
+                {isNameDuplicate2 || specialtyInput === professionName ? (
+                  <CloseCircleOutlined style={{ color: "red" }} />
+                ) : (
+                  <CheckCircleOutlined style={{ color: "green" }} />
+                )}
+                &nbsp;Tên không trùng với lĩnh vực hoặc chuyên môn khác
               </small>
               <small className="hint_addspecialty">
-                (*) Nếu thêm 1 chuyên môn mới hãy nhấn enter để lưu khi nhập
-                xong
+                (*) Nếu thêm 1 chuyên môn mới hãy nhấn{" "}
+                <span className="key_enter">
+                  <EnterOutlined /> Enter
+                </span>{" "}
+                để lưu khi nhập xong
               </small>
             </Form.Group>
             <Form.Group style={{ marginBottom: "10px" }}>
@@ -295,7 +611,20 @@ const AddNewProfession = ({ show, close }) => {
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
           >
-            Cho hoạt động
+            Cho hoạt động{" "}
+            {isActive ? (
+              <UnlockOutlined
+                style={{
+                  color: "green",
+                }}
+              />
+            ) : (
+              <LockOutlined
+                style={{
+                  color: "red",
+                }}
+              />
+            )}
           </Checkbox>
         </Col>
       </Row>
@@ -305,10 +634,14 @@ const AddNewProfession = ({ show, close }) => {
   //Footer button
   const modalFooter = (
     <>
-      <Button variant="success" onClick={handleConfirmSubmit}>
+      <Button
+        variant="success"
+        onClick={handleConfirmSubmit}
+        disabled={!isFormValid}
+      >
         Thêm Vào
       </Button>
-      <Button variant="danger" onClick={close}>
+      <Button variant="danger" onClick={handleClose}>
         Thoát
       </Button>
     </>
@@ -329,6 +662,16 @@ const AddNewProfession = ({ show, close }) => {
         content="Bạn có chắc chắn muốn thêm lĩnh vực và chuyên môn không?"
         onConfirm={handleSubmit}
         onCancel={handleCancelSubmit}
+      />
+      <ConfirmModal
+        show={showExitConfirmModal}
+        title="Xác nhận thoát"
+        content="Nếu bạn thoát hệ thống sẽ không lưu những gì bạn đã nhập đâu!"
+        onConfirm={() => {
+          setShowExitConfirmModal(false);
+          resetFormAndClose();
+        }}
+        onCancel={() => setShowExitConfirmModal(false)}
       />
     </>
   );
