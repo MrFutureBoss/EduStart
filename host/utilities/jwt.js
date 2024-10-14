@@ -3,7 +3,7 @@ import createError from "http-errors";
 
 function signAccessToken(userId, role) {
   return new Promise((resolve, reject) => {
-    const payload = { role };
+    const payload = { _id: userId, role };
     const secret = process.env.SECRETKEY;
     const options = {
       expiresIn: "12h",
@@ -31,15 +31,13 @@ function verifyAccessToken(req, res, next) {
     if (err) {
       return next(createError.Unauthorized());
     }
-    req.user = { _id: payload._id, role: payload.role }; 
+    req.user = { _id: payload._id, role: payload.role };
     next();
-    console.log("role", req.user);
-    
   });
 }
 function verifyRole(allowedRoles) {
   return (req, res, next) => {
-    const { role } = req.payload;
+    const { role } = req.user;
 
     if (!allowedRoles.includes(role)) {
       return next(
@@ -57,7 +55,7 @@ function authorize(allowedRoles) {
   }
 
   return (req, res, next) => {
-    const { role } = req.user; 
+    const { role } = req.user;
 
     console.log(`Role from token (req.user.role): ${role}`);
     console.log(`Allowed roles: ${allowedRoles}`);
@@ -66,15 +64,15 @@ function authorize(allowedRoles) {
       return next(createError.Forbidden("Role not found in token"));
     }
 
-    const roleAsString = String(role);  
+    const roleAsString = String(role);
 
-    const allowedRolesAsString = allowedRoles.map(String);  
+    const allowedRolesAsString = allowedRoles.map(String);
 
     if (!allowedRolesAsString.includes(roleAsString)) {
       return next(createError.Forbidden("Permission denied"));
     }
 
-    next();  
+    next();
   };
 }
 export { signAccessToken, verifyAccessToken, authorize, verifyRole };
