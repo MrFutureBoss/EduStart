@@ -12,16 +12,18 @@ import SemesterList from "./components/semester/SemesterList.js";
 function App() {
   return (
     <Routes>
-      <Route element={<AdminLayout />}>
-        <Route path="/semester-list" element={<SemesterList />} />
-        <Route path="/current-semester" element={<UserListSemester />} />
-        <Route path="/pending-users" element={<PendingUsers />} />
-        <Route path="/user-semester" element={<UserListSemester />} />
-        <Route path="/pending-user" element={<PendingUsers />} />
+      {/* Layout dành cho Admin, bao gồm các route bên trong */}
+      <Route path="/admin-dashboard" element={<AdminLayout />}>
+        <Route path="semester-list" element={<SemesterList />} />
+        <Route path="current-semester" element={<UserListSemester />} />
+        <Route path="pending-user" element={<PendingUsers />} />
+        <Route
+          path="semester-list/user-semester"
+          element={<UserListSemester />}
+        />
       </Route>
       {/* <Route path="/" element={<ProfessionManagement />} /> */}
-      {/* <Route path="/" element={<AdminLayout />} /> */}
-      {/* <Route path="/" element={<SignIn />} /> */}
+      <Route path="/" element={<SignIn />} />
     </Routes>
   );
 }
