@@ -31,9 +31,7 @@ const CreateSemesterModal = ({ visible, onOk, onCancel, apiErrors }) => {
           endDate: values.endDate.toISOString(),
         });
       })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
+      .catch((info) => {});
   };
 
   return (

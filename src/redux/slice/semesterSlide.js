@@ -9,6 +9,14 @@ const initialValue = {
   smtDet: "",
   loading: false,
   error: null,
+  studentCount: 0,
+  teacherCount: 0,
+  mentorCount: 0,
+  classCount: 0,
+  currentSemester: null,
+  endDate: null,
+  startDate: null,
+  status: "",
 };
 
 const semesterSlice = createSlice({
@@ -39,6 +47,19 @@ const semesterSlice = createSlice({
     setSemesterName: (state, action) => {
       state.semesterName = action.payload;
     },
+    setCounts(state, action) {
+      state.studentCount = action.payload.studentCount;
+      state.teacherCount = action.payload.teacherCount;
+      state.mentorCount = action.payload.mentorCount;
+      state.classCount = action.payload.classCount;
+      state.semesterName = action.payload.semesterName;
+      state.startDate = action.payload.startDate;
+      state.endDate = action.payload.endDate;
+      state.status = action.payload.status;
+    },
+    setCurrentSemester: (state, action) => {
+      state.currentSemester = action.payload;
+    },
   },
 });
 
@@ -52,5 +73,7 @@ export const {
   setLoading,
   setError,
   setSemesterName,
+  setCounts,
+  setCurrentSemester,
 } = actions;
 export default reducer;

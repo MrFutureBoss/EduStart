@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Card,
   Button,
@@ -12,27 +12,57 @@ import {
   Space,
   Menu,
   Modal,
-  Progress,
   message,
   notification,
+  Descriptions,
+  Badge,
+  Typography,
 } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  InboxOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  EditOutlined,
   UploadOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import UserAddModal from "./UserAddModal";
+import UserAddModal from "./semesterModel/UserAddModal";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
+import ErrorAlerts from "./ErrorAlerts";
+import {
+  setCounts,
+  setCurrentSemester,
+  setError,
+  setLoading,
+  setSemesterName,
+  setSid,
+  setUsersInSmt,
+} from "../../redux/slice/semesterSlide";
+import EditSemesterModal from "./semesterModel/EditSemesterModel";
 
 const { Option } = Select;
 const { Search } = Input;
+const { Title } = Typography;
 
 const UserListSemester = () => {
-  const { sid, usersInSmt, loading, error, semesterName } = useSelector(
-    (state) => state.semester
-  );
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const {
+    sid,
+    usersInSmt,
+    semesterName,
+    currentSemester,
+    classCount,
+    mentorCount,
+    teacherCount,
+    studentCount,
+    endDate,
+    startDate,
+    status,
+    semester,
+  } = useSelector((state) => state.semester);
+
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
   const [searchText, setSearchText] = useState("");
@@ -42,15 +72,24 @@ const UserListSemester = () => {
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
+  const [isManualEntry, setIsManualEntry] = useState(false);
   const [isRoleSelectModalVisible, setIsRoleSelectModalVisible] =
     useState(false);
-  const [uploadPercent, setUploadPercent] = useState(0);
-  const [uploadStatus, setUploadStatus] = useState("active");
-  const [fileList, setFileList] = useState([]);
   const [selectedUploadRole, setSelectedUploadRole] = useState(null);
-  const [duplicateEmails, setDuplicateEmails] = useState([]);
   const [fullClassUsers, setFullClassUsers] = useState([]);
   const [successCount, setSuccessCount] = useState(0);
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [failedEmails, setFailedEmails] = useState([]);
+  const [editApiErrors, setEditApiErrors] = useState(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const jwt = localStorage.getItem("jwt");
+
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${jwt}`,
+    },
+  };
   const handleTableChange = (pagination) => {
     setPagination(pagination);
   };
@@ -62,40 +101,27 @@ const UserListSemester = () => {
     { id: 5, name: "Người dùng khác" },
   ];
 
-  // Hàm mở modal chọn vai trò người dùng
-  const showRoleSelectModal = () => {
+  const showRoleSelectModal = (isManual) => {
+    setIsManualEntry(isManual);
     setIsRoleSelectModalVisible(true);
   };
 
-  // Hàm xử lý khi xác nhận chọn vai trò
   const handleRoleSelectOk = () => {
     if (!selectedUploadRole) {
       message.error("Vui lòng chọn vai trò người dùng trước khi tiếp tục.");
       return;
     }
     setIsRoleSelectModalVisible(false);
-    setIsUploadModalVisible(true);
-  };
-
-  // Hàm xử lý khi hủy chọn vai trò
-  const handleRoleSelectCancel = () => {
-    setIsRoleSelectModalVisible(false);
-    setSelectedUploadRole(null);
-  };
-
-  // Hàm xử lý khi nhấn menu
-  const handleMenuClick = (e) => {
-    if (e.key === "1") {
+    if (isManualEntry) {
       setIsModalVisible(true);
-    } else if (e.key === "2") {
-      // Mở modal chọn vai trò người dùng trước khi tải file
-      showRoleSelectModal();
+    } else {
+      setIsUploadModalVisible(true);
     }
   };
 
-  const handleModalOk = (values) => {
-    console.log("Thông tin người dùng:", values);
-    setIsModalVisible(false);
+  const handleRoleSelectCancel = () => {
+    setIsRoleSelectModalVisible(false);
+    setSelectedUploadRole(null);
   };
 
   const handleModalCancel = () => {
@@ -104,22 +130,19 @@ const UserListSemester = () => {
 
   const handleUploadModalCancel = () => {
     setIsUploadModalVisible(false);
-    setUploadPercent(0);
-    setUploadStatus("active");
-    setFileList([]);
     setSelectedUploadRole(null);
-    setDuplicateEmails([]);
-    setFullClassUsers([]);
     setSuccessCount(0);
+    setErrorMessages([]);
+    setFailedEmails([]);
   };
 
   const menu = (
-    <Menu onClick={handleMenuClick}>
-      <Menu.Item key="1" icon={<UserAddOutlined />}>
-        Thêm người dùng thủ công
+    <Menu>
+      <Menu.Item key="1" onClick={() => showRoleSelectModal(true)}>
+        <UserAddOutlined /> Thêm người dùng thủ công
       </Menu.Item>
-      <Menu.Item key="2" icon={<UploadOutlined />}>
-        Tải file
+      <Menu.Item key="2" onClick={() => showRoleSelectModal(false)}>
+        <UploadOutlined /> Tải file
       </Menu.Item>
     </Menu>
   );
@@ -151,7 +174,7 @@ const UserListSemester = () => {
 
   const handleRoleSelect = (roleId) => {
     setSelectedRole(roleId);
-    setSelectedUploadRole(roleId); // Cập nhật vai trò cho upload
+    setSelectedUploadRole(roleId);
     setSelectedClass(null);
   };
 
@@ -252,17 +275,79 @@ const UserListSemester = () => {
     },
   ];
 
-  if (!sid) {
-    return <p>Vui lòng chọn một kỳ học từ danh sách bên trái.</p>;
-  }
+  const fetchCurrentSemester = async () => {
+    try {
+      dispatch(setLoading(true));
+      const response = await axios.get(`${BASE_URL}/semester/current`, config);
+      const semester = response.data;
+      dispatch(setSid(semester._id));
+      dispatch(setSemesterName(semester.name));
 
-  if (loading) {
-    return <p>Đang tải dữ liệu...</p>;
-  }
+      dispatch(
+        setCounts({
+          studentCount: semester.studentCount,
+          teacherCount: semester.teacherCount,
+          mentorCount: semester.mentorCount,
+          classCount: semester.classCount,
+          endDate: semester.endDate,
+          startDate: semester.startDate,
+          semesterName: semester.name,
+          status: semester.status,
+        })
+      );
 
-  if (error) {
-    return <p>Lỗi: {error}</p>;
-  }
+      const userResponse = await axios.get(
+        `${BASE_URL}/semester/${semester._id}/users`,
+        config
+      );
+      dispatch(setUsersInSmt(userResponse.data));
+    } catch (error) {
+      console.error("Error fetching current semester:", error);
+      message.error("Không tìm thấy kỳ học đang diễn ra.");
+      navigate("admin-dashboard/semester-list");
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  useEffect(() => {
+    if (!currentSemester) {
+      fetchCurrentSemester();
+    }
+  }, [sid, dispatch, navigate]);
+
+  const handleError = (err, setApiErrors) => {
+    if (err.response && err.response.status === 400) {
+      const errorFields = err.response.data.fields;
+      if (errorFields) {
+        setApiErrors(errorFields);
+      } else {
+        message.error(err.response.data.message || "Có lỗi xảy ra.");
+      }
+    } else {
+      message.error("Có lỗi không mong đợi xảy ra.");
+    }
+  };
+  const handleEditSemester = () => {
+    setIsEditModalVisible(true);
+  };
+
+  const handleEditModalOk = async (updatedSemester) => {
+    try {
+      await axios.put(
+        `${BASE_URL}/semester/update/${updatedSemester._id}`,
+        updatedSemester,
+        config
+      );
+      fetchCurrentSemester();
+      message.success("Cập nhật thành công!");
+      setIsEditModalVisible(false);
+      dispatch(setCurrentSemester(updatedSemester));
+      setEditApiErrors(null);
+    } catch (err) {
+      handleError(err, setEditApiErrors);
+    }
+  };
 
   const uploadProps = {
     customRequest: async (options) => {
@@ -270,7 +355,8 @@ const UserListSemester = () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("role", selectedUploadRole);
-      formData.append("semesterId", sid);
+      formData.append("semesterId", semester?._id);
+      console.log(selectedUploadRole);
 
       try {
         const response = await axios.post(
@@ -279,79 +365,192 @@ const UserListSemester = () => {
           {
             headers: {
               "Content-Type": "multipart/form-data",
+              authorization: `Bearer ${jwt}`,
             },
             onUploadProgress: ({ total, loaded }) => {
               const percent = Math.round((loaded / total) * 100);
-              setUploadPercent(percent);
               onProgress({ percent }, file);
             },
           }
         );
-        console.log("Response data:", response.data);
+        fetchCurrentSemester();
+        if (response.status !== 200 || !response.data.success) {
+          throw new Error(
+            response.data.message || "Đã xảy ra lỗi khi upload file"
+          );
+        }
 
-        onSuccess(response.data, file);
-
-        // Xử lý dữ liệu phản hồi
         const {
           successCount,
           duplicateEmails,
           fullClassUsers,
-          message: serverMessage,
+          errorMessages,
+          failedEmails,
         } = response.data;
-        setDuplicateEmails(duplicateEmails);
-        setFullClassUsers(fullClassUsers);
-        setSuccessCount(successCount);
 
-        // Hiển thị thông báo phù hợp dựa trên kết quả
-        if (
-          successCount > 0 &&
-          duplicateEmails.length === 0 &&
-          fullClassUsers.length === 0
-        ) {
-          // Tất cả người dùng được thêm thành công
+        // Cập nhật các trạng thái lỗi
+        setFullClassUsers(fullClassUsers);
+        setErrorMessages(errorMessages);
+        setFailedEmails(failedEmails);
+
+        if (successCount > 0) {
           notification.success({
             message: "Upload thành công",
             description: `${successCount} người dùng đã được thêm thành công.`,
-          });
-        } else if (
-          successCount > 0 &&
-          (duplicateEmails.length > 0 || fullClassUsers.length > 0)
-        ) {
-          // Một số người dùng được thêm thành công, một số có lỗi
-          notification.warning({
-            message: "Upload thành công với một số lỗi",
-            description: `${successCount} người dùng đã được thêm thành công. Có ${duplicateEmails.length} email trùng và ${fullClassUsers.length} người dùng không thể thêm do lớp đã đầy.`,
-          });
-        } else if (
-          successCount === 0 &&
-          (duplicateEmails.length > 0 || fullClassUsers.length > 0)
-        ) {
-          // Không có người dùng nào được thêm thành công và có lỗi
-          notification.error({
-            message: "Upload thất bại",
-            description: `Không thêm được người dùng nào. Có ${duplicateEmails.length} email trùng và ${fullClassUsers.length} người dùng không thể thêm do lớp đã đầy.`,
+            duration: 5,
           });
         }
+
+        if (
+          duplicateEmails.length > 0 ||
+          fullClassUsers.length > 0 ||
+          errorMessages.length > 0 ||
+          failedEmails.length > 0
+        ) {
+          notification.warning({
+            message: "Có một số lỗi",
+            description: `${successCount} người dùng được thêm thành công. Có ${duplicateEmails.length} email trùng, ${fullClassUsers.length} người dùng không thể thêm do lớp đã đầy, và ${errorMessages.length} lỗi khác.`,
+            duration: 10,
+          });
+        }
+
+        onSuccess(response.data, file);
       } catch (error) {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Đã xảy ra lỗi không xác định.";
         onError(error);
         notification.error({
           message: "Upload thất bại",
-          description: error.response?.data || error.message,
+          description: errorMessage,
+          duration: 10,
         });
+
+        if (error.response?.data?.errorMessages) {
+          setErrorMessages(error.response.data.errorMessages);
+        }
+        if (error.response?.data?.failedEmails) {
+          setFailedEmails(error.response.data.failedEmails);
+        }
       }
     },
-    onRemove: () => {
-      setFileList([]);
-      setUploadPercent(0);
-      setUploadStatus("active");
-    },
-    fileList,
-    showUploadList: true,
   };
 
   return (
     <div className="user-details">
-      <h2 style={{ marginBottom: 18 }}>Chi tiết kỳ học: {semesterName}</h2>
+      <div style={{ marginBottom: 20 }}>
+        <Card
+          style={{
+            marginBottom: 20,
+            borderRadius: "8px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            backgroundColor: "#f9f9f9",
+            margin: "auto",
+          }}
+        >
+          {semester.status === "Ongoing" && (
+            <Button
+              type="link"
+              icon={<EditOutlined />}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                backgroundColor: "#4682B4",
+                color: "#FFF",
+                borderRadius: "50%",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditSemester();
+              }}
+            ></Button>
+          )}
+
+          <Descriptions
+            bordered
+            style={{ marginTop: -10 }}
+            size="small"
+            title={
+              <Title style={{ marginBottom: 2 }} level={3}>
+                Thông tin chi tiết kỳ học
+              </Title>
+            }
+            layout="horizontal"
+            column={4}
+          >
+            <Descriptions.Item label={<strong>Tên kỳ học</strong>} span={1}>
+              <Title level={3} style={{ margin: 0, color: "#1890ff" }}>
+                {semesterName}
+              </Title>
+            </Descriptions.Item>
+
+            <Descriptions.Item label={<strong>Trạng thái</strong>}>
+              {status === "Ongoing" && (
+                <Badge
+                  status="processing"
+                  text={
+                    <span style={{ fontWeight: 500, color: "#1890ff" }}>
+                      Đang diễn ra
+                    </span>
+                  }
+                />
+              )}
+              {status === "Finished" && (
+                <Badge
+                  status="default"
+                  text={
+                    <span style={{ fontWeight: 500, color: "#8c8c8c" }}>
+                      Đã kết thúc
+                    </span>
+                  }
+                  icon={<CheckCircleOutlined />}
+                />
+              )}
+              {status === "Upcoming" && (
+                <Badge
+                  status="warning"
+                  text={
+                    <span style={{ fontWeight: 500, color: "#faad14" }}>
+                      Sắp diễn ra
+                    </span>
+                  }
+                  icon={<ClockCircleOutlined />}
+                />
+              )}
+            </Descriptions.Item>
+
+            <Descriptions.Item label={<strong>Ngày bắt đầu</strong>}>
+              {new Date(startDate).toLocaleDateString("vi-VN")}
+            </Descriptions.Item>
+
+            <Descriptions.Item label={<strong>Ngày kết thúc</strong>}>
+              {new Date(endDate).toLocaleDateString("vi-VN")}
+            </Descriptions.Item>
+
+            <Descriptions.Item label={<strong>Học sinh</strong>}>
+              {studentCount}
+            </Descriptions.Item>
+            <Descriptions.Item label={<strong>Giáo viên</strong>}>
+              {teacherCount}
+            </Descriptions.Item>
+            <Descriptions.Item label={<strong>Người hướng dẫn</strong>}>
+              {mentorCount}
+            </Descriptions.Item>
+            <Descriptions.Item label={<strong>Số lớp học</strong>}>
+              {classCount}
+            </Descriptions.Item>
+          </Descriptions>
+        </Card>
+      </div>
+
+      <ErrorAlerts
+        fullClassUsers={fullClassUsers}
+        errorMessages={errorMessages}
+        failedEmails={failedEmails}
+      />
+
       {usersInSmt.length === 0 ? (
         <div
           style={{
@@ -361,15 +560,83 @@ const UserListSemester = () => {
             height: "50vh",
           }}
         >
-          {/* <Dragger {...draggerProps}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">Kỳ học chưa có dữ liệu!</p>
-            <p className="ant-upload-hint">
-              Ấn vào để lựa chọn file cho việc thêm người dùng
-            </p>
-          </Dragger> */}
+          <div
+            style={{
+              marginTop: "15px",
+            }}
+          >
+            <p>Kỳ học chưa có dữ liệu!</p>
+            <Space>
+              <Dropdown overlay={menu} trigger={["click"]}>
+                <Button>
+                  <Space>Thêm người dùng</Space>
+                </Button>
+              </Dropdown>
+              {fullClassUsers.length > 0 && (
+                <Button
+                  type="primary"
+                  onClick={() => navigate("pending-users")}
+                >
+                  Xem Học Sinh Chưa Thêm Vào Lớp
+                </Button>
+              )}
+            </Space>
+          </div>
+          <Modal
+            title="Chọn loại người dùng"
+            open={isRoleSelectModalVisible}
+            onOk={handleRoleSelectOk}
+            onCancel={() => setIsRoleSelectModalVisible(false)}
+            okText="Tiếp tục"
+            cancelText="Hủy"
+          >
+            <Select
+              placeholder="Chọn vai trò người dùng"
+              style={{ width: "100%", marginTop: 10 }}
+              onChange={(value) => setSelectedUploadRole(value)}
+              value={selectedUploadRole}
+            >
+              {roles.map((role) => (
+                <Option key={role.id} value={role.id}>
+                  {role.name}
+                </Option>
+              ))}
+            </Select>
+          </Modal>
+          <UserAddModal
+            visible={isModalVisible}
+            role={selectedUploadRole}
+            semesterId={semester._id}
+            onOk={handleModalCancel}
+            onCancel={handleModalCancel}
+          />
+          <Modal
+            title="Tải file"
+            open={isUploadModalVisible}
+            footer={null}
+            onCancel={handleUploadModalCancel}
+          >
+            <Upload
+              {...uploadProps}
+              onChange={({ file, fileList, event }) => {
+                if (file.status === "done") {
+                  setTimeout(() => {
+                    setIsUploadModalVisible(false);
+                  }, 1000);
+                }
+
+                if (file.status === "error") {
+                }
+              }}
+            >
+              <Button
+                icon={<UploadOutlined />}
+                style={{ marginBottom: "20px" }}
+              >
+                Chọn file để tải lên
+              </Button>
+            </Upload>
+          </Modal>
         </div>
       ) : (
         <div>
@@ -448,14 +715,16 @@ const UserListSemester = () => {
             </div>
           </div>
           <UserAddModal
-            open={isModalVisible}
-            onOk={handleModalOk}
+            visible={isModalVisible}
+            role={selectedUploadRole}
+            semesterId={semester._id}
+            onOk={handleModalCancel}
             onCancel={handleModalCancel}
           />
-          {/* Modal chọn vai trò người dùng */}
+
           <Modal
             title="Chọn loại người dùng"
-            visible={isRoleSelectModalVisible}
+            open={isRoleSelectModalVisible}
             onOk={handleRoleSelectOk}
             onCancel={handleRoleSelectCancel}
             okText="Tiếp tục"
@@ -476,30 +745,22 @@ const UserListSemester = () => {
                 ))}
             </Select>
           </Modal>
-          {/* Modal tải file */}
-          {/* Modal tải file */}
           <Modal
             title="Tải file"
-            visible={isUploadModalVisible}
-            footer={null}
+            open={isUploadModalVisible}
             onCancel={handleUploadModalCancel}
+            footer={null}
           >
             <Upload
               {...uploadProps}
               onChange={({ file, fileList, event }) => {
-                setFileList(fileList);
-
                 if (file.status === "done") {
-                  setUploadStatus("success");
                   setTimeout(() => {
                     setIsUploadModalVisible(false);
-                    setUploadPercent(0);
-                    setFileList([]);
                   }, 1000);
                 }
 
                 if (file.status === "error") {
-                  setUploadStatus("exception");
                 }
               }}
             >
@@ -510,33 +771,6 @@ const UserListSemester = () => {
                 Chọn file để tải lên
               </Button>
             </Upload>
-            {uploadPercent > 0 && (
-              <Progress percent={uploadPercent} status={uploadStatus} />
-            )}
-
-            {/* Hiển thị danh sách email trùng lặp và người dùng không thêm được */}
-            {duplicateEmails.length > 0 && (
-              <div style={{ marginTop: "20px" }}>
-                <strong>Email đã tồn tại:</strong>
-                <ul>
-                  {duplicateEmails.map((email) => (
-                    <li key={email}>{email}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {fullClassUsers.length > 0 && (
-              <div style={{ marginTop: "20px" }}>
-                <strong>Không thể thêm vì lớp đã đầy:</strong>
-                <ul>
-                  {fullClassUsers.map((user) => (
-                    <li key={user.email}>
-                      {user.username} ({user.email})
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
             {successCount > 0 && (
               <div style={{ marginTop: "20px" }}>
                 <strong>Thành công:</strong>
@@ -544,7 +778,13 @@ const UserListSemester = () => {
               </div>
             )}
           </Modal>
-
+          <EditSemesterModal
+            open={isEditModalVisible}
+            onOk={handleEditModalOk}
+            onCancel={() => setIsEditModalVisible(false)}
+            semester={semester}
+            apiErrors={editApiErrors}
+          />
           <Table
             dataSource={filteredUsers}
             columns={columns}

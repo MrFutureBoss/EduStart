@@ -9,12 +9,13 @@ import { useNavigate } from "react-router-dom";
 import { setFetchError } from "../redux/slice/ErrorSlice.js";
 import { useEffect } from "react";
 import { Card, Row, Col, Button, Input, Typography, Modal } from "antd";
-import "../Styles/login.css";
+import "../style/login.css";
 import {
   showAutoCloseAlert,
   showErrorAlert,
 } from "../components/SweetAlert/index.js";
 import ForgotPasswordModal from "./ForgotPasswordModal.jsx";
+import { jwtDecode } from "jwt-decode";
 
 function SignIn() {
   const [forgotPasswordVisible, setForgotPasswordVisible] = useState(false);
@@ -29,8 +30,8 @@ function SignIn() {
   const dispatch = useDispatch();
   const userRegister = useSelector((state) => state.user.userRegister);
   const formValues = {
-    email: userRegister.email || "admin_1@fpt.edu.vn",
-    password: userRegister.password || "Aa@123",
+    email: userRegister.email || "admin@fpt.edu.vn",
+    password: userRegister.password || "dIB=UJ]P",
   };
   const fetchError = useSelector((state) => state.error.fetchError);
   const navigation = useNavigate();
@@ -40,18 +41,31 @@ function SignIn() {
 
     try {
       const res = await axios.post(BASE_URL + "/user/login", formData);
-      const result = res.data;
+      const token = res.data;
 
-      if (result) {
-        localStorage.setItem("jwt", result);
+      if (token) {
+        localStorage.setItem("jwt", token);
+
+        const decodedToken = jwtDecode(token);
+        const userRole = decodedToken.role;
+
         dispatch(setFetchError(false));
         showAutoCloseAlert(
           "Đăng nhập thành công!",
           "Chào mừng bạn đã trở lại."
         );
 
+        // Chuyển hướng dựa trên role
         setTimeout(() => {
-          navigation("/");
+          if (userRole === 1) {
+            navigation("/admin-dashboard", { replace: true });
+          } else if (userRole === 2) {
+            navigation("/teacher-dashboard"); // Nếu là giáo viên
+          } else if (userRole === 3) {
+            navigation("/student-dashboard"); // Nếu là học sinh
+          } else {
+            navigation("/"); // Nếu không xác định, chuyển về trang chủ
+          }
         }, 2000);
       } else {
         setFieldError("email", "Thông tin đăng nhập không chính xác!");

@@ -60,9 +60,7 @@ const EditSemesterModal = ({
           endDate: values.endDate.toISOString(),
         });
       })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
+      .catch((info) => {});
   };
 
   // Hàm kiểm tra nếu dữ liệu hiện tại khác với dữ liệu ban đầu
