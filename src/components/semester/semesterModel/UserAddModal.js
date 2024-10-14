@@ -15,7 +15,14 @@ import {
   showErrorAlert,
   showWarningAlert,
 } from "../../SweetAlert/index"; // Adjust the import path as needed
+const jwt = localStorage.getItem("jwt");
 
+const config = {
+  headers: {
+    "Content-Type": "application/json",
+    authorization: `Bearer ${jwt}`,
+  },
+};
 const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -50,23 +57,27 @@ const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
         console.log("Validate Failed:", info);
       });
   };
-  console.log(semesterId);
 
   // Submit form data
   const submitForm = async () => {
     try {
       const values = await form.validateFields();
-      const response = await axios.post(`${BASE_URL}/admins/add-user-hand`, {
-        semesterId,
-        role,
-        userInput: {
-          username: values.username,
-          rollNumber: values.rollNumber,
-          memberCode: values.memberCode,
-          Email: values.email,
-          phoneNumber: values.phoneNumber,
+      const email = role === 4 ? values.email : `${values.email}@fe.edu.vn`;
+      const response = await axios.post(
+        `${BASE_URL}/admins/add-user-hand`,
+        {
+          semesterId,
+          role,
+          userInput: {
+            username: values.username,
+            rollNumber: values.rollNumber,
+            memberCode: values.memberCode,
+            Email: email,
+            phoneNumber: values.phoneNumber,
+          },
         },
-      });
+        config
+      );
 
       if (response.status === 201) {
         showSuccessAlert("Thành công", response.data.message);
@@ -108,7 +119,7 @@ const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
   // Fetch and update semester data
   const fetchSemesterData = async () => {
     try {
-      const responses = await axios.get(`${BASE_URL}/semester/current`);
+      const responses = await axios.get(`${BASE_URL}/semester/current`, config);
       const semester = responses.data;
       dispatch(setSid(semester._id));
       dispatch(setSemesterName(semester.name));
@@ -126,7 +137,8 @@ const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
         })
       );
       const userResponse = await axios.get(
-        `${BASE_URL}/semester/${semesterId}/users`
+        `${BASE_URL}/semester/${semesterId}/users`,
+        config
       );
       dispatch(setUsersInSmt(userResponse.data));
     } catch (error) {
@@ -283,11 +295,14 @@ const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
               label="Email"
               rules={[
                 { required: true, message: "Vui lòng nhập email!" },
-                { type: "email", message: "Email không hợp lệ!" },
+                {
+                  pattern: /^[a-z0-9]+$/,
+                  message: "Phần tên email chỉ chứa chữ thường và số!",
+                },
               ]}
               hasFeedback
             >
-              <Input />
+              <Input addonAfter="@fe.edu.vn" />
             </Form.Item>
             <Form.Item
               name="phoneNumber"
@@ -295,13 +310,13 @@ const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
               rules={[
                 { required: true, message: "Vui lòng nhập số điện thoại!" },
                 {
-                  pattern: /^[0-9]{10,15}$/,
-                  message: "Số điện thoại không hợp lệ!",
+                  pattern: /^[0-9]{10}$/,
+                  message: "Số điện thoại phải gồm 10 chữ số!",
                 },
               ]}
               hasFeedback
             >
-              <Input />
+              <Input maxLength={10} />
             </Form.Item>
           </>
         )}

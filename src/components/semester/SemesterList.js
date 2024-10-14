@@ -43,6 +43,14 @@ const SemesterList = () => {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [createApiErrors, setCreateApiErrors] = useState(null);
   const [editApiErrors, setEditApiErrors] = useState(null);
+  const jwt = localStorage.getItem("jwt");
+
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${jwt}`,
+    },
+  };
 
   const handleSelectSemester = async (semester) => {
     dispatch(setSemester(semester));
@@ -61,11 +69,12 @@ const SemesterList = () => {
     try {
       dispatch(setLoading(true));
       const response = await axios.get(
-        `${BASE_URL}/semester/${semester._id}/users`
+        `${BASE_URL}/semester/${semester._id}/users`,
+        config
       );
 
       dispatch(setUsersInSmt(response.data));
-      navigate("/user-semester");
+      navigate("user-semester");
     } catch (err) {
       dispatch(setError(err.message));
     } finally {
@@ -81,7 +90,8 @@ const SemesterList = () => {
     try {
       await axios.put(
         `${BASE_URL}/semester/update/${updatedSemester._id}`,
-        updatedSemester
+        updatedSemester,
+        config
       );
       message.success("Cập nhật thành công!");
       refreshSemesters();
@@ -94,7 +104,7 @@ const SemesterList = () => {
 
   const handleCreateModalOk = async (newSemester) => {
     try {
-      await axios.post(`${BASE_URL}/semester/create`, newSemester);
+      await axios.post(`${BASE_URL}/semester/create`, newSemester, config);
       message.success("Tạo kỳ học thành công!");
       refreshSemesters();
       setIsCreateModalVisible(false);
@@ -106,7 +116,10 @@ const SemesterList = () => {
 
   const refreshSemesters = async () => {
     try {
-      const semestersResponse = await axios.get(`${BASE_URL}/semester/all`);
+      const semestersResponse = await axios.get(
+        `${BASE_URL}/semester/all`,
+        config
+      );
       dispatch(setSemesters(semestersResponse.data));
     } catch (error) {
       dispatch(setError(error.message));
@@ -129,7 +142,31 @@ const SemesterList = () => {
   const handlePaginationChange = (page, pageSize) => {
     setPagination({ current: page, pageSize });
   };
+  const getStatusText = (status) => {
+    switch (status) {
+      case "Ongoing":
+        return "Đang diễn ra";
+      case "Upcoming":
+        return "Chuẩn bị diễn ra";
+      case "Finished":
+        return "Đã kết thúc";
+      default:
+        return "Không xác định";
+    }
+  };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Ongoing":
+        return "green";
+      case "Upcoming":
+        return "blue";
+      case "Finished":
+        return "red";
+      default:
+        return "default";
+    }
+  };
   if (loading)
     return (
       <Spin
@@ -221,7 +258,7 @@ const SemesterList = () => {
                 <div>
                   <Text type="secondary">Trạng thái: </Text>
                   <Tag color={getStatusColor(semester.status)}>
-                    {semester.status}
+                    {getStatusText(semester.status)}
                   </Tag>
                 </div>
               </div>

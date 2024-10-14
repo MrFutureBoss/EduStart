@@ -33,6 +33,7 @@ import ErrorAlerts from "./ErrorAlerts";
 import {
   setCounts,
   setCurrentSemester,
+  setError,
   setLoading,
   setSemesterName,
   setSid,
@@ -81,7 +82,14 @@ const UserListSemester = () => {
   const [failedEmails, setFailedEmails] = useState([]);
   const [editApiErrors, setEditApiErrors] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const jwt = localStorage.getItem("jwt");
 
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${jwt}`,
+    },
+  };
   const handleTableChange = (pagination) => {
     setPagination(pagination);
   };
@@ -266,41 +274,44 @@ const UserListSemester = () => {
         roles.find((r) => r.id === role)?.name || "Không xác định",
     },
   ];
+
+  const fetchCurrentSemester = async () => {
+    try {
+      dispatch(setLoading(true));
+      const response = await axios.get(`${BASE_URL}/semester/current`, config);
+      const semester = response.data;
+      dispatch(setSid(semester._id));
+      dispatch(setSemesterName(semester.name));
+
+      dispatch(
+        setCounts({
+          studentCount: semester.studentCount,
+          teacherCount: semester.teacherCount,
+          mentorCount: semester.mentorCount,
+          classCount: semester.classCount,
+          endDate: semester.endDate,
+          startDate: semester.startDate,
+          semesterName: semester.name,
+          status: semester.status,
+        })
+      );
+
+      const userResponse = await axios.get(
+        `${BASE_URL}/semester/${semester._id}/users`,
+        config
+      );
+      dispatch(setUsersInSmt(userResponse.data));
+    } catch (error) {
+      console.error("Error fetching current semester:", error);
+      message.error("Không tìm thấy kỳ học đang diễn ra.");
+      navigate("admin-dashboard/semester-list");
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
   useEffect(() => {
-    if (!sid) {
-      const fetchCurrentSemester = async () => {
-        try {
-          dispatch(setLoading(true));
-          const response = await axios.get(`${BASE_URL}/semester/current`);
-          const semester = response.data;
-          dispatch(setSid(semester._id));
-          dispatch(setSemesterName(semester.name));
-
-          dispatch(
-            setCounts({
-              studentCount: semester.studentCount,
-              teacherCount: semester.teacherCount,
-              mentorCount: semester.mentorCount,
-              classCount: semester.classCount,
-              endDate: semester.endDate,
-              startDate: semester.startDate,
-              semesterName: semester.name,
-              status: semester.status,
-            })
-          );
-
-          const userResponse = await axios.get(
-            `${BASE_URL}/semester/${semester._id}/users`
-          );
-          dispatch(setUsersInSmt(userResponse.data));
-        } catch (error) {
-          console.error("Error fetching current semester:", error);
-          message.error("Không tìm thấy kỳ học đang diễn ra.");
-          navigate("/semester-list");
-        } finally {
-          dispatch(setLoading(false));
-        }
-      };
+    if (!currentSemester) {
       fetchCurrentSemester();
     }
   }, [sid, dispatch, navigate]);
@@ -325,25 +336,10 @@ const UserListSemester = () => {
     try {
       await axios.put(
         `${BASE_URL}/semester/update/${updatedSemester._id}`,
-        updatedSemester
+        updatedSemester,
+        config
       );
-      const response = await axios.get(`${BASE_URL}/semester/current`);
-      const semester = response.data;
-      dispatch(setSid(semester._id));
-      dispatch(setSemesterName(semester.name));
-      dispatch(setCurrentSemester(semester));
-      dispatch(
-        setCounts({
-          studentCount: semester.studentCount,
-          teacherCount: semester.teacherCount,
-          mentorCount: semester.mentorCount,
-          classCount: semester.classCount,
-          endDate: semester.endDate,
-          startDate: semester.startDate,
-          semesterName: semester.name,
-          status: semester.status,
-        })
-      );
+      fetchCurrentSemester();
       message.success("Cập nhật thành công!");
       setIsEditModalVisible(false);
       dispatch(setCurrentSemester(updatedSemester));
@@ -359,7 +355,7 @@ const UserListSemester = () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("role", selectedUploadRole);
-      formData.append("semesterId", sid);
+      formData.append("semesterId", semester?._id);
       console.log(selectedUploadRole);
 
       try {
@@ -369,6 +365,7 @@ const UserListSemester = () => {
           {
             headers: {
               "Content-Type": "multipart/form-data",
+              authorization: `Bearer ${jwt}`,
             },
             onUploadProgress: ({ total, loaded }) => {
               const percent = Math.round((loaded / total) * 100);
@@ -376,27 +373,7 @@ const UserListSemester = () => {
             },
           }
         );
-        const responses = await axios.get(`${BASE_URL}/semester/current`);
-        const semester = responses.data;
-        dispatch(setSid(semester._id));
-        dispatch(setSemesterName(semester.name));
-        dispatch(setCurrentSemester(semester));
-        dispatch(
-          setCounts({
-            studentCount: semester.studentCount,
-            teacherCount: semester.teacherCount,
-            mentorCount: semester.mentorCount,
-            classCount: semester.classCount,
-            endDate: semester.endDate,
-            startDate: semester.startDate,
-            semesterName: semester.name,
-            status: semester.status,
-          })
-        );
-        const userresponse = await axios.get(
-          `${BASE_URL}/semester/${sid}/users`
-        );
-        dispatch(setUsersInSmt(userresponse.data));
+        fetchCurrentSemester();
         if (response.status !== 200 || !response.data.success) {
           throw new Error(
             response.data.message || "Đã xảy ra lỗi khi upload file"
@@ -598,7 +575,7 @@ const UserListSemester = () => {
               {fullClassUsers.length > 0 && (
                 <Button
                   type="primary"
-                  onClick={() => navigate("/pending-users")}
+                  onClick={() => navigate("pending-users")}
                 >
                   Xem Học Sinh Chưa Thêm Vào Lớp
                 </Button>
@@ -626,7 +603,13 @@ const UserListSemester = () => {
               ))}
             </Select>
           </Modal>
-
+          <UserAddModal
+            visible={isModalVisible}
+            role={selectedUploadRole}
+            semesterId={semester._id}
+            onOk={handleModalCancel}
+            onCancel={handleModalCancel}
+          />
           <Modal
             title="Tải file"
             open={isUploadModalVisible}
