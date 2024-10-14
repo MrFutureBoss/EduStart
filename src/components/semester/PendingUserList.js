@@ -1,3 +1,4 @@
+// src/pages/PendingUsers.js
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Table,
@@ -13,12 +14,14 @@ import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentSemester, setError } from "../../redux/slice/semesterSlide";
+import { useNavigate } from "react-router-dom"; // Import useNavigate để chuyển hướng
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const PendingUsers = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Sử dụng useNavigate để chuyển hướng
   const { currentSemester } = useSelector((state) => state.semester);
   const [pendingUsers, setPendingUsers] = useState([]);
   const [classesList, setClassesList] = useState([]);
@@ -240,6 +243,24 @@ const PendingUsers = () => {
           tip="Đang tải dữ liệu..."
           size="large"
         />
+      ) : classesList.length === 0 ? (
+        <div style={{ textAlign: "center", marginTop: "50px" }}>
+          <Empty
+            description={
+              <span>
+                Không có lớp nào còn trống trong kỳ học hiện tại.
+                <br />
+                <Button
+                  type="primary"
+                  style={{ marginTop: "20px" }}
+                  onClick={() => navigate("create-class")}
+                >
+                  Tạo Lớp Mới
+                </Button>
+              </span>
+            }
+          ></Empty>
+        </div>
       ) : pendingUsers.length === 0 ? (
         <div style={{ textAlign: "center", marginTop: "50px" }}>
           <Empty

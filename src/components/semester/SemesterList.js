@@ -142,7 +142,31 @@ const SemesterList = () => {
   const handlePaginationChange = (page, pageSize) => {
     setPagination({ current: page, pageSize });
   };
+  const getStatusText = (status) => {
+    switch (status) {
+      case "Ongoing":
+        return "Đang diễn ra";
+      case "Upcoming":
+        return "Chuẩn bị diễn ra";
+      case "Finished":
+        return "Đã kết thúc";
+      default:
+        return "Không xác định";
+    }
+  };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Ongoing":
+        return "green";
+      case "Upcoming":
+        return "blue";
+      case "Finished":
+        return "red";
+      default:
+        return "default";
+    }
+  };
   if (loading)
     return (
       <Spin
@@ -234,7 +258,7 @@ const SemesterList = () => {
                 <div>
                   <Text type="secondary">Trạng thái: </Text>
                   <Tag color={getStatusColor(semester.status)}>
-                    {semester.status}
+                    {getStatusText(semester.status)}
                   </Tag>
                 </div>
               </div>

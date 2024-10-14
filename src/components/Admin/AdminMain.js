@@ -104,7 +104,7 @@ const MainLayout = () => {
       await fetchSemesters();
     };
     fetchData();
-  }, [currentSemester, handleFetchCurrentSemesters, fetchSemesters]);
+  }, [currentSemester]);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -114,6 +114,7 @@ const MainLayout = () => {
           collapsed={collapsed}
           currentSemester={currentSemester}
           handleFetchCurrentSemesters={handleFetchCurrentSemesters}
+          toggleCollapse={toggleCollapse}
         />
         <Layout style={{ paddingRight: "23px", background: "#f0f2f5" }}>
           <Content

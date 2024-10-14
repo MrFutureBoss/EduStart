@@ -274,7 +274,6 @@ const UserListSemester = () => {
         roles.find((r) => r.id === role)?.name || "Không xác định",
     },
   ];
-  console.log(sid);
 
   const fetchCurrentSemester = async () => {
     try {

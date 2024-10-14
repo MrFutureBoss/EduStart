@@ -25,7 +25,7 @@ const AppHeader = ({ collapsed, toggleCollapse }) => {
           flex: 1,
         }}
       >
-        Admin System
+        Hệ Thống Quản Lý
       </div>
       <div
         onClick={toggleCollapse}
