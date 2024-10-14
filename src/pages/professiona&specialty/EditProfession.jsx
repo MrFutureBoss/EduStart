@@ -53,17 +53,17 @@ const EditProfession = ({ _id, show, close }) => {
     try {
       const response = await axios.get(`${BASE_URL}/profession/${id}`);
       const fetchedData = response.data;
-
-      // Cập nhật state với dữ liệu lấy được
       setProfessionData({
         name: fetchedData.name || "",
         specialties: fetchedData.specialties || [],
         status: fetchedData.status || false,
       });
+      setProfessionName(fetchedData.name || "");
     } catch (err) {
       message.error("Có lỗi xảy ra khi lấy dữ liệu lĩnh vực.");
     }
   };
+  
 
   const getSpecialtiesByProfessionId = async (id) => {
     try {
@@ -84,6 +84,12 @@ const EditProfession = ({ _id, show, close }) => {
     }
   }, [_id]);
 
+  useEffect(() => {
+    if (professionData.status !== undefined) {
+      setIsActive(professionData.status);
+    }
+  }, [professionData.status]);
+
   //Check điều kiện để được submit thêm vào
   useEffect(() => {
     const isProfessionValid =
@@ -94,91 +100,88 @@ const EditProfession = ({ _id, show, close }) => {
       !isNameDuplicate &&
       !isOnlyNumber;
 
-    const isSpecialtyValid =
-      // specialtyInput.length === 0 ||
-      // (specialtyInput.length > 1 &&
-      //   specialtyInput.length <= MAX_LENGTH &&
-      REGEX.test(specialtyInput) &&
-      !isNameDuplicate2 &&
-      !isInvalidWhitespace2 &&
-      !isOnlyNumber2;
+    // const isSpecialtyValid =
+    //   // specialtyInput.length === 0 ||
+    //   // (specialtyInput.length > 1 &&
+    //   //   specialtyInput.length <= MAX_LENGTH &&
+    //   REGEX.test(specialtyInput) &&
+    //   !isNameDuplicate2 &&
+    //   !isInvalidWhitespace2 &&
+    //   !isOnlyNumber2;
 
-    setIsFormValid(isProfessionValid && isSpecialtyValid);
+    setIsFormValid(isProfessionValid);
   }, [
     professionName,
     isInvalidWhitespace,
     isNameDuplicate,
-    specialtyInput,
-    isNameDuplicate2,
-    specialties,
-    isInvalidWhitespace2,
-    isOnlyNumber2,
+    // specialtyInput,
+    // isNameDuplicate2,
+    // // specialties,
+    // isInvalidWhitespace2,
+    // isOnlyNumber2,
   ]);
 
   const handleSubmit = async () => {
-    // Validate data before sending
+    // Validate dữ liệu trước khi gửi
     if (professionName.length < 2 || professionName.length > MAX_LENGTH) {
       message.warning(`Tên lĩnh vực phải từ 2 đến ${MAX_LENGTH} ký tự.`);
       return;
     }
-
+  
     if (!REGEX.test(professionName)) {
       message.error("Tên lĩnh vực không được chứa số hoặc ký tự đặc biệt.");
       return;
     }
-
+  
+    // Chuẩn bị dữ liệu để gửi lên API
     const data = {
       name: professionName,
       status: isActive,
-      specialties:
-        specialties.length > 0
-          ? specialties.map((specialty) => ({
-              name: specialty,
-              status: isActive,
-            }))
-          : [],
+      specialties: specialties.map(specialty => ({
+        _id: specialty._id || undefined,  
+        name: specialty.name,
+        status: specialty.status || isActive
+      }))
     };
-
+  
     try {
-      const response = await axios.post(`${BASE_URL}/profession`, data);
-
-      if (response.status === 201 || response.status === 200) {
-        message.success("Đã thêm lĩnh vực thành công.");
-
-        const newProfession = response.data;
-        const updatedProfessions = {
-          data: [newProfession, ...professions],
-          total: professions.length + 1,
-        };
-
-        // Fetch specialties again to ensure UI updates correctly
+      const response = await axios.put(`${BASE_URL}/profession/${_id}/specialties`, data);
+      if (response.status === 200 || response.status === 201) {
+        message.success("Cập nhật lĩnh vực và chuyên môn thành công.");
+  
+        const updatedProfession = response.data;
+        
+        // Cập nhật lại danh sách professions trong Redux
+        const updatedProfessions = professions.map(profession =>
+          profession._id === _id ? updatedProfession : profession
+        );
+  
+        dispatch(setProfessions({ data: updatedProfessions, total: updatedProfessions.length }));
+  
+        // Cập nhật specialties lại nếu cần thiết
         const specialtiesResponse = await axios.get(`${BASE_URL}/specialty`);
         if (specialtiesResponse.status === 200) {
           dispatch(setSpecialties(specialtiesResponse.data));
         }
-
-        dispatch(setProfessions(updatedProfessions));
+  
+        // Reset form sau khi cập nhật thành công
         setProfessionName("");
         setSpecialtiesData([]);
         setIsActive(false);
-
         setShowConfirmModal(false);
         close();
       }
     } catch (error) {
-      // Kiểm tra nếu back-end trả về lỗi cụ thể
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        message.error(error.response.data.message); // Hiển thị lỗi từ back-end (VD: "Lĩnh vực đã tồn tại")
+      // Kiểm tra và hiển thị lỗi từ backend
+      if (error.response && error.response.data && error.response.data.message) {
+        message.error(error.response.data.message); // Hiển thị lỗi từ backend (VD: "Lĩnh vực đã tồn tại")
       } else {
-        message.error("Có lỗi xảy ra khi thêm lĩnh vực.");
+        message.error("Có lỗi xảy ra khi cập nhật lĩnh vực và chuyên môn.");
       }
-      console.error("Error adding profession:", error);
+      console.error("Error updating profession and specialties:", error);
     }
   };
+  
 
   const resetFormAndClose = () => {
     // Reset các trạng thái của form về mặc định
@@ -310,7 +313,7 @@ const EditProfession = ({ _id, show, close }) => {
   const handleProfessionNameChange = (e) => {
     let { name, value } = e.target;
     value = value.normalize("NFC");
-  
+    value = capitalizeEachWord(value);
     // Chỉ chặn khoảng trắng ở đầu hoặc chuỗi chỉ chứa khoảng trắng
     if (value.trim().length === 0 && value.length > 0) {
       // Nếu chuỗi chỉ chứa khoảng trắng hoặc bắt đầu bằng khoảng trắng
@@ -479,7 +482,7 @@ const EditProfession = ({ _id, show, close }) => {
                 style={{ marginBottom: "5px" }}
                 type="text"
                 placeholder="VD: Công nghệ thông tin"
-                value={professionData.name}
+                value={professionName}
                 name="name"
                 onChange={handleProfessionNameChange}
                 onKeyDown={handleProfessionNameKeyDown}
@@ -671,17 +674,17 @@ const EditProfession = ({ _id, show, close }) => {
                     <Tag
                       className="speicalty_edittag"
                       key={index}
-                      closeIcon={
-                        <CloseCircleOutlined
-                          style={{
-                            fontSize: "15px",
-                            color: "#fff",
-                            cursor: "pointer",
-                          }}
-                        />
-                      }
-                      closable
-                      onClose={() => handleRemoveSpecialty(specialty)}
+                      // closeIcon={
+                      //   <CloseCircleOutlined
+                      //     style={{
+                      //       fontSize: "15px",
+                      //       color: "#fff",
+                      //       cursor: "pointer",
+                      //     }}
+                      //   />
+                      // }
+                      // closable
+                      // onClose={() => handleRemoveSpecialty(specialty)}
                     >
                       {specialty.name} {/* Hiển thị tên chuyên môn */}
                     </Tag>
@@ -705,6 +708,7 @@ const EditProfession = ({ _id, show, close }) => {
                 <LockOutlined /> Dừng hoạt động
               </span>
             }
+            checked={isActive}
             onChange={(checked) => setIsActive(checked)}
           />
         </Col>
@@ -742,8 +746,8 @@ const EditProfession = ({ _id, show, close }) => {
       />
       <ConfirmModal
         show={showConfirmModal}
-        title="Xác nhận"
-        content="Bạn có chắc chắn muốn thêm lĩnh vực và chuyên môn không?"
+        title="Xác nhận thay đổi"
+        content="Bạn có chắc chắn muốn thay đổi này không?"
         onConfirm={handleSubmit}
         onCancel={handleCancelSubmit}
       />
