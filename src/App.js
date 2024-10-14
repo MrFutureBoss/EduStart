@@ -2,10 +2,10 @@ import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import ProfessionManagement from "./pages/ProfessionManagement.jsx";
 import SignIn from "./pages/SignIn.jsx";
-import PendingUsers from "./components/semester/PendingUserList.js";
+import PendingUsers from "./pages/semester/PendingUserList.js";
 import AdminLayout from "./layouts/admin/AdminLayout.js";
-import UserListSemester from "./components/semester/UserList.js";
-import SemesterList from "./components/semester/SemesterList.js";
+import UserListSemester from "./pages/semester/UserList.js";
+import SemesterList from "./pages/semester/SemesterList.js";
 
 //Route tạm thời để code không dùng thì comment lại
 
