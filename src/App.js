@@ -11,6 +11,8 @@ import SemesterList from "./components/semester/SemesterList.js";
 
 function App() {
   return (
+    <BrowserRouter>
+      <ToastContainer />
     <Routes>
       {/* Layout dành cho Admin, bao gồm các route bên trong */}
       <Route path="/admin-dashboard" element={<AdminLayout />}>
@@ -25,6 +27,7 @@ function App() {
       {/* <Route path="/" element={<ProfessionManagement />} /> */}
       <Route path="/" element={<SignIn />} />
     </Routes>
+    </BrowserRouter>
   );
 }
 
