@@ -40,8 +40,8 @@ function SignIn() {
     const formData = { ...values };
 
     try {
-      const res = await axios.post(BASE_URL + "/user/login", formData);
-      const token = res.data;
+      const res = await axios.post(`${BASE_URL}/user/login`, formData);
+      const token = res.data.token;
 
       if (token) {
         localStorage.setItem("jwt", token);
@@ -57,6 +57,7 @@ function SignIn() {
 
         // Chuyển hướng dựa trên role
         setTimeout(() => {
+          console.log("Navigating to Dashboard");
           if (userRole === 1) {
             navigation("/admin-dashboard", { replace: true });
           } else if (userRole === 2) {
