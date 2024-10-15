@@ -1,20 +1,20 @@
 import React from "react";
 import { Modal, Form, Input } from "antd";
 import { useDispatch } from "react-redux";
-import { BASE_URL } from "../../utilities/initalValue";
+import { BASE_URL } from "../../../utilities/initalValue";
 import {
   setCounts,
   setCurrentSemester,
   setSemesterName,
   setSid,
   setUsersInSmt,
-} from "../../redux/slice/semesterSlide";
+} from "../../../redux/slice/semesterSlide";
 import axios from "axios";
 import {
   showSuccessAlert,
   showErrorAlert,
   showWarningAlert,
-} from "../../components/SweetAlert/index"; // Adjust the import path as needed
+} from "../../../components/SweetAlert";
 const jwt = localStorage.getItem("jwt");
 
 const config = {
