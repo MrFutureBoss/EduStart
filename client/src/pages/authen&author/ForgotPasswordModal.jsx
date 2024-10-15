@@ -2,13 +2,13 @@ import React from "react";
 import { Modal, Input, Button, Typography, Form } from "antd";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setForgotPassword } from "../redux/slice/UserSlice";
+import { setForgotPassword } from "../../redux/slice/UserSlice.js";
 import OtpInput from "./OtpInput.jsx";
-import { BASE_URL } from "../utilities/initalValue.js";
+import { BASE_URL } from "../../utilities/initalValue.js";
 import {
   showAutoCloseAlert,
   showErrorAlert,
-} from "../components/SweetAlert/index.js";
+} from "../../components/SweetAlert/index.js";
 
 const ForgotPasswordModal = ({ visible, onCancel }) => {
   const dispatch = useDispatch();
