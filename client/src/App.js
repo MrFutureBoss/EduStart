@@ -7,6 +7,8 @@ import AdminLayout from "./layouts/admin/AdminLayout.js";
 import UserListSemester from "./pages/semester/UserList.js";
 import SemesterList from "./pages/semester/SemesterList.js";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ChangePassword from "./pages/ChangePassword.jsx";
 
 //Route tạm thời để code không dùng thì comment lại
 
@@ -25,6 +27,7 @@ function App() {
             element={<UserListSemester />}
           />
         </Route>
+        <Route path="/change-password" element={<ChangePassword />} />
         {/* <Route path="/" element={<ProfessionManagement />} /> */}
         <Route path="/" element={<SignIn />} />
       </Routes>
