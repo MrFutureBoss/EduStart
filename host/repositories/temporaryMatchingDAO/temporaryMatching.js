@@ -2,7 +2,7 @@ import Group from "../../models/groupModel.js";
 import TemporaryMatching from "../../models/temporaryMatchingModel.js";
 import mongoose from "mongoose";
 import MentorCategory from "../../models/mentorCategoryModel.js";
-import ProjectCategory from "../../models/ProjectCategoryModel .js";
+import ProjectCategory from "../../models/projectCategoryModel.js";
 import MentorPreference from "../../models/mentorPreference.js";
 import Matched from "../../models/matchedModel.js";
 import Profession from "../../models/professionModel.js";
