@@ -4,6 +4,10 @@ const initialValue = {
     data: [],
     total: 0,
   },
+  specialtiesData: {
+    data: [],
+    total: 0,
+  }
 };
 
 const professionSlice = createSlice({
@@ -14,9 +18,13 @@ const professionSlice = createSlice({
       state.professions = action.payload;
       state.professions.total = action.payload.length;
     },
+    setSpecialtiesData: (state, action) => {
+      state.specialtiesData= action.payload;
+      state.specialtiesData.total = action.payload.length;
+    }
   },
 });
 
 const { reducer, actions } = professionSlice;
-export const { setProfessions } = actions;
+export const { setProfessions, setSpecialtiesData } = actions;
 export default reducer;

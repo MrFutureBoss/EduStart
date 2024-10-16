@@ -106,29 +106,12 @@ const AddNewProfession = ({ show, close }) => {
           data: [newProfession, ...professions],
           total: professions.length + 1,
         };
-        // const newSpecialties =
-        //   specialties.length > 0
-        //     ? specialties.map((specialty) => ({
-        //         name: specialty,
-        //         status: isActive,
-        //       }))
-        //     : [];
-
-        // const updateSpecialties = {
-        //   data: [...newSpecialties, ...specialtiesData],
-        //   total: specialtiesData.length + newSpecialties.length,
-        // };
-
-        // Fetch specialties again to ensure UI updates correctly
         const specialtiesResponse = await axios.get(`${BASE_URL}/specialty`);
         if (specialtiesResponse.status === 200) {
           dispatch(setSpecialties(specialtiesResponse.data));
         }
 
         dispatch(setProfessions(updatedProfessions));
-        // console.log("Check redux: " + JSON.stringify(newSpecialties, null, 2))
-        // dispatch(setSpecialties(updateSpecialties.data));
-        // Reset form
         setProfessionName("");
         setSpecialtiesData([]);
         setIsActive(false);

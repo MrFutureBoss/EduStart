@@ -12,7 +12,6 @@ import {
   EnterOutlined,
   DeleteOutlined,
   PlusOutlined,
-  CloseSquareFilled,
   UndoOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
@@ -83,7 +82,7 @@ const EditProfession = ({ _id, show, close }) => {
       setSpecialtiesData(fetchedData.data || []); // Đảm bảo rằng specialties là một mảng hoặc mặc định là []
     } catch (err) {
       message.error("Có lỗi xảy ra khi lấy dữ liệu chuyên môn.");
-      setSpecialtiesData([]); 
+      setSpecialtiesData([]);
     }
   };
 
@@ -143,11 +142,15 @@ const EditProfession = ({ _id, show, close }) => {
       return;
     }
 
+    const filteredSpecialties = specialties.filter(
+      (specialty) => !specialty.isDeleted
+    );
+
     // Chuẩn bị dữ liệu để gửi lên API
     const data = {
       name: professionName,
       status: isActive,
-      specialties: specialties.map((specialty) => ({
+      specialties: filteredSpecialties.map((specialty) => ({
         _id: specialty._id || undefined,
         name: specialty.name,
         status: specialty.status || isActive,
@@ -245,8 +248,8 @@ const EditProfession = ({ _id, show, close }) => {
 
   //Hàm xử lý nhập chuyên môn
   const handleSpecialtyInputChange = (e) => {
-    let { name, value } = e.target;
-    value = capitalizeEachWord(e.target.value.normalize("NFC"));
+    let value = e.target.value.normalize("NFC");
+    value = capitalizeEachWord(value);
     //Validate giới hạn ký tự
     if (value.length <= MAX_LENGTH) {
       setSpecialtyInput(value);
@@ -270,10 +273,6 @@ const EditProfession = ({ _id, show, close }) => {
 
       // Reset trạng thái kiểm tra trùng tên
       setIsNameDuplicate2(false);
-      setSpecialtiesData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
     } else {
       message.warning(`Tên chuyên môn không được dài quá ${MAX_LENGTH} ký tự.`);
     }
@@ -289,28 +288,50 @@ const EditProfession = ({ _id, show, close }) => {
         e.preventDefault();
         return;
       }
-
-      // Kiểm tra nếu chuyên môn này đã tồn tại dựa trên name (vì chuyên môn mới chưa có _id)
-      const isSpecialtyExist = specialties.some(
-        (specialty) =>
-          specialty.name.toLowerCase() === trimmedSpecialty.toLowerCase()
-      );
-
-      if (isSpecialtyExist) {
+      // Validate chuyên môn không trùng nhau
+      if (specialties.includes(trimmedSpecialty)) {
         message.error(
-          "Tên chuyên môn của bạn đang trùng với chuyên môn đã có."
+          "Tên chuyên môn của bạn đang trùng chuyên môn mà bạn vừa thêm."
         );
         e.preventDefault();
         return;
       }
 
-      // Nếu không trùng, thêm chuyên môn mới (không có _id)
+      //Validate chuyên môn có trùng lĩnh vực vừa nhập không
+      if (trimmedSpecialty === professionName) {
+        message.error(
+          "Tên chuyên môn của bạn đang trùng tên lĩnh vực mà bạn vừa nhập."
+        );
+        e.preventDefault();
+        return;
+      }
+
+      //Validate chuyên môn trùng với chuyên môn trong data
+      if (isNameDuplicate2) {
+        message.error(
+          "Tên chuyên môn đang trùng với lĩnh vực hoặc chuyên môn đã tồn tại khác."
+        );
+        e.preventDefault();
+        return;
+      }
+
+      if (isOnlyNumber2 || isInvalidWhitespace2) {
+        message.error("Hãy điền đúng điều kiện nhập trước khi Enter");
+        e.preventDefault();
+        return;
+      }
+
+      // Validate chuyên môn không chứa ký tự đặc biệt
+      if (!REGEX.test(trimmedSpecialty)) {
+        message.error("Tên chuyên môn không được chứa ký tự đặc biệt.");
+        e.preventDefault();
+        return;
+      }
+
       setSpecialtiesData([
         ...specialties,
-        { name: trimmedSpecialty }, // Không có _id, nhưng name là duy nhất
+        { name: trimmedSpecialty, status: true },
       ]);
-
-      // Xóa input sau khi thêm
       setSpecialtyInput("");
       e.preventDefault();
     }
@@ -318,22 +339,37 @@ const EditProfession = ({ _id, show, close }) => {
 
   // Hàm xử lý khi nhấn "close"
   const handleRemoveSpecialty = (removedSpecialty) => {
-    setClosedSpecialties([
-      ...closedSpecialties,
-      removedSpecialty._id || removedSpecialty.name,
-    ]);
+    // Đánh dấu chuyên môn là đã bị xóa thay vì xóa hẳn
+    const updatedSpecialties = specialties.map((specialty) =>
+      specialty.name === removedSpecialty.name
+        ? { ...specialty, isDeleted: true } // Đánh dấu isDeleted là true
+        : specialty
+    );
+
+    setSpecialtiesData(updatedSpecialties);
+  };
+
+  const handleUndoRemoveSpecialty = (restoredSpecialty) => {
+    // Phục hồi chuyên môn đã bị xóa
+    const updatedSpecialties = specialties.map((specialty) =>
+      specialty.name === restoredSpecialty.name
+        ? { ...specialty, isDeleted: false } // Đánh dấu isDeleted là false
+        : specialty
+    );
+
+    setSpecialtiesData(updatedSpecialties);
   };
 
   // Hàm xử lý khi nhấn "Hoàn tác"
-  const handleUndoRemoveSpecialty = (restoredSpecialty) => {
-    setClosedSpecialties(
-      closedSpecialties.filter(
-        (specialtyId) =>
-          specialtyId !== restoredSpecialty._id &&
-          specialtyId !== restoredSpecialty.name
-      )
-    );
-  };
+  // const handleUndoRemoveSpecialty = (restoredSpecialty) => {
+  //   setClosedSpecialties(
+  //     closedSpecialties.filter(
+  //       (specialtyId) =>
+  //         specialtyId !== restoredSpecialty._id &&
+  //         specialtyId !== restoredSpecialty.name
+  //     )
+  //   );
+  // };
 
   //Hàm xử lý nhập lĩnh vực
   const handleProfessionNameChange = (e) => {
@@ -390,8 +426,11 @@ const EditProfession = ({ _id, show, close }) => {
 
   const handleAddSpecialty = () => {
     setShowAddSpecialtyInput(true);
-    if (editingSpecialty !== null || editSpecialtyInput)
-      setShowEditSpecialtyInput(false);
+    setShowEditSpecialtyInput(false);
+    setSpecialtyInput("");
+    setIsInvalidWhitespace2(false);
+    setIsOnlyNumber2(false);
+    setIsNameDuplicate2(false);
   };
 
   const handleEditSpecialty = (specialty) => {
@@ -448,16 +487,9 @@ const EditProfession = ({ _id, show, close }) => {
         return;
       }
 
-      // Kiểm tra nếu chuyên môn đã tồn tại (dựa trên name) khi chỉnh sửa
-      const isSpecialtyExist = specialties.some(
-        (specialty) =>
-          specialty.name.toLowerCase() === trimmedSpecialty.toLowerCase() &&
-          specialty._id !== editingSpecialty._id // Không kiểm tra trùng với chính nó
-      );
-
-      if (isSpecialtyExist) {
+      if (specialties.includes(trimmedSpecialty)) {
         message.error(
-          "Tên chuyên môn của bạn đang trùng với chuyên môn đã có."
+          "Tên chuyên môn của bạn đang trùng chuyên môn mà bạn vừa thêm."
         );
         e.preventDefault();
         return;
@@ -576,8 +608,6 @@ const EditProfession = ({ _id, show, close }) => {
       <h3 style={{ color: "#FFF" }}>Cập nhật lĩnh vực và chuyên môn</h3>
     </>
   );
-
-  console.log("DATA: " + JSON.stringify(specialties));
 
   //Modal Body
   const modalBody = (
@@ -714,11 +744,14 @@ const EditProfession = ({ _id, show, close }) => {
                       <Button
                         variant="danger"
                         onClick={() => {
-                          // Kiểm tra nếu input đang có dữ liệu
                           if (specialtyInput.length > 0) {
-                            setShowAddPopconfirm(true); // Hiển thị Popconfirm
+                            setShowAddPopconfirm(true);
                           } else {
-                            setShowAddSpecialtyInput(false); // Không có dữ liệu, đóng trực tiếp
+                            setSpecialtyInput("");
+                            setIsInvalidWhitespace2(false);
+                            setIsOnlyNumber2(false);
+                            setIsNameDuplicate2(false);
+                            setShowAddSpecialtyInput(false);
                           }
                         }}
                       >
@@ -817,69 +850,110 @@ const EditProfession = ({ _id, show, close }) => {
             )}
             {showEditSpecialtyInput ? (
               <Form.Group
-              style={{ marginBottom: "10px" }}
-              controlId="formEditSpecializationName"
-            >
-              <Form.Label style={{ fontWeight: "600" }}>
-                Chỉnh sửa chuyên môn:
-              </Form.Label>
-              <Row>
-                <Col sm={9}>
-                  <Form.Control
-                    type="text"
-                    placeholder="VD: Lập trình Web"
-                    value={editSpecialtyInput}
-                    onChange={handleEditSpecialtyInputChange}
-                    onKeyDown={handleEditSpecialtyKeyDown}
-                    style={{ marginBottom: "5px" }}
-                  />
-                </Col>
-                <Col sm={3} style={{ display: "flex", alignItems: "center" }}>
-                  <Button
-                    variant="danger"
-                    onClick={() => setShowEditSpecialtyInput(false)}
-                  >
-                    Đóng
-                  </Button>
-                </Col>
-              </Row>
-            
-              {/* Kiểm tra và hiển thị các lỗi tương tự như phần thêm */}
-              <small className="limitwords" style={{ display: editSpecialtyInput.length > 1 ? "none" : "block" }}>
-                <span style={{ color: "red" }}>*</span>
-                &nbsp;Điền ít nhất 2 kí tự
-              </small>
-              <small className="limitwords" style={{ display: isInvalidWhitespace2 ? "block" : "none" }}>
-                <CloseCircleOutlined style={{ color: "red" }} />
-                &nbsp;Không được bắt đầu hoặc liên tục chứa khoảng trắng
-              </small>
-              <small className="limitwords" style={{ display: isOnlyNumber2 ? "block" : "none" }}>
-                <CloseCircleOutlined style={{ color: "red" }} />
-                &nbsp;Tên không được chỉ mỗi số
-              </small>
-              <small className="limitwords" style={{ display: editSpecialtyInput.length <= 1 ? "none" : "block" }}>
-                {editSpecialtyInput.length > 1 && editSpecialtyInput.length <= MAX_LENGTH ? (
-                  <CheckCircleOutlined style={{ color: "green" }} />
-                ) : (
+                style={{ marginBottom: "10px" }}
+                controlId="formEditSpecializationName"
+              >
+                <Form.Label style={{ fontWeight: "600" }}>
+                  Chỉnh sửa chuyên môn:
+                </Form.Label>
+                <Row>
+                  <Col sm={9}>
+                    <Form.Control
+                      type="text"
+                      placeholder="VD: Lập trình Web"
+                      value={editSpecialtyInput}
+                      onChange={handleEditSpecialtyInputChange}
+                      onKeyDown={handleEditSpecialtyKeyDown}
+                      style={{ marginBottom: "5px" }}
+                    />
+                  </Col>
+                  <Col sm={3} style={{ display: "flex", alignItems: "center" }}>
+                    <Button
+                      variant="danger"
+                      onClick={() => setShowEditSpecialtyInput(false)}
+                    >
+                      Đóng
+                    </Button>
+                  </Col>
+                </Row>
+
+                {/* Kiểm tra và hiển thị các lỗi tương tự như phần thêm */}
+                <small
+                  className="limitwords"
+                  style={{
+                    display: editSpecialtyInput.length > 1 ? "none" : "block",
+                  }}
+                >
+                  <span style={{ color: "red" }}>*</span>
+                  &nbsp;Điền ít nhất 2 kí tự
+                </small>
+                <small
+                  className="limitwords"
+                  style={{ display: isInvalidWhitespace2 ? "block" : "none" }}
+                >
                   <CloseCircleOutlined style={{ color: "red" }} />
-                )}
-                &nbsp;Giới hạn kí tự nhập:
-                <span style={{ color: editSpecialtyInput.length >= MAX_LENGTH ? "red" : "green" }}>
-                  {editSpecialtyInput.length}
-                </span>
-                /{MAX_LENGTH} ký tự
-              </small>
-              <small className="limitwords" style={{ display: isNameDuplicate2 || editSpecialtyInput === professionName ? "block" : "none" }}>
-                <CloseCircleOutlined style={{ color: "red" }} />
-                &nbsp;Tên không trùng với lĩnh vực hoặc chuyên môn khác
-              </small>
-            </Form.Group>
-            
+                  &nbsp;Không được bắt đầu hoặc liên tục chứa khoảng trắng
+                </small>
+                <small
+                  className="limitwords"
+                  style={{ display: isOnlyNumber2 ? "block" : "none" }}
+                >
+                  <CloseCircleOutlined style={{ color: "red" }} />
+                  &nbsp;Tên không được chỉ mỗi số
+                </small>
+                <small
+                  className="limitwords"
+                  style={{
+                    display: editSpecialtyInput.length <= 1 ? "none" : "block",
+                  }}
+                >
+                  {editSpecialtyInput.length > 1 &&
+                  editSpecialtyInput.length <= MAX_LENGTH ? (
+                    <CheckCircleOutlined style={{ color: "green" }} />
+                  ) : (
+                    <CloseCircleOutlined style={{ color: "red" }} />
+                  )}
+                  &nbsp;Giới hạn kí tự nhập:
+                  <span
+                    style={{
+                      color:
+                        editSpecialtyInput.length >= MAX_LENGTH
+                          ? "red"
+                          : "green",
+                    }}
+                  >
+                    {editSpecialtyInput.length}
+                  </span>
+                  /{MAX_LENGTH} ký tự
+                </small>
+                <small
+                  className="limitwords"
+                  style={{
+                    display:
+                      isNameDuplicate2 || editSpecialtyInput === professionName
+                        ? "block"
+                        : "none",
+                  }}
+                >
+                  <CloseCircleOutlined style={{ color: "red" }} />
+                  &nbsp;Tên không trùng với lĩnh vực hoặc chuyên môn khác
+                </small>
+                <small className="hint_addspecialty">
+                  (*) Nếu chỉnh sửa chuyên môn hãy nhấn{" "}
+                  <span className="key_enter">
+                    <EnterOutlined /> Enter
+                  </span>{" "}
+                  để lưu thay đổi
+                </small>
+              </Form.Group>
             ) : (
               <></>
             )}
             <Form.Group style={{ marginBottom: "10px" }}>
-              <div className="speicalty_tag_container" style={{ display: "flex", flexWrap: "wrap" }}>
+              <div
+                className="speicalty_tag_container"
+                style={{ display: "flex", flexWrap: "wrap" }}
+              >
                 <Tag
                   className="speicalty_edit-addtag"
                   style={{ display: showAddSpecialtyInput ? "none" : "block" }}
@@ -888,21 +962,44 @@ const EditProfession = ({ _id, show, close }) => {
                   <PlusOutlined /> Thêm
                 </Tag>
                 {specialties.length > 0 ? (
-                  specialties?.map((specialty, index) => (
+                  specialties.map((specialty, index) => (
                     <Tag
                       className="speicalty_edittag"
                       key={index}
+                      style={{
+                        backgroundColor: specialty.isDeleted ? "#d9d9d9" : "", // Đổi màu sang xám khi bị xóa
+                        color: specialty.isDeleted ? "#8c8c8c" : "#fff", // Đổi màu chữ khi bị xóa
+                        cursor: specialty.isDeleted ? "not-allowed" : "pointer", // Vô hiệu hóa con trỏ khi bị xóa
+                      }}
                       closeIcon={
-                        <CloseCircleOutlined
-                          style={{
-                            fontSize: "15px",
-                            color: "#fff",
-                            cursor: "pointer",
-                          }}
-                        />
+                        specialty.isDeleted ? (
+                          <UndoOutlined
+                            style={{
+                              fontSize: "15px",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          />
+                        ) : (
+                          <CloseCircleOutlined
+                            style={{
+                              fontSize: "15px",
+                              color: "#fff",
+                              cursor: "pointer",
+                            }}
+                          />
+                        )
                       }
                       closable
-                      onClose={() => handleRemoveSpecialty(specialty)}
+                      onClose={
+                        () =>
+                          specialty.isDeleted
+                            ? handleUndoRemoveSpecialty(specialty) // Gọi hàm Undo khi đã bị xóa
+                            : handleRemoveSpecialty(specialty) // Gọi hàm xóa khi chưa bị xóa
+                      }
+                      onClick={() =>
+                        !specialty.isDeleted && handleEditSpecialty(specialty)
+                      } // Chỉ cho phép chỉnh sửa khi chưa bị xóa
                     >
                       {specialty.name}
                     </Tag>
