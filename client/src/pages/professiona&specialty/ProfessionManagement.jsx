@@ -4,17 +4,32 @@ import { useDispatch, useSelector } from "react-redux";
 import { setProfessions } from "../../redux/slice/ProfessionSlice.js";
 import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
 import { useEffect, useState } from "react";
-import { Card, Button, Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import {
   EditOutlined,
+  EllipsisOutlined,
+  EyeOutlined,
+  LockFilled,
   LockOutlined,
   PlusCircleOutlined,
+  SettingOutlined,
+  UnlockFilled,
   UnlockOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { Pagination, Tag } from "antd";
+import {
+  Avatar,
+  Badge,
+  Card,
+  Pagination,
+  Popconfirm,
+  Popover,
+  Tag,
+} from "antd";
 import AddNewProfession from "./AddNewProfession.jsx";
 import EditProfession from "./EditProfession.jsx";
 import Search from "antd/es/transfer/search.js";
+import "../../style/Admin/Profession.css";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
@@ -62,6 +77,11 @@ const ProfessionManagement = () => {
     return define ? define.name : "Unknown";
   };
 
+  const getSpecialtyStatusById = (id) => {
+    const define = specialties.find((sp) => sp._id === id);
+    return define ? define.status : false;
+  };
+
   //Đổi status lĩnh vực
   const toggleStatus = (id, currentStatus) => {
     const updatedStatus = { status: !currentStatus };
@@ -79,6 +99,10 @@ const ProfessionManagement = () => {
         );
       })
       .catch((err) => console.log("Error updating profession status", err));
+  };
+
+  const cancelToggle = (e) => {
+    console.log(e);
   };
 
   const onPageChange = (pageNumber) => {
@@ -120,7 +144,6 @@ const ProfessionManagement = () => {
     setProfessionId("");
     setIsEditModalOpen(false);
   };
-
   return (
     <Container fluid>
       <AddNewProfession show={isModalOpen} close={handleCloseModal} />
@@ -129,9 +152,6 @@ const ProfessionManagement = () => {
         show={isEditModalOpen}
         close={handleCloseEditModal}
       />
-      <Row style={{ display: "flex", justifyContent: "center" }}>
-        <h1 style={{ width: "fit-content" }}>Quản lý lĩnh vực và chuyên môn</h1>
-      </Row>
       <Row style={{ marginBottom: "10px" }}>
         <Col sm={2}>
           <Button
@@ -154,67 +174,139 @@ const ProfessionManagement = () => {
       </Row>
       <Row>
         {professions.map((pro) => (
-          <Col sm={6} key={pro._id} style={{ margin: "auto" }}>
-            <Card style={{ width: "100%", marginBottom: "5px" }}>
-              {/* <Card.Img variant="top" src="holder.js/100px180" /> */}
-              <Card.Body>
-                <Row>
-                  <Col sm={9}>
-                    <Card.Title>{pro.name}</Card.Title>
-                  </Col>
-                  <Col
-                    sm={3}
+          <Col sx={12} sm={12} md={12} lg={6} key={pro._id} className="profession-list">
+            <Badge.Ribbon
+              text={
+                <span className="count-mentors">
+                  0&nbsp;
+                  <EyeOutlined
                     style={{
-                      margin: "auto",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "end",
-                      gap: "4px",
+                      fontSize: "inherit",
+                      lineHeight: 1,
+                      verticalAlign: "middle",
                     }}
-                  >
-                    {pro.status ? (
-                      <UnlockOutlined
-                        style={{
-                          color: "green",
-                          fontSize: "34px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => toggleStatus(pro._id, pro.status)}
-                      />
-                    ) : (
-                      <LockOutlined
-                        style={{
-                          color: "red",
-                          fontSize: "34px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => toggleStatus(pro._id, pro.status)}
-                      />
-                    )}
-                    <Button
-                      style={{ borderWidth: "2px" }}
-                      Button
-                      variant="outline-primary"
-                      onClick={() => handleOpenEditModal(pro._id)}
-                    >
-                      <EditOutlined twoToneColor="#FFF" />
-                    </Button>
-                  </Col>
-                </Row>
-                <Card.Text>
-                  Chuyên môn: &nbsp;
-                  {pro.specialty.length > 0 ? (
-                    pro.specialty.map((sp) => (
-                      <Tag key={sp}>{getSpecialtyNameById(sp)}</Tag>
-                    ))
+                  />
+                </span>
+              }
+            >
+              <Card
+                actions={[
+                  pro.status ? (
+                    <Popover content="Đang hoạt động">
+                      <Popconfirm
+                        title="Đổi trạng thái hoạt động"
+                        description="Bạn có chắc là muốn cho dừng hoạt động lĩnh vực này không?"
+                        onConfirm={() => toggleStatus(pro._id, pro.status)}
+                        onCancel={cancelToggle}
+                        okText="Có"
+                        cancelText="Hủy"
+                      >
+                        <UnlockOutlined
+                          style={{
+                            color: "green",
+                            fontSize: "18px",
+                            cursor: "pointer",
+                          }}
+                        />
+                      </Popconfirm>
+                    </Popover>
                   ) : (
-                    <Tag style={{ fontStyle: "italic", color: "grey", fontSize:'14px' }}>
-                      Chưa có chuyên môn nào{" "}
-                    </Tag>
-                  )}
-                </Card.Text>
-              </Card.Body>
-            </Card>
+                    <Popover content="Chưa hoạt động">
+                      <Popconfirm
+                        title="Đổi trạng thái hoạt động"
+                        description="Bạn có chắc là muốn cho hoạt động lĩnh vực này không?"
+                        onConfirm={() => toggleStatus(pro._id, pro.status)}
+                        onCancel={cancelToggle}
+                        okText="Có"
+                        cancelText="Hủy"
+                      >
+                        <LockOutlined
+                          style={{
+                            color: "red",
+                            fontSize: "18px",
+                            cursor: "pointer",
+                          }}
+                        />
+                      </Popconfirm>
+                    </Popover>
+                  ),
+                  <Popover content="Cập nhật">
+                    <EditOutlined
+                      style={{
+                        fontSize: "18px",
+                        cursor: "pointer",
+                      }}
+                      key="edit"
+                      onClick={() => handleOpenEditModal(pro._id)}
+                    />
+                  </Popover>,
+                  <EllipsisOutlined key="ellipsis" />,
+                ]}
+                style={{
+                  width: "28rem",
+                  height: "100%",
+                  marginBottom: "5px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Card.Meta
+                  avatar={
+                    <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+                  }
+                  title={pro.name}
+                  description={
+                    <div>
+                      Chuyên môn: &nbsp;
+                      {pro.specialty.length > 0 ? (
+                        pro.specialty.map((sp) => (
+                          <Popover content="Đang hoạt động">
+                            <Tag
+                              bordered={true}
+                              className="specialty-tags"
+                              key={sp}
+                            >
+                              <span
+                                style={{
+                                  marginRight: "6px",
+                                }}
+                              >
+                                {getSpecialtyNameById(sp)}&nbsp;
+                              </span>
+                              <span
+                                className="count-mentors"
+                                style={{ borderLeft: "1px solid white" }}
+                              >
+                                0
+                                <UserOutlined
+                                  style={{
+                                    fontSize: "inherit",
+                                    lineHeight: 1,
+                                    verticalAlign: "middle",
+                                  }}
+                                />
+                              </span>
+                              {/* <span className="specialty-status">
+                                {getSpecialtyStatusById(sp) ? (
+                                  <UnlockFilled />
+                                ) : (
+                                  <LockFilled />
+                                )}
+                              </span> */}
+                            </Tag>
+                          </Popover>
+                        ))
+                      ) : (
+                        <Tag className="specialty-tags">
+                          Chưa có chuyên môn nào{" "}
+                        </Tag>
+                      )}
+                    </div>
+                  }
+                />
+              </Card>
+            </Badge.Ribbon>
           </Col>
         ))}
       </Row>
