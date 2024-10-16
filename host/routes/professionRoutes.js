@@ -5,6 +5,7 @@ const professionRouters = express.Router();
 //Search nên đặt lên trước để tránh bị coi /:id
 professionRouters.get("/", professionController.getAllProfessions);
 professionRouters.get("/search", professionController.findProfessionAndSpecialtyByName);
+professionRouters.get("/search/like", professionController.searchProfessionsAndSpecialtiesByName);
 professionRouters.get("/:id", professionController.getProfessionById);
 professionRouters.get("/:id/specialties", professionController.getAllSpecialtyByProfessionID);
 professionRouters.put("/:id/specialties", professionController.updateProfessionAndSpecialty)

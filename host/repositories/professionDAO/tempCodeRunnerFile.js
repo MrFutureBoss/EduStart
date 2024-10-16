@@ -87,43 +87,6 @@ const findProfessionAndSpecialtyByName = async (name) => {
   }
 };
 
-// Hàm loại bỏ dấu tiếng Việt
-const removeVietnameseTones = (str) => {
-  return str
-    .normalize("NFD") // Tách các ký tự Unicode tổ hợp (dấu)
-    .replace(/[\u0300-\u036f]/g, "") // Loại bỏ các dấu
-    .replace(/đ/g, "d").replace(/Đ/g, "D") // Thay thế 'đ' thành 'd'
-    .toLowerCase(); // Chuyển thành chữ thường
-};
-
-const searchProfessionsAndSpecialtiesByName = async (name) => {
-  try {
-    const searchRegex = new RegExp(name, 'i'); // Tạo regex để tìm kiếm theo chuỗi con không phân biệt chữ hoa/thường
-
-    // Tìm tất cả các profession có tên chứa chuỗi tìm kiếm
-    const professions = await Profession.find({
-      name: { $regex: searchRegex }
-    });
-
-    // Tìm tất cả các specialty có tên chứa chuỗi tìm kiếm
-    const specialties = await Specialty.find({
-      name: { $regex: searchRegex }
-    });
-
-    // Kiểm tra nếu không tìm thấy profession hoặc specialty nào
-    if (professions.length === 0 && specialties.length === 0) {
-      throw new Error("Không tìm thấy lĩnh vực hoặc chuyên môn nào khớp với chuỗi tìm kiếm.");
-    }
-
-    return {
-      professions,
-      specialties,
-    };
-  } catch (error) {
-    throw new Error(`Error finding profession and specialty by search: ${error.message}`);
-  }
-};
-
 const createNewProfession = async (name, specialties, status) => {
   try {
     // Kiểm tra xem profession với tên này đã tồn tại chưa
@@ -250,7 +213,6 @@ export default {
   getProfessionById,
   getAllSpecialtyByProfessionID,
   findProfessionAndSpecialtyByName,
-  searchProfessionsAndSpecialtiesByName,
   createNewProfession,
   updateProfessionAndSpecialty,
   updateProfession,

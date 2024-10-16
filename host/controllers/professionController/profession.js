@@ -66,6 +66,21 @@ const findProfessionAndSpecialtyByName = async (req, res, next) => {
   }
 };
 
+//Hàm này phục vụ thanh search
+const searchProfessionsAndSpecialtiesByName = async (req, res, next) => {
+  try {
+    const { name } = req.query;
+    if (!name || name.length < 2) {
+      return res.status(400).json({ message: "Tên tìm kiếm cần có ít nhất 2 ký tự" });
+    }
+
+    const result = await professionDAO.searchProfessionsAndSpecialtiesByName(name);
+
+    res.status(200).json(result); // Trả về kết quả tìm kiếm
+  } catch (error) {
+    return res.status(404).json({ message: error.message });
+  }
+};
 
 const createNewProfession = async (req, res, next) => {
   try {
@@ -135,6 +150,7 @@ export default {
   getProfessionById,
   getAllSpecialtyByProfessionID,
   findProfessionAndSpecialtyByName,
+  searchProfessionsAndSpecialtiesByName,
   createNewProfession,
   updateProfessionAndSpecialty,
   updateProfession,
