@@ -1,0 +1,120 @@
+.transfer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  perspective: 1000px; /* Thêm để tạo hiệu ứng 3D nếu cần */
+}
+
+/* Các phần thông tin học sinh và lớp mới */
+.student-info,
+.new-class-info {
+  width: 50%;
+  margin-bottom: 30px;
+  transition: transform 1s ease, opacity 1s ease; /* Thêm transition cho hiệu ứng */
+}
+
+/* Hiệu ứng chuyển động khi chuyển lớp */
+.slide-right {
+  transform: translateX(
+    100%
+  ); /* Di chuyển ô thông tin học sinh hiện tại về phía bên phải */
+  opacity: 0; /* Làm mờ ô khi di chuyển */
+}
+
+/* Card Styling */
+.student-card,
+.class-preview {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Biểu tượng Mũi tên chuyển đổi với hiệu ứng nhấp nháy */
+.swap-arrow-container {
+  width: 20%;
+  text-align: center;
+  position: relative;
+}
+
+.swap-arrow {
+  border: solid #1890ff;
+  border-width: 0 6px 6px 0;
+  display: inline-block;
+  padding: 12px;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  animation: arrow-pulse 1s infinite;
+}
+
+@keyframes arrow-pulse {
+  0% {
+    transform: scale(1) rotate(-45deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(-45deg);
+  }
+  100% {
+    transform: scale(1) rotate(-45deg);
+  }
+}
+
+/* Hiệu ứng Checkmark thành công (tùy chọn) */
+.success-checkmark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: none; /* Ẩn mặc định */
+  align-items: center;
+  justify-content: center;
+  background-color: #52c41a;
+  animation: checkmark-fade-in 0.5s forwards;
+}
+
+.checkmark {
+  width: 40px;
+  height: 20px;
+  border-left: 5px solid white;
+  border-bottom: 5px solid white;
+  transform: rotate(-45deg);
+  animation: checkmark-draw 0.5s forwards;
+}
+
+@keyframes checkmark-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+    display: flex;
+  }
+}
+
+@keyframes checkmark-draw {
+  from {
+    width: 0;
+    height: 0;
+  }
+  to {
+    width: 40px;
+    height: 20px;
+  }
+}
+
+/* Transition cho Preview Class */
+.preview-card {
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.preview-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}

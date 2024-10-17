@@ -1,6 +1,22 @@
 import { Alert } from "antd";
+import { useDispatch } from "react-redux";
+import {
+  clearFailedEmails,
+  clearErrorMessages,
+  clearFullClassUsers,
+} from "../../redux/slice/ErrorSlice";
 
 const ErrorAlerts = ({ fullClassUsers, errorMessages, failedEmails }) => {
+  const dispatch = useDispatch();
+  const handleCloseFullClassUsers = () => {
+    dispatch(clearFullClassUsers());
+  };
+  const handleCloseErrorMessages = () => {
+    dispatch(clearErrorMessages());
+  };
+  const handleCloseFailedEmails = () => {
+    dispatch(clearFailedEmails());
+  };
   return (
     <>
       {fullClassUsers && fullClassUsers.length > 0 && (
@@ -20,6 +36,7 @@ const ErrorAlerts = ({ fullClassUsers, errorMessages, failedEmails }) => {
             type="error"
             showIcon
             closable
+            onClose={handleCloseFullClassUsers}
           />
         </div>
       )}
@@ -40,6 +57,7 @@ const ErrorAlerts = ({ fullClassUsers, errorMessages, failedEmails }) => {
             type="error"
             showIcon
             closable
+            onClose={handleCloseErrorMessages}
           />
         </div>
       )}
@@ -58,6 +76,7 @@ const ErrorAlerts = ({ fullClassUsers, errorMessages, failedEmails }) => {
             type="error"
             showIcon
             closable
+            onClose={handleCloseFailedEmails}
           />
         </div>
       )}

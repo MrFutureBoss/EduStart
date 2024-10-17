@@ -728,10 +728,94 @@ const getPendingUsers = async (req, res) => {
   }
 };
 
+const createClass = async (req, res) => {
+  try {
+    const errors = [];
+    const { className, limitStudent, teacherId, semesterId } = req.body;
+    const classExits = await classDAO.isClassNameExist(className);
+    if (classExits) {
+      return res.status(400).json({
+        field: "className",
+        message: `Tên lớp: ${className} đã tồn tại trong hệ thống.`,
+      });
+    }
+    const savedClass = await classDAO.createClass({
+      className,
+      limitStudent,
+      teacherId,
+      semesterId,
+      status: "Active",
+    });
+    res.status(201).json(savedClass);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while creating the class" });
+  }
+};
+
+const fetchFullClasses = async (req, res) => {
+  const { semesterId } = req.params;
+
+  try {
+    if (!semesterId) {
+      return res.status(400).json({ message: "semesterId is required." });
+    }
+
+    const fullClasses = await classDAO.getFullClasses(semesterId);
+
+    res.status(200).json({ classes: fullClasses });
+  } catch (error) {
+    console.error("Error in fetchFullClasses:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const fetchTeachers = async (req, res) => {
+  try {
+    const teachers = await classDAO.getTeachersWithClassCount();
+
+    res.status(200).json({ teachers });
+  } catch (error) {
+    console.error("Error in fetchTeachers:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const transferStudentController = async (req, res) => {
+  try {
+    const { studentId, toClassId } = req.body;
+    const result = await adminsDAO.transferStudent(studentId, toClassId);
+    res
+      .status(200)
+      .json({ message: "Chuyển học sinh thành công", data: result });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const swapStudentsController = async (req, res) => {
+  try {
+    const { studentId1, studentId2 } = req.body;
+
+    const result = await adminsDAO.swapStudents(studentId1, studentId2);
+    res
+      .status(200)
+      .json({ message: "Hoán đổi học sinh thành công", data: result });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 export default {
   insertListUsers,
   getAvailableClasses,
   assignStudentToClass,
   getPendingUsers,
   insertUserByHand,
+  createClass,
+  fetchTeachers,
+  fetchFullClasses,
+  transferStudentController,
+  swapStudentsController,
 };

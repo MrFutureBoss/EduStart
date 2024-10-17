@@ -1,0 +1,86 @@
+.swap-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* Ẩn phần tử khi di chuyển */
+  perspective: 1000px; /* Thêm để tạo hiệu ứng 3D nếu cần */
+}
+
+/* Các phần thông tin học sinh và chọn học sinh */
+.student-info {
+  width: 40%;
+  transition: transform 1s ease, opacity 1s ease; /* Thêm transition cho hiệu ứng */
+}
+
+.student-card {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.new-class {
+  color: #ff4d4f; /* Làm nổi bật lớp mới */
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.swap-icon-container {
+  width: 20%;
+  text-align: center;
+  position: relative;
+}
+
+.swap-icon {
+  transition: transform 0.5s ease, color 0.5s ease;
+}
+
+.spin {
+  animation: spin 1s linear infinite, color-change 2s infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes color-change {
+  0% {
+    color: #1890ff;
+  }
+  50% {
+    color: #ff4d4f;
+  }
+  100% {
+    color: #1890ff;
+  }
+}
+
+/* Hiệu ứng chuyển động cho thẻ khi hoán đổi */
+.slide-right {
+  transform: translateX(120%); /* Di chuyển thẻ bên trái sang bên phải */
+  opacity: 0; /* Làm mờ thẻ khi di chuyển */
+}
+
+.slide-left {
+  transform: translateX(-120%); /* Di chuyển thẻ bên phải sang bên trái */
+  opacity: 0; /* Làm mờ thẻ khi di chuyển */
+}
+
+/* Transition cho Preview Card */
+.preview-card {
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.preview-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}

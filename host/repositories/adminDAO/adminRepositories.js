@@ -86,14 +86,11 @@ const findUserByEmail = async (email) => {
 
 const assignStudentToClass = async (userId, classId) => {
   try {
-    const studentCount = await User.countDocuments({ classId });
     const classData = await Class.findById(classId);
     if (!classData) {
       throw new Error("Lớp không tồn tại");
     }
-    if (studentCount >= classData.limitStudent) {
-      throw new Error("Lớp đã đầy");
-    }
+
     await User.findByIdAndUpdate(userId, { classId, status: "Active" });
 
     return {
@@ -136,6 +133,74 @@ const createUser = async (userData) => {
   }
 };
 
+const transferStudent = async (studentId, toClassId) => {
+  // Kiểm tra xem học sinh có tồn tại không và có phải là học sinh không
+  const student = await User.findOne({ _id: studentId, role: 4 });
+  if (!student)
+    throw new Error("Học sinh không tồn tại hoặc không phải là học sinh");
+
+  // Kiểm tra lớp mà học sinh đang thuộc về
+  const fromClassId = student.classId;
+
+  if (String(fromClassId) === toClassId) {
+    throw new Error("Học sinh đã thuộc về lớp này");
+  }
+
+  // Kiểm tra xem lớp chuyển đến có tồn tại và có còn chỗ trống không
+  const toClass = await Class.findById(toClassId);
+  if (!toClass || toClass.status !== "Active") {
+    throw new Error("Lớp không hợp lệ hoặc không hoạt động");
+  }
+
+  // Kiểm tra số lượng học sinh trong lớp đích
+  const studentCountInToClass = await User.countDocuments({
+    classId: toClassId,
+    role: 4,
+  });
+  if (studentCountInToClass >= toClass.limitStudent) {
+    throw new Error("Lớp đã đầy, không thể chuyển học sinh vào lớp này");
+  }
+
+  // Cập nhật lớp của học sinh
+  student.classId = toClassId;
+  await student.save();
+
+  return student;
+};
+
+const swapStudents = async (studentId1, studentId2) => {
+  // Tìm học sinh 1 và học sinh 2
+  const student1 = await User.findOne({ _id: studentId1, role: 4 });
+  const student2 = await User.findOne({ _id: studentId2, role: 4 });
+
+  if (!student1 || !student2)
+    throw new Error(
+      "Một hoặc cả hai học sinh không tồn tại hoặc không phải là học sinh"
+    );
+
+  // Kiểm tra xem cả hai học sinh có thuộc lớp nào không
+  if (!student1.classId || !student2.classId) {
+    throw new Error(
+      "Một hoặc cả hai học sinh chưa thuộc lớp nào, không thể hoán đổi"
+    );
+  }
+
+  // Lưu ý: Đảm bảo rằng học sinh này không thuộc cùng một lớp
+  if (String(student1.classId) === String(student2.classId)) {
+    throw new Error("Cả hai học sinh đã thuộc cùng một lớp");
+  }
+
+  // Hoán đổi lớp giữa hai học sinh
+  const tempClassId = student1.classId;
+  student1.classId = student2.classId;
+  student2.classId = tempClassId;
+
+  await student1.save();
+  await student2.save();
+
+  return { student1, student2 };
+};
+
 export default {
   findTeacherByUsername,
   findOrCreateClass,
@@ -146,4 +211,6 @@ export default {
   findUserByRollNumber,
   findUserByMemberCode,
   createUser,
+  transferStudent,
+  swapStudents,
 };
