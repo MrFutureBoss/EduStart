@@ -1,6 +1,6 @@
-import Group from "../../models/groupModel";
-import MentorCategory from "../../models/mentorCategoryModel";
-import ProjectCategory from "../../models/ProjectCategoryModel ";
+import Group from "../../models/groupModel.js";
+import MentorCategory from "../../models/mentorCategoryModel.js";
+import ProjectCategory from "../../models/projectCategoryModel.js";
 // hàm này để lọc danh sách các nhóm có cung lĩnh vực với mentor để mentor lựa chọn
 const getAvailableGroupsForMentor = async (req, res) => {
   try {
@@ -58,6 +58,43 @@ const getAvailableGroupsForMentor = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Lấy tất cả MentorCategories
+const getAllMentorCategories = async (skip, limit) => {
+  try {
+    return await MentorCategory.find()
+      .populate('mentorId professionId specialties.specialtyId')
+      .skip(skip)
+      .limit(limit);
+  } catch (error) {
+    throw new Error(`Unable to retrieve mentor categories: ${error.message}`);
+  }
+};
+
+// Lấy MentorCategory theo ID
+
+const getMentorCategoryById = async (id) => {
+  try {
+    return await MentorCategory.findById(id)
+      .populate('mentorId professionId specialties.specialtyId');
+  } catch (error) {
+    throw new Error(`Unable to find mentor category with ID ${id}: ${error.message}`);
+  }
+};
+
+// Tạo mới MentorCategory
+const createNewMentorCategory = async (mentorCategoryData) => {
+  try {
+    const newMentorCategory = new MentorCategory(mentorCategoryData);
+    return await newMentorCategory.save();
+  } catch (error) {
+    throw new Error(`Unable to create mentor category: ${error.message}`);
+  }
+};
+
 export default {
   getAvailableGroupsForMentor,
+  getAllMentorCategories,
+  getMentorCategoryById,
+  createNewMentorCategory,
 };

@@ -4,8 +4,8 @@ import { Layout, message, Spin, Empty } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
 import axios from "axios";
-import AppHeader from "./AdminHeader";
-import AppSider from "./AdminSidebar";
+import AppHeader from "../../layouts/admin/AdminHeader";
+import AppSider from "../../layouts/admin/AdminSidebar";
 import {
   setCounts,
   setCurrentSemester,
@@ -118,7 +118,7 @@ const MainLayout = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
-      <Layout>
+      <Layout style={{ backgroundColor: "#F7F7F7" }}>
         <AppSider
           collapsed={collapsed}
           currentSemester={currentSemester}
@@ -132,7 +132,7 @@ const MainLayout = () => {
               padding: 30,
               margin: 0,
               minHeight: 280,
-              background: "#fff",
+              background: "#f0f2f5",
             }}
           >
             {loading ? (

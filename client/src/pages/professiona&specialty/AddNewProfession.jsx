@@ -106,29 +106,12 @@ const AddNewProfession = ({ show, close }) => {
           data: [newProfession, ...professions],
           total: professions.length + 1,
         };
-        // const newSpecialties =
-        //   specialties.length > 0
-        //     ? specialties.map((specialty) => ({
-        //         name: specialty,
-        //         status: isActive,
-        //       }))
-        //     : [];
-
-        // const updateSpecialties = {
-        //   data: [...newSpecialties, ...specialtiesData],
-        //   total: specialtiesData.length + newSpecialties.length,
-        // };
-
-        // Fetch specialties again to ensure UI updates correctly
         const specialtiesResponse = await axios.get(`${BASE_URL}/specialty`);
         if (specialtiesResponse.status === 200) {
           dispatch(setSpecialties(specialtiesResponse.data));
         }
 
         dispatch(setProfessions(updatedProfessions));
-        // console.log("Check redux: " + JSON.stringify(newSpecialties, null, 2))
-        // dispatch(setSpecialties(updateSpecialties.data));
-        // Reset form
         setProfessionName("");
         setSpecialtiesData([]);
         setIsActive(false);
@@ -181,15 +164,15 @@ const AddNewProfession = ({ show, close }) => {
   //Hàm xử lí chữ cái đầu luôn viết hoa
   const capitalizeEachWord = (str) => {
     return str
-      .trim()
-      .split(/\s+/) // Tách chuỗi thành các từ dựa trên khoảng trắng
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" "); // Ghép lại thành một chuỗi
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter of each word
+      .join(" ");
   };
 
   //Hàm xử lý nhập chuyên môn
   const handleSpecialtyInputChange = (e) => {
     let value = e.target.value.normalize("NFC");
+    value = capitalizeEachWord(value);
     //Validate giới hạn ký tự
     if (value.length <= MAX_LENGTH) {
       setSpecialtyInput(value);
@@ -260,6 +243,14 @@ const AddNewProfession = ({ show, close }) => {
         e.preventDefault();
         return;
       }
+
+      // Validate chuyên môn không chứa ký tự đặc biệt
+      if (!REGEX.test(trimmedSpecialty)) {
+        message.error("Tên chuyên môn không được chứa ký tự đặc biệt.");
+        e.preventDefault();
+        return;
+      }
+
       setSpecialtiesData([...specialties, trimmedSpecialty]);
       setSpecialtyInput("");
       e.preventDefault();
@@ -276,44 +267,64 @@ const AddNewProfession = ({ show, close }) => {
   const handleProfessionNameChange = (e) => {
     let value = e.target.value.normalize("NFC");
     value = capitalizeEachWord(value);
-    // Validate nếu chuỗi chỉ chứa khoảng trắng hoặc có khoảng trắng liên tục
-    if (value.length === 0) {
-      setIsInvalidWhitespace(false);
-    } else if (/^\s*$/.test(value) || /\s{2,}/.test(value)) {
-      setIsInvalidWhitespace(true);
-    } else {
-      setIsInvalidWhitespace(false);
-    }
 
-    // Validate nếu chuỗi chỉ chứa số
-    if (/^[0-9\s]+$/.test(value)) {
-      setIsOnlyNumber(true);
-    } else {
-      setIsOnlyNumber(false);
-    }
-    setProfessionName(value);
-    // Reset trạng thái kiểm tra trùng tên
-    setIsNameDuplicate(false);
-    // Gọi API để kiểm tra tên trùng nếu có ít nhất 2 ký tự
-    if (value.length > 1) {
+    // Loại bỏ khoảng trắng đầu và cuối, nhưng giữ khoảng trắng giữa các từ
+    if (value.length <= MAX_LENGTH) {
+      setProfessionName(value);
+
+      // Kiểm tra trùng tên chuyên môn hoặc lĩnh vực nào trong data
       checkDuplicateProfessionName(value);
+
+      // Kiểm tra nếu giá trị chỉ là khoảng trắng hoặc có khoảng trắng liên tục
+      if (value.length === 0) {
+        setIsInvalidWhitespace(false);
+        setIsOnlyNumber(false);
+      } else if (/^\s*$/.test(value) || /\s{2,}/.test(value)) {
+        setIsInvalidWhitespace(true);
+      } else {
+        setIsInvalidWhitespace(false);
+      }
+
+      // Check if the name contains only numbers
+      if (/^[0-9\s]+$/.test(value)) {
+        setIsOnlyNumber(true);
+      } else {
+        setIsOnlyNumber(false);
+      }
+    } else {
+      message.warning(`Tên lĩnh vực không được dài quá ${MAX_LENGTH} ký tự.`);
     }
   };
 
   const handleProfessionNameKeyDown = (e) => {
-    const value = e.target.value;
-    // Kiểm tra nếu số ký tự đã đạt đến giới hạn
-    if (
-      value.length >= MAX_LENGTH &&
-      e.key !== "Backspace" &&
-      e.key !== "Delete"
-    ) {
-      e.preventDefault();
-      message.warning(`Tên lĩnh vực không được dài quá ${MAX_LENGTH} ký tự.`);
-      return;
-    }
+    // Ngăn sự kiện nếu phím Enter được nhấn
+    if (e.key === "Enter") {
+      const trimmedProfessionName = capitalizeEachWord(professionName.trim());
 
-    setProfessionName(value);
+      // Validate chuyên môn nhập lớn hơn 1 kí tự
+      if (trimmedProfessionName.length <= 1) {
+        message.error("Tên lĩnh vực phải có độ dài lớn hơn 1 ký tự.");
+        e.preventDefault();
+        return;
+      }
+
+      //Validate chuyên môn trùng với chuyên môn trong data
+      if (isNameDuplicate) {
+        message.error(
+          "Tên lĩnh vực đang trùng với lĩnh vực hoặc chuyên môn đã tồn tại khác."
+        );
+        e.preventDefault();
+        return;
+      }
+
+      if (isOnlyNumber || isInvalidWhitespace) {
+        message.error("Hãy điền đúng điều kiện nhập trước khi Enter");
+        e.preventDefault();
+        return;
+      }
+      setProfessionName(trimmedProfessionName);
+      e.preventDefault();
+    }
   };
 
   //Pop-up xác nhận thêm vào hay không
@@ -394,19 +405,17 @@ const AddNewProfession = ({ show, close }) => {
             <Form.Group
               style={{ marginBottom: "20px" }}
               controlId="formProfessionName"
-              type="text"
-              placeholder="Trí tuệ nhân tạo"
-              value={professionName}
-              onChange={handleProfessionNameChange}
-              onKeyDown={handleProfessionNameKeyDown}
             >
               <Form.Label style={{ fontWeight: "600" }}>
                 Tên lĩnh vực:
               </Form.Label>
               <Form.Control
-                style={{ marginBottom: "5px" }}
                 type="text"
                 placeholder="VD: Công nghệ thông tin"
+                value={professionName}
+                onChange={handleProfessionNameChange}
+                onKeyDown={handleProfessionNameKeyDown}
+                style={{ marginBottom: "5px" }}
               />{" "}
               <small
                 className="limitwords"
@@ -587,7 +596,7 @@ const AddNewProfession = ({ show, close }) => {
               </small>
             </Form.Group>
             <Form.Group style={{ marginBottom: "10px" }}>
-              <div style={{ display: "flex" }}>
+              <div className="speicalty_tag_container" style={{ display: "flex" }}>
                 {specialties.map((specialty, index) => (
                   <Tag
                     className="speicalty_tag"

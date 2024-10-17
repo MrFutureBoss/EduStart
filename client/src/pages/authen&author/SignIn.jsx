@@ -110,7 +110,7 @@ function SignIn() {
         <Row justify="center" align="middle" style={{ height: "100%" }}>
           <Col xs={22} sm={18} md={12} lg={8} xl={6}>
             <Card>
-              <div className="card-title">
+              <div className="card-title-login">
                 <Title level={2} style={{ color: "white", marginTop: "4%" }}>
                   Đăng nhập
                 </Title>
