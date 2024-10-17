@@ -3,17 +3,17 @@ import React, { useState } from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { BASE_URL } from "../utilities/initalValue.js";
+import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setFetchError } from "../redux/slice/ErrorSlice.js";
+import { setFetchError } from "../../redux/slice/ErrorSlice.js";
 import { useEffect } from "react";
 import { Card, Row, Col, Button, Input, Typography, Modal } from "antd";
-import "../style/login.css";
+import "../../style/login.css";
 import {
   showAutoCloseAlert,
   showErrorAlert,
-} from "../components/SweetAlert/index.js";
+} from "../../components/SweetAlert/index.js";
 import ForgotPasswordModal from "./ForgotPasswordModal.jsx";
 import { jwtDecode } from "jwt-decode";
 
@@ -42,9 +42,11 @@ function SignIn() {
     try {
       const res = await axios.post(`${BASE_URL}/user/login`, formData);
       const token = res.data.token;
+      const role = res.data.user.role;
 
       if (token) {
         localStorage.setItem("jwt", token);
+        localStorage.setItem("role", role);
 
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.role;
