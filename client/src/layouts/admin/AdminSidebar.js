@@ -6,8 +6,10 @@ import {
   UnorderedListOutlined,
   DashboardOutlined,
   ScheduleOutlined,
+  LogoutOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -18,6 +20,11 @@ const AppSider = ({
   handleFetchCurrentSemesters,
   toggleCollapse,
 }) => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    navigate("/");
+    localStorage.removeItem("jwt");
+  };
   return (
     <Sider
       width={270}
@@ -52,7 +59,9 @@ const AppSider = ({
               icon={<CalendarOutlined />}
               onClick={handleFetchCurrentSemesters}
             >
-              Thông tin kỳ học
+              <Link style={{ textDecoration: "none" }} to="current-semester">
+                Thông tin kỳ học
+              </Link>
             </Menu.Item>
             <Menu.Item key="3" icon={<UsergroupAddOutlined />}>
               <Link style={{ textDecoration: "none" }} to="pending-user">
@@ -65,6 +74,24 @@ const AppSider = ({
           <Link style={{ textDecoration: "none" }} to="semester-list">
             Danh sách kỳ học
           </Link>
+        </Menu.Item>
+        <Menu.Item key="5" icon={<BookOutlined />}>
+          <Link style={{ textDecoration: "none" }} to="professionmanagement">
+            Quản lí lĩnh vực
+          </Link>
+        </Menu.Item>
+        <Menu.Item
+          key="6"
+          icon={
+            <LogoutOutlined style={{ color: "red" }} onClick={handleLogout} />
+          }
+          onClick={handleLogout}
+        >
+          <span
+            style={{ cursor: "pointer", color: "red" }}
+          >
+            Đăng xuất
+          </span>
         </Menu.Item>
       </Menu>
     </Sider>

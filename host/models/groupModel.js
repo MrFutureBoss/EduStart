@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import Project from "./projectModel.js";
 const groupSchema = new Schema(
   {
     name: { type: String, require: true },
@@ -7,7 +6,7 @@ const groupSchema = new Schema(
     status: { type: String },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: Project,
+      ref: "Project",
     },
     classId: {
       type: mongoose.Schema.Types.ObjectId,

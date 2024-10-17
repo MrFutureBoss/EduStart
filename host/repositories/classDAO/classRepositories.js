@@ -55,10 +55,98 @@ const getClassesByUserId = async (userId) => {
     throw new Error(error.message);
   }
 };
+
+const createClass = async ({
+  className,
+  limitStudent,
+  teacherId,
+  semesterId,
+  status,
+}) => {
+  const newClass = new Class({
+    className,
+    limitStudent,
+    teacherId,
+    semesterId,
+    status,
+  });
+
+  // Save the new class
+  return await newClass.save();
+};
+
+const isClassNameExist = async (className) => {
+  try {
+    const existingClass = await Class.findOne({ className });
+
+    return existingClass !== null;
+  } catch (error) {
+    console.error(`Error checking class name existence: ${error.message}`);
+    throw new Error(error.message);
+  }
+};
+
+const getFullClasses = async (semesterId) => {
+  try {
+    const fullClasses = await Class.find({
+      semesterId: semesterId,
+      status: "Active",
+    }).populate("teacherId", "username email");
+    const classesWithStudents = await Promise.all(
+      fullClasses.map(async (cls) => {
+        const studentCount = await User.countDocuments({
+          classId: cls._id,
+          role: 4,
+        });
+        return {
+          ...cls.toObject(),
+          studentCount,
+          isFull: studentCount >= cls.limitStudent,
+        };
+      })
+    );
+
+    // Lọc ra các lớp đã đầy
+    const fullClassesFiltered = classesWithStudents.filter((cls) => cls.isFull);
+
+    return fullClassesFiltered;
+  } catch (error) {
+    throw new Error("Error fetching full classes: " + error.message);
+  }
+};
+
+const getTeachersWithClassCount = async () => {
+  try {
+    // Tìm tất cả giáo viên (role = 2)
+    const teachers = await User.find({ role: 2 }).select("username email");
+
+    // Đếm số lớp đã dạy cho mỗi giáo viên
+    const teachersWithClassCount = await Promise.all(
+      teachers.map(async (teacher) => {
+        const classCount = await Class.countDocuments({
+          teacherId: teacher._id,
+          status: "Active", // Giả định rằng chỉ các lớp Active được tính
+        });
+        return {
+          ...teacher.toObject(),
+          classCount,
+        };
+      })
+    );
+
+    return teachersWithClassCount;
+  } catch (error) {
+    throw new Error("Error fetching teachers: " + error.message);
+  }
+};
+
 export default {
   getStudentCountByClassId,
   getClassById,
   getAvailableClasses,
   getClassesByUserId,
+  createClass,
+  isClassNameExist,
+  getFullClasses,
+  getTeachersWithClassCount,
 };
-

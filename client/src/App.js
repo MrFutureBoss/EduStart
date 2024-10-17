@@ -6,6 +6,7 @@ import AdminLayout from "./layouts/admin/AdminLayout.js";
 import UserListSemester from "./pages/semester/UserList.js";
 import SemesterList from "./pages/semester/SemesterList.js";
 import { ToastContainer } from "react-toastify";
+import ProfessionManagement from "./pages/professiona&specialty/ProfessionManagement.jsx"
 import SignIn from "./pages/authen&author/SignIn.jsx";
 import { ProtectRoute } from "./utilities/auth.js";
 import MyActivity from "./pages/activity/MyActivity.jsx";
@@ -20,6 +21,7 @@ function App() {
       <ToastContainer />
       <Routes>
         {/* Layout dành cho Admin, bao gồm các route bên trong */}
+
         <Route
           path="/admin-dashboard"
           element={
@@ -35,8 +37,8 @@ function App() {
             path="semester-list/user-semester"
             element={<UserListSemester />}
           />
+          <Route path="professionmanagement" element={<ProfessionManagement/>} />
         </Route>
-        {/* <Route path="/" element={<Profession/Management />} /> */}
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
         <Route

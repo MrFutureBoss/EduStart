@@ -1,4 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
+function getInitialMaxStudentsPerClass() {
+  const savedMaxStudents = localStorage.getItem("maxStudentsPerClass");
+  return savedMaxStudents ? JSON.parse(savedMaxStudents) : 32;
+}
 
 const initialValue = {
   semesters: [],
@@ -17,6 +21,10 @@ const initialValue = {
   endDate: null,
   startDate: null,
   status: "",
+  pendingUsers: [],
+  classesList: [],
+  fullClassesList: [],
+  maxStudentsPerClass: getInitialMaxStudentsPerClass(),
 };
 
 const semesterSlice = createSlice({
@@ -60,6 +68,22 @@ const semesterSlice = createSlice({
     setCurrentSemester: (state, action) => {
       state.currentSemester = action.payload;
     },
+    setPendingUsers: (state, action) => {
+      state.pendingUsers = action.payload;
+    },
+    setClassesList: (state, action) => {
+      state.classesList = action.payload;
+    },
+    setFullClassesList: (state, action) => {
+      state.fullClassesList = action.payload;
+    },
+    setMaxStudentsPerClass(state, action) {
+      state.maxStudentsPerClass = action.payload;
+      localStorage.setItem(
+        "maxStudentsPerClass",
+        JSON.stringify(action.payload)
+      );
+    },
   },
 });
 
@@ -75,5 +99,9 @@ export const {
   setSemesterName,
   setCounts,
   setCurrentSemester,
+  setPendingUsers,
+  setClassesList,
+  setFullClassesList,
+  setMaxStudentsPerClass,
 } = actions;
 export default reducer;
