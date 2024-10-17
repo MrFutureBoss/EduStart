@@ -33,13 +33,19 @@ import ErrorAlerts from "./ErrorAlerts";
 import {
   setCounts,
   setCurrentSemester,
-  setError,
   setLoading,
   setSemesterName,
   setSid,
   setUsersInSmt,
 } from "../../redux/slice/semesterSlide";
 import EditSemesterModal from "./semesterModel/EditSemesterModel";
+import {
+  setErrorMessages,
+  setFailedEmails,
+  setFullClassUsers,
+} from "../../redux/slice/ErrorSlice";
+import TransferClassModal from "./userModel/TransferClassModal";
+import SwapClassModal from "./userModel/SwapClassModal";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -76,12 +82,15 @@ const UserListSemester = () => {
   const [isRoleSelectModalVisible, setIsRoleSelectModalVisible] =
     useState(false);
   const [selectedUploadRole, setSelectedUploadRole] = useState(null);
-  const [fullClassUsers, setFullClassUsers] = useState([]);
   const [successCount, setSuccessCount] = useState(0);
-  const [errorMessages, setErrorMessages] = useState([]);
-  const [failedEmails, setFailedEmails] = useState([]);
+  const { errorMessages, fullClassUsers, failedEmails } = useSelector(
+    (state) => state.error
+  );
   const [editApiErrors, setEditApiErrors] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
+  const [isSwapModalVisible, setIsSwapModalVisible] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const jwt = localStorage.getItem("jwt");
 
   const config = {
@@ -119,6 +128,25 @@ const UserListSemester = () => {
     }
   };
 
+  const handleTransferModal = (student) => {
+    setSelectedStudent(student);
+    setIsTransferModalVisible(true);
+  };
+
+  const handleSwapModal = (student) => {
+    setSelectedStudent(student);
+    setIsSwapModalVisible(true);
+  };
+
+  const closeTransferModal = () => {
+    setIsTransferModalVisible(false);
+    setSelectedStudent(null);
+  };
+
+  const closeSwapModal = () => {
+    setIsSwapModalVisible(false);
+    setSelectedStudent(null);
+  };
   const handleRoleSelectCancel = () => {
     setIsRoleSelectModalVisible(false);
     setSelectedUploadRole(null);
@@ -273,6 +301,34 @@ const UserListSemester = () => {
       render: (role) =>
         roles.find((r) => r.id === role)?.name || "Không xác định",
     },
+    ...(selectedRole === 4
+      ? [
+          {
+            title: "Hành động",
+            key: "action",
+            render: (text, record) => (
+              <Dropdown
+                overlay={
+                  <Menu>
+                    <Menu.Item
+                      key="1"
+                      onClick={() => handleTransferModal(record)}
+                    >
+                      Chuyển lớp
+                    </Menu.Item>
+                    <Menu.Item key="2" onClick={() => handleSwapModal(record)}>
+                      Hoán đổi lớp
+                    </Menu.Item>
+                  </Menu>
+                }
+                trigger={["click"]}
+              >
+                <Button>Hành động</Button>
+              </Dropdown>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const fetchCurrentSemester = async () => {
@@ -303,7 +359,6 @@ const UserListSemester = () => {
       dispatch(setUsersInSmt(userResponse.data));
     } catch (error) {
       console.error("Error fetching current semester:", error);
-      message.error("Không tìm thấy kỳ học đang diễn ra.");
       navigate("admin-dashboard/semester-list");
     } finally {
       dispatch(setLoading(false));
@@ -356,7 +411,6 @@ const UserListSemester = () => {
       formData.append("file", file);
       formData.append("role", selectedUploadRole);
       formData.append("semesterId", semester?._id);
-      console.log(selectedUploadRole);
 
       try {
         const response = await axios.post(
@@ -387,11 +441,10 @@ const UserListSemester = () => {
           errorMessages,
           failedEmails,
         } = response.data;
-
+        dispatch(setErrorMessages(errorMessages));
         // Cập nhật các trạng thái lỗi
-        setFullClassUsers(fullClassUsers);
-        setErrorMessages(errorMessages);
-        setFailedEmails(failedEmails);
+        dispatch(setFullClassUsers(fullClassUsers));
+        dispatch(setFailedEmails(failedEmails));
 
         if (successCount > 0) {
           notification.success({
@@ -721,7 +774,19 @@ const UserListSemester = () => {
             onOk={handleModalCancel}
             onCancel={handleModalCancel}
           />
-
+          <TransferClassModal
+            visible={isTransferModalVisible}
+            onCancel={closeTransferModal}
+            student={selectedStudent}
+            refreshData={fetchCurrentSemester}
+            currentSemester={currentSemester}
+          />
+          <SwapClassModal
+            visible={isSwapModalVisible}
+            onCancel={closeSwapModal}
+            student={selectedStudent}
+            refreshData={fetchCurrentSemester}
+          />
           <Modal
             title="Chọn loại người dùng"
             open={isRoleSelectModalVisible}

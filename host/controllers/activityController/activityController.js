@@ -3,11 +3,43 @@ import { sendReminderEmail } from "../../utilities/email.js";
 
 const createActivity = async (req, res) => {
   try {
-    const { title, description, activityType, classId, materialUrl, assignmentType, deadline } = req.body;
-    const teacherId = req.user._id;  
+    const { title, description, activityType, classId, assignmentType, deadline } = req.body;
+    const teacherId = req.user._id;
+
+    if (activityType === "assignment" && deadline) {
+      const currentTime = new Date();
+      const deadlineTime = new Date(deadline);
+
+      if (deadlineTime < currentTime) {
+        return res.status(400).json({
+          message: "Deadline cannot be in the past",
+        });
+      }
+    }
+
+    if (activityType === "post") {
+      const newPost = {
+        teacherId,
+        title,
+        description,
+        activityType: "post",
+        classId,
+      };
+
+      const savedPost = await activityDAO.createActivity(newPost);
+
+      return res.status(201).json({
+        message: "Post created successfully",
+        activity: savedPost,
+      });
+    }
+
+    let materialUrl = null;
+    if (activityType === "material" && req.file) {
+      materialUrl = req.file.path; 
+    }
 
     let options = {};
-
     if (activityType === "material") {
       options.materialUrl = materialUrl;
     } else if (activityType === "assignment") {
@@ -21,10 +53,11 @@ const createActivity = async (req, res) => {
       options
     );
 
+    // If activity exists, update it (based on business logic)
     if (existingActivity) {
       const updateData = { title, description };
 
-      if (activityType === "material") {
+      if (activityType === "material" && materialUrl) {
         updateData.materialUrl = materialUrl;
       } else if (activityType === "assignment") {
         updateData.assignmentType = assignmentType;
@@ -38,6 +71,7 @@ const createActivity = async (req, res) => {
       });
     }
 
+    // Create new activity if no existing one is found
     const newActivityData = {
       teacherId,
       title,
@@ -102,15 +136,22 @@ const updateActivity = async (req, res) => {
 const deleteActivity = async (req, res) => {
   try {
     const { activityId } = req.params;
-    const deletedActivity = await activityDAO.deleteActivityById(activityId);
-
-    if (!deletedActivity) {
-      return res.status(404).json({ message: "Activity not found" });
+    const existingActivity = await activityDAO.findActivityById(activityId);
+    if (!existingActivity) {
+      return res.status(404).json({
+        message: "Activity not found",
+      });
     }
-
-    res.status(200).json({ message: "Activity deleted successfully" });
+    await activityDAO.deleteActivityById(activityId);
+    res.status(200).json({
+      message: "Activity deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to delete activity", error });
+    console.error("Error deleting activity:", error);
+    res.status(500).json({
+      message: "Failed to delete activity",
+      error: error.message,
+    });
   }
 };
 const getOverdueGroups = async (req, res) => {

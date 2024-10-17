@@ -40,5 +40,34 @@ adminRouter.get(
   verifyRole([1]),
   adminController.getPendingUsers
 );
-
+adminRouter.post(
+  "/create-class",
+  verifyAccessToken,
+  verifyRole([1]),
+  adminController.createClass
+);
+adminRouter.get(
+  "/:semesterId/full/classes",
+  verifyAccessToken,
+  verifyRole([1]),
+  adminController.fetchFullClasses
+);
+adminRouter.get(
+  "/teachers-list",
+  verifyAccessToken,
+  verifyRole([1]),
+  adminController.fetchTeachers
+);
+adminRouter.post(
+  "/transfer",
+  verifyAccessToken,
+  verifyRole([1]),
+  adminController.transferStudentController
+);
+adminRouter.post(
+  "/swap",
+  verifyAccessToken,
+  verifyRole([1]),
+  adminController.swapStudentsController
+);
 export default adminRouter;

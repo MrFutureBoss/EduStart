@@ -8,7 +8,7 @@ const baseConfig = {
   reverseButtons: true,
 };
 
-export const showAutoCloseAlert = (title, text, icon = 'success', timer = 2000) => {
+export const showAutoCloseAlert = (title, text, icon = 'success', timer = 1000) => {
     Swal.fire({
       title: title,
       text: text,
