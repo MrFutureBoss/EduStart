@@ -6,6 +6,9 @@ import PendingUsers from "./components/semester/PendingUserList.js";
 import AdminLayout from "./layouts/admin/AdminLayout.js";
 import UserListSemester from "./components/semester/UserList.js";
 import SemesterList from "./components/semester/SemesterList.js";
+import StudentProfile from "./pages/StudentProfile.jsx";
+import EditTeacherProfile from "./pages/EditTeacherProfile.jsx";
+
 
 //Route tạm thời để code không dùng thì comment lại
 
@@ -18,7 +21,9 @@ function App() {
         <Route path="/pending-users" element={<PendingUsers />} />
         <Route path="/user-semester" element={<UserListSemester />} />
         <Route path="/pending-user" element={<PendingUsers />} />
+        
       </Route>
+      <Route path="/user-profile" element={<StudentProfile/>}/>
       {/* <Route path="/" element={<ProfessionManagement />} /> */}
       {/* <Route path="/" element={<AdminLayout />} /> */}
       {/* <Route path="/" element={<SignIn />} /> */}
