@@ -25,7 +25,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(false);
-  const { currentSemester, semesters, loading } = useSelector(
+  const { currentSemester, semesters, loading, semester } = useSelector(
     (state) => state.semester
   );
   const jwt = localStorage.getItem("jwt");
@@ -45,42 +45,51 @@ const MainLayout = () => {
   };
 
   const handleFetchCurrentSemesters = useCallback(async () => {
-    try {
-      dispatch(setLoading(true));
-      const response = await axios.get(`${BASE_URL}/semester/current`, config);
-      const semester = response.data;
-      dispatch(setSid(semester._id));
-      dispatch(setSemesterName(semester.name));
-      dispatch(setCurrentSemester(semester));
-      dispatch(setSemester(semester));
-      dispatch(
-        setCounts({
-          studentCount: semester.studentCount,
-          teacherCount: semester.teacherCount,
-          mentorCount: semester.mentorCount,
-          classCount: semester.classCount,
-          endDate: semester.endDate,
-          startDate: semester.startDate,
-          semesterName: semester.name,
-          status: semester.status,
-        })
-      );
+    if (
+      !currentSemester ||
+      !currentSemester._id ||
+      currentSemester._id !== semester._id
+    ) {
+      try {
+        dispatch(setLoading(true));
+        const response = await axios.get(
+          `${BASE_URL}/semester/current`,
+          config
+        );
+        const semester = response.data;
+        dispatch(setSid(semester._id));
+        dispatch(setSemesterName(semester.name));
+        dispatch(setCurrentSemester(semester));
+        dispatch(setSemester(semester));
+        dispatch(
+          setCounts({
+            studentCount: semester.studentCount,
+            teacherCount: semester.teacherCount,
+            mentorCount: semester.mentorCount,
+            classCount: semester.classCount,
+            endDate: semester.endDate,
+            startDate: semester.startDate,
+            semesterName: semester.name,
+            status: semester.status,
+          })
+        );
 
-      const userResponse = await axios.get(
-        `${BASE_URL}/semester/${semester._id}/users`,
-        config
-      );
-      dispatch(setUsersInSmt(userResponse.data));
-      navigate("current-semester");
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        message.info("Hiện không có kỳ học nào đang diễn ra.");
-      } else {
-        console.error("Error fetching current semester:", error);
-        message.error("Có lỗi xảy ra khi tải thông tin kỳ học.");
+        const userResponse = await axios.get(
+          `${BASE_URL}/semester/${semester._id}/users`,
+          config
+        );
+        dispatch(setUsersInSmt(userResponse.data));
+        navigate("current-semester");
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          message.info("Hiện không có kỳ học nào đang diễn ra.");
+        } else {
+          console.error("Error fetching current semester:", error);
+          message.error("Có lỗi xảy ra khi tải thông tin kỳ học.");
+        }
+      } finally {
+        dispatch(setLoading(false));
       }
-    } finally {
-      dispatch(setLoading(false));
     }
   }, [dispatch, config, navigate]);
 

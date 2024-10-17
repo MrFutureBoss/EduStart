@@ -7,6 +7,7 @@ import AdminLayout from "./layouts/admin/AdminLayout.js";
 import UserListSemester from "./pages/semester/UserList.js";
 import SemesterList from "./pages/semester/SemesterList.js";
 import { ToastContainer } from "react-toastify";
+import Dashboard from "./pages/admin/AdminDashboard.js";
 
 //Route tạm thời để code không dùng thì comment lại
 
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         {/* Layout dành cho Admin, bao gồm các route bên trong */}
         <Route path="/admin-dashboard" element={<AdminLayout />}>
+          {/* <Route path="dashboard" element={<Dashboard />} /> */}
           <Route path="semester-list" element={<SemesterList />} />
           <Route path="current-semester" element={<UserListSemester />} />
           <Route path="pending-user" element={<PendingUsers />} />
