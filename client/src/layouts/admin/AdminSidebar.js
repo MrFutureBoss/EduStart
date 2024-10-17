@@ -59,7 +59,9 @@ const AppSider = ({
               icon={<CalendarOutlined />}
               onClick={handleFetchCurrentSemesters}
             >
-              Thông tin kỳ học
+              <Link style={{ textDecoration: "none" }} to="current-semester">
+                Thông tin kỳ học
+              </Link>
             </Menu.Item>
             <Menu.Item key="3" icon={<UsergroupAddOutlined />}>
               <Link style={{ textDecoration: "none" }} to="pending-user">

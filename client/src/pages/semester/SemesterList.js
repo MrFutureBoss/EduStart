@@ -10,6 +10,7 @@ import {
   setSemesters,
   setCounts,
   setSemester,
+  setCurrentSemester,
 } from "../../redux/slice/semesterSlide";
 import { BASE_URL } from "../../utilities/initalValue";
 import {
@@ -186,9 +187,8 @@ const SemesterList = () => {
     <div className="semester-list">
       <div
         style={{
-          display: "flex",
           justifyContent: "center",
-          marginBottom: "6px",
+          marginBottom: "30px",
           marginLeft: "auto",
         }}
       >
