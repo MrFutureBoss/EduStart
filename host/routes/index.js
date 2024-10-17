@@ -6,7 +6,7 @@ import semesterRouter from "./semesterRouter.js";
 import activityRouters from "./activityRouter.js";
 import tempMatchingRouter from "./tempMatching.js";
 import teacherRouter from "./teacherRouter.js";
-
+import classRouter from "./classRouter.js";
 const routes = {
   professionRouters,
   specialtyRouters,
@@ -16,6 +16,7 @@ const routes = {
   activityRouters,
   tempMatchingRouter,
   teacherRouter,
+  classRouter,
 };
 
 export default routes;

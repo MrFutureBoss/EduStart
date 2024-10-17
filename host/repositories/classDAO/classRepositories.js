@@ -48,10 +48,17 @@ const getAvailableClasses = async (semesterId) => {
     throw new Error("Lỗi khi lấy danh sách lớp chưa đầy.");
   }
 };
-
+const getClassesByUserId = async (userId) => {
+  try {
+    return await Class.find({ teacherId: userId });
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 export default {
   getStudentCountByClassId,
   getClassById,
   getAvailableClasses,
+  getClassesByUserId,
 };
 
