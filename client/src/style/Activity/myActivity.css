@@ -1,0 +1,58 @@
+@keyframes gradientBg {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.custom-card .ant-card-head {
+  background: linear-gradient(-45deg, #005241, #128066, #00524f, #008d87);  
+  background-size: 400% 400%;
+  animation: gradientBg 10s ease infinite;  
+  color: white;  
+  padding: 16px;  
+  border-radius: 8px 8px 0 0;  
+}
+
+.custom-card .ant-card-head-title {
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: inline-block;
+}
+
+.custom-card {
+  margin-bottom: 24px;  
+  border: 1px solid #ddd;  
+  border-radius: 8px;  
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
+  transition: box-shadow 0.3s ease;  
+}
+
+.custom-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);  
+}
+
+.custom-card .ant-card-body {
+  background-color: white;  
+  color: black;  
+  padding: 16px;
+}
+
+/* Thêm CSS vào tệp CSS của bạn */
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-15deg); }
+  50% { transform: rotate(15deg); }
+  75% { transform: rotate(-10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.shake-on-hover:hover {
+  animation: shake 0.5s !important;
+}

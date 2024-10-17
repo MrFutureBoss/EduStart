@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Input, Button, Typography, Form } from "antd";
+import { Modal, Input, Button, Typography, Form, Steps } from "antd";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setForgotPassword } from "../../redux/slice/UserSlice.js";
@@ -9,6 +9,8 @@ import {
   showAutoCloseAlert,
   showErrorAlert,
 } from "../../components/SweetAlert/index.js";
+
+const { Step } = Steps;
 
 const ForgotPasswordModal = ({ visible, onCancel }) => {
   const dispatch = useDispatch();
@@ -99,6 +101,13 @@ const ForgotPasswordModal = ({ visible, onCancel }) => {
       onCancel={handleCancel}
       footer={null}
     >
+      {/* Component Steps với 2 bước */}
+      <Steps current={step - 1}>
+        <Step title="Nhập Email" />
+        <Step title="Xác nhận OTP & Đổi mật khẩu" />
+      </Steps>
+
+      {/* Bước 1: Nhập Email */}
       {step === 1 && (
         <Form onFinish={handleSendOtp}>
           <Typography.Text>
@@ -129,10 +138,11 @@ const ForgotPasswordModal = ({ visible, onCancel }) => {
         </Form>
       )}
 
+      {/* Bước 2: Nhập OTP và đổi mật khẩu */}
       {step === 2 && (
         <Form onFinish={handleResetPassword}>
           <Typography.Text>
-            Nhập OTP đã được gửi tới email của bạn
+            Nhập OTP đã được gửi tới email của bạn và đặt lại mật khẩu
           </Typography.Text>
           <OtpInput length={6} onOtpSubmit={handleOtpSubmit} />
 
