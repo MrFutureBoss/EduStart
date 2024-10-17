@@ -150,10 +150,10 @@ const EditProfession = ({ _id, show, close }) => {
     const data = {
       name: professionName,
       status: isActive,
-      specialties: filteredSpecialties.map((specialty) => ({
-        _id: specialty._id || undefined,
-        name: specialty.name,
-        status: specialty.status || isActive,
+      specialties: filteredSpecialties.map((sp) => ({
+        _id: sp._id || undefined,
+        name: sp.name,
+        status: sp.status || isActive,
       })),
     };
 
@@ -410,6 +410,11 @@ const EditProfession = ({ _id, show, close }) => {
 
   const handleProfessionNameKeyDown = (e) => {
     const value = e.target.value;
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      return;
+    }
     // Kiểm tra nếu số ký tự đã đạt đến giới hạn
     if (
       value.length >= MAX_LENGTH &&
