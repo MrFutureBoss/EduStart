@@ -4,18 +4,19 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setProfessions,
   setSpecialtiesData,
-  setSearchResults, // Add this action to store search results
 } from "../../redux/slice/ProfessionSlice.js";
 import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import {
+  ContainerOutlined,
   EditOutlined,
   EllipsisOutlined,
   EyeOutlined,
   LockOutlined,
   PlusCircleOutlined,
   UnlockOutlined,
+  UploadOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
@@ -26,13 +27,14 @@ import {
   Pagination,
   Popconfirm,
   Popover,
-  Select,
   Tag,
+  Upload,
 } from "antd";
 import AddNewProfession from "./AddNewProfession.jsx";
 import EditProfession from "./EditProfession.jsx";
 import "../../style/Admin/Profession.css";
 import Search from "antd/es/transfer/search.js";
+import SmallModal from "../../components/Modal/SmallModal.jsx";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
@@ -40,23 +42,24 @@ const ProfessionManagement = () => {
   const specialtiesData = useSelector(
     (state) => state.profession.specialtiesData.data || []
   );
-  const searchResults = useSelector(
-    (state) => state.profession.searchResults || []
-  ); // Search results from Redux
   const specialties = useSelector(
     (state) => state.specialty.specialties.data || []
   );
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
+  const [isModalImportFile, setIsModalImportFile] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [professionId, setProfessionId] = useState("");
+  //Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [pageSize, setPageSize] = useState(6);
-  const [searchText, setSearchText] = useState(""); // Add state for search text
-  const [visibleSpecialties, setVisibleSpecialties] = useState({});
 
-  // Fetch initial professions and specialties on load
+  console.log("sp from pf redux:" + specialtiesData);
+  console.log("sp from redux:" + specialties);
   useEffect(() => {
+    console.log(`Fetching data for page: ${currentPage}, limit: ${pageSize}`);
     axios
       .get(`${BASE_URL}/profession`, {
         params: {
@@ -71,62 +74,37 @@ const ProfessionManagement = () => {
       .catch((err) => console.log("Error fetching professions", err));
   }, [dispatch, currentPage, pageSize]);
 
-  // Fetch specialties
+  //Gọi data specialty
+  const fetchSpecialties = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/specialty`);
+      const data = response.data;
+      console.log("Total Specialties: " + response.data.total);
+      // dispatch(setSpecialties(data));
+      dispatch(setSpecialtiesData(data));
+    } catch (error) {
+      console.error("Error fetching specialties:", error);
+    }
+  };
+
   useEffect(() => {
-    axios
-      .get(`${BASE_URL}/specialty`)
-      .then((res) => {
-        dispatch(setSpecialties(res.data));
-        dispatch(setSpecialtiesData(specialties));
-      })
-      .catch((err) => console.log("Error fetching specialties", err));
+    fetchSpecialties(); // Gọi hàm async để fetch dữ liệu
   }, [dispatch]);
-
-  const handleSearch = (value) => {
-    setSearchText(value);
-
-    if (value.length < 2) {
-      // Reset professions if search input is too short
-      axios
-        .get(`${BASE_URL}/profession`, {
-          params: { page: currentPage, limit: pageSize },
-        })
-        .then((res) => {
-          setTotalItems(res.data.total);
-          dispatch(setProfessions(res.data));
-        })
-        .catch((err) => console.log("Error fetching professions", err));
-    } else {
-      // Fetch search results based on user input for both professions and specialties
-      axios
-        .get(`${BASE_URL}/profession/search/like`, {
-          params: { name: value, specialty: value }, // Search by both profession and specialty
-        })
-        .then((res) => {
-          // Dispatch results for professions and specialties
-          dispatch(setSearchResults(res.data.professions)); // Update searchResults in Redux
-          dispatch(setSpecialties(res.data.specialties)); // Optional, if specialties need to be updated
-        })
-        .catch((err) => console.log("Error fetching search results", err));
-    }
-  };
-
-  // Handle select option
-  const handleSearchSelect = (value) => {
-    const selectedProfession = professions.find((pro) => pro._id === value);
-    if (selectedProfession) {
-      // Perform logic when a profession is selected (e.g., showing details or updating state)
-      console.log("Selected Profession:", selectedProfession);
-    }
-  };
 
   const getSpecialtyNameById = (id) => {
     const define = specialties.find((sp) => sp._id === id);
     return define ? define.name : "Unknown";
   };
 
+  const getSpecialtyStatusById = (id) => {
+    const define = specialties.find((sp) => sp._id === id);
+    return define ? define.status : false;
+  };
+
+  //Đổi status lĩnh vực
   const toggleStatus = (id, currentStatus) => {
     const updatedStatus = { status: !currentStatus };
+
     axios
       .patch(`${BASE_URL}/profession/${id}`, updatedStatus)
       .then((res) => {
@@ -147,6 +125,7 @@ const ProfessionManagement = () => {
   };
 
   const onPageChange = (pageNumber) => {
+    console.log(`Changing to page: ${pageNumber}`);
     setCurrentPage(pageNumber);
   };
 
@@ -167,7 +146,21 @@ const ProfessionManagement = () => {
       .catch((err) => console.log("Error fetching professions", err));
   };
 
+  const handleOpenAddTypeModal = () => {
+    setIsModalShowTypeAdd(true);
+  };
+  const handleCloseAddTypeModal = () => {
+    setIsModalShowTypeAdd(false);
+  };
+  const handleOpenImportModal = () => {
+    setIsModalImportFile(true);
+  };
+  const handleCloseImportModal = () => {
+    setIsModalImportFile(false);
+  };
+
   const handleOpenModal = () => {
+    setIsModalShowTypeAdd(false);
     setIsModalOpen(true);
   };
 
@@ -185,28 +178,53 @@ const ProfessionManagement = () => {
     setIsEditModalOpen(false);
   };
 
-  const displayProfessions =
-    searchText.length > 1 && searchResults.length > 0
-      ? searchResults
-      : professions;
-
-  const showMoreSpecialties = (id, totalSpecialties) => {
-    setVisibleSpecialties((prevState) => {
-      if (prevState[id] >= totalSpecialties) {
-        return {
-          ...prevState,
-          [id]: 3,
-        };
+  const props = {
+    action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+    onChange({ file, fileList }) {
+      if (file.status !== "uploading") {
+        console.log(file, fileList);
       }
-      return {
-        ...prevState,
-        [id]: (prevState[id] || 3) + 3,
-      };
-    });
+    },
   };
-
   return (
     <Container fluid>
+      <SmallModal
+        title={<>Chọn file .xlx để thêm dữ liệu</>}
+        content={
+          <div
+            style={{ display: "flex", justifyContent: "center", gap: "10px" }}
+          >
+            <Upload {...props}>
+              <Button onClick={handleOpenImportModal}>
+                <UploadOutlined /> Upload file .xlx
+              </Button>
+            </Upload>
+          </div>
+        }
+        isModalOpen={isModalImportFile}
+        handleOk={handleOpenImportModal}
+        handleCancel={handleCloseImportModal}
+        footer={<></>}
+      />
+      <SmallModal
+        title={<>Chọn kiểu thêm</>}
+        content={
+          <div
+            style={{ display: "flex", justifyContent: "center", gap: "10px" }}
+          >
+            <Button onClick={handleOpenModal}>
+              <ContainerOutlined /> Nhập dữ liệu
+            </Button>
+              <Button onClick={handleOpenImportModal}>
+                <UploadOutlined /> Thêm dữ liệu bằng file
+              </Button>
+          </div>
+        }
+        isModalOpen={isModalShowTypeAdd}
+        handleOk={handleOpenAddTypeModal}
+        handleCancel={handleCloseAddTypeModal}
+        footer={<></>}
+      />
       <AddNewProfession show={isModalOpen} close={handleCloseModal} />
       <EditProfession
         _id={professionId}
@@ -218,41 +236,23 @@ const ProfessionManagement = () => {
           <Button
             style={{ width: "10rem" }}
             variant="primary"
-            onClick={handleOpenModal}
+            onClick={handleOpenAddTypeModal}
           >
             <PlusCircleOutlined /> Thêm lĩnh vực
           </Button>
         </Col>
-        <Col xl={6} sm={12}>
-          <Select
-            showSearch
+        <Col sm={5}>
+          <Search
             placeholder="Tìm theo tên lĩnh vực và chuyên môn"
-            onSearch={handleSearch}
-            onSelect={handleSearchSelect}
-            onInputKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch(searchText);
-              }
-            }}
-            filterOption={false}
+            // onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: "260px", marginBottom: "20px" }}
             allowClear
-            style={{ marginBottom: "20px", height: "2.5rem", width: "30rem" }}
-            options={
-              searchResults.professions && searchResults.professions.length > 0
-                ? searchResults.professions.map((pro) => ({
-                    label: `${pro.name} (Chuyên môn: ${pro.specialty
-                      .map((sp) => getSpecialtyNameById(sp))
-                      .join(", ")})`,
-                    value: pro._id,
-                  }))
-                : []
-            }
           />
         </Col>
       </Row>
       <Row>
-        {displayProfessions.length > 0 ? (
-          displayProfessions.map((pro) => (
+        {professions.length > 0 ? (
+          professions.map((pro) => (
             <Col
               sx={12}
               sm={12}
@@ -346,71 +346,40 @@ const ProfessionManagement = () => {
                       <div>
                         Chuyên môn: &nbsp;
                         {pro.specialty.length > 0 ? (
-                          pro.specialty
-                            .slice(0, visibleSpecialties[pro._id] || 3) // Show only the visible number of specialties (default 3)
-                            .map((sp) => (
-                              <Popover content="Đang hoạt động" key={sp}>
-                                <Tag bordered={true} className="specialty-tags">
-                                  <span
+                          pro.specialty.map((sp) => (
+                            <Popover content="Đang hoạt động">
+                              <Tag
+                                bordered={true}
+                                className="specialty-tags"
+                                key={sp}
+                              >
+                                <span
+                                  style={{
+                                    marginRight: "6px",
+                                  }}
+                                >
+                                  {getSpecialtyNameById(sp)}&nbsp;
+                                </span>
+                                <span
+                                  className="count-mentors"
+                                  style={{ borderLeft: "1px solid white" }}
+                                >
+                                  0
+                                  <UserOutlined
                                     style={{
-                                      marginRight: "6px",
+                                      fontSize: "inherit",
+                                      lineHeight: 1,
+                                      verticalAlign: "middle",
                                     }}
-                                  >
-                                    {getSpecialtyNameById(sp)}&nbsp;
-                                  </span>
-                                  <span
-                                    className="count-mentors"
-                                    style={{ borderLeft: "1px solid white" }}
-                                  >
-                                    0
-                                    <UserOutlined
-                                      style={{
-                                        fontSize: "inherit",
-                                        lineHeight: 1,
-                                        verticalAlign: "middle",
-                                      }}
-                                    />
-                                  </span>
-                                </Tag>
-                              </Popover>
-                            ))
+                                  />
+                                </span>
+                              </Tag>
+                            </Popover>
+                          ))
                         ) : (
                           <Tag className="specialty-tags">
-                            Chưa có chuyên môn nào
+                            Chưa có chuyên môn nào{" "}
                           </Tag>
-                        )}
-                        {/* Show "Xem thêm" if there are more specialties to show */}
-                        {pro.specialty.length >
-                        (visibleSpecialties[pro._id] || 3) ? (
-                          <Tag
-                            className="specialty-tags more-tag"
-                            onClick={() =>
-                              showMoreSpecialties(pro._id, pro.specialty.length)
-                            } // Show more specialties when clicked
-                            style={{
-                              cursor: "pointer",
-                            }}
-                          >
-                            {`+${pro.specialty.length - 3} Xem thêm`}
-                          </Tag>
-                        ) : (
-                          visibleSpecialties[pro._id] >=
-                            pro.specialty.length && (
-                            <Tag
-                              className="specialty-tags more-tag"
-                              onClick={() =>
-                                showMoreSpecialties(
-                                  pro._id,
-                                  pro.specialty.length
-                                )
-                              }
-                              style={{
-                                cursor: "pointer",
-                              }}
-                            >
-                              Thu gọn
-                            </Tag>
-                          )
                         )}
                       </div>
                     }
@@ -423,17 +392,19 @@ const ProfessionManagement = () => {
           <Empty />
         )}
       </Row>
-      <Pagination
-        showQuickJumper
-        style={{
-          display: "flex",
-          justifyContent: "center",
-        }}
-        current={currentPage}
-        pageSize={pageSize}
-        total={totalItems}
-        onChange={onPageChange}
-      />
+      <Row>
+        <Pagination
+          showQuickJumper
+          style={{
+            display: "flex",
+            justifyContent: "center",
+          }}
+          current={currentPage}
+          pageSize={pageSize}
+          total={totalItems}
+          onChange={onPageChange}
+        />
+      </Row>
     </Container>
   );
 };
