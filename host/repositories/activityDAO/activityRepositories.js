@@ -82,7 +82,15 @@ const updateExistingActivity = async (existingActivity, updateData) => {
     throw new Error("Error while updating activity: " + error.message);
   }
 };
-
+async function findActivityByMaterialUrl(materialUrlRegex) {
+  return Activity.findOne({ materialUrl: { $regex: materialUrlRegex } });  
+}
+async function findOutcomeByClassIdAndType(classId, assignmentType) {
+  return Activity.findOne({ classId, assignmentType });
+}
+const findActivitiesByTeacher = async (teacherId) => {
+  return Activity.find({ teacherId }).populate('classId'); 
+};
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -94,4 +102,7 @@ export default {
   findSubmittedGroups,
   findExistingActivity,
   updateExistingActivity,
+  findActivityByMaterialUrl,
+  findOutcomeByClassIdAndType,
+  findActivitiesByTeacher,
 };

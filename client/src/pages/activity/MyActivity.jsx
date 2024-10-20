@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Button, Tooltip, Layout, App } from "antd"; // Import thêm Tooltip và Button
+import { Card, Row, Col, Button, Tooltip, Layout, Spin } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import TeacherSidebar from "./TeacherSidebar";
 import "../../style/Activity/myActivity.css";
-import {
-  BellFilled,
-  BellOutlined,
-  ClockCircleOutlined,
-} from "@ant-design/icons";
+import { BellOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import AppHeader from "../../layouts/admin/AdminHeader";
+import OutcomeSteps from "./OutcomeSteps";
+
+const { Header, Sider, Content } = Layout;
 
 const MyActivity = () => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
-  const [classes, setClasses] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-
-  const lateGroups = [
-    "Nhóm A, outcome 1",
-    "Nhóm B, outcome 2",
-    "Nhóm C, outcome 3",
-  ];
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   const config = {
     headers: {
@@ -44,53 +38,58 @@ const MyActivity = () => {
         setLoading(false);
       }
     };
-
     fetchClasses();
   }, [userId, jwt]);
-
-  const handleGroupClick = (groupName) => {
-    alert(`Nhấn vào nhóm ${groupName} để xem chi tiết`); // Xử lý sự kiện khi nhấn vào nhóm
-  };
-  const [collapsed, setCollapsed] = useState(false);
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
   };
+
+  const handleGroupClick = (groupName) => {
+    alert(`Nhấn vào nhóm ${groupName} để xem chi tiết`);
+  };
+
+  const lateGroups = [
+    "Nhóm A, outcome 1",
+    "Nhóm B, outcome 2",
+    "Nhóm C, outcome 3",
+  ];
+
   return (
-    <Layout>
+    <Layout style={{ minHeight: "100vh" }}>
       <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
       <Layout>
         <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
+        <Layout style={{ padding: "24px" }}>
+          <Content>
+            <div style={{ marginBottom: "24px" }}>
+              <h1>Tiến trình Outcomes</h1>
+              <OutcomeSteps classId={userId} />
+            </div>
 
-        <div style={{ padding: "24px", width: "100%" }}>
-          <h1>Tất cả các lớp</h1>
-
-          {loading ? (
-            <p>Loading...</p>
-          ) : (
-            <Row gutter={16}>
-              {classes.length > 0 ? (
-                classes.map((classItem) => (
-                  <Col key={classItem._id} xs={24} sm={12} md={8}>
-                    <Card
-                      bordered={false}
-                      className="custom-card"
-                      title={classItem.className}
-                      extra={
-                        <Tooltip title="Bấm vào đây để gửi lời nhắc cho các nhóm!">
-                          <span style={{ cursor: "pointer" }}>
-                            <BellOutlined
-                              className="shake-on-hover"
-                              style={{
-                                color: "yellow",
-                                fontSize: "24px",
-                              }}
-                            />
-                          </span>
-                        </Tooltip>
-                      }
-                    >
-                      <div>
+            <h1>Tất cả các lớp</h1>
+            {loading ? (
+              <Spin tip="Đang tải dữ liệu..." size="large" />
+            ) : (
+              <Row gutter={16}>
+                {classes.length > 0 ? (
+                  classes.map((classItem) => (
+                    <Col key={classItem._id} xs={24} sm={12} md={8}>
+                      <Card
+                        bordered={false}
+                        className="custom-card"
+                        title={classItem.className}
+                        extra={
+                          <Tooltip title="Bấm vào đây để gửi lời nhắc cho các nhóm!">
+                            <span style={{ cursor: "pointer" }}>
+                              <BellOutlined
+                                className="shake-on-hover"
+                                style={{ color: "yellow", fontSize: "24px" }}
+                              />
+                            </span>
+                          </Tooltip>
+                        }
+                      >
                         <p style={{ color: "red" }}>
                           <ClockCircleOutlined /> Nhóm nộp muộn:
                         </p>
@@ -124,16 +123,16 @@ const MyActivity = () => {
                             </Tooltip>
                           ))}
                         </div>
-                      </div>
-                    </Card>
-                  </Col>
-                ))
-              ) : (
-                <p>Không có lớp học nào</p>
-              )}
-            </Row>
-          )}
-        </div>
+                      </Card>
+                    </Col>
+                  ))
+                ) : (
+                  <p>Không có lớp học nào</p>
+                )}
+              </Row>
+            )}
+          </Content>
+        </Layout>
       </Layout>
     </Layout>
   );

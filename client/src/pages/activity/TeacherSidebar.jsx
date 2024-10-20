@@ -85,7 +85,7 @@ const TeacherSidebar = ({ collapsed, toggleCollapse }) => {
         defaultSelectedKeys={["1"]}
         defaultOpenKeys={["sub2"]}
         items={menuItems}
-        style={{ height: "100%", borderRight: 0 }}
+        style={{ height: "100%", borderRight: 0, paddingBottom: 0 }}
       />
     </Sider>
   );

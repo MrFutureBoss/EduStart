@@ -1,95 +1,98 @@
 import activityDAO from "../../repositories/activityDAO/index.js";
-import { sendReminderEmail } from "../../utilities/email.js";
 
 const createActivity = async (req, res) => {
   try {
-    const { title, description, activityType, classId, assignmentType, deadline } = req.body;
+    const {
+      title,
+      description,
+      activityType,
+      classId,
+      assignmentType,
+      deadline,
+      startDate,
+      semesterId,
+    } = req.body;
     const teacherId = req.user._id;
 
-    if (activityType === "assignment" && deadline) {
-      const currentTime = new Date();
-      const deadlineTime = new Date(deadline);
-
-      if (deadlineTime < currentTime) {
-        return res.status(400).json({
-          message: "Deadline cannot be in the past",
-        });
+    // Handle material upload
+    if (activityType === "material") {
+      if (!req.file) {
+        return res.status(400).json({ message: "Material file is required." });
       }
+
+      // Ensure that we save only the relative URL, not the absolute path
+      const materialUrl = `uploads/materials/${req.file.filename}`;
+
+      const newMaterial = {
+        teacherId,
+        title,
+        description,
+        activityType: "material",
+        classId,
+        materialUrl, // Save relative URL
+      };
+
+      const savedMaterial = await activityDAO.createActivity(newMaterial);
+      return res.status(201).json({
+        message: "Material created successfully",
+        activity: savedMaterial,
+      });
     }
 
+    // Handle post creation
     if (activityType === "post") {
+      if (!title || !classId || !semesterId) {
+        return res.status(400).json({
+          message: "Title, ClassId, and SemesterId are required for Post",
+        });
+      }
+
       const newPost = {
         teacherId,
         title,
         description,
         activityType: "post",
         classId,
+        semesterId,
       };
 
       const savedPost = await activityDAO.createActivity(newPost);
-
       return res.status(201).json({
         message: "Post created successfully",
         activity: savedPost,
       });
     }
 
-    let materialUrl = null;
-    if (activityType === "material" && req.file) {
-      materialUrl = req.file.path; 
-    }
-
-    let options = {};
-    if (activityType === "material") {
-      options.materialUrl = materialUrl;
-    } else if (activityType === "assignment") {
-      options.assignmentType = assignmentType;
-    }
-
-    const existingActivity = await activityDAO.findExistingActivity(
-      classId,
-      teacherId,
-      activityType,
-      options
-    );
-
-    // If activity exists, update it (based on business logic)
-    if (existingActivity) {
-      const updateData = { title, description };
-
-      if (activityType === "material" && materialUrl) {
-        updateData.materialUrl = materialUrl;
-      } else if (activityType === "assignment") {
-        updateData.assignmentType = assignmentType;
-        updateData.deadline = deadline;
+    // Handle outcome creation
+    if (activityType === "outcome") {
+      if (!title || !classId || !assignmentType || !deadline || !startDate || !semesterId) {
+        return res.status(400).json({
+          message:
+            "All fields (Title, ClassId, AssignmentType, Deadline, StartDate, SemesterId) are required for Outcome",
+        });
       }
 
-      const updatedActivity = await activityDAO.updateExistingActivity(existingActivity, updateData);
-      return res.status(200).json({
-        message: `${activityType.charAt(0).toUpperCase() + activityType.slice(1)} updated successfully`,
-        activity: updatedActivity,
+      const newOutcome = {
+        teacherId,
+        title,
+        description,
+        activityType: "outcome",
+        classId,
+        assignmentType,
+        deadline,
+        startDate,
+        semesterId,
+      };
+
+      const savedOutcome = await activityDAO.createActivity(newOutcome);
+      return res.status(201).json({
+        message: "Outcome created successfully",
+        activity: savedOutcome,
       });
     }
 
-    // Create new activity if no existing one is found
-    const newActivityData = {
-      teacherId,
-      title,
-      description,
-      activityType,
-      classId,
-    };
-
-    if (activityType === "material") {
-      newActivityData.materialUrl = materialUrl;
-    } else if (activityType === "assignment") {
-      newActivityData.assignmentType = assignmentType;
-      newActivityData.deadline = deadline;
-    }
-
-    const newActivity = await activityDAO.createActivity(newActivityData);
-
-    res.status(201).json(newActivity);
+    // Invalid activity type
+    return res.status(400).json({ message: "Invalid activity type" });
   } catch (error) {
     console.error("Error creating or updating activity:", error);
     res.status(500).json({
@@ -98,7 +101,6 @@ const createActivity = async (req, res) => {
     });
   }
 };
-
 
 
 const getActivities = async (req, res) => {
@@ -118,21 +120,27 @@ const updateActivity = async (req, res) => {
   try {
     const { activityId } = req.params;
     const { title, description, deadline } = req.body;
+    const existingActivity = await activityDAO.findActivityById(activityId);
+    if (!existingActivity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
     const updatedActivity = await activityDAO.updateActivityById(activityId, {
       title,
       description,
       deadline,
     });
-
     if (!updatedActivity) {
       return res.status(404).json({ message: "Activity not found" });
     }
-
-    res.status(200).json(updatedActivity);
+    res.status(200).json({
+      message: "Activity updated successfully",
+      activity: updatedActivity,
+    });
   } catch (error) {
     res.status(500).json({ message: "Failed to update activity", error });
   }
 };
+
 const deleteActivity = async (req, res) => {
   try {
     const { activityId } = req.params;
@@ -147,65 +155,95 @@ const deleteActivity = async (req, res) => {
       message: "Activity deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting activity:", error);
     res.status(500).json({
       message: "Failed to delete activity",
       error: error.message,
     });
   }
 };
-const getOverdueGroups = async (req, res) => {
+
+const updateMaterial = async (req, res) => {
   try {
     const { activityId } = req.params;
-
-    const activity = await activityRepository.findActivityById(activityId);
-    if (!activity || activity.activityType !== "assignment") {
-      return res.status(404).json({ message: "Assignment not found" });
+    const { title, description } = req.body;
+    let materialUrl = null;
+    if (req.file) {
+      materialUrl = req.file.path;
     }
-
-    const groups = await groupRepository.findGroupsByClassId(activity.classId);
-    const submittedGroupIds = await activityDAO.findSubmittedGroups(activityId);
-
-    const overdueGroups = groups.filter(
-      (group) => !submittedGroupIds.includes(group._id.toString())
-    );
-
-    res.status(200).json({ overdueGroups });
+    const existingActivity = await activityDAO.findActivityById(activityId);
+    if (!existingActivity) {
+      return res.status(404).json({ message: "Material not found" });
+    }
+    if (existingActivity.title === title) {
+      return res.status(400).json({
+        message:
+          "Tên tài liệu không được trùng với tài liệu hiện tại. Vui lòng nhập tên mới.",
+      });
+    }
+    const updatedActivity = await activityDAO.updateActivityById(activityId, {
+      title,
+      description,
+      materialUrl,
+    });
+    res.status(200).json({
+      message: "Material updated successfully",
+      activity: updatedActivity,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch overdue groups", error });
+    res.status(500).json({
+      message: "Failed to update material",
+      error: error.message,
+    });
   }
 };
-const sendReminder = async (req, res) => {
+const getActivitiesByTeacher = async (req, res) => {
   try {
-    const { activityId } = req.params;
+    const teacherId = req.user._id;
+    const activities = await activityDAO.findActivitiesByTeacher(teacherId);
 
-    const activity = await activityRepository.findActivityById(activityId);
-    if (!activity || activity.activityType !== "assignment") {
-      return res.status(404).json({ message: "Assignment not found" });
+    if (!activities || activities.length === 0) {
+      return res.status(404).json({
+        message: "No activities found for this teacher",
+      });
     }
 
-    const groups = await groupRepository.findGroupsByClassId(activity.classId);
-    const submittedGroupIds =
-      await assignmentSubmissionRepository.findSubmittedGroups(activityId);
-    const overdueGroups = groups.filter(
-      (group) => !submittedGroupIds.includes(group._id.toString())
+    res.status(200).json({
+      success: true,
+      activities,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch activities",
+      error: error.message,
+    });
+  }
+};
+const checkFileExists = async (req, res) => {
+  const { filename } = req.query;
+
+  if (!filename) {
+    return res
+      .status(400)
+      .json({ success: false, message: "File name is required" });
+  }
+
+  try {
+    const existingMaterial = await activityDAO.findActivityByMaterialUrl(
+      filename
     );
 
-    overdueGroups.forEach(async (group) => {
-      const leader = await userRepository.findUserById(group.leaderId);
-      if (leader) {
-        await sendReminderEmail(
-          leader.email,
-          activity.title,
-          activity.deadline
-        );
-      }
-    });
-
-    res.status(200).json({ message: "Reminder sent successfully" });
+    if (existingMaterial) {
+      return res.status(200).json({ exists: true });
+    } else {
+      return res.status(200).json({ exists: false });
+    }
   } catch (error) {
-    console.error("Error sending reminder:", error);
-    res.status(500).json({ message: "Failed to send reminder", error });
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while checking file existence",
+      errors: error.message,
+    });
   }
 };
 export default {
@@ -213,6 +251,7 @@ export default {
   getActivities,
   updateActivity,
   deleteActivity,
-  getOverdueGroups,
-  sendReminder,
+  updateMaterial,
+  getActivitiesByTeacher,
+  checkFileExists,
 };

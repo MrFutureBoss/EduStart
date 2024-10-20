@@ -9,24 +9,23 @@ import {
   Input,
   Progress,
   Layout,
-  App,
 } from "antd";
 import {
   UploadOutlined,
   PlusOutlined,
-  FileOutlined,
   DownloadOutlined,
   FileImageOutlined,
   FilePdfOutlined,
   FileWordOutlined,
   FolderOutlined,
+  FileOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import TeacherSidebar from "./TeacherSidebar";
+import AppHeader from "../../layouts/admin/AdminHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassList } from "../../redux/slice/ClassSlice";
-import AppHeader from "../../layouts/admin/AdminHeader";
 
 const MaterialList = () => {
   const [materials, setMaterials] = useState([]);
@@ -58,6 +57,7 @@ const MaterialList = () => {
     },
   };
 
+  // Fetch class list once when the component mounts
   useEffect(() => {
     if (classList.length === 0) {
       const fetchClasses = async () => {
@@ -73,26 +73,28 @@ const MaterialList = () => {
       };
       fetchClasses();
     }
-  }, [userId, config, classList, dispatch]);
+  }, [userId, config, dispatch, classList.length]);
+
+  // Fetch materials when a class is selected
+  const fetchMaterials = async (classId) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/activity?classId=${classId}`,
+        config
+      );
+      setMaterials(
+        response.data.filter(
+          (activity) => activity.activityType === "material"
+        )
+      );
+    } catch (error) {
+      message.error("Error fetching materials");
+    }
+  };
 
   useEffect(() => {
     if (selectedClassId) {
-      const fetchMaterials = async () => {
-        try {
-          const response = await axios.get(
-            `${BASE_URL}/activity?classId=${selectedClassId}`,
-            config
-          );
-          setMaterials(
-            response.data.filter(
-              (activity) => activity.activityType === "material"
-            )
-          );
-        } catch (error) {
-          message.error("Error fetching materials");
-        }
-      };
-      fetchMaterials();
+      fetchMaterials(selectedClassId); // Fetch materials when classId changes
     }
   }, [selectedClassId, config]);
 
@@ -105,11 +107,11 @@ const MaterialList = () => {
       case "gif":
         return (
           <FileImageOutlined style={{ fontSize: "24px", color: "#52c41a" }} />
-        ); 
+        );
       case "pdf":
         return (
           <FilePdfOutlined style={{ fontSize: "24px", color: "#f5222d" }} />
-        ); 
+        );
       case "doc":
       case "docx":
         return (
@@ -118,17 +120,32 @@ const MaterialList = () => {
       case "folder":
         return (
           <FolderOutlined style={{ fontSize: "24px", color: "#faad14" }} />
-        ); 
+        );
       default:
-        return <FileOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />; 
+        return <FileOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />;
     }
   };
 
-  const handleUpload = async () => {
-    if (!fileToUpload) return;
+  const checkIfFileExists = async (filename) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/activity/checkFileExists?filename=${filename}`
+      );
+      return response.data.exists;
+    } catch (error) {
+      message.error("Error checking file existence");
+      return false;
+    }
+  };
+
+  const uploadFile = async (file) => {
+    if (!title || !description) {
+      message.error("Title and description are required.");
+      return;
+    }
 
     const formData = new FormData();
-    formData.append("materialFile", fileToUpload);
+    formData.append("materialFile", file);
     formData.append("title", title);
     formData.append("description", description);
     formData.append("activityType", "material");
@@ -136,20 +153,30 @@ const MaterialList = () => {
 
     try {
       setUploading(true);
-      const response = await axios.post(
-        `${BASE_URL}/activity`,
-        formData,
-        config
-      );
-      message.success(`${fileToUpload.name} uploaded successfully.`);
+      const response = await axios.post(`${BASE_URL}/activity`, formData, config);
+      message.success(`${file.name} uploaded successfully.`);
       setMaterials([...materials, response.data]);
     } catch (error) {
-      message.error(`${fileToUpload.name} failed to upload.`);
+      message.error(`${file.name} failed to upload.`);
     } finally {
       setUploading(false);
-      setUploadPercent(0);
-      setFileList([]);
       setIsModalVisible(false);
+      setFileList([]);
+      // Reset form fields and refresh data
+      setTitle("");
+      setDescription("");
+      fetchMaterials(selectedClassId);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!fileToUpload) return;
+
+    const fileExists = await checkIfFileExists(fileToUpload.name);
+    if (fileExists) {
+      message.error(`File "${fileToUpload.name}" already exists. Please change the file name.`);
+    } else {
+      await uploadFile(fileToUpload);
     }
   };
 
@@ -193,7 +220,7 @@ const MaterialList = () => {
   };
 
   return (
-    <Layout>
+    <Layout style={{ minHeight: "100vh" }}>
       <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
       <Layout>
         <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
@@ -215,12 +242,14 @@ const MaterialList = () => {
             renderItem={(material) => (
               <List.Item>
                 <List.Item.Meta
-                  avatar={getFileIcon(material.materialUrl.split("/").pop())} 
+                  avatar={getFileIcon(material.materialUrl.split("/").pop())}
                   title={<strong>{material.title}</strong>}
                   description={material.description}
                 />
                 <a
-                  href={`/${material.materialUrl}`}
+                  href={`${BASE_URL}/activity/download?filename=${material.materialUrl
+                    .split("/")
+                    .pop()}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -235,7 +264,7 @@ const MaterialList = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            style={{ marginTop: "16px" }}
+            style={{ marginTop: "16px", width: "16%" }}
             onClick={() => setIsModalVisible(true)}
             disabled={!selectedClassId}
           >
@@ -244,17 +273,14 @@ const MaterialList = () => {
 
           <Modal
             title="Tải tài liệu lên"
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={handleCancel}
             footer={[
-              <Button key="cancel" onClick={handleCancel}>
-                Hủy
-              </Button>,
               <Button
                 key="submit"
                 type="primary"
                 onClick={handleUpload}
-                disabled={!fileToUpload}
+                disabled={!fileToUpload || !title || !description}
                 loading={uploading}
               >
                 Tải lên
