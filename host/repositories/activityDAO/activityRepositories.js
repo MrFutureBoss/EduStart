@@ -46,28 +46,43 @@ const findExistingActivity = async (classId, teacherId, activityType, options = 
     };
 
     if (activityType === "material" && options.materialUrl) {
-      query.materialUrl = options.materialUrl; 
-    } else if (activityType === "assignment" && options.assignmentType) {
-      query.assignmentType = options.assignmentType; 
+      query.materialUrl = options.materialUrl;
     }
 
-    return await Activity.findOne(query);
+    if (activityType === "assignment" && options.assignmentType) {
+      query.assignmentType = options.assignmentType;
+    }
+
+    return await Activity.findOne(query);  
   } catch (error) {
     throw new Error("Error while fetching existing activity: " + error.message);
   }
 };
 
+
 const updateExistingActivity = async (existingActivity, updateData) => {
   try {
     existingActivity.title = updateData.title;
     existingActivity.description = updateData.description;
-    existingActivity.materialUrl = updateData.materialUrl;
+
+    if (updateData.materialUrl) {
+      existingActivity.materialUrl = updateData.materialUrl;
+    }
+
+    if (updateData.assignmentType) {
+      existingActivity.assignmentType = updateData.assignmentType;
+    }
+
+    if (updateData.deadline) {
+      existingActivity.deadline = updateData.deadline;
+    }
 
     return await existingActivity.save();
   } catch (error) {
     throw new Error("Error while updating activity: " + error.message);
   }
 };
+
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,

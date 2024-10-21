@@ -16,13 +16,13 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/materials/'); 
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}_${file.originalname}`);
-  },
+    cb(null, file.originalname); 
+  }  
 });
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // Giới hạn kích thước file là 50MB
+  limits: { fileSize: 50 * 1024 * 1024 }, 
 });
 export const checkFileExists = (req, res) => {
   const { fileName } = req.query;
@@ -30,9 +30,9 @@ export const checkFileExists = (req, res) => {
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
-      return res.status(200).json({ exists: false }); // File không tồn tại
+      return res.status(200).json({ exists: false }); 
     }
-    res.status(200).json({ exists: true }); // File đã tồn tại
+    res.status(200).json({ exists: true }); 
   });
 };
 export default upload;

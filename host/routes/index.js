@@ -6,6 +6,8 @@ import semesterRouter from "./semesterRouter.js";
 import activityRouters from "./activityRouter.js";
 import tempMatchingRouter from "./tempMatching.js";
 import teacherRouter from "./teacherRouter.js";
+import classRouter from "./classRouter.js";
+import mentorCategoryRouters from "./mentorCategory.js";
 
 const routes = {
   professionRouters,
@@ -16,6 +18,8 @@ const routes = {
   activityRouters,
   tempMatchingRouter,
   teacherRouter,
+  classRouter,
+  mentorCategoryRouters,
 };
 
 export default routes;

@@ -24,6 +24,7 @@ const loginUser = async ({ email, password }) => {
     throw new Error(e.message);
   }
 };
+
 const findUserByEmail = async (email) => {
   try {
     return await User.findOne({ email });
@@ -31,6 +32,7 @@ const findUserByEmail = async (email) => {
     throw new Error(error.message);
   }
 };
+
 const findUser = async (query) => {
   try {
     return await User.findOne(query);
@@ -38,6 +40,7 @@ const findUser = async (query) => {
     throw new Error(error.message);
   }
 };
+
 const findUserById = async (id) => {
   try {
     const user = await User.aggregate([
@@ -96,6 +99,7 @@ const findUserById = async (id) => {
     throw new Error(error.message);
   }
 };
+
 const updateUserPassword = async (userId, newPassword) => {
   try {
     const saltRounds = 10;
@@ -105,10 +109,40 @@ const updateUserPassword = async (userId, newPassword) => {
     throw new Error(error.message);
   }
 };
+
+const changePassword = async (email, oldPassword, newPassword) => {
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error("User not found.");
+    }
+
+    // Check if the old password matches
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Old password is incorrect.");
+    }
+
+    // Hash the new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update the user's password
+    await User.findByIdAndUpdate(user._id, { password: hashedPassword });
+
+    return { message: "Password changed successfully." };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+
 export default {
   loginUser,
   findUserByEmail,
   findUser,
   findUserById,
   updateUserPassword,
+  changePassword, 
 };

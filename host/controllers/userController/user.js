@@ -1,6 +1,7 @@
 import userDAO from "../../repositories/userDAO/index.js";
 import { clearOTP, verifyOTP } from "../../utilities/otpStore.js";
 import { sendEmail } from "../../utilities/email.js";
+import bcrypt from "bcrypt";
 
 const getUserLogin = async (req, res, next) => {
   try {
@@ -64,8 +65,20 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  const { email, oldPassword, newPassword } = req.body; // Get email, old password, and new password from request
+
+  try {
+    const result = await userDAO.changePassword(email, oldPassword, newPassword);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export default {
   getUserLogin,
   forgotPassword,
   resetPassword,
+  changePassword
 };
