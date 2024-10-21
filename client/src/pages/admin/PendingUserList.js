@@ -31,6 +31,7 @@ import {
   setPendingUsers,
   setUsersInSmt,
 } from "../../redux/slice/semesterSlide";
+import { setRecentlyUpdatedUsers } from "../../redux/slice/UserSlice";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -100,6 +101,11 @@ const PendingUsers = () => {
       );
       const semester = currentresponse.data;
       dispatch(setCurrentSemester(semester));
+      const userResponse = await axios.get(
+        `${BASE_URL}/semester/${semester._id}/users`,
+        config
+      );
+      dispatch(setUsersInSmt(userResponse.data));
     } catch (err) {
       dispatch(setError(err.message));
       console.error("Error fetching current semester:", err);
@@ -285,8 +291,8 @@ const PendingUsers = () => {
         `${BASE_URL}/semester/${semester._id}/users`,
         config
       );
-      console.log(userResponse.data);
 
+      dispatch(setRecentlyUpdatedUsers(userId));
       dispatch(setUsersInSmt(userResponse.data));
       message.success("Học sinh đã được thêm vào lớp thành công.");
       await fetchPendingUsers();
@@ -526,6 +532,10 @@ const PendingUsers = () => {
         )
       );
       await Promise.all(promises);
+      await fetchCurrentSemester();
+
+      const userIds = Object.keys(updatedSelectedClasses);
+      dispatch(setRecentlyUpdatedUsers(userIds));
 
       message.success("Tất cả học sinh đã được thêm vào lớp thành công.");
       // Cập nhật danh sách học sinh đang chờ
@@ -705,23 +715,23 @@ const PendingUsers = () => {
           ) : (
             <>
               {/* Nút "Lưu Tất Cả" nếu có thể tạo lớp mới */}
-              {canCreateClass && (
-                <div
-                  style={{
-                    textAlign: "right",
-                    marginBottom: "10px",
-                    marginTop: "40px",
-                  }}
+
+              <div
+                style={{
+                  textAlign: "right",
+                  marginBottom: "10px",
+                  marginTop: "40px",
+                }}
+              >
+                <Button
+                  style={{ backgroundColor: "#4682B4", color: "#FFF" }}
+                  onClick={handleSaveAll}
+                  loading={loading}
                 >
-                  <Button
-                    style={{ backgroundColor: "#4682B4", color: "#FFF" }}
-                    onClick={handleSaveAll}
-                    loading={loading}
-                  >
-                    Lưu Tất Cả
-                  </Button>
-                </div>
-              )}
+                  Lưu Tất Cả
+                </Button>
+              </div>
+
               <Table
                 dataSource={pendingUsers}
                 columns={columns}

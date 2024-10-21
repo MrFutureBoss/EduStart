@@ -9,6 +9,7 @@ import AppSider from "../../layouts/admin/AdminSidebar";
 import {
   setCounts,
   setCurrentSemester,
+  setDetailSemester,
   setError,
   setLoading,
   setSemester,
@@ -71,6 +72,23 @@ const MainLayout = () => {
             startDate: semester.startDate,
             semesterName: semester.name,
             status: semester.status,
+            studentsWithClass: semester.studentsWithClass,
+            studentsWithoutClass: semester.studentsWithoutClass,
+            teachersWithClassCount: semester.teachersWithClassCount,
+            teachersWithoutClassCount: semester.teachersWithoutClassCount,
+            classesWithStudentsCount: semester.classesWithStudentsCount,
+            classesWithoutStudentsCount: semester.classesWithoutStudentsCount,
+          })
+        );
+        dispatch(
+          setDetailSemester({
+            classesWithStudentsList: semester.details.classesWithStudentsList,
+            classesWithoutStudentsList:
+              semester.details.classesWithoutStudentsList,
+            teachersWithClasses: semester.details.teachersWithClasses,
+            teachersWithoutClasses: semester.details.teachersWithoutClasses,
+            mentorsWithMatch: semester.details.mentorsWithMatch,
+            mentorsWithoutMatch: semester.details.mentorsWithoutMatch,
           })
         );
 

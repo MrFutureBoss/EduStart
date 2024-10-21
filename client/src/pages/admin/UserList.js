@@ -7,14 +7,12 @@ import {
   Select,
   Tag,
   Input,
-  Upload,
   Dropdown,
   Space,
   Menu,
   Modal,
   message,
   notification,
-  Descriptions,
   Badge,
   Typography,
 } from "antd";
@@ -26,49 +24,42 @@ import {
   UploadOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import UserAddModal from "./semesterModel/UserAddModal";
+import UserAddModal from "../semester/semesterModel/UserAddModal";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import ErrorAlerts from "./ErrorAlerts";
+import ErrorAlerts from "../semester/ErrorAlerts";
 import {
   setCounts,
   setCurrentSemester,
+  setDetailSemester,
   setLoading,
   setSemesterName,
   setSid,
   setUsersInSmt,
 } from "../../redux/slice/semesterSlide";
-import EditSemesterModal from "./semesterModel/EditSemesterModel";
+import EditSemesterModal from "../semester/semesterModel/EditSemesterModel";
 import {
   setErrorMessages,
   setFailedEmails,
   setFullClassUsers,
 } from "../../redux/slice/ErrorSlice";
-import TransferClassModal from "./userModel/TransferClassModal";
-import SwapClassModal from "./userModel/SwapClassModal";
+import TransferClassModal from "../semester/userModel/TransferClassModal";
+import SwapClassModal from "../semester/userModel/SwapClassModal";
+import { setRecentlyUpdatedUsers } from "../../redux/slice/UserSlice";
+import "./UserListSemester.css";
+import SemesterDetailsCard from "../semester/SemesterDetailsCard";
+import UploadFileModal from "./UploadFileModal";
 
 const { Option } = Select;
 const { Search } = Input;
-const { Title } = Typography;
 
 const UserListSemester = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {
-    sid,
-    usersInSmt,
-    semesterName,
-    currentSemester,
-    classCount,
-    mentorCount,
-    teacherCount,
-    studentCount,
-    endDate,
-    startDate,
-    status,
-    semester,
-  } = useSelector((state) => state.semester);
-
+  const { sid, usersInSmt, currentSemester, semester } = useSelector(
+    (state) => state.semester
+  );
+  const { recentlyUpdatedUsers } = useSelector((state) => state.user);
   const [selectedRole, setSelectedRole] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
   const [searchText, setSearchText] = useState("");
@@ -91,6 +82,9 @@ const UserListSemester = () => {
   const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
   const [isSwapModalVisible, setIsSwapModalVisible] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isUploadFileModalVisible, setIsUploadFileModalVisible] =
+    useState(false); // Thêm state cho UploadFileModal
+
   const jwt = localStorage.getItem("jwt");
 
   const config = {
@@ -124,7 +118,7 @@ const UserListSemester = () => {
     if (isManualEntry) {
       setIsModalVisible(true);
     } else {
-      setIsUploadModalVisible(true);
+      setIsUploadFileModalVisible(true); // Mở UploadFileModal thay vì UploadModal cũ
     }
   };
 
@@ -175,36 +169,48 @@ const UserListSemester = () => {
     </Menu>
   );
 
-  const filteredUsers = usersInSmt.filter((user) => {
-    if (selectedRole && user.role !== selectedRole) {
-      return false;
-    }
-    if (
-      selectedRole === 4 &&
-      selectedClass &&
-      user.classId?.className !== selectedClass
-    ) {
-      return false;
-    }
-    if (
-      searchText &&
-      !(
-        user.username.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.phoneNumber?.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.rollNumber?.toLowerCase().includes(searchText.toLowerCase())
-      )
-    ) {
-      return false;
-    }
-    return true;
-  });
+  const filteredUsers = usersInSmt
+    .filter((user) => {
+      if (selectedRole && user.role !== selectedRole) {
+        return false;
+      }
+      if (
+        selectedRole === 4 &&
+        selectedClass &&
+        user.classId?.className !== selectedClass
+      ) {
+        return false;
+      }
+      if (
+        searchText &&
+        !(
+          user.username.toLowerCase().includes(searchText.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchText.toLowerCase()) ||
+          user.phoneNumber?.toLowerCase().includes(searchText.toLowerCase()) ||
+          user.rollNumber?.toLowerCase().includes(searchText.toLowerCase())
+        )
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)); // Sắp xếp theo updatedAt
 
   const handleRoleSelect = (roleId) => {
     setSelectedRole(roleId);
     setSelectedUploadRole(roleId);
     setSelectedClass(null);
   };
+
+  useEffect(() => {
+    if (recentlyUpdatedUsers.length > 0) {
+      const timer = setTimeout(() => {
+        dispatch(setRecentlyUpdatedUsers([]));
+      }, 10000); // 10 giây
+
+      return () => clearTimeout(timer);
+    }
+  }, [recentlyUpdatedUsers]);
 
   const classOptions = [
     ...new Set(
@@ -243,11 +249,6 @@ const UserListSemester = () => {
       : selectedRole === 2
       ? [
           {
-            title: "Số điện thoại",
-            dataIndex: "phoneNumber",
-            key: "phoneNumber",
-          },
-          {
             title: "Các lớp đang dạy",
             dataIndex: "classesTeaching",
             key: "classesTeaching",
@@ -261,28 +262,6 @@ const UserListSemester = () => {
                   {cls.className}
                 </Link>
               )),
-          },
-        ]
-      : selectedRole === 3
-      ? [
-          {
-            title: "Số điện thoại",
-            dataIndex: "phoneNumber",
-            key: "phoneNumber",
-          },
-          {
-            title: "Lĩnh vực",
-            dataIndex: "mentorCategoryInfo",
-            key: "field",
-            render: (mentorCategoryInfo) =>
-              mentorCategoryInfo?.profession || "Không xác định",
-          },
-          {
-            title: "Chuyên môn",
-            dataIndex: "mentorCategoryInfo",
-            key: "specialty",
-            render: (mentorCategoryInfo) =>
-              mentorCategoryInfo?.specialties || "Không xác định",
           },
         ]
       : []),
@@ -306,26 +285,48 @@ const UserListSemester = () => {
           {
             title: "Hành động",
             key: "action",
-            render: (text, record) => (
-              <Dropdown
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      key="1"
-                      onClick={() => handleTransferModal(record)}
-                    >
-                      Chuyển lớp
-                    </Menu.Item>
-                    <Menu.Item key="2" onClick={() => handleSwapModal(record)}>
-                      Hoán đổi lớp
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={["click"]}
-              >
-                <Button>Hành động</Button>
-              </Dropdown>
-            ),
+            render: (text, record) =>
+              record.classId ? (
+                // Nếu có classId thì hiển thị các hành động liên quan đến chuyển và hoán đổi lớp
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      <Menu.Item
+                        key="1"
+                        onClick={() => handleTransferModal(record)}
+                      >
+                        Chuyển lớp
+                      </Menu.Item>
+                      <Menu.Item
+                        key="2"
+                        onClick={() => handleSwapModal(record)}
+                      >
+                        Hoán đổi lớp
+                      </Menu.Item>
+                    </Menu>
+                  }
+                  trigger={["click"]}
+                >
+                  <Button>Hành động</Button>
+                </Dropdown>
+              ) : (
+                // Nếu không có classId thì hiển thị hành động "Thêm vào lớp"
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      <Menu.Item
+                        key="1"
+                        onClick={() => navigate(`pending-users`)}
+                      >
+                        Thêm vào lớp{" "}
+                      </Menu.Item>
+                    </Menu>
+                  }
+                  trigger={["click"]}
+                >
+                  <Button>Hành động</Button>
+                </Dropdown>
+              ),
           },
         ]
       : []),
@@ -338,7 +339,6 @@ const UserListSemester = () => {
       const semester = response.data;
       dispatch(setSid(semester._id));
       dispatch(setSemesterName(semester.name));
-
       dispatch(
         setCounts({
           studentCount: semester.studentCount,
@@ -349,9 +349,25 @@ const UserListSemester = () => {
           startDate: semester.startDate,
           semesterName: semester.name,
           status: semester.status,
+          studentsWithClass: semester.studentsWithClass,
+          studentsWithoutClass: semester.studentsWithoutClass,
+          teachersWithClassCount: semester.teachersWithClassCount,
+          teachersWithoutClassCount: semester.teachersWithoutClassCount,
+          classesWithStudentsCount: semester.classesWithStudentsCount,
+          classesWithoutStudentsCount: semester.classesWithoutStudentsCount,
         })
       );
-
+      dispatch(
+        setDetailSemester({
+          classesWithStudentsList: semester.details.classesWithStudentsList,
+          classesWithoutStudentsList:
+            semester.details.classesWithoutStudentsList,
+          teachersWithClasses: semester.details.teachersWithClasses,
+          teachersWithoutClasses: semester.details.teachersWithoutClasses,
+          mentorsWithMatch: semester.details.mentorsWithMatch,
+          mentorsWithoutMatch: semester.details.mentorsWithoutMatch,
+        })
+      );
       const userResponse = await axios.get(
         `${BASE_URL}/semester/${semester._id}/users`,
         config
@@ -404,204 +420,15 @@ const UserListSemester = () => {
     }
   };
 
-  const uploadProps = {
-    customRequest: async (options) => {
-      const { file, onSuccess, onError, onProgress } = options;
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("role", selectedUploadRole);
-      formData.append("semesterId", semester?._id);
-
-      try {
-        const response = await axios.post(
-          `${BASE_URL}/admins/import-users`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              authorization: `Bearer ${jwt}`,
-            },
-            onUploadProgress: ({ total, loaded }) => {
-              const percent = Math.round((loaded / total) * 100);
-              onProgress({ percent }, file);
-            },
-          }
-        );
-        fetchCurrentSemester();
-        if (response.status !== 200 || !response.data.success) {
-          throw new Error(
-            response.data.message || "Đã xảy ra lỗi khi upload file"
-          );
-        }
-
-        const {
-          successCount,
-          duplicateEmails,
-          fullClassUsers,
-          errorMessages,
-          failedEmails,
-        } = response.data;
-        dispatch(setErrorMessages(errorMessages));
-        // Cập nhật các trạng thái lỗi
-        dispatch(setFullClassUsers(fullClassUsers));
-        dispatch(setFailedEmails(failedEmails));
-
-        if (successCount > 0) {
-          notification.success({
-            message: "Upload thành công",
-            description: `${successCount} người dùng đã được thêm thành công.`,
-            duration: 5,
-          });
-        }
-
-        if (
-          duplicateEmails.length > 0 ||
-          fullClassUsers.length > 0 ||
-          errorMessages.length > 0 ||
-          failedEmails.length > 0
-        ) {
-          notification.warning({
-            message: "Có một số lỗi",
-            description: `${successCount} người dùng được thêm thành công. Có ${duplicateEmails.length} email trùng, ${fullClassUsers.length} người dùng không thể thêm do lớp đã đầy, và ${errorMessages.length} lỗi khác.`,
-            duration: 10,
-          });
-        }
-
-        onSuccess(response.data, file);
-      } catch (error) {
-        const errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          "Đã xảy ra lỗi không xác định.";
-        onError(error);
-        notification.error({
-          message: "Upload thất bại",
-          description: errorMessage,
-          duration: 10,
-        });
-
-        if (error.response?.data?.errorMessages) {
-          setErrorMessages(error.response.data.errorMessages);
-        }
-        if (error.response?.data?.failedEmails) {
-          setFailedEmails(error.response.data.failedEmails);
-        }
-      }
-    },
-  };
-
   return (
     <div className="user-details">
-      <div style={{ marginBottom: 20 }}>
-        <Card
-          style={{
-            marginBottom: 20,
-            borderRadius: "8px",
-            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#f9f9f9",
-            margin: "auto",
-          }}
-        >
-          {semester.status === "Ongoing" && (
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              style={{
-                position: "absolute",
-                top: "10px",
-                right: "10px",
-                backgroundColor: "#4682B4",
-                color: "#FFF",
-                borderRadius: "50%",
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEditSemester();
-              }}
-            ></Button>
-          )}
-
-          <Descriptions
-            bordered
-            style={{ marginTop: -10 }}
-            size="small"
-            title={
-              <Title style={{ marginBottom: 2 }} level={3}>
-                Thông tin chi tiết kỳ học
-              </Title>
-            }
-            layout="horizontal"
-            column={4}
-          >
-            <Descriptions.Item label={<strong>Tên kỳ học</strong>} span={1}>
-              <Title level={3} style={{ margin: 0, color: "#1890ff" }}>
-                {semesterName}
-              </Title>
-            </Descriptions.Item>
-
-            <Descriptions.Item label={<strong>Trạng thái</strong>}>
-              {status === "Ongoing" && (
-                <Badge
-                  status="processing"
-                  text={
-                    <span style={{ fontWeight: 500, color: "#1890ff" }}>
-                      Đang diễn ra
-                    </span>
-                  }
-                />
-              )}
-              {status === "Finished" && (
-                <Badge
-                  status="default"
-                  text={
-                    <span style={{ fontWeight: 500, color: "#8c8c8c" }}>
-                      Đã kết thúc
-                    </span>
-                  }
-                  icon={<CheckCircleOutlined />}
-                />
-              )}
-              {status === "Upcoming" && (
-                <Badge
-                  status="warning"
-                  text={
-                    <span style={{ fontWeight: 500, color: "#faad14" }}>
-                      Sắp diễn ra
-                    </span>
-                  }
-                  icon={<ClockCircleOutlined />}
-                />
-              )}
-            </Descriptions.Item>
-
-            <Descriptions.Item label={<strong>Ngày bắt đầu</strong>}>
-              {new Date(startDate).toLocaleDateString("vi-VN")}
-            </Descriptions.Item>
-
-            <Descriptions.Item label={<strong>Ngày kết thúc</strong>}>
-              {new Date(endDate).toLocaleDateString("vi-VN")}
-            </Descriptions.Item>
-
-            <Descriptions.Item label={<strong>Học sinh</strong>}>
-              {studentCount}
-            </Descriptions.Item>
-            <Descriptions.Item label={<strong>Giáo viên</strong>}>
-              {teacherCount}
-            </Descriptions.Item>
-            <Descriptions.Item label={<strong>Người hướng dẫn</strong>}>
-              {mentorCount}
-            </Descriptions.Item>
-            <Descriptions.Item label={<strong>Số lớp học</strong>}>
-              {classCount}
-            </Descriptions.Item>
-          </Descriptions>
-        </Card>
-      </div>
+      <SemesterDetailsCard handleEditSemester={handleEditSemester} />
 
       <ErrorAlerts
         fullClassUsers={fullClassUsers}
         errorMessages={errorMessages}
         failedEmails={failedEmails}
+        selectedRole={selectedUploadRole}
       />
 
       {usersInSmt.length === 0 ? (
@@ -663,33 +490,15 @@ const UserListSemester = () => {
             onOk={handleModalCancel}
             onCancel={handleModalCancel}
           />
-          <Modal
-            title="Tải file"
-            open={isUploadModalVisible}
-            footer={null}
-            onCancel={handleUploadModalCancel}
-          >
-            <Upload
-              {...uploadProps}
-              onChange={({ file, fileList, event }) => {
-                if (file.status === "done") {
-                  setTimeout(() => {
-                    setIsUploadModalVisible(false);
-                  }, 1000);
-                }
-
-                if (file.status === "error") {
-                }
-              }}
-            >
-              <Button
-                icon={<UploadOutlined />}
-                style={{ marginBottom: "20px" }}
-              >
-                Chọn file để tải lên
-              </Button>
-            </Upload>
-          </Modal>
+          {/* Thêm UploadFileModal */}
+          <UploadFileModal
+            visible={isUploadFileModalVisible}
+            onCancel={() => setIsUploadFileModalVisible(false)}
+            selectedRole={selectedUploadRole}
+            setSelectedRole={setSelectedUploadRole}
+            semesterId={semester._id}
+            refreshData={fetchCurrentSemester}
+          />
         </div>
       ) : (
         <div>
@@ -810,41 +619,18 @@ const UserListSemester = () => {
                 ))}
             </Select>
           </Modal>
-          <Modal
-            title="Tải file"
-            open={isUploadModalVisible}
-            onCancel={handleUploadModalCancel}
-            footer={null}
-          >
-            <Upload
-              {...uploadProps}
-              onChange={({ file, fileList, event }) => {
-                if (file.status === "done") {
-                  setTimeout(() => {
-                    setIsUploadModalVisible(false);
-                  }, 1000);
-                }
-
-                if (file.status === "error") {
-                }
-              }}
-            >
-              <Button
-                icon={<UploadOutlined />}
-                style={{ marginBottom: "20px" }}
-              >
-                Chọn file để tải lên
-              </Button>
-            </Upload>
-            {successCount > 0 && (
-              <div style={{ marginTop: "20px" }}>
-                <strong>Thành công:</strong>
-                <p>{successCount} người dùng đã được thêm thành công.</p>
-              </div>
-            )}
-          </Modal>
+          {/* Loại bỏ Modal Upload cũ */}
+          {/* Thêm UploadFileModal */}
+          <UploadFileModal
+            visible={isUploadFileModalVisible}
+            onCancel={() => setIsUploadFileModalVisible(false)}
+            selectedRole={selectedUploadRole}
+            setSelectedRole={setSelectedUploadRole}
+            semesterId={semester._id}
+            refreshData={fetchCurrentSemester}
+          />
           <EditSemesterModal
-            open={isEditModalVisible}
+            visible={isEditModalVisible}
             onOk={handleEditModalOk}
             onCancel={() => setIsEditModalVisible(false)}
             semester={semester}
@@ -854,6 +640,9 @@ const UserListSemester = () => {
             dataSource={filteredUsers}
             columns={columns}
             rowKey={(record) => record._id}
+            rowClassName={(record) =>
+              recentlyUpdatedUsers.includes(record._id) ? "highlight-row" : ""
+            }
             pagination={{
               current: pagination.current,
               pageSize: pagination.pageSize,

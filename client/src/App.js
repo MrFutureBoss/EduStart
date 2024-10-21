@@ -1,9 +1,9 @@
 import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 // import ProfessionManagement from "./pages/ProfessionManagement.jsx";
-import PendingUsers from "./pages/semester/PendingUserList.js";
+import PendingUsers from "./pages/admin/PendingUserList.js";
 import AdminLayout from "./layouts/admin/AdminLayout.js";
-import UserListSemester from "./pages/semester/UserList.js";
+import UserListSemester from "./pages/admin/UserList.js";
 import SemesterList from "./pages/semester/SemesterList.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,7 +34,10 @@ function App() {
         >
           <Route path="semester-list" element={<SemesterList />} />
           <Route path="current-semester" element={<UserListSemester />} />
-          <Route path="pending-user" element={<PendingUsers />} />
+          <Route
+            path="current-semester/pending-users"
+            element={<PendingUsers />}
+          />
           <Route
             path="semester-list/user-semester"
             element={<UserListSemester />}

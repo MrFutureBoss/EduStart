@@ -29,6 +29,7 @@
     "redux": "^5.0.1",
     "sweetalert2": "^11.14.2",
     "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "scripts": {

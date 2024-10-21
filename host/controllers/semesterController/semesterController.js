@@ -241,8 +241,24 @@ const getCurrentSemesterController = async (req, res) => {
     }
 
     // Fetch counts for users and classes
-    const { studentCount, teacherCount, mentorCount, classCount } =
-      await semesterDAO.getCountsForSemester(semester._id);
+    const {
+      studentCount,
+      teacherCount,
+      mentorCount,
+      classCount,
+      studentsWithClass,
+      studentsWithoutClass,
+      teachersWithClassCount,
+      teachersWithoutClassCount,
+      classesWithStudentsCount,
+      classesWithoutStudentsCount,
+      classesWithStudentsList,
+      classesWithoutStudentsList,
+      teachersWithClasses,
+      teachersWithoutClasses,
+      mentorsWithMatch,
+      mentorsWithoutMatch,
+    } = await semesterDAO.getCountsForSemester(semester._id);
 
     // Respond with semester data and counts
     res.status(200).json({
@@ -251,6 +267,20 @@ const getCurrentSemesterController = async (req, res) => {
       teacherCount,
       mentorCount,
       classCount,
+      studentsWithClass,
+      studentsWithoutClass,
+      teachersWithClassCount,
+      teachersWithoutClassCount,
+      classesWithStudentsCount,
+      classesWithoutStudentsCount,
+      details: {
+        classesWithStudentsList,
+        classesWithoutStudentsList,
+        teachersWithClasses,
+        teachersWithoutClasses,
+        mentorsWithMatch,
+        mentorsWithoutMatch,
+      },
     });
   } catch (error) {
     console.error("Error in getCurrentSemester:", error);
