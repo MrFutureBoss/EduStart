@@ -329,8 +329,9 @@ const ProfessionManagement = () => {
                     <EllipsisOutlined key="ellipsis" />,
                   ]}
                   style={{
-                    width: "28rem",
-                    height: "100%",
+                    width: "calc(50vw - 10px)", // Mỗi card chiếm 25% chiều rộng màn hình, trừ khoảng cách giữa chúng
+                    maxWidth: "28rem",          // Giới hạn chiều rộng tối đa
+                    height: "100%",             // Chiều cao 100%
                     marginBottom: "5px",
                     display: "flex",
                     flexDirection: "column",
