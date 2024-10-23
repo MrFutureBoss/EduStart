@@ -10,10 +10,11 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
     <Header
       className="header"
       style={{
-        background: "#002140",
+        background: "linear-gradient(-45deg, #005241, #128066, #00524f",
         padding: 0,
         display: "flex",
         alignItems: "center",
+        position: "sticky",
       }}
     >
       <div
@@ -22,12 +23,11 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
           color: "#fff",
           paddingLeft: "20px",
           fontSize: "20px",
-          flex: 1,
         }}
       >
         Hệ Thống Quản Lý
       </div>
-      <div
+      {/* <div
         onClick={toggleCollapse}
         style={{ paddingRight: "20px", cursor: "pointer" }}
       >
@@ -36,7 +36,7 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
         ) : (
           <MenuFoldOutlined style={{ color: "#fff", fontSize: "20px" }} />
         )}
-      </div>
+      </div> */}
     </Header>
   );
 };

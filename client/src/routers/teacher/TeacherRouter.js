@@ -5,6 +5,8 @@ import TeacherLayout from '../../layouts/teacher/TeacherLayout';
 import MyActivity from '../../pages/activity/MyActivity';
 import Tasks from '../../pages/activity/Tasks';
 import MaterialList from '../../pages/activity/MaterialList';
+import ProfessionManagement from '../../pages/professiona&specialty/ProfessionManagement';
+import UnGroupList from '../../pages/class/UnGroupList';
 
 const TeacherRouter = () => {
     return (
@@ -16,6 +18,8 @@ const TeacherRouter = () => {
           </ProtectRoute>
         }
       >
+        <Route path="professionmanagement" element={<ProfessionManagement />} />
+        <Route path="class/:className" element={ <UnGroupList />}/>
         <Route path="teacher-activity" element={<MyActivity />}/>
         <Route path="tasks"  element={ <Tasks /> } />
         <Route path="materials" element={ <MaterialList />}/>

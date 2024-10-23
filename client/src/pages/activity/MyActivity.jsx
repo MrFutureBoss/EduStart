@@ -57,11 +57,6 @@ const MyActivity = () => {
     setCollapsed(!collapsed);
   };
   return (
-    <Layout>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
-      <Layout>
-        <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
-
         <div style={{ padding: "24px", width: "100%" }}>
           <h1>Tất cả các lớp</h1>
 
@@ -134,8 +129,6 @@ const MyActivity = () => {
             </Row>
           )}
         </div>
-      </Layout>
-    </Layout>
   );
 };
 
