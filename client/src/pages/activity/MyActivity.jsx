@@ -3,7 +3,7 @@ import { Row, Col, Tooltip, Layout, Spin } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import "../../style/Activity/myActivity.css";
-import { BellOutlined } from "@ant-design/icons";
+import { BellOutlined, CheckOutlined } from "@ant-design/icons";
 import OutcomeSteps from "./OutcomeSteps";
 
 const { Content } = Layout;
@@ -70,7 +70,7 @@ const MyActivity = () => {
               <div className="groups-container">
                 <div className="group-column">
                   <h2 className="group-column-title">Nhóm nộp sớm</h2>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
                     {earlyGroups.map((group, index) => (
                       <Tooltip key={index} title="Nộp đúng hạn">
                         <div className="group-circle-container early-group">
@@ -78,7 +78,7 @@ const MyActivity = () => {
                             {group.className} - {group.groupName}
                           </div>
                           <div className="group-circle-small">
-                            <BellOutlined />
+                          <CheckOutlined />
                           </div>
                         </div>
                       </Tooltip>
@@ -87,7 +87,7 @@ const MyActivity = () => {
                 </div>
                 <div className="group-column">
                   <h2 className="group-column-title">Nhóm nộp muộn</h2>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
                     {lateGroups.map((group, index) => (
                       <Tooltip
                         key={index}
