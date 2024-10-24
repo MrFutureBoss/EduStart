@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Row, Col, Tooltip, Layout, Spin } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import TeacherSidebar from "./TeacherSidebar";
 import "../../style/Activity/myActivity.css";
 import { BellOutlined } from "@ant-design/icons";
-import AppHeader from "../../layouts/admin/AdminHeader";
 import OutcomeSteps from "./OutcomeSteps";
 
 const { Content } = Layout;

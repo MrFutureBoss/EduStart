@@ -24,8 +24,6 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import TeacherSidebar from "./TeacherSidebar";
-import AppHeader from "../../layouts/admin/AdminHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassList } from "../../redux/slice/ClassSlice";
 
