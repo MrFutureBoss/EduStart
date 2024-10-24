@@ -5,6 +5,7 @@ import {
   DashboardOutlined,
   FileDoneOutlined,
   FileTextOutlined,
+  StarOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -167,7 +168,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           </Menu.Item>
         </SubMenu>
         <Menu.Item key="4" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="">
+          <Link style={{ textDecoration: "none" }} to="teacher-activity">
             Dashboard
           </Link>
         </Menu.Item>
@@ -207,26 +208,38 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           }
           title="Hoạt động chung"
           style={{ margin: "0px", padding: "0px" }}
-          onTitleClick={handleSubMenuClick}
         >
           <Menu.Item key="6" icon={<BookOutlined />}>
-            <Link style={{ textDecoration: "none" }} to="/posts">
+            <Link style={{ textDecoration: "none" }} to="posts">
               Bài đăng
             </Link>
           </Menu.Item>
           <Menu.Item key="7" icon={<FileDoneOutlined />}>
-            <Link style={{ textDecoration: "none" }} to="/assignments">
+            <Link style={{ textDecoration: "none" }} to="assignments">
               Bài tập
             </Link>
           </Menu.Item>
           <Menu.Item key="8" icon={<FileTextOutlined />}>
-            <Link style={{ textDecoration: "none" }} to="/materials">
+            <Link style={{ textDecoration: "none" }} to="materials">
               Tài liệu chung
             </Link>
           </Menu.Item>
         </SubMenu>
         <Menu.Item
           key="9"
+          icon={
+            <StarOutlined
+              style={{ fontSize: "1.5em" }}
+              className={toggleCollapse ? "" : "custom-icon"}
+            />
+          }
+        >
+          <Link style={{ textDecoration: "none" }} to="choose-mentor">
+            Chọn Mentor ưu tiên.
+          </Link>
+        </Menu.Item>
+        <Menu.Item
+          key="10"
           icon={
             <MdSupportAgent
               style={{ fontSize: "1.5em" }}

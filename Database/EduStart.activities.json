@@ -1,0 +1,323 @@
+[{
+  "_id": {
+    "$oid": "671880de8109f954507d4071"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "material",
+  "materialUrl": "uploads/materials/1.jpg",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T04:51:42.572Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T04:51:42.572Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718821feb34c9616ae1ca2c"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "material",
+  "materialUrl": "uploads/materials/Ass_SE1703_VuNH_HE161239.pdf",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T04:57:03.427Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T04:57:03.427Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67188274eb34c9616ae1cae3"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "material",
+  "materialUrl": "uploads/materials/1.pdf",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T04:58:28.164Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T04:58:28.164Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "671886cb56e8a0d735c69490"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "post",
+  "description": "Tài liệu tham khảo môn ENW",
+  "materialUrl": "uploads/materials/StudyforENW.docx",
+  "classId": {
+    "$oid": "66f3ca485b88ab7e1d62072b"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T05:16:59.503Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T05:16:59.503Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718ac7f82c8b65bd1b83f83"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "post",
+  "description": "Bài mới nè bây ơi~",
+  "materialUrl": null,
+  "classId": {
+    "$oid": "66f3ca485b88ab7e1d62072b"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T07:57:51.285Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T07:57:51.285Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718b39982c8b65bd1b83f93"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "post",
+  "description": "<p>Re<strong>al</strong></p>",
+  "materialUrl": null,
+  "classId": {
+    "$oid": "66f3ca485b88ab7e1d62072b"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T08:28:09.217Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T08:28:09.217Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718c02048d3404ddd705559"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "post",
+  "description": "<p>aaaaaaaaaaaaaaaaaaaaa</p>",
+  "materialUrl": "uploads/materials/1.jpg",
+  "classId": {
+    "$oid": "66f3ca485b88ab7e1d62072b"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T09:21:36.381Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T09:21:36.381Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718c29248d3404ddd705568"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "post",
+  "description": "<p>Arigatou</p>",
+  "materialUrl": "uploads/materials/BN.jpg",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T09:32:02.327Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T09:32:02.327Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718f0c6659daefdf7424948"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "outcome",
+  "title": "Outcome 1",
+  "description": "Bài tập cho outcome 1",
+  "assignmentType": "outcome 1",
+  "startDate": {
+    "$date": "2024-09-15T17:00:00.000Z"
+  },
+  "deadline": {
+    "$date": "2024-10-08T17:00:00.000Z"
+  },
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": true,
+  "semesterId": {
+    "$oid": "670013fb3cc832d980018341"
+  },
+  "createdAt": {
+    "$date": "2024-10-23T12:49:10.792Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T12:49:10.792Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718f10b659daefdf7424c71"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "outcome",
+  "title": "Outcome 2",
+  "description": "Bài tập cho outcome 2",
+  "assignmentType": "outcome 2",
+  "startDate": {
+    "$date": "2024-10-11T00:00:00.000Z"
+  },
+  "deadline": {
+    "$date": "2024-11-04T17:00:00.000Z"
+  },
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "semesterId": {
+    "$oid": "670013fb3cc832d980018341"
+  },
+  "createdAt": {
+    "$date": "2024-10-23T12:50:19.238Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T12:50:19.238Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67190c07659daefdf742617e"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "post",
+  "description": "<p>aa</p>",
+  "materialUrl": "uploads/materials/Ass_SE1703_VuNH_HE161239.docx",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T14:45:27.451Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T15:36:42.852Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6719175f659daefdf742be7c"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "material",
+  "materialUrl": "uploads/materials/1.png",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T15:33:51.437Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T15:33:51.437Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67191948f67cc01062481393"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "material",
+  "materialUrl": "uploads/materials/Ass_SE1703_VuNH_HE161239.docx",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-23T15:42:00.539Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T15:42:00.539Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6719c330892b50b566b216ba"
+  },
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "activityType": "post",
+  "description": "<p>Tài liệu<strong> ENW</strong></p>",
+  "materialUrl": "uploads/materials/StudyforENW.docx",
+  "classId": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "completed": false,
+  "createdAt": {
+    "$date": "2024-10-24T03:46:56.230Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-24T03:46:56.230Z"
+  },
+  "__v": 0
+}]

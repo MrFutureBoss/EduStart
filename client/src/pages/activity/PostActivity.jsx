@@ -23,8 +23,6 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import AppHeader from "../../layouts/admin/AdminHeader";
-import TeacherSidebar from "./TeacherSidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassList } from "../../redux/slice/ClassSlice";
 import moment from "moment";
@@ -286,16 +284,13 @@ const PostActivity = () => {
     onClick: handleClassSelect,
   };
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
       <Layout>
-        <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <div style={{ padding: "24px", width: "100%" }}>
           <Dropdown menu={classMenu} trigger={["click"]}>
             <Button style={{ marginBottom: "16px" }}>
               {selectedClassName
-                ? `Selected Class: ${selectedClassName}`
-                : "Select a class"}
+                ? `Lớp: ${selectedClassName}`
+                : "Chọn lớp"}
             </Button>
           </Dropdown>
 
@@ -483,7 +478,6 @@ const PostActivity = () => {
           </Modal>
         </div>
       </Layout>
-    </Layout>
   );
 };
 

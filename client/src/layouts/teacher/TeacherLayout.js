@@ -3,7 +3,6 @@ import MainLayout from "../../components/Admin/AdminMain";
 import { Content } from "antd/es/layout/layout";
 import { Breadcrumb, Layout } from "antd";
 import TeacherHeader from "./TeacherHeader";
-import TeacherSidebar from "../../pages/activity/TeacherSidebar";
 import TeacherSider from "./TeacherSidebar";
 import { Outlet } from "react-router-dom";
 

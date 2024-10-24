@@ -21,11 +21,10 @@ import {
   FolderOutlined,
   CarryOutOutlined,
   FormOutlined,
+  FileAddOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import TeacherSidebar from "./TeacherSidebar";
-import AppHeader from "../../layouts/admin/AdminHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassList } from "../../redux/slice/ClassSlice";
 
@@ -136,8 +135,8 @@ const MaterialList = () => {
 
       const treeData = [
         {
-          title: "Docs",
-          key: "docs",
+          title: "Tài liệu",
+          key: "Tài liệu",
           // switcherIcon: <FormOutlined />,
           children: docs.map((doc, index) => ({
             title: doc.materialUrl.split("/").pop(),
@@ -148,8 +147,8 @@ const MaterialList = () => {
           })),
         },
         {
-          title: "Images",
-          key: "images",
+          title: "Hình ảnh",
+          key: "Hình ảnh",
           // switcherIcon: <FormOutlined />,
           children: images.map((img, index) => ({
             title: img.materialUrl.split("/").pop(),
@@ -283,93 +282,88 @@ const MaterialList = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
-      <Layout>
-        <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
-        <div style={{ padding: "24px", width: "100%" }}>
-          <h1>Materials List</h1>
+    <Layout>
+      <div style={{ padding: "24px", width: "100%" }}>
+        <h1>Tài liệu chung</h1>
 
-          <Dropdown menu={classMenu} trigger={["click"]}>
-            <Button style={{ marginBottom: "16px" }}>
-              {selectedClassName
-                ? `Selected Class: ${selectedClassName}`
-                : "Select a class"}
-            </Button>
-          </Dropdown>
-
-          <Tree
-            showLine={{ showLeafIcon: true }}
-            showIcon={true}
-            defaultExpandedKeys={["docs"]}
-            treeData={materials}
-            titleRender={(nodeData) => (
-              <Tooltip title={`File: ${nodeData.title}`}>
-                <span onClick={() => handleDownload(nodeData.materialUrl)}>
-                  {nodeData.title} {/* Đã loại bỏ nodeData.icon */}
-                </span>
-              </Tooltip>
-            )}
-          />
-
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            style={{ marginTop: "16px", width: "16%" }}
-            onClick={handleAddNewMaterial} // Reset form và mở modal
-            disabled={!selectedClassId}
-          >
-            Add New Material
+        <Dropdown menu={classMenu} trigger={["click"]}>
+          <Button style={{ marginBottom: "16px" }}>
+            {selectedClassName
+              ? `Lớp: ${selectedClassName}`
+              : "Chọn lớp"}
           </Button>
+        </Dropdown>
 
-          <Modal
-            title="Upload New File"
-            visible={isModalVisible}
-            onCancel={handleCancel}
-            footer={[
-              <Button
-                key="submit"
-                type="primary"
-                onClick={handleUpload}
-                disabled={!fileToUpload}
-                loading={uploading}
-              >
-                Upload
-              </Button>,
-            ]}
-          >
-            <Upload.Dragger {...uploadProps}>
-              <p className="ant-upload-drag-icon">
-                <CloudUploadOutlined style={{ fontSize: "48px" }} />
+        <Tree
+          showLine={{ showLeafIcon: true }}
+          showIcon={true}
+          defaultExpandedKeys={["docs"]}
+          treeData={materials}
+          titleRender={(nodeData) => (
+            <Tooltip title={`File: ${nodeData.title}`}>
+              <span onClick={() => handleDownload(nodeData.materialUrl)}>
+                {nodeData.title} 
+              </span>
+            </Tooltip>
+          )}
+        />
+
+        <Button
+          type="primary"
+          icon={<FileAddOutlined />}
+          style={{ marginTop: "16px"}}
+          onClick={handleAddNewMaterial} 
+          disabled={!selectedClassId}
+        >Thêm tệp
+        </Button>
+
+        <Modal
+          title="Tải lên thư mục mới"
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              onClick={handleUpload}
+              disabled={!fileToUpload}
+              loading={uploading}
+            >
+              Tải lên
+            </Button>,
+          ]}
+        >
+          <Upload.Dragger {...uploadProps}>
+            <p className="ant-upload-drag-icon">
+              <CloudUploadOutlined style={{ fontSize: "48px" }} />
+            </p>
+            <p className="ant-upload-text">Kéo & thả 1 tệp ở đây</p>
+            <p className="ant-upload-hint">
+              Hỗ trợ .docx, .pdf, .jpg, và các tệp khác.
+            </p>
+          </Upload.Dragger>
+          {fileToUpload && (
+            <div>
+              <p>
+                <strong>Tên:</strong> {fileToUpload.name}
               </p>
-              <p className="ant-upload-text">Drag & drop a file here</p>
-              <p className="ant-upload-hint">
-                Supports .docx, .pdf, .jpg, and other file types.
+              <p>
+                <strong>Định dạng:</strong> {getFileType(fileToUpload.name)}
               </p>
-            </Upload.Dragger>
-            {fileToUpload && (
-              <div>
-                <p>
-                  <strong>File Name:</strong> {fileToUpload.name}
-                </p>
-                <p>
-                  <strong>Type:</strong> {getFileType(fileToUpload.name)}
-                </p>
-                <p>
-                  <strong>Size:</strong>{" "}
-                  {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
-                </p>
-              </div>
-            )}
-            {uploading && (
-              <Progress
-                percent={uploadPercent}
-                status={uploading ? "active" : "normal"}
-              />
-            )}
-          </Modal>
-        </div>
-      </Layout>
+              <p>
+                <strong>Kích cỡ:</strong>{" "}
+                {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
+              </p>
+            </div>
+          )}
+          {uploading && (
+            <Progress
+              percent={uploadPercent}
+              status={uploading ? "active" : "normal"}
+            />
+          )}
+        </Modal>
+      </div>
     </Layout>
   );
 };

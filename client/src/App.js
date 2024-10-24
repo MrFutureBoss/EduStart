@@ -19,10 +19,9 @@ function App() {
       <Routes>
         {/* Layout dành cho Admin, bao gồm các route bên trong */}
         {AdminRouter()}
+
          {/* Layout dành cho Teacher, bao gồm các route bên trong */}
         {TeacherRouter()}
-
-        
         <Route
             path="/student-dashboard"
             element={
