@@ -289,8 +289,8 @@ const PostActivity = () => {
           <Dropdown menu={classMenu} trigger={["click"]}>
             <Button style={{ marginBottom: "16px" }}>
               {selectedClassName
-                ? `Selected Class: ${selectedClassName}`
-                : "Select a class"}
+                ? `Lớp: ${selectedClassName}`
+                : "Chọn lớp"}
             </Button>
           </Dropdown>
 
