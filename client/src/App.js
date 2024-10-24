@@ -21,6 +21,20 @@ function App() {
         {AdminRouter()}
          {/* Layout dành cho Teacher, bao gồm các route bên trong */}
         {TeacherRouter()}
+=======
+        <Route
+          path="/teacher-dashboard"
+          element={
+            <ProtectRoute allowedRoles={["2"]}>
+              <TeacherLayout />
+            </ProtectRoute>
+          }
+        >
+          <Route path="teacher-activity" element={<MyActivity />}/>
+          <Route path="tasks"  element={ <Tasks /> } />
+          <Route path="materials" element={ <MaterialList />}/>
+        </Route>
+>>>>>>> Stashed changes
 
         
         <Route
