@@ -23,7 +23,6 @@ const TeacherLayout = () => {
             padding: "0 24px 24px",
             backgroundColor: "#F5F5F5",
             overflow: "auto",
-             height: "calc(100vh - 64px)"
           }}
         >
           <Breadcrumb
@@ -34,7 +33,8 @@ const TeacherLayout = () => {
             className="site-layout-background"
             style={{
               padding: 30,
-              margin: 0,
+              margin: '24px 16px 0',
+              overflow: 'initial',
               minHeight: 280,
               background: "#FFF",
             }}

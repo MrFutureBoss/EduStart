@@ -7,6 +7,7 @@ import Tasks from '../../pages/activity/Tasks';
 import MaterialList from '../../pages/activity/MaterialList';
 import ProfessionManagement from '../../pages/professiona&specialty/ProfessionManagement';
 import UnGroupList from '../../pages/class/UnGroupList';
+import GroupProccess from '../../pages/class/GroupProccess';
 
 const TeacherRouter = () => {
     return (
@@ -19,7 +20,7 @@ const TeacherRouter = () => {
         }
       >
         <Route path="professionmanagement" element={<ProfessionManagement />} />
-        <Route path="class/:className" element={ <UnGroupList />}/>
+        <Route path="class/:className" element={ <GroupProccess/>}/>
         <Route path="teacher-activity" element={<MyActivity />}/>
         <Route path="tasks"  element={ <Tasks /> } />
         <Route path="materials" element={ <MaterialList />}/>

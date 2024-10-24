@@ -9,6 +9,7 @@ import {
   Typography,
   Empty,
   Pagination,
+  Button,
 } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,10 +22,10 @@ import {
   setTotalTempGroups,
   setTotalWaitUsers,
   setWaitUserList,
-  setSearchUserList,
 } from "../../redux/slice/TempGroupSlice";
 import "../../style/Class/ClassDetail.css";
 import Search from "antd/es/input/Search";
+import CreateGroup from "./CreateGroup";
 
 const UnGroupList = () => {
   const { className } = useParams();
@@ -36,7 +37,9 @@ const UnGroupList = () => {
   //Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(8);
+  //Pop-up
+  const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
 
   const config = useMemo(
     () => ({
@@ -147,6 +150,14 @@ const UnGroupList = () => {
     setCurrentPage(current);
   };
 
+  const handleOpenAddTypeModal = () => {
+    setIsModalShowTypeAdd(true);
+  };
+
+  const handleCloseAddTypeModal = () => {
+    setIsModalShowTypeAdd(false);
+  };
+
   const filteredUsers = waitUserList.filter((user) => {
     if (
       searchText &&
@@ -158,14 +169,14 @@ const UnGroupList = () => {
     ) {
       return false;
     }
-    return true; 
+    return true;
   });
-  
-
 
   return (
     <div>
+      <CreateGroup show={isModalShowTypeAdd} close={handleCloseAddTypeModal}/>
       <h1>Lớp {className}</h1>
+      <Button type="primary" style={{margin:'20px 0px'}} onClick={handleOpenAddTypeModal}>+ Tạo nhóm lớp</Button>
       <FloatButton
         icon={<QuestionCircleOutlined />}
         type="primary"
@@ -224,9 +235,6 @@ const UnGroupList = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                   style={{ width: "90%" }}
                 />
-                {/* <button onClick={resetSearch} style={{ marginLeft: "10px" }}>
-                  Reset
-                </button> */}
               </Col>
             </Row>
             {totalWaitUsers > 0 ? (

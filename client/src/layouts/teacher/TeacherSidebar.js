@@ -82,6 +82,14 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
       className="site-layout-background"
       style={{
         boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
+        // overflow: 'auto',
+        // height: '100vh',
+        // position: 'fixed',
+        // insetInlineStart: 0,
+        // top: 0,
+        // bottom: 0,
+        // scrollbarWidth: 'thin',
+        // scrollbarColor: 'unset',
       }}
     >
       <Menu
