@@ -100,7 +100,10 @@ function SignIn() {
   const SignupSchema = Yup.object().shape({
     email: Yup.string()
       .required("Vui lòng nhập email!")
-      .matches(/@(fe\.edu\.vn|fpt\.edu\.vn)$/, "Email phải có đuôi @fpt.edu.vn"),
+      .matches(
+        /@(fe\.edu\.vn|fpt\.edu\.vn)$/,
+        "Email phải có đuôi @fe.edu.vn hoặc @fpt.edu.vn"
+      ),
     password: Yup.string().required("Vui lòng nhập mật khẩu!"),
   });
 
