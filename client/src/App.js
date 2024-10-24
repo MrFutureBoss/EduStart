@@ -19,34 +19,18 @@ function App() {
       <Routes>
         {/* Layout dành cho Admin, bao gồm các route bên trong */}
         {AdminRouter()}
-         {/* Layout dành cho Teacher, bao gồm các route bên trong */}
-<<<<<<< Updated upstream
+        {/* Layout dành cho Teacher, bao gồm các route bên trong */}
         {TeacherRouter()}
-=======
+
         <Route
-          path="/teacher-dashboard"
+          path="/student-dashboard"
           element={
-            <ProtectRoute allowedRoles={["2"]}>
-              <TeacherLayout />
+            <ProtectRoute allowedRoles={["4"]}>
+              {/* <AdminLayout /> */}
+              <h1>Student Dashboard</h1>
             </ProtectRoute>
           }
-        >
-          <Route path="teacher-activity" element={<MyActivity />}/>
-          <Route path="tasks"  element={ <Tasks /> } />
-          <Route path="materials" element={ <MaterialList />}/>
-        </Route>
->>>>>>> Stashed changes
-
-        
-        <Route
-            path="/student-dashboard"
-            element={
-              <ProtectRoute allowedRoles={["4"]}>
-                {/* <AdminLayout /> */}
-                <h1>Student Dashboard</h1>
-              </ProtectRoute>
-            }
-          />
+        />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
