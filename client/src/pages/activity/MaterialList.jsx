@@ -21,6 +21,7 @@ import {
   FolderOutlined,
   CarryOutOutlined,
   FormOutlined,
+  FileAddOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -134,8 +135,8 @@ const MaterialList = () => {
 
       const treeData = [
         {
-          title: "Docs",
-          key: "docs",
+          title: "Tài liệu",
+          key: "Tài liệu",
           // switcherIcon: <FormOutlined />,
           children: docs.map((doc, index) => ({
             title: doc.materialUrl.split("/").pop(),
@@ -146,8 +147,8 @@ const MaterialList = () => {
           })),
         },
         {
-          title: "Images",
-          key: "images",
+          title: "Hình ảnh",
+          key: "Hình ảnh",
           // switcherIcon: <FormOutlined />,
           children: images.map((img, index) => ({
             title: img.materialUrl.split("/").pop(),
@@ -283,13 +284,13 @@ const MaterialList = () => {
   return (
     <Layout>
       <div style={{ padding: "24px", width: "100%" }}>
-        <h1>Materials List</h1>
+        <h1>Tài liệu chung</h1>
 
         <Dropdown menu={classMenu} trigger={["click"]}>
           <Button style={{ marginBottom: "16px" }}>
             {selectedClassName
-              ? `Selected Class: ${selectedClassName}`
-              : "Select a class"}
+              ? `Lớp: ${selectedClassName}`
+              : "Chọn lớp"}
           </Button>
         </Dropdown>
 
@@ -301,7 +302,7 @@ const MaterialList = () => {
           titleRender={(nodeData) => (
             <Tooltip title={`File: ${nodeData.title}`}>
               <span onClick={() => handleDownload(nodeData.materialUrl)}>
-                {nodeData.title} {/* Đã loại bỏ nodeData.icon */}
+                {nodeData.title} 
               </span>
             </Tooltip>
           )}
@@ -309,16 +310,15 @@ const MaterialList = () => {
 
         <Button
           type="primary"
-          icon={<PlusOutlined />}
-          style={{ marginTop: "16px", width: "16%" }}
-          onClick={handleAddNewMaterial} // Reset form và mở modal
+          icon={<FileAddOutlined />}
+          style={{ marginTop: "16px"}}
+          onClick={handleAddNewMaterial} 
           disabled={!selectedClassId}
-        >
-          Add New Material
+        >Thêm tệp
         </Button>
 
         <Modal
-          title="Upload New File"
+          title="Tải lên thư mục mới"
           visible={isModalVisible}
           onCancel={handleCancel}
           footer={[
@@ -329,7 +329,7 @@ const MaterialList = () => {
               disabled={!fileToUpload}
               loading={uploading}
             >
-              Upload
+              Tải lên
             </Button>,
           ]}
         >
@@ -337,21 +337,21 @@ const MaterialList = () => {
             <p className="ant-upload-drag-icon">
               <CloudUploadOutlined style={{ fontSize: "48px" }} />
             </p>
-            <p className="ant-upload-text">Drag & drop a file here</p>
+            <p className="ant-upload-text">Kéo & thả 1 tệp ở đây</p>
             <p className="ant-upload-hint">
-              Supports .docx, .pdf, .jpg, and other file types.
+              Hỗ trợ .docx, .pdf, .jpg, và các tệp khác.
             </p>
           </Upload.Dragger>
           {fileToUpload && (
             <div>
               <p>
-                <strong>File Name:</strong> {fileToUpload.name}
+                <strong>Tên:</strong> {fileToUpload.name}
               </p>
               <p>
-                <strong>Type:</strong> {getFileType(fileToUpload.name)}
+                <strong>Định dạng:</strong> {getFileType(fileToUpload.name)}
               </p>
               <p>
-                <strong>Size:</strong>{" "}
+                <strong>Kích cỡ:</strong>{" "}
                 {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
               </p>
             </div>
