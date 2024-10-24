@@ -23,8 +23,6 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import AppHeader from "../../layouts/admin/AdminHeader";
-import TeacherSidebar from "./TeacherSidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassList } from "../../redux/slice/ClassSlice";
 import moment from "moment";

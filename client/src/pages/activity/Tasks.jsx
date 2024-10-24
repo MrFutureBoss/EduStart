@@ -18,8 +18,6 @@ import {
   setError,
 } from "../../redux/slice/ActivitySlice";
 import { BASE_URL } from "../../utilities/initalValue";
-import TeacherSidebar from "./TeacherSidebar";
-import AppHeader from "../../layouts/admin/AdminHeader";
 
 const { Option } = Select;
 
