@@ -8,6 +8,7 @@ import tempMatchingRouter from "./tempMatching.js";
 import teacherRouter from "./teacherRouter.js";
 import classRouter from "./classRouter.js";
 import mentorCategoryRouters from "./mentorCategory.js";
+import tempGroupRouters from "./tempGroupRoutes.js";
 
 const routes = {
   professionRouters,
@@ -20,6 +21,7 @@ const routes = {
   teacherRouter,
   classRouter,
   mentorCategoryRouters,
+  tempGroupRouters,
 };
 
 export default routes;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Select,
@@ -9,22 +9,23 @@ import {
   Card,
 } from "antd";
 import { SwapOutlined } from "@ant-design/icons"; // Import biểu tượng
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux"; // Thêm useDispatch
 import axios from "axios";
 import "./SwapClassModal.css"; // Import CSS file
 import { BASE_URL } from "../../../utilities/initalValue";
+import { setRecentlyUpdatedUsers } from "../../../redux/slice/UserSlice";
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const SwapClassModal = ({ visible, onCancel, student, refreshData }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [isAnimating, setIsAnimating] = useState(false); // State cho animation
+  const [isAnimating, setIsAnimating] = useState(false);
   const jwt = localStorage.getItem("jwt");
-  const { usersInSmt } = useSelector((state) => state.semester); // Lấy danh sách người dùng từ Redux
+  const { usersInSmt } = useSelector((state) => state.semester);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // Reset lại selectedStudent và animation khi modal đóng
     if (!visible) {
       setSelectedStudent(null);
       setIsAnimating(false);
@@ -38,8 +39,8 @@ const SwapClassModal = ({ visible, onCancel, student, refreshData }) => {
     }
 
     try {
-      setIsAnimating(true); // Bắt đầu animation
-      await axios.post(
+      setIsAnimating(true);
+      const { data } = await axios.post(
         `${BASE_URL}/admins/swap`,
         { studentId1: student._id, studentId2: selectedStudent },
         {
@@ -48,13 +49,16 @@ const SwapClassModal = ({ visible, onCancel, student, refreshData }) => {
           },
         }
       );
+
+      // Cập nhật danh sách recentlyUpdatedUsers
+      dispatch(setRecentlyUpdatedUsers([student._id, selectedStudent]));
+
       message.success("Hoán đổi lớp thành công!");
-      // Chờ animation hoàn tất trước khi đóng modal
       setTimeout(() => {
         setIsAnimating(false);
         onCancel();
         refreshData();
-      }, 1000); // Thời gian phải khớp với CSS animation
+      }, 1000);
     } catch (error) {
       setIsAnimating(false);
       message.error("Lỗi khi hoán đổi lớp. Vui lòng thử lại sau.");

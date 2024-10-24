@@ -1,0 +1,228 @@
+[{
+  "_id": {
+    "$oid": "6702db8d694a3a03a306e326"
+  },
+  "name": "Kinh doanh",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "6710069550b43dfad026530e"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-06T18:48:45.940Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-16T20:12:49.054Z"
+  },
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "6702dbf6694a3a03a306e331"
+  },
+  "name": "Dược phẩm",
+  "status": true,
+  "specialty": [],
+  "createdAt": {
+    "$date": "2024-10-06T18:50:30.216Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-09T15:58:46.471Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6706886c7b32bfe6f4810294"
+  },
+  "name": "Game",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "6706886c7b32bfe6f481028e"
+    },
+    {
+      "$oid": "6706886c7b32bfe6f481028f"
+    },
+    {
+      "$oid": "6706886c7b32bfe6f4810290"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-09T13:43:08.891Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-09T15:58:44.449Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6706a7584a9a02e60c8ec67d"
+  },
+  "name": "Sale",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "6706a7584a9a02e60c8ec679"
+    },
+    {
+      "$oid": "6706a7584a9a02e60c8ec67a"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-09T15:55:04.052Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-16T20:12:46.295Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67094faff61773522abe62ca"
+  },
+  "name": "Cơ khí học",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "67094faff61773522abe62c6"
+    },
+    {
+      "$oid": "67094faff61773522abe62c7"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-11T16:17:51.770Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-11T18:36:39.877Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67096033f61773522abe6736"
+  },
+  "name": "Sức khỏe",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "67096033f61773522abe6734"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-11T17:28:19.697Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-16T19:05:05.487Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67096fdbf61773522abe6e67"
+  },
+  "name": "Ngôn Ngữ Học",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "67096fdbf61773522abe6e61"
+    },
+    {
+      "$oid": "67096fdbf61773522abe6e62"
+    },
+    {
+      "$oid": "67096fdbf61773522abe6e63"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-11T18:35:07.749Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-11T18:35:07.749Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "670974aff61773522abe6f36"
+  },
+  "name": "Thể thao",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "670974aff61773522abe6f30"
+    },
+    {
+      "$oid": "670974aff61773522abe6f31"
+    },
+    {
+      "$oid": "670974aff61773522abe6f32"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-11T18:55:43.718Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-12T14:07:46.848Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67097cdff61773522abe715d"
+  },
+  "name": "Khoa học máy tính",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "67097cdff61773522abe715b"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-11T19:30:39.770Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-16T20:15:00.276Z"
+  },
+  "__v": 4
+},
+{
+  "_id": {
+    "$oid": "670a4dc8848ecbceaddccb26"
+  },
+  "name": "Công Nghệ Thông Tin",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "670ffafe50b43dfad02650c7"
+    },
+    {
+      "$oid": "671005fd50b43dfad0265153"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-12T10:22:00.400Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-16T19:04:59.132Z"
+  },
+  "__v": 10
+},
+{
+  "_id": {
+    "$oid": "671546a64d0d2f0baa0b006f"
+  },
+  "name": "An Toàn Thực Phẩm",
+  "status": true,
+  "specialty": [],
+  "createdAt": {
+    "$date": "2024-10-20T18:06:30.888Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-20T18:06:30.888Z"
+  },
+  "__v": 0
+}]

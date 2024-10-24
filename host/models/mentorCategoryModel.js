@@ -7,16 +7,19 @@ const mentorCategorySchema = new Schema(
       ref: "User",
       required: true,
     },
-    professionId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Profession",
-      required: true,
-    },
+    professionIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Profession",
+        required: true,
+      },
+    ],
     specialties: [
       {
         specialtyId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Specialty",
+          required: true,
         },
         proficiencyLevel: {
           type: Number,

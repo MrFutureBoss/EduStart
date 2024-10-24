@@ -65,6 +65,15 @@ const TeacherSidebar = ({ collapsed, toggleCollapse }) => {
         },
       ],
     },
+    {
+      key: "4",
+      icon: <UnorderedListOutlined />,
+      label: (
+        <Link style={{ textDecoration: "none" }} to="/choose_mentor">
+          Chọn Mentor ưu tiên
+        </Link>
+      ),
+    },
   ];
 
   return (
