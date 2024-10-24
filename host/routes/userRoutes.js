@@ -4,6 +4,7 @@ import { verifyAccessToken, authorize } from "../utilities/jwt.js";
 
 const userRouters = express.Router();
 
+userRouters.get("/:id", verifyAccessToken, userController.findUserById);
 userRouters.post("/login", userController.getUserLogin);
 userRouters.post("/forgot_password", userController.forgotPassword);
 userRouters.post("/reset_password", userController.resetPassword);

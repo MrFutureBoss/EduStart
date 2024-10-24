@@ -6,10 +6,11 @@ import errorSlice from "./slice/ErrorSlice";
 import * as thunk from "redux-thunk";
 import { configureStore } from "@reduxjs/toolkit";
 import semesterSlide from "./slice/semesterSlide.js";
-import specialtySlice from "./slice/SpecialtySlice.js"
-import activitySlice from "./slice/ActivitySlice.js"
-import classSlice from "./slice/ClassSlice.js"
-
+import specialtySlice from "./slice/SpecialtySlice.js";
+import activitySlice from "./slice/ActivitySlice.js";
+import classSlice from "./slice/ClassSlice.js";
+import classManagementSlice from "./slice/ClassManagementSlice.js";
+import tempGroupSlice from "./slice/TempGroupSlice.js";
 const rootReducer = {
   profession: professionSlice,
   user: userSlice,
@@ -18,6 +19,8 @@ const rootReducer = {
   specialty: specialtySlice,
   activities: activitySlice,
   class: classSlice,
+  classManagement: classManagementSlice,
+  tempGroup: tempGroupSlice,
 };
 
 const store = configureStore(
