@@ -1,6 +1,7 @@
 import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 // import ProfessionManagement from "./pages/ProfessionManagement.jsx";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ChangePassword from "./pages/ChangePassword.jsx";
@@ -32,7 +33,6 @@ function App() {
             }
           />
         <Route path="/change-password" element={<ChangePassword />} />
-        {/* <Route path="/" element={<ProfessionManagement />} /> */}
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
       </Routes>

@@ -64,7 +64,12 @@ const AppSider = ({
               </Link>
             </Menu.Item>
             <Menu.Item key="3" icon={<UsergroupAddOutlined />}>
-              <Link style={{ textDecoration: "none" }} to="pending-user">
+
+              <Link
+                style={{ textDecoration: "none" }}
+                to="current-semester/pending-users"
+              >
+
                 Sinh viên chưa có lớp
               </Link>
             </Menu.Item>

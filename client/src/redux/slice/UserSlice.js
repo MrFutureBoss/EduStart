@@ -30,12 +30,13 @@ const initialValue = {
   delUser: {},
   groupsMatched: {},
   forgotPassword: {
-    email: '',
-    otp: '',
-    newPassword: '',
-    confirmPassword: '',
-    step: 1, 
+    email: "",
+    otp: "",
+    newPassword: "",
+    confirmPassword: "",
+    step: 1,
   },
+  recentlyUpdatedUsers: [],
 };
 const usersSlice = createSlice({
   name: "user",
@@ -89,6 +90,9 @@ const usersSlice = createSlice({
     setGroupsMatched: (state, action) => {
       state.groupsMatched = action.payload;
     },
+    setRecentlyUpdatedUsers: (state, action) => {
+      state.recentlyUpdatedUsers = action.payload;
+    },
     setForgotPassword: (state, action) => {
       state.forgotPassword = {
         ...state.forgotPassword,
@@ -117,5 +121,6 @@ export const {
   setUserProfile,
   setGroupsMatched,
   setForgotPassword,
+  setRecentlyUpdatedUsers,
 } = actions;
 export default reducer;

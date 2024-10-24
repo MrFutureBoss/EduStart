@@ -43,8 +43,8 @@ function SignIn() {
       const res = await axios.post(`${BASE_URL}/user/login`, formData);
       const token = res.data.token;
       const role = res.data.user.role;
-      const userId = res.data.user._id
-      
+      const userId = res.data.user._id;
+
       if (token) {
         localStorage.setItem("jwt", token);
         localStorage.setItem("role", role);
@@ -99,7 +99,7 @@ function SignIn() {
   const SignupSchema = Yup.object().shape({
     email: Yup.string()
       .required("Vui lòng nhập email!")
-      .matches(/@fpt\.edu\.vn$/, "Email phải có đuôi @fpt.edu.vn"),
+      .matches(/@fe\.edu\.vn$/, "Email phải có đuôi @fpt.edu.vn"),
     password: Yup.string().required("Vui lòng nhập mật khẩu!"),
   });
 

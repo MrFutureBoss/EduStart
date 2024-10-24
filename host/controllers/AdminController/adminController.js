@@ -159,6 +159,65 @@ const normalizeUserData = (row, role, sourceType = "manual") => {
 
   return normalized;
 };
+const validateExcelStructure = (data, role, rowNumber, errorMessages) => {
+  const studentHeaders = [
+    "ClassName",
+    "SubjectCode",
+    "RollNumber",
+    "MemberCode",
+    "Email",
+    "FullName",
+    "SlotType",
+    "GV chính",
+  ];
+  const teacherHeaders = ["Họ và tên Giáo Viên", "Email", "Số điện thoại"];
+  const mentorHeaders = ["Họ và tên Mentor", "Email", "Số điện thoại"];
+
+  let expectedHeaders = [];
+  let roleName = "";
+
+  if (role == 4) {
+    expectedHeaders = studentHeaders;
+    roleName = "học sinh";
+  } else if (role == 2) {
+    expectedHeaders = teacherHeaders;
+    roleName = "giáo viên";
+  } else if (role == 3) {
+    expectedHeaders = mentorHeaders;
+    roleName = "mentor";
+  } else {
+    throw new Error("Role không hợp lệ.");
+  }
+
+  // Get headers from the uploaded file
+  const fileHeaders = Object.keys(data[0]).map((header) => header.trim());
+
+  // Normalize expected headers
+  const normalizedExpectedHeaders = expectedHeaders.map((header) =>
+    header.trim()
+  );
+
+  // Sort both arrays to ensure order doesn't affect comparison
+  fileHeaders.sort();
+  normalizedExpectedHeaders.sort();
+
+  // Check if the headers match exactly
+  const headersMatch =
+    fileHeaders.length === normalizedExpectedHeaders.length &&
+    fileHeaders.every(
+      (header, index) => header === normalizedExpectedHeaders[index]
+    );
+
+  if (!headersMatch) {
+    // If headers do not match, report error and stop processing
+    errorMessages.push({
+      message: `Định dạng file không đúng cho vai trò ${roleName}. Vui lòng sử dụng mẫu đúng.`,
+    });
+    throw new Error(
+      `Định dạng file không đúng cho vai trò ${roleName}. Vui lòng sử dụng mẫu đúng.`
+    );
+  }
+};
 
 const insertListUsers = async (req, res, next) => {
   try {
@@ -185,12 +244,14 @@ const insertListUsers = async (req, res, next) => {
 
     const workbook = xlsx.read(file.buffer);
     const sheet_name_list = workbook.SheetNames;
-    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {
+      defval: "",
+    });
 
     // Khai báo các biến để đếm và lưu trữ thông tin
     let totalUsersAdded = 0;
     let totalUsersUpdated = 0;
-    const errorMessages = [];
+    const errorMessages = []; // Mảng chứa các lỗi chi tiết
     const duplicateEmails = [];
     const duplicateRollNumbers = [];
     const duplicateMemberCodes = [];
@@ -201,15 +262,24 @@ const insertListUsers = async (req, res, next) => {
     const existingUserName = [];
     // Nhóm dữ liệu theo className (only role 4)
     const classUsersMap = {}; // { className: [user1, user2, ...] }
-
+    try {
+      validateExcelStructure(data, role, 1, errorMessages); // Kiểm tra dòng 1 (tiêu đề)
+    } catch (validationError) {
+      return res.status(400).json({ generalError: validationError.message }); // Trả về thông báo lỗi ngay lập tức nếu file sai định dạng
+    }
     // Chuẩn hóa và kiểm tra dữ liệu từ file
+    let rowNumber = 1; // Bắt đầu từ dòng 1 (tiêu đề)
     for (const row of data) {
+      rowNumber++; // Tăng số dòng lên
       let user;
+      const rowErrors = []; // Mảng chứa các lỗi của dòng hiện tại
       try {
         user = normalizeUserData(row, role, "excel");
       } catch (error) {
+        rowErrors.push(`Lỗi dữ liệu trong file: ${error.message}`);
         errorMessages.push({
           email: row.email || "Unknown",
+          rowNumber,
           message: `Lỗi dữ liệu trong file: ${error.message}`,
         });
         continue;
@@ -221,8 +291,10 @@ const insertListUsers = async (req, res, next) => {
         !user.email.endsWith("@fe.edu.vn") &&
         !user.email.endsWith("@gmail.com")
       ) {
+        rowErrors.push(`Email phải có đuôi @fe.edu.vn hoặc @gmail.com`);
         errorMessages.push({
           email: user.email,
+          rowNumber,
           message: `Email phải có đuôi @fe.edu.vn hoặc @gmail.com`,
         });
         continue;
@@ -242,6 +314,7 @@ const insertListUsers = async (req, res, next) => {
           duplicateEmails.push(user.email);
           errorMessages.push({
             email: user.email,
+            rowNumber,
             message: `Email đã tồn tại trong kỳ học hiện tại.`,
           });
           continue;
@@ -255,6 +328,7 @@ const insertListUsers = async (req, res, next) => {
             if (previousSemesters.length !== existingUser.semesterId.length) {
               errorMessages.push({
                 email: user.email,
+                rowNumber,
                 message: `Người dùng có các kỳ học chưa hoàn thành.`,
               });
               failedEmails.push(user.email);
@@ -285,11 +359,12 @@ const insertListUsers = async (req, res, next) => {
         );
         if (existingUserByRollNumber) {
           duplicateRollNumbers.push(user.rollNumber);
+          rowErrors.push(`Mã số sinh viên đã tồn tại: ${user.rollNumber}`);
           errorMessages.push({
-            rollNumber: user.rollNumber,
+            email: user.email,
+            rowNumber,
             message: `Mã số sinh viên đã tồn tại: ${user.rollNumber}`,
           });
-          continue;
         }
 
         const existingUserByMemberCode = await adminsDAO.findUserByMemberCode(
@@ -297,10 +372,15 @@ const insertListUsers = async (req, res, next) => {
         );
         if (existingUserByMemberCode) {
           duplicateMemberCodes.push(user.memberCode);
+          rowErrors.push(`Mã thành viên đã tồn tại: ${user.memberCode}`);
           errorMessages.push({
-            memberCode: user.memberCode,
+            email: user.email,
+            rowNumber,
             message: `Mã thành viên đã tồn tại: ${user.memberCode}`,
           });
+        }
+
+        if (rowErrors.length > 0) {
           continue;
         }
 
@@ -308,7 +388,7 @@ const insertListUsers = async (req, res, next) => {
         if (!classUsersMap[user.className]) {
           classUsersMap[user.className] = [];
         }
-        classUsersMap[user.className].push(user);
+        classUsersMap[user.className].push({ user, rowNumber });
       } else if (role == 3) {
         // Xử lý các role khác
         const password = generateRandomPassword();
@@ -325,20 +405,22 @@ const insertListUsers = async (req, res, next) => {
         usersToEmail.push({ email: user.email, password, status: "Active" });
         totalUsersAdded += 1;
       } else if (role == 2) {
-        const checkTeacherExis = await adminsDAO.findTeacherByUsername(
+        const checkTeacherExist = await adminsDAO.findTeacherByUsername(
           user.username,
           semesterId
         );
-        if (checkTeacherExis) {
-          existingUserName.push(user.username),
-            errorMessages.push({
-              field: "username",
-              email: user.email,
-              message: `Tên giáo viên: ${user.username} đã tồn tại trong hệ thống.`,
-            });
+        if (checkTeacherExist) {
+          existingUserName.push(user.username);
+          rowErrors.push(
+            `Tên giáo viên ${user.username} đã tồn tại trong hệ thống.`
+          );
+          errorMessages.push({
+            email: user.email,
+            rowNumber,
+            message: `Tên giáo viên ${user.username} đã tồn tại trong hệ thống.`,
+          });
           continue;
         }
-        // Xử lý các role khác
         const password = generateRandomPassword();
         const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -353,8 +435,10 @@ const insertListUsers = async (req, res, next) => {
         usersToEmail.push({ email: user.email, password, status: "Active" });
         totalUsersAdded += 1;
       } else {
+        rowErrors.push(`Role không hợp lệ.`);
         errorMessages.push({
           email: user.email,
+          rowNumber,
           message: `Role không hợp lệ.`,
         });
         continue;
@@ -362,13 +446,15 @@ const insertListUsers = async (req, res, next) => {
     }
 
     // Xử lý từng lớp học (role == 4)
-    for (const [className, users] of Object.entries(classUsersMap)) {
-      if (users.length === 0) continue;
+    for (const [className, userEntries] of Object.entries(classUsersMap)) {
+      if (userEntries.length === 0) continue;
 
       // Tất cả các học sinh trong cùng một lớp có cùng teacherUsername
-      const teacherUsername = users[0].teacherUsername;
+      const teacherUsername = userEntries[0].user.teacherUsername;
       if (!teacherUsername) {
         errorMessages.push({
+          email: userEntries[0].user.email,
+          rowNumber: userEntries[0].rowNumber,
           message: `Thiếu teacherUsername cho lớp: ${className}`,
         });
         continue;
@@ -381,9 +467,15 @@ const insertListUsers = async (req, res, next) => {
           teacherUsername,
           semesterId
         );
+        if (!teacher) {
+          throw new Error(
+            `Không tìm thấy giáo viên với username: ${teacherUsername}`
+          );
+        }
       } catch (error) {
         errorMessages.push({
-          email: users[0].email,
+          email: userEntries[0].user.email,
+          rowNumber: userEntries[0].rowNumber,
           message: `Không thể tìm giáo viên cho lớp ${className}: ${error.message}`,
         });
         continue;
@@ -400,9 +492,8 @@ const insertListUsers = async (req, res, next) => {
 
       if (remainingSlots <= 0) {
         // Lớp đã đầy, thêm học sinh vào danh sách fullClassUsers với trạng thái Pending
-        fullClassUsers.push(...users);
-
-        for (const user of users) {
+        for (const entry of userEntries) {
+          const { user, rowNumber } = entry;
           const password = generateRandomPassword();
           const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -416,20 +507,24 @@ const insertListUsers = async (req, res, next) => {
 
           usersToInsert.push(userData);
           usersToEmail.push({ email: user.email, password, status: "Pending" });
+          fullClassUsers.push(userData);
+
+          errorMessages.push({
+            email: user.email,
+            rowNumber,
+            message: `Lớp ${className} đã đầy. Học sinh được thêm với trạng thái Pending.`,
+          });
         }
-        errorMessages.push({
-          className: className,
-          message: `Lớp ${className} đã đầy.`,
-        });
         continue;
       }
 
       // Số học sinh có thể thêm vào lớp
-      const usersCanAdd = users.slice(0, remainingSlots);
-      const usersCannotAdd = users.slice(remainingSlots);
+      const usersCanAdd = userEntries.slice(0, remainingSlots);
+      const usersCannotAdd = userEntries.slice(remainingSlots);
 
       // Thêm học sinh có thể thêm vào lớp
-      for (const user of usersCanAdd) {
+      for (const entry of usersCanAdd) {
+        const { user } = entry;
         const password = generateRandomPassword();
         const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -447,7 +542,8 @@ const insertListUsers = async (req, res, next) => {
       }
 
       // Thêm học sinh không thể thêm vào lớp vào danh sách fullClassUsers với trạng thái Pending
-      for (const user of usersCannotAdd) {
+      for (const entry of usersCannotAdd) {
+        const { user, rowNumber } = entry;
         const password = generateRandomPassword();
         const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -465,15 +561,17 @@ const insertListUsers = async (req, res, next) => {
 
         errorMessages.push({
           email: user.email,
-          message: `Không thể thêm vào lớp ${className} vì lớp đã đầy.`,
+          rowNumber,
+          message: `Lớp ${className} đã đầy. Học sinh được thêm với trạng thái Pending.`,
         });
       }
     }
 
     // Thực hiện insert danh sách người dùng
+    let insertedUsers = [];
     if (usersToInsert.length > 0) {
       try {
-        await adminsDAO.createListUsers(usersToInsert);
+        insertedUsers = await adminsDAO.createListUsers(usersToInsert); // Danh sách người dùng với _id
       } catch (insertError) {
         errorMessages.push({
           message: "Lỗi khi thêm người dùng vào cơ sở dữ liệu.",
@@ -481,6 +579,13 @@ const insertListUsers = async (req, res, next) => {
         });
       }
     }
+
+    // Cập nhật _id trong usersToInsert với các đối tượng trả về từ cơ sở dữ liệu
+    usersToInsert.forEach((user, index) => {
+      if (insertedUsers[index]) {
+        user._id = insertedUsers[index]._id; // Cập nhật _id cho người dùng vừa được thêm
+      }
+    });
 
     // Gửi email cho các người dùng đã được thêm thành công
     for (const user of usersToEmail) {
@@ -500,7 +605,7 @@ const insertListUsers = async (req, res, next) => {
     const successCount = totalUsersAdded + totalUsersUpdated;
 
     res.status(200).json({
-      success: true,
+      success: successCount > 0,
       message: "Đã xử lý xong tất cả người dùng.",
       successCount,
       duplicateEmails,
@@ -509,6 +614,7 @@ const insertListUsers = async (req, res, next) => {
       fullClassUsers,
       failedEmails,
       errorMessages,
+      usersToInsert,
     });
   } catch (error) {
     next(error);
@@ -520,7 +626,6 @@ const insertUserByHand = async (req, res, next) => {
   try {
     const { semesterId, role, userInput } = req.body;
     const errors = [];
-    console.log(userInput);
 
     // Validate semesterId
     if (!semesterId) {
@@ -662,7 +767,8 @@ const insertUserByHand = async (req, res, next) => {
       semesterId: [semesterId],
       status: userStatus,
     });
-
+    // newUser sẽ bao gồm _id, email, và các trường khác
+    const userId = newUser._id; // Lấy _id của người dùng vừa được tạo
     // Send email to user
     await sendEmailToUser(newUser.email, password, userStatus);
 
@@ -671,6 +777,7 @@ const insertUserByHand = async (req, res, next) => {
       message: "Người dùng đã được thêm thành công.",
       email: newUser.email,
       status: newUser.status,
+      userId: newUser._id,
     });
   } catch (error) {
     next(error); // Pass error to centralized error handler
@@ -730,7 +837,6 @@ const getPendingUsers = async (req, res) => {
 
 const createClass = async (req, res) => {
   try {
-    const errors = [];
     const { className, limitStudent, teacherId, semesterId } = req.body;
     const classExits = await classDAO.isClassNameExist(className);
     if (classExits) {

@@ -11,6 +11,7 @@ import {
   setCounts,
   setSemester,
   setCurrentSemester,
+  setDetailSemester,
 } from "../../redux/slice/semesterSlide";
 import { BASE_URL } from "../../utilities/initalValue";
 import {
@@ -54,19 +55,57 @@ const SemesterList = () => {
   };
 
   const handleSelectSemester = async (semester) => {
-    dispatch(setSemester(semester));
-    dispatch(
-      setCounts({
-        studentCount: semester.studentCount,
-        teacherCount: semester.teacherCount,
-        mentorCount: semester.mentorCount,
-        classCount: semester.classCount,
-        endDate: semester.endDate,
-        startDate: semester.startDate,
-        semesterName: semester.name,
-        status: semester.status,
-      })
-    );
+    if (semester?._id !== currentSemester?._id) {
+      dispatch(setSemester(semester));
+      dispatch(setSid(semester?._id));
+      dispatch(
+        setCounts({
+          studentCount: semester.studentCount,
+          teacherCount: semester.teacherCount,
+          mentorCount: semester.mentorCount,
+          classCount: semester.classCount,
+          endDate: semester.endDate,
+          startDate: semester.startDate,
+          semesterName: semester.name,
+          status: semester.status,
+        })
+      );
+    } else {
+      dispatch(setSid(semester?._id));
+      dispatch(
+        setCounts({
+          studentCount: currentSemester.studentCount,
+          teacherCount: currentSemester.teacherCount,
+          mentorCount: currentSemester.mentorCount,
+          classCount: currentSemester.classCount,
+          endDate: currentSemester.endDate,
+          startDate: currentSemester.startDate,
+          semesterName: currentSemester.name,
+          status: currentSemester.status,
+          studentsWithClass: currentSemester.studentsWithClass,
+          studentsWithoutClass: currentSemester.studentsWithoutClass,
+          teachersWithClassCount: currentSemester.teachersWithClassCount,
+          teachersWithoutClassCount: currentSemester.teachersWithoutClassCount,
+          classesWithStudentsCount: currentSemester.classesWithStudentsCount,
+          classesWithoutStudentsCount:
+            currentSemester.classesWithoutStudentsCount,
+        })
+      );
+      dispatch(
+        setDetailSemester({
+          classesWithStudentsList:
+            currentSemester.details.classesWithStudentsList,
+          classesWithoutStudentsList:
+            currentSemester.details.classesWithoutStudentsList,
+          teachersWithClasses: currentSemester.details.teachersWithClasses,
+          teachersWithoutClasses:
+            currentSemester.details.teachersWithoutClasses,
+          mentorsWithMatch: currentSemester.details.mentorsWithMatch,
+          mentorsWithoutMatch: currentSemester.details.mentorsWithoutMatch,
+        })
+      );
+    }
+
     try {
       dispatch(setLoading(true));
       const response = await axios.get(
@@ -282,19 +321,6 @@ const SemesterList = () => {
       />
     </div>
   );
-};
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case "Upcoming":
-      return "blue";
-    case "Ongoing":
-      return "green";
-    case "Finished":
-      return "gray";
-    default:
-      return "default";
-  }
 };
 
 export default SemesterList;
