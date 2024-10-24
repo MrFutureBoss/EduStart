@@ -20,7 +20,6 @@ function App() {
         {/* Layout dành cho Admin, bao gồm các route bên trong */}
         {AdminRouter()}
          {/* Layout dành cho Teacher, bao gồm các route bên trong */}
-<<<<<<< Updated upstream
         {TeacherRouter()}
 =======
         <Route
