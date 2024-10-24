@@ -21,7 +21,6 @@ function App() {
         {AdminRouter()}
          {/* Layout dành cho Teacher, bao gồm các route bên trong */}
         {TeacherRouter()}
-=======
         <Route
           path="/teacher-dashboard"
           element={
