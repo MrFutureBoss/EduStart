@@ -58,25 +58,18 @@ const MyActivity = () => {
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
-      <Layout>
-        <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <Layout style={{ padding: "24px" }}>
           <Content>
-            {/* Tiến trình Outcomes */}
             <div style={{ marginBottom: "24px" }}>
               <h1>Tiến trình Outcomes</h1>
               <OutcomeSteps classId={userId} />
             </div>
 
-            {/* Bố cục chia 2: Nhóm nộp sớm và nộp muộn */}
             <h2>Tiến trình nộp outcome 2</h2>
             {loading ? (
               <Spin tip="Đang tải dữ liệu..." size="large" />
             ) : (
               <div className="groups-container">
-                {/* Cột nhóm nộp sớm */}
                 <div className="group-column">
                   <h2 className="group-column-title">Nhóm nộp sớm</h2>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
@@ -94,7 +87,6 @@ const MyActivity = () => {
                     ))}
                   </div>
                 </div>
-                {/* Cột nhóm nộp muộn */}
                 <div className="group-column">
                   <h2 className="group-column-title">Nhóm nộp muộn</h2>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
@@ -119,8 +111,6 @@ const MyActivity = () => {
             )}
           </Content>
         </Layout>
-      </Layout>
-    </Layout>
   );
 };
 

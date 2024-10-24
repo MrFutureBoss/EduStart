@@ -283,93 +283,89 @@ const MaterialList = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
-      <Layout>
-        <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
-        <div style={{ padding: "24px", width: "100%" }}>
-          <h1>Materials List</h1>
+    <Layout>
+      <div style={{ padding: "24px", width: "100%" }}>
+        <h1>Materials List</h1>
 
-          <Dropdown menu={classMenu} trigger={["click"]}>
-            <Button style={{ marginBottom: "16px" }}>
-              {selectedClassName
-                ? `Selected Class: ${selectedClassName}`
-                : "Select a class"}
-            </Button>
-          </Dropdown>
-
-          <Tree
-            showLine={{ showLeafIcon: true }}
-            showIcon={true}
-            defaultExpandedKeys={["docs"]}
-            treeData={materials}
-            titleRender={(nodeData) => (
-              <Tooltip title={`File: ${nodeData.title}`}>
-                <span onClick={() => handleDownload(nodeData.materialUrl)}>
-                  {nodeData.title} {/* Đã loại bỏ nodeData.icon */}
-                </span>
-              </Tooltip>
-            )}
-          />
-
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            style={{ marginTop: "16px", width: "16%" }}
-            onClick={handleAddNewMaterial} // Reset form và mở modal
-            disabled={!selectedClassId}
-          >
-            Add New Material
+        <Dropdown menu={classMenu} trigger={["click"]}>
+          <Button style={{ marginBottom: "16px" }}>
+            {selectedClassName
+              ? `Selected Class: ${selectedClassName}`
+              : "Select a class"}
           </Button>
+        </Dropdown>
 
-          <Modal
-            title="Upload New File"
-            visible={isModalVisible}
-            onCancel={handleCancel}
-            footer={[
-              <Button
-                key="submit"
-                type="primary"
-                onClick={handleUpload}
-                disabled={!fileToUpload}
-                loading={uploading}
-              >
-                Upload
-              </Button>,
-            ]}
-          >
-            <Upload.Dragger {...uploadProps}>
-              <p className="ant-upload-drag-icon">
-                <CloudUploadOutlined style={{ fontSize: "48px" }} />
+        <Tree
+          showLine={{ showLeafIcon: true }}
+          showIcon={true}
+          defaultExpandedKeys={["docs"]}
+          treeData={materials}
+          titleRender={(nodeData) => (
+            <Tooltip title={`File: ${nodeData.title}`}>
+              <span onClick={() => handleDownload(nodeData.materialUrl)}>
+                {nodeData.title} {/* Đã loại bỏ nodeData.icon */}
+              </span>
+            </Tooltip>
+          )}
+        />
+
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          style={{ marginTop: "16px", width: "16%" }}
+          onClick={handleAddNewMaterial} // Reset form và mở modal
+          disabled={!selectedClassId}
+        >
+          Add New Material
+        </Button>
+
+        <Modal
+          title="Upload New File"
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              onClick={handleUpload}
+              disabled={!fileToUpload}
+              loading={uploading}
+            >
+              Upload
+            </Button>,
+          ]}
+        >
+          <Upload.Dragger {...uploadProps}>
+            <p className="ant-upload-drag-icon">
+              <CloudUploadOutlined style={{ fontSize: "48px" }} />
+            </p>
+            <p className="ant-upload-text">Drag & drop a file here</p>
+            <p className="ant-upload-hint">
+              Supports .docx, .pdf, .jpg, and other file types.
+            </p>
+          </Upload.Dragger>
+          {fileToUpload && (
+            <div>
+              <p>
+                <strong>File Name:</strong> {fileToUpload.name}
               </p>
-              <p className="ant-upload-text">Drag & drop a file here</p>
-              <p className="ant-upload-hint">
-                Supports .docx, .pdf, .jpg, and other file types.
+              <p>
+                <strong>Type:</strong> {getFileType(fileToUpload.name)}
               </p>
-            </Upload.Dragger>
-            {fileToUpload && (
-              <div>
-                <p>
-                  <strong>File Name:</strong> {fileToUpload.name}
-                </p>
-                <p>
-                  <strong>Type:</strong> {getFileType(fileToUpload.name)}
-                </p>
-                <p>
-                  <strong>Size:</strong>{" "}
-                  {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
-                </p>
-              </div>
-            )}
-            {uploading && (
-              <Progress
-                percent={uploadPercent}
-                status={uploading ? "active" : "normal"}
-              />
-            )}
-          </Modal>
-        </div>
-      </Layout>
+              <p>
+                <strong>Size:</strong>{" "}
+                {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
+              </p>
+            </div>
+          )}
+          {uploading && (
+            <Progress
+              percent={uploadPercent}
+              status={uploading ? "active" : "normal"}
+            />
+          )}
+        </Modal>
+      </div>
     </Layout>
   );
 };

@@ -65,7 +65,7 @@ const OutcomeSteps = () => {
     <div className="outcome-steps-container">
       {/* Thanh tiến trình chính giữa các Step */}
       <div className="step-progress-bar">
-        <Tooltip title={`Tiến trình hiện tại: ${percent}%`}>
+        <Tooltip title={`Tiến trình hiện tại: ${today.format("DD/MM/YYYY")}`}>
           <div
             className="person-icon"
             style={{ left: `${personPosition}%` }} // Điều chỉnh vị trí icon theo thời gian
@@ -78,7 +78,7 @@ const OutcomeSteps = () => {
       {/* Các Step (các outcome) */}
       <Steps current={currentStep} size="default" direction="horizontal">
         <Step title="Outcome 1" description="15/09 - 10/10/2024" />
-        <Step title="Outcome 2" description="11/10 - 05/11/2024" />
+        <Step title="Outcome 2" percent="70%" description="11/10 - 05/11/2024" />
         <Step title="Outcome 3" description="06/11 - 30/11/2024" />
       </Steps>
     </div>
