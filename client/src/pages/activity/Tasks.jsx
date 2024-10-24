@@ -315,7 +315,7 @@ const Tasks = () => {
   ];
 
   return (
-    <Layout>
+    <Layout style={{ minHeight: "100vh" }}>
       <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
       <Layout>
         <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />

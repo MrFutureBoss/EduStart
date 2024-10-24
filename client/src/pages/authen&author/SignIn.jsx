@@ -43,12 +43,13 @@ function SignIn() {
       const res = await axios.post(`${BASE_URL}/user/login`, formData);
       const token = res.data.token;
       const role = res.data.user.role;
-      const userId = res.data.user._id;
-
+      const userId = res.data.user._id
+      const username = res.data.user.username
       if (token) {
         localStorage.setItem("jwt", token);
         localStorage.setItem("role", role);
         localStorage.setItem("userId", userId);
+        localStorage.setItem("username", username);
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.role;
 

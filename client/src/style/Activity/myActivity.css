@@ -1,58 +1,82 @@
-@keyframes gradientBg {
+.groups-container {
+  display: flex;
+  justify-content: space-between; /* Đặt 2 cột ở 2 bên */
+  gap: 40px; /* Khoảng cách giữa hai cột */
+  align-items: flex-start; /* Căn chỉnh cả hai cột ở trên cùng */
+}
+
+.group-column {
+  width: 50%;
+  margin-left: 6%;
+}
+
+.group-column-title {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.group-circle-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 48%;
+  margin-bottom: 16px;
+}
+
+.group-circle-large {
+  width: 120px;
+  height: 120px;
+  background-color: #1890ff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  color: white;
+  position: relative;
+  animation: scaleIn 1.5s ease-in-out infinite;
+}
+
+.group-circle-small {
+  width: 40px;
+  height: 40px;
+  background-color: #ff4d4f;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  color: white;
+  margin-left: -40px;
+  z-index: 1;
+  top: 40px;
+  position: relative;
+}
+
+.early-group .group-circle-large {
+  background: linear-gradient(-45deg, #005241, #128066, #00524f, #008d87);
+}
+
+.late-group .group-circle-large {
+  background: linear-gradient(-45deg, #ff6961, #ff7f7f, #ff5c5c, #ff4040);
+}
+
+.vertical-divider {
+  width: 1px;
+  background-color: #ddd;
+  height: 100%;
+  position: relative;
+  margin: 0 20px;
+}
+
+@keyframes scaleIn {
   0% {
-    background-position: 0% 50%;
+    transform: scale(1);
   }
   50% {
-    background-position: 100% 50%;
+    transform: scale(1.05);
   }
   100% {
-    background-position: 0% 50%;
+    transform: scale(1);
   }
-}
-
-.custom-card .ant-card-head {
-  background: linear-gradient(-45deg, #005241, #128066, #00524f, #008d87);  
-  background-size: 400% 400%;
-  animation: gradientBg 10s ease infinite;  
-  color: white;  
-  padding: 16px;  
-  border-radius: 8px 8px 0 0;  
-}
-
-.custom-card .ant-card-head-title {
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
-  display: inline-block;
-}
-
-.custom-card {
-  margin-bottom: 24px;  
-  border: 1px solid #ddd;  
-  border-radius: 8px;  
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
-  transition: box-shadow 0.3s ease;  
-}
-
-.custom-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);  
-}
-
-.custom-card .ant-card-body {
-  background-color: white;  
-  color: black;  
-  padding: 16px;
-}
-
-/* Thêm CSS vào tệp CSS của bạn */
-@keyframes shake {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(-15deg); }
-  50% { transform: rotate(15deg); }
-  75% { transform: rotate(-10deg); }
-  100% { transform: rotate(0deg); }
-}
-
-.shake-on-hover:hover {
-  animation: shake 0.5s !important;
 }
