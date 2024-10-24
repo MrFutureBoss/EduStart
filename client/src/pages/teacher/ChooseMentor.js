@@ -3,8 +3,6 @@ import { Layout, Typography, Button } from "antd";
 import TreeView from "../../components/Teacher/TreeView";
 import MentorSelection from "../../components/Teacher/MentorSelection";
 import GuidedTour from "../../components/Teacher/GuidedTour";
-import AppHeader from "../../layouts/admin/AdminHeader";
-import TeacherSidebar from "../activity/TeacherSidebar";
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -67,89 +65,81 @@ const ChooseMentor = () => {
   };
 
   return (
-    <Layout>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
-
-      <Layout style={{ minHeight: "100vh" }}>
-        <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
-
-        {!guidedTourCompleted && (
-          <GuidedTour
-            selectedProfession={selectedProfession}
-            selectedSpecialty={selectedSpecialty}
-            selectedMentors={
-              selectedMentorsBySpecialty[selectedSpecialty] || []
+    <Layout style={{ minHeight: "100vh" }}>
+      {!guidedTourCompleted && (
+        <GuidedTour
+          selectedProfession={selectedProfession}
+          selectedSpecialty={selectedSpecialty}
+          selectedMentors={selectedMentorsBySpecialty[selectedSpecialty] || []}
+          onComplete={() => {
+            if (firstProfessionRef.current) {
+              firstProfessionRef.current.click(); // Simulate a click on the first profession
             }
-            onComplete={() => {
-              if (firstProfessionRef.current) {
-                firstProfessionRef.current.click(); // Simulate a click on the first profession
-              }
-              if (firstSpecialtyRef.current) {
-                firstSpecialtyRef.current.click(); // Simulate a click on the first specialty
-              }
-            }}
-          />
-        )}
+            if (firstSpecialtyRef.current) {
+              firstSpecialtyRef.current.click(); // Simulate a click on the first specialty
+            }
+          }}
+        />
+      )}
 
-        <Sider width={250} style={{ background: "#fff", padding: "20px" }}>
-          <div>
-            <Title level={4}>Chọn Chuyên Ngành</Title>
-          </div>
-          <TreeView
-            onSelect={handleSelect}
-            onFirstProfessionRefReady={(node) => {
-              firstProfessionRef.current = node;
-              if (node) {
-                node.setAttribute("data-tour", "first-profession");
-              }
-            }}
-            onFirstSpecialtyRefReady={(node) => {
-              firstSpecialtyRef.current = node;
-              if (node) {
-                node.setAttribute("data-tour", "first-specialty");
-              }
-            }}
-            selectedProfession={selectedProfession}
-            selectedSpecialty={selectedSpecialty}
-          />
-        </Sider>
+      <Sider width={250} style={{ background: "#fff", padding: "0px" }}>
+        <div>
+          <Title level={4}>Chọn Chuyên Ngành</Title>
+        </div>
+        <TreeView
+          onSelect={handleSelect}
+          onFirstProfessionRefReady={(node) => {
+            firstProfessionRef.current = node;
+            if (node) {
+              node.setAttribute("data-tour", "first-profession");
+            }
+          }}
+          onFirstSpecialtyRefReady={(node) => {
+            firstSpecialtyRef.current = node;
+            if (node) {
+              node.setAttribute("data-tour", "first-specialty");
+            }
+          }}
+          selectedProfession={selectedProfession}
+          selectedSpecialty={selectedSpecialty}
+        />
+      </Sider>
 
-        <Layout>
-          <Header
-            style={{
-              background: "#fff",
-              padding: "0 20px",
-              marginBottom: -23,
-              paddingTop: 10,
-              paddingBottom: 2,
-            }}
+      <Layout>
+        <Header
+          style={{
+            background: "#fff",
+            padding: "0 20px",
+            marginBottom: -23,
+
+            paddingBottom: 2,
+          }}
+        >
+          <Title level={3}>
+            {professionName
+              ? `${professionName} - ${specialtyName || "Chọn chuyên môn"}`
+              : "Chọn Mentor"}
+          </Title>
+        </Header>
+        <Content style={{ background: "#fff", padding: "20px" }}>
+          <Button
+            type="primary"
+            onClick={handleRestartTour}
+            style={{ marginBottom: "20px" }}
           >
-            <Title level={3}>
-              {professionName
-                ? `${professionName} - ${specialtyName || "Chọn chuyên môn"}`
-                : "Chọn Mentor"}
-            </Title>
-          </Header>
-          <Content style={{ background: "#fff", padding: "20px" }}>
-            <Button
-              type="primary"
-              onClick={handleRestartTour}
-              style={{ marginBottom: "20px" }}
-            >
-              Bắt đầu lại hướng dẫn
-            </Button>
+            Bắt đầu lại hướng dẫn
+          </Button>
 
-            <MentorSelection
-              professionId={selectedProfession}
-              specialtyId={selectedSpecialty}
-              selectedMentorsBySpecialty={selectedMentorsBySpecialty}
-              setSelectedMentorsBySpecialty={setSelectedMentorsBySpecialty}
-              mentorPriorityRef={mentorPriorityRef}
-              mentorAvailableRef={mentorAvailableRef}
-              saveButtonRef={saveButtonRef}
-            />
-          </Content>
-        </Layout>
+          <MentorSelection
+            professionId={selectedProfession}
+            specialtyId={selectedSpecialty}
+            selectedMentorsBySpecialty={selectedMentorsBySpecialty}
+            setSelectedMentorsBySpecialty={setSelectedMentorsBySpecialty}
+            mentorPriorityRef={mentorPriorityRef}
+            mentorAvailableRef={mentorAvailableRef}
+            saveButtonRef={saveButtonRef}
+          />
+        </Content>
       </Layout>
     </Layout>
   );

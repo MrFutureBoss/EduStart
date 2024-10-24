@@ -5,6 +5,7 @@ import {
   DashboardOutlined,
   FileDoneOutlined,
   FileTextOutlined,
+  StarOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -227,6 +228,19 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         </SubMenu>
         <Menu.Item
           key="9"
+          icon={
+            <StarOutlined
+              style={{ fontSize: "1.5em" }}
+              className={toggleCollapse ? "" : "custom-icon"}
+            />
+          }
+        >
+          <Link style={{ textDecoration: "none" }} to="choose-mentor">
+            Chọn Mentor ưu tiên.
+          </Link>
+        </Menu.Item>
+        <Menu.Item
+          key="10"
           icon={
             <MdSupportAgent
               style={{ fontSize: "1.5em" }}
