@@ -42,7 +42,6 @@ const PostActivity = () => {
   const [commentContent, setCommentContent] = useState("");
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const [collapsed, setCollapsed] = useState(false);
 
   const jwt = localStorage.getItem("jwt");
   const username = localStorage.getItem("username");
@@ -122,9 +121,6 @@ const PostActivity = () => {
     } finally {
       setUploading(false);
     }
-  };
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
   };
 
   const showModal = () => {
@@ -271,11 +267,13 @@ const PostActivity = () => {
     const currentTime = moment();
     return currentTime.diff(postTime, "minutes") <= 10;
   };
+
   const handleCancelEdit = () => {
     setEditModalVisible(false);
     setPostContent("");
     setFileToUpload(null);
   };
+
   const classMenu = {
     items: classList.map((classItem) => ({
       key: classItem._id,
@@ -283,102 +281,99 @@ const PostActivity = () => {
     })),
     onClick: handleClassSelect,
   };
-  return (
-      <Layout>
-        <div style={{ padding: "24px", width: "100%" }}>
-          <Dropdown menu={classMenu} trigger={["click"]}>
-            <Button style={{ marginBottom: "16px" }}>
-              {selectedClassName
-                ? `Lớp: ${selectedClassName}`
-                : "Chọn lớp"}
-            </Button>
-          </Dropdown>
 
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "16px",
-              borderRadius: "8px",
-              marginBottom: "16px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#f0f0f0";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "white";
-            }}
-            onClick={showModal}
-          >
-            <p>
-              Đăng bài viết nào đó cho lớp của bạn. Bấm vào đây!{" "}
-              <EditOutlined style={{ marginRight: "8px", fontSize: "18px" }} />
-            </p>
+  return (
+    <Layout>
+      <div style={{ padding: "24px", width: "100%" }}>
+        <Dropdown menu={classMenu} trigger={["click"]}>
+          <Button style={{ marginBottom: "16px" }}>
+            {selectedClassName ? `Lớp: ${selectedClassName}` : "Chọn lớp"}
+          </Button>
+        </Dropdown>
+
+        <div
+          style={{
+            backgroundColor: "#f0f8ff",
+            padding: "16px",
+            borderRadius: "8px",
+            marginBottom: "16px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+            cursor: "pointer",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#e6f7ff";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#f0f8ff";
+          }}
+          onClick={showModal}
+        >
+          <p>
+            Đăng bài viết nào đó cho lớp của bạn. Bấm vào đây!{" "}
+            <EditOutlined style={{ marginRight: "8px", fontSize: "18px" }} />
+          </p>
+        </div>
+
+        {posts.length > 0 ? (
+          <h2 style={{ textAlign: "center" }}>Danh sách bài viết</h2>
+        ) : (
+          <div style={{ textAlign: "center", marginBottom: "20px" }}>
+            <p style={{ color: "#999" }}>Chưa có bài viết nào.</p>
           </div>
-          {posts.length > 0 ? (
-            <h2 style={{ textAlign: "center" }}>Danh sách bài viết</h2>
-          ) : (
-            ""
-          )}
-          <List
-            grid={{ gutter: 16, column: 1 }}
-            dataSource={posts.slice().reverse()}
-            renderItem={(post) => (
-              <List.Item>
-                <Card
-                  className={isNewPost(post.createdAt) ? "new-post-border" : ""}
+        )}
+
+        <List
+          grid={{ gutter: 16, column: 1 }}
+          dataSource={posts.slice().reverse()}
+          renderItem={(post) => (
+            <List.Item>
+              <Card
+                className={isNewPost(post.createdAt) ? "new-post-border" : ""}
+                style={{
+                  backgroundColor: "#fff",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                  border: isNewPost(post.createdAt)
+                    ? "2px solid #1890ff"
+                    : "1px solid #f0f0f0",
+                  transition: "border 0.5s ease-in-out",
+                  position: "relative",
+                }}
+              >
+                <div
                   style={{
-                    backgroundColor: "#fff",
-                    borderRadius: "8px",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    border: isNewPost(post.createdAt)
-                      ? "2px solid #1890ff"
-                      : "1px solid #f0f0f0",
-                    transition: "border 0.5s ease-in-out",
-                    position: "relative",
+                    display: "flex",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <List.Item.Meta
-                      avatar={<Avatar icon={<FileOutlined />} />}
-                      title={username}
-                      description={new Date(
-                        post.createdAt
-                      ).toLocaleTimeString()}
-                    />
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {isNewPost(post.createdAt) && (
-                        <span
-                          style={{
-                            backgroundColor: "#1890ff",
-                            color: "#fff",
-                            padding: "2px 8px",
-                            borderRadius: "12px",
-                            marginRight: "8px",
-                            fontSize: "12px",
-                          }}
-                        >
-                          Bài mới
-                        </span>
-                      )}
-                      <Dropdown
-                        overlay={postActionsMenu(post._id)}
-                        trigger={["click"]}
+                  <List.Item.Meta
+                    avatar={<Avatar icon={<FileOutlined />} />}
+                    title={username}
+                    description={moment(post.createdAt).fromNow()}
+                  />
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {isNewPost(post.createdAt) && (
+                      <span
+                        style={{
+                          backgroundColor: "#1890ff",
+                          color: "#fff",
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          marginRight: "8px",
+                          fontSize: "12px",
+                        }}
                       >
-                        <MoreOutlined
-                          style={{ cursor: "pointer", fontSize: "18px" }}
-                        />
-                      </Dropdown>
-                    </div>
+                        Bài mới
+                      </span>
+                    )}
+                    <Dropdown overlay={postActionsMenu(post._id)} trigger={["click"]}>
+                      <MoreOutlined style={{ cursor: "pointer", fontSize: "18px" }} />
+                    </Dropdown>
                   </div>
-                  <div dangerouslySetInnerHTML={{ __html: post.description }} />
-                  Tài liệu:{post.materialUrl && (
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: post.description }} />
+                {post.materialUrl && (
+                  <div>
                     <Button
                       type="link"
                       onClick={() =>
@@ -387,97 +382,93 @@ const PostActivity = () => {
                     >
                       {post.materialUrl.split("/").pop()}
                     </Button>
-                  )}
-                  <ul
-                    className="ant-card-actions"
-                    style={{ borderTop: "1px solid #f0f0f0" }}
+                  </div>
+                )}
+                <ul className="ant-card-actions" style={{ borderTop: "1px solid #f0f0f0" }}>
+                  <li
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      display: "flex",
+                    }}
                   >
-                    <li
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        display: "flex",
-                      }}
-                    >
-                      <Input
-                        placeholder="Thêm nhận xét cho bài viết..."
-                        value={commentContent}
-                        onChange={(e) => setCommentContent(e.target.value)}
-                        style={{ width: "100%", borderRadius: "18px" }}
+                    <Input
+                      placeholder="Thêm nhận xét cho bài viết..."
+                      value={commentContent}
+                      onChange={(e) => setCommentContent(e.target.value)}
+                      style={{ width: "100%", borderRadius: "18px" }}
+                    />
+                    <Tooltip title="Gửi nhận xét">
+                      <SendOutlined
+                        onClick={() => handleComment(post._id)}
+                        style={{
+                          fontSize: "24px",
+                          cursor: "pointer",
+                          color: "#1890ff",
+                          marginLeft: "8px",
+                        }}
                       />
-                      <Tooltip title="Send Comment">
-                        <SendOutlined
-                          onClick={() => handleComment(post._id)}
-                          style={{
-                            fontSize: "24px",
-                            cursor: "pointer",
-                            color: "#1890ff",
-                          }}
-                        />
-                      </Tooltip>
-                    </li>
-                  </ul>
-                </Card>
-              </List.Item>
-            )}
+                    </Tooltip>
+                  </li>
+                </ul>
+              </Card>
+            </List.Item>
+          )}
+        />
+
+        <Modal
+          title="Đăng bài viết"
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              onClick={handlePost}
+              loading={uploading}
+            >
+              Đăng
+            </Button>,
+          ]}
+        >
+          <ReactQuill
+            value={postContent}
+            onChange={setPostContent}
+            theme="snow"
+            style={{ marginBottom: "16px" }}
           />
+          <Upload {...uploadProps}>
+            <Button icon={<UploadOutlined />}>Đính kèm file</Button>
+          </Upload>
+        </Modal>
 
-          {/* Modal thêm bài viết mới */}
-          <Modal
-            title="Đăng bài viết"
-            visible={isModalVisible}
-            onCancel={handleCancel}
-            footer={[
-              <Button
-                key="submit"
-                type="primary"
-                onClick={handlePost}
-                loading={uploading}
-              >
-                Đăng
-              </Button>,
-            ]}
-          >
-            <ReactQuill
-              value={postContent}
-              onChange={setPostContent}
-              theme="snow"
-              style={{ marginBottom: "16px" }}
-            />
-
-            <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />}>Đính kèm file</Button>
-            </Upload>
-          </Modal>
-
-          {/* Modal chỉnh sửa bài viết */}
-          <Modal
-            title="Chỉnh sửa bài viết"
-            visible={editModalVisible}
-            onCancel={handleCancelEdit}
-            footer={[
-              <Button
-                key="submit"
-                type="primary"
-                onClick={handleUpdatePost}
-                loading={uploading}
-              >
-                Cập nhật
-              </Button>,
-            ]}
-          >
-            <ReactQuill
-              theme="snow"
-              value={postContent}
-              onChange={setPostContent}
-              style={{ marginBottom: "16px" }}
-            />
-            <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />}>Cập nhật file đính kèm</Button>
-            </Upload>
-          </Modal>
-        </div>
-      </Layout>
+        <Modal
+          title="Chỉnh sửa bài viết"
+          visible={editModalVisible}
+          onCancel={handleCancelEdit}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              onClick={handleUpdatePost}
+              loading={uploading}
+            >
+              Cập nhật
+            </Button>,
+          ]}
+        >
+          <ReactQuill
+            theme="snow"
+            value={postContent}
+            onChange={setPostContent}
+            style={{ marginBottom: "16px" }}
+          />
+          <Upload {...uploadProps}>
+            <Button icon={<UploadOutlined />}>Cập nhật file đính kèm</Button>
+          </Upload>
+        </Modal>
+      </div>
+    </Layout>
   );
 };
 

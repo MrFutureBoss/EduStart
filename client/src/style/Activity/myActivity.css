@@ -34,7 +34,6 @@
   font-size: 16px;
   color: white;
   position: relative;
-  animation: scaleIn 1.5s ease-in-out infinite;
 }
 
 .group-circle-small {
@@ -51,6 +50,7 @@
   z-index: 1;
   top: 40px;
   position: relative;
+  animation: scaleIn 1.5s ease-in-out infinite;
 }
 
 .early-group .group-circle-large {

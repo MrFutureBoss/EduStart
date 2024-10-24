@@ -9,6 +9,7 @@ import {
   Layout,
   Dropdown,
   Tooltip,
+  Empty,
 } from "antd";
 import {
   PlusOutlined,
@@ -19,8 +20,6 @@ import {
   FileOutlined,
   DownloadOutlined,
   FolderOutlined,
-  CarryOutOutlined,
-  FormOutlined,
   FileAddOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
@@ -133,32 +132,43 @@ const MaterialList = () => {
         )
       );
 
-      const treeData = [
-        {
-          title: "Tài liệu",
-          key: "Tài liệu",
-          // switcherIcon: <FormOutlined />,
-          children: docs.map((doc, index) => ({
-            title: doc.materialUrl.split("/").pop(),
-            key: `docs-${index}`,
-            icon: getFileIcon(doc.materialUrl),
-            materialUrl: doc.materialUrl,
-            type: getFileType(doc.materialUrl),
-          })),
-        },
-        {
-          title: "Hình ảnh",
-          key: "Hình ảnh",
-          // switcherIcon: <FormOutlined />,
-          children: images.map((img, index) => ({
-            title: img.materialUrl.split("/").pop(),
-            key: `images-${index}`,
-            icon: getFileIcon(img.materialUrl),
-            materialUrl: img.materialUrl,
-            type: getFileType(img.materialUrl),
-          })),
-        },
-      ];
+      const treeData = [];
+
+      // Nếu không có tài liệu và hình ảnh, hiển thị thông báo "Chưa có tệp nào"
+      if (docs.length === 0 && images.length === 0) {
+        treeData.push({
+          title: "Chưa có tệp nào",
+          key: "no-files",
+          disabled: true, // Không cho phép mở
+        });
+      } else {
+        if (docs.length > 0) {
+          treeData.push({
+            title: "Tài liệu",
+            key: "Tài liệu",
+            children: docs.map((doc, index) => ({
+              title: doc.materialUrl.split("/").pop(),
+              key: `docs-${index}`,
+              icon: getFileIcon(doc.materialUrl),
+              materialUrl: doc.materialUrl,
+              type: getFileType(doc.materialUrl),
+            })),
+          });
+        }
+        if (images.length > 0) {
+          treeData.push({
+            title: "Hình ảnh",
+            key: "Hình ảnh",
+            children: images.map((img, index) => ({
+              title: img.materialUrl.split("/").pop(),
+              key: `images-${index}`,
+              icon: getFileIcon(img.materialUrl),
+              materialUrl: img.materialUrl,
+              type: getFileType(img.materialUrl),
+            })),
+          });
+        }
+      }
 
       setMaterials(treeData);
     } catch (error) {
@@ -199,11 +209,7 @@ const MaterialList = () => {
 
     try {
       setUploading(true);
-      const response = await axios.post(
-        `${BASE_URL}/activity`,
-        formData,
-        config
-      );
+      await axios.post(`${BASE_URL}/activity`, formData, config);
       message.success(`${file.name} uploaded successfully.`);
       setFileToUpload(null);
       fetchMaterials(selectedClassId);
@@ -288,33 +294,36 @@ const MaterialList = () => {
 
         <Dropdown menu={classMenu} trigger={["click"]}>
           <Button style={{ marginBottom: "16px" }}>
-            {selectedClassName
-              ? `Lớp: ${selectedClassName}`
-              : "Chọn lớp"}
+            {selectedClassName ? `Lớp: ${selectedClassName}` : "Chọn lớp"}
           </Button>
         </Dropdown>
 
-        <Tree
-          showLine={{ showLeafIcon: true }}
-          showIcon={true}
-          defaultExpandedKeys={["docs"]}
-          treeData={materials}
-          titleRender={(nodeData) => (
-            <Tooltip title={`File: ${nodeData.title}`}>
-              <span onClick={() => handleDownload(nodeData.materialUrl)}>
-                {nodeData.title} 
-              </span>
-            </Tooltip>
-          )}
-        />
+        {materials.length > 0 ? (
+          <Tree
+            showLine={{ showLeafIcon: true }}
+            showIcon={true}
+            defaultExpandedKeys={["Tài liệu"]}
+            treeData={materials}
+            titleRender={(nodeData) => (
+              <Tooltip title={`File: ${nodeData.title}`}>
+                <span onClick={() => handleDownload(nodeData.materialUrl)}>
+                  {nodeData.title}
+                </span>
+              </Tooltip>
+            )}
+          />
+        ) : (
+          <Empty description="Chưa có tệp nào" />
+        )}
 
         <Button
           type="primary"
           icon={<FileAddOutlined />}
-          style={{ marginTop: "16px"}}
-          onClick={handleAddNewMaterial} 
+          style={{ marginTop: "16px" }}
+          onClick={handleAddNewMaterial}
           disabled={!selectedClassId}
-        >Thêm tệp
+        >
+          Thêm tệp
         </Button>
 
         <Modal
