@@ -37,12 +37,18 @@ activityRouters.delete(
 
 activityRouters.get("/checkFileExists", activityController.checkFileExists);
 
-activityRouters.get('/download/:filename', downloadFile);
+activityRouters.get("/download/:filename", downloadFile);
 
 activityRouters.get(
-  "/:userId", 
+  "/:userId",
   verifyAccessToken,
-  verifyRole([2]), 
+  verifyRole([2]),
   activityController.getActivitiesByTeacher
+);
+activityRouters.get(
+  "/suggested-materials/:classId",
+  verifyAccessToken,
+  verifyRole([2]),
+  activityController.getSuggestedMaterials
 );
 export default activityRouters;

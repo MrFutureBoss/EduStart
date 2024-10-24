@@ -11,26 +11,23 @@ const createActivity = async (req, res) => {
       deadline,
       startDate,
       semesterId,
+      content,
     } = req.body;
     const teacherId = req.user._id;
 
-    // Handle material upload
     if (activityType === "material") {
       if (!req.file) {
         return res.status(400).json({ message: "Material file is required." });
       }
 
-      // Ensure that we save only the relative URL, not the absolute path
       const materialUrl = `uploads/materials/${req.file.filename}`;
 
       const newMaterial = {
         teacherId,
-        title,
-        description,
         activityType: "material",
         classId,
-        materialUrl, // Save relative URL
-      };
+        materialUrl,  
+      }
 
       const savedMaterial = await activityDAO.createActivity(newMaterial);
       return res.status(201).json({
@@ -39,36 +36,61 @@ const createActivity = async (req, res) => {
       });
     }
 
-    // Handle post creation
     if (activityType === "post") {
-      if (!title || !classId || !semesterId) {
+      if (!description || !classId) {
         return res.status(400).json({
-          message: "Title, ClassId, and SemesterId are required for Post",
+          message: "Description and ClassId are required for Post",
         });
+      }
+
+      let materialUrl = null;
+      if (req.file) {
+        materialUrl = `uploads/materials/${req.file.filename}`;
       }
 
       const newPost = {
         teacherId,
-        title,
         description,
         activityType: "post",
         classId,
-        semesterId,
+        materialUrl,
       };
 
       const savedPost = await activityDAO.createActivity(newPost);
+
       return res.status(201).json({
         message: "Post created successfully",
         activity: savedPost,
       });
     }
 
-    // Handle outcome creation
     if (activityType === "outcome") {
       if (!title || !classId || !assignmentType || !deadline || !startDate || !semesterId) {
+        return res.status(400).json({ message: "All fields (Title, ClassId, AssignmentType, Deadline, StartDate, SemesterId) are required for Outcome" });
+      }
+
+      if (assignmentType === "outcome 2") {
+        const outcome1Exists = await activityDAO.findOutcomeByClassIdAndType(classId, "outcome 1");
+        if (!outcome1Exists) {
+          return res.status(400).json({
+            message: "Cannot create Outcome 2 before Outcome 1 is completed",
+          });
+        }
+      }
+
+      if (assignmentType === "outcome 3") {
+        const outcome2Exists = await activityDAO.findOutcomeByClassIdAndType(classId, "outcome 2");
+        if (!outcome2Exists) {
+          return res.status(400).json({
+            message: "Cannot create Outcome 3 before Outcome 2 is completed",
+          });
+        }
+      }
+
+      const existingOutcome = await activityDAO.findOutcomeByClassIdAndType(classId, assignmentType);
+      if (existingOutcome) {
         return res.status(400).json({
-          message:
-            "All fields (Title, ClassId, AssignmentType, Deadline, StartDate, SemesterId) are required for Outcome",
+          message: `An Outcome of type ${assignmentType} already exists for this class.`,
         });
       }
 
@@ -91,7 +113,6 @@ const createActivity = async (req, res) => {
       });
     }
 
-    // Invalid activity type
     return res.status(400).json({ message: "Invalid activity type" });
   } catch (error) {
     console.error("Error creating or updating activity:", error);
@@ -101,7 +122,6 @@ const createActivity = async (req, res) => {
     });
   }
 };
-
 
 const getActivities = async (req, res) => {
   try {
@@ -119,27 +139,35 @@ const getActivities = async (req, res) => {
 const updateActivity = async (req, res) => {
   try {
     const { activityId } = req.params;
-    const { title, description, deadline } = req.body;
+    const { description, deadline } = req.body;
+    let materialUrl = req.file ? `uploads/materials/${req.file.filename}` : null;
+
     const existingActivity = await activityDAO.findActivityById(activityId);
     if (!existingActivity) {
       return res.status(404).json({ message: "Activity not found" });
     }
-    const updatedActivity = await activityDAO.updateActivityById(activityId, {
-      title,
+
+    const updatedData = {
       description,
       deadline,
-    });
-    if (!updatedActivity) {
-      return res.status(404).json({ message: "Activity not found" });
+    };
+
+    if (materialUrl) {
+      updatedData.materialUrl = materialUrl;
     }
+
+    const updatedActivity = await activityDAO.updateActivityById(activityId, updatedData);
+
     res.status(200).json({
       message: "Activity updated successfully",
       activity: updatedActivity,
     });
   } catch (error) {
+    console.error("Failed to update activity:", error);
     res.status(500).json({ message: "Failed to update activity", error });
   }
 };
+
 
 const deleteActivity = async (req, res) => {
   try {
@@ -220,32 +248,48 @@ const getActivitiesByTeacher = async (req, res) => {
   }
 };
 const checkFileExists = async (req, res) => {
-  const { filename } = req.query;
-
-  if (!filename) {
-    return res
-      .status(400)
-      .json({ success: false, message: "File name is required" });
-  }
-
   try {
+    const { fileName, classId } = req.query;
+
     const existingMaterial = await activityDAO.findActivityByMaterialUrl(
-      filename
+      fileName,
+      classId
     );
 
     if (existingMaterial) {
       return res.status(200).json({ exists: true });
-    } else {
-      return res.status(200).json({ exists: false });
     }
+
+    res.status(200).json({ exists: false });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Error occurred while checking file existence",
-      errors: error.message,
-    });
+    res
+      .status(500)
+      .json({
+        message: "Failed to check file existence",
+        error: error.message,
+      });
   }
 };
+
+const getSuggestedMaterials = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const teacherId = req.user._id;
+
+    const suggestedMaterials = await activityDAO.getSuggestedMaterials(
+      teacherId,
+      classId
+    );
+
+    res.status(200).json({ success: true, suggestedMaterials });
+  } catch (error) {
+    console.error("Error fetching suggested materials:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch suggested materials" });
+  }
+};
+
 export default {
   createActivity,
   getActivities,
@@ -254,4 +298,5 @@ export default {
   updateMaterial,
   getActivitiesByTeacher,
   checkFileExists,
+  getSuggestedMaterials,
 };

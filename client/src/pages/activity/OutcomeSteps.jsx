@@ -1,124 +1,87 @@
 import React, { useEffect, useState } from "react";
-import { Steps, message } from "antd";
-import axios from "axios";
-import {
-  CheckCircleOutlined,
-  LoadingOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
+import { Steps, Tooltip } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import moment from "moment";
+import "../../style/Activity/outcomeSteps.css";
 
 const { Step } = Steps;
 
-const OutcomeSteps = ({ classId }) => {
+const OutcomeSteps = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [stepData, setStepData] = useState({
-    outcomes: [],
-    projectCompleted: false,
-  });
+  const [personPosition, setPersonPosition] = useState(0);
+  const [percent, setPercent] = useState(0); // Thêm biến phần trăm
+  const [today, setToday] = useState(moment());
 
-  const jwt = localStorage.getItem("jwt");
-  const userId = localStorage.getItem("userId"); 
-  const config = {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwt}`,
-    },
-  };
+  // Định nghĩa các ngày bắt đầu và kết thúc của từng outcome
+  const START_DATE = moment("2024-09-15");
+  const OUTCOME_1_END = moment("2024-10-10");
+  const OUTCOME_2_END = moment("2024-11-05");
+  const END_DATE = moment("2024-11-30");
 
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:9999/activity/${userId}`,
-          config
-        );
-        const activities = response.data.activities;
+    // Cập nhật ngày hiện tại khi component render
+    setToday(moment());
 
-        // Filter outcomes based on the assignmentType and classId
-        const outcomes = activities.filter(
-          (activity) =>
-            activity.activityType === "outcome" && activity.classId === classId
-        );
+    // Tính toán bước tiến trình dựa trên ngày hiện tại
+    const today = moment();
+    let totalDuration = END_DATE.diff(START_DATE, "days");
+    let currentOutcomeDuration, outcomeProgress, currentPercent;
 
-        if (outcomes.length > 0) {
-          setStepData({ projectCompleted: true, outcomes });
+    // Outcome 1
+    if (today.isBefore(OUTCOME_1_END)) {
+      setCurrentStep(0);
+      currentOutcomeDuration = OUTCOME_1_END.diff(START_DATE, "days");
+      outcomeProgress = today.diff(START_DATE, "days");
+      currentPercent = Math.round((outcomeProgress / currentOutcomeDuration) * 100); // Tính phần trăm tiến trình
+      setPersonPosition((outcomeProgress / currentOutcomeDuration) * 33); // Trong phạm vi outcome 1
+    }
+    // Outcome 2
+    else if (today.isBefore(OUTCOME_2_END)) {
+      setCurrentStep(1);
+      currentOutcomeDuration = OUTCOME_2_END.diff(OUTCOME_1_END, "days");
+      outcomeProgress = today.diff(OUTCOME_1_END, "days");
+      currentPercent = Math.round((outcomeProgress / currentOutcomeDuration) * 100); // Tính phần trăm tiến trình
+      setPersonPosition(33 + (outcomeProgress / currentOutcomeDuration) * 33); // Di chuyển giữa outcome 1 và 2
+    }
+    // Outcome 3
+    else if (today.isBefore(END_DATE)) {
+      setCurrentStep(2);
+      currentOutcomeDuration = END_DATE.diff(OUTCOME_2_END, "days");
+      outcomeProgress = today.diff(OUTCOME_2_END, "days");
+      currentPercent = Math.round((outcomeProgress / currentOutcomeDuration) * 100); // Tính phần trăm tiến trình
+      setPersonPosition(66 + (outcomeProgress / currentOutcomeDuration) * 34); // Di chuyển giữa outcome 2 và 3
+    }
+    // Sau khi tất cả outcomes đã hoàn tất
+    else {
+      setCurrentStep(3);
+      currentPercent = 100;
+      setPersonPosition(100); // Đã hoàn thành tất cả các outcome
+    }
 
-          const sortedOutcomes = outcomes.sort((a, b) =>
-            a.assignmentType.localeCompare(b.assignmentType)
-          );
-
-          const highestCompletedOutcome = sortedOutcomes.reduce(
-            (acc, outcome) =>
-              outcome.completed && outcome.assignmentType > acc.assignmentType
-                ? outcome
-                : acc,
-            { assignmentType: "outcome 0" }
-          );
-
-          switch (highestCompletedOutcome.assignmentType) {
-            case "outcome 3":
-              setCurrentStep(3);
-              break;
-            case "outcome 2":
-              setCurrentStep(2);
-              break;
-            case "outcome 1":
-            default:
-              setCurrentStep(1);
-              break;
-          }
-        } else {
-          setStepData({ projectCompleted: false, outcomes: [] });
-        }
-      } catch (error) {
-        message.error("Error fetching steps data.");
-      }
-    };
-
-    fetchStatus();
-  }, [classId, userId, config]);
-
-  const renderIcon = (index) => {
-    const outcome = stepData.outcomes[index - 1];
-    if (!outcome) return <LoadingOutlined />;
-    if (outcome.completed)
-      return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
-    return <CloseCircleOutlined style={{ color: "#ff4d4f" }} />;
-  };
+    setPercent(currentPercent); // Cập nhật phần trăm vào state
+  }, [today]);
 
   return (
-    <Steps current={currentStep} size="default" direction="horizontal">
-      <Step
-        title="Outcome 1"
-        icon={renderIcon(1)}
-        description={
-          stepData.outcomes[0] &&
-          `Deadline: ${new Date(
-            stepData.outcomes[0].deadline
-          ).toLocaleDateString()}`
-        }
-      />
-      <Step
-        title="Outcome 2"
-        icon={renderIcon(2)}
-        description={
-          stepData.outcomes[1] &&
-          `Deadline: ${new Date(
-            stepData.outcomes[1].deadline
-          ).toLocaleDateString()}`
-        }
-      />
-      <Step
-        title="Outcome 3"
-        icon={renderIcon(3)}
-        description={
-          stepData.outcomes[2] &&
-          `Deadline: ${new Date(
-            stepData.outcomes[2].deadline
-          ).toLocaleDateString()}`
-        }
-      />
-    </Steps>
+    <div className="outcome-steps-container">
+      {/* Thanh tiến trình chính giữa các Step */}
+      <div className="step-progress-bar">
+        <Tooltip title={`Tiến trình hiện tại: ${percent}%`}>
+          <div
+            className="person-icon"
+            style={{ left: `${personPosition}%` }} // Điều chỉnh vị trí icon theo thời gian
+          >
+            <UserOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
+          </div>
+        </Tooltip>
+      </div>
+
+      {/* Các Step (các outcome) */}
+      <Steps current={currentStep} size="default" direction="horizontal">
+        <Step title="Outcome 1" description="15/09 - 10/10/2024" />
+        <Step title="Outcome 2" description="11/10 - 05/11/2024" />
+        <Step title="Outcome 3" description="06/11 - 30/11/2024" />
+      </Steps>
+    </div>
   );
 };
 

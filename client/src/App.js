@@ -14,6 +14,7 @@ import { ProtectRoute } from "./utilities/auth.js";
 import MyActivity from "./pages/activity/MyActivity.jsx";
 import Tasks from "./pages/activity/Tasks.jsx";
 import MaterialList from "./pages/activity/MaterialList.jsx";
+import PostActivity from "./pages/activity/PostActivity.jsx";
 
 //Route tạm thời để code không dùng thì comment lại
 
@@ -75,6 +76,14 @@ function App() {
           element={
             <ProtectRoute allowedRoles={["2"]}>
               <MaterialList/>
+            </ProtectRoute>
+          }
+        />
+        <Route
+          path="/posts"
+          element={
+            <ProtectRoute allowedRoles={["2"]}>
+              <PostActivity/>
             </ProtectRoute>
           }
         />

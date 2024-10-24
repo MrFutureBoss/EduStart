@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Button, Tooltip, Layout, Spin } from "antd";
+import { Row, Col, Tooltip, Layout, Spin } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import TeacherSidebar from "./TeacherSidebar";
 import "../../style/Activity/myActivity.css";
-import { BellOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { BellOutlined } from "@ant-design/icons";
 import AppHeader from "../../layouts/admin/AdminHeader";
 import OutcomeSteps from "./OutcomeSteps";
 
-const { Header, Sider, Content } = Layout;
+const { Content } = Layout;
 
 const MyActivity = () => {
   const jwt = localStorage.getItem("jwt");
@@ -45,14 +45,16 @@ const MyActivity = () => {
     setCollapsed(!collapsed);
   };
 
-  const handleGroupClick = (groupName) => {
-    alert(`Nhấn vào nhóm ${groupName} để xem chi tiết`);
-  };
+  const earlyGroups = [
+    { className: "Lớp A", groupName: "Nhóm 1", daysLate: 0 },
+    { className: "Lớp B", groupName: "Nhóm 2", daysLate: 0 },
+  ];
 
   const lateGroups = [
-    "Nhóm A, outcome 1",
-    "Nhóm B, outcome 2",
-    "Nhóm C, outcome 3",
+    { className: "Lớp C", groupName: "Nhóm 3", daysLate: 2 },
+    { className: "Lớp D", groupName: "Nhóm 4", daysLate: 4 },
+    { className: "Lớp E", groupName: "Nhóm 5", daysLate: 6 },
+    { className: "Lớp F", groupName: "Nhóm 6", daysLate: 8 },
   ];
 
   return (
@@ -62,74 +64,58 @@ const MyActivity = () => {
         <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <Layout style={{ padding: "24px" }}>
           <Content>
+            {/* Tiến trình Outcomes */}
             <div style={{ marginBottom: "24px" }}>
               <h1>Tiến trình Outcomes</h1>
               <OutcomeSteps classId={userId} />
             </div>
 
-            <h1>Tất cả các lớp</h1>
+            {/* Bố cục chia 2: Nhóm nộp sớm và nộp muộn */}
+            <h2>Tiến trình nộp outcome 2</h2>
             {loading ? (
               <Spin tip="Đang tải dữ liệu..." size="large" />
             ) : (
-              <Row gutter={16}>
-                {classes.length > 0 ? (
-                  classes.map((classItem) => (
-                    <Col key={classItem._id} xs={24} sm={12} md={8}>
-                      <Card
-                        bordered={false}
-                        className="custom-card"
-                        title={classItem.className}
-                        extra={
-                          <Tooltip title="Bấm vào đây để gửi lời nhắc cho các nhóm!">
-                            <span style={{ cursor: "pointer" }}>
-                              <BellOutlined
-                                className="shake-on-hover"
-                                style={{ color: "yellow", fontSize: "24px" }}
-                              />
-                            </span>
-                          </Tooltip>
-                        }
-                      >
-                        <p style={{ color: "red" }}>
-                          <ClockCircleOutlined /> Nhóm nộp muộn:
-                        </p>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "8px",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          {lateGroups.map((group) => (
-                            <Tooltip
-                              key={group}
-                              title={`Bấm vào đây để gửi lời nhắc cho ${group}`}
-                            >
-                              <Button
-                                shape="square"
-                                style={{
-                                  fontStyle: "italic",
-                                  color: "black",
-                                  fontSize: "14px",
-                                  border: "1px solid black",
-                                  borderRadius: "4px",
-                                  padding: "4px 12px",
-                                  cursor: "pointer",
-                                }}
-                                onClick={() => handleGroupClick(group)}
-                              >
-                                {group}
-                              </Button>
-                            </Tooltip>
-                          ))}
+              <div className="groups-container">
+                {/* Cột nhóm nộp sớm */}
+                <div className="group-column">
+                  <h2 className="group-column-title">Nhóm nộp sớm</h2>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+                    {earlyGroups.map((group, index) => (
+                      <Tooltip key={index} title="Nộp đúng hạn">
+                        <div className="group-circle-container early-group">
+                          <div className="group-circle-large gradientBg animated">
+                            {group.className} - {group.groupName}
+                          </div>
+                          <div className="group-circle-small">
+                            <BellOutlined />
+                          </div>
                         </div>
-                      </Card>
-                    </Col>
-                  ))
-                ) : (
-                  <p>Không có lớp học nào</p>
-                )}
-              </Row>
+                      </Tooltip>
+                    ))}
+                  </div>
+                </div>
+                {/* Cột nhóm nộp muộn */}
+                <div className="group-column">
+                  <h2 className="group-column-title">Nhóm nộp muộn</h2>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+                    {lateGroups.map((group, index) => (
+                      <Tooltip
+                        key={index}
+                        title={`Muộn ${group.daysLate} ngày`}
+                      >
+                        <div className="group-circle-container late-group">
+                          <div className="group-circle-large red-gradientBg animated">
+                            {group.className} - {group.groupName}
+                          </div>
+                          <div className="group-circle-small">
+                            {group.daysLate}
+                          </div>
+                        </div>
+                      </Tooltip>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </Content>
         </Layout>
