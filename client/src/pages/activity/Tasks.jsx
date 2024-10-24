@@ -315,10 +315,7 @@ const Tasks = () => {
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
       <Layout>
-        <TeacherSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <div style={{ marginLeft: "2%", width: "90%" }}>
           <h1>Việc cần làm</h1>
 
@@ -351,7 +348,6 @@ const Tasks = () => {
           )}
         </div>
       </Layout>
-    </Layout>
   );
 };
 
