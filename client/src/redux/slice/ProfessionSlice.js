@@ -11,8 +11,12 @@ const initialValue = {
   },
   searchResults: {
     professions: [],
-    specialties: [], 
+    specialties: [],
   },
+  selectedProfessionId: null,
+  selectedSpecialtyId: null,
+  professionName: "",
+  specialtyName: "",
 };
 
 const professionSlice = createSlice({
@@ -31,9 +35,25 @@ const professionSlice = createSlice({
       state.searchResults.professions = action.payload.professions || [];
       state.searchResults.specialties = action.payload.specialties || [];
     },
+    setProfession: (state, action) => {
+      const { professionId, professionName } = action.payload;
+      state.selectedProfessionId = professionId;
+      state.professionName = professionName;
+    },
+    setSpecialty: (state, action) => {
+      const { specialtyId, specialtyName } = action.payload;
+      state.selectedSpecialtyId = specialtyId;
+      state.specialtyName = specialtyName;
+    },
   },
 });
 
 const { reducer, actions } = professionSlice;
-export const { setProfessions, setSpecialtiesData, setSearchResults } = actions;
+export const {
+  setProfessions,
+  setSpecialtiesData,
+  setSearchResults,
+  setProfession,
+  setSpecialty,
+} = actions;
 export default reducer;

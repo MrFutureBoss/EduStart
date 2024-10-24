@@ -150,7 +150,7 @@ const MainLayout = () => {
               padding: 30,
               margin: 0,
               minHeight: 280,
-              background: "#f0f2f5",
+              background: "#FFFF",
             }}
           >
             {loading ? (

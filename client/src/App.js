@@ -8,12 +8,13 @@ import SemesterList from "./pages/semester/SemesterList.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ChangePassword from "./pages/ChangePassword.jsx";
-import ProfessionManagement from "./pages/professiona&specialty/ProfessionManagement.jsx"
+import ProfessionManagement from "./pages/professiona&specialty/ProfessionManagement.jsx";
 import SignIn from "./pages/authen&author/SignIn.jsx";
 import { ProtectRoute } from "./utilities/auth.js";
 import MyActivity from "./pages/activity/MyActivity.jsx";
 import Tasks from "./pages/activity/Tasks.jsx";
 import MaterialList from "./pages/activity/MaterialList.jsx";
+import ChooseMentor from "./pages/teacher/ChooseMentor.js";
 
 //Route tạm thời để code không dùng thì comment lại
 
@@ -42,12 +43,15 @@ function App() {
             path="semester-list/user-semester"
             element={<UserListSemester />}
           />
-          <Route path="professionmanagement" element={<ProfessionManagement/>} />
+          <Route
+            path="professionmanagement"
+            element={<ProfessionManagement />}
+          />
         </Route>
         <Route path="/change-password" element={<ChangePassword />} />
-        {/* <Route path="/" element={<ProfessionManagement />} /> */}
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
+        {/* giáo viên chọn mentor yêu thích */}
         <Route
           path="/student-dashboard"
           element={
@@ -69,7 +73,7 @@ function App() {
           path="/tasks"
           element={
             <ProtectRoute allowedRoles={["2"]}>
-              <Tasks/>
+              <Tasks />
             </ProtectRoute>
           }
         />
@@ -77,7 +81,15 @@ function App() {
           path="/materials"
           element={
             <ProtectRoute allowedRoles={["2"]}>
-              <MaterialList/>
+              <MaterialList />
+            </ProtectRoute>
+          }
+        />
+        <Route
+          path="/choose_mentor"
+          element={
+            <ProtectRoute allowedRoles={["2"]}>
+              <ChooseMentor />
             </ProtectRoute>
           }
         />

@@ -19,6 +19,7 @@ const mentorCategorySchema = new Schema(
         specialtyId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Specialty",
+          required: true,
         },
         proficiencyLevel: {
           type: Number,
