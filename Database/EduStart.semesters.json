@@ -1,120 +1,62 @@
-[{
-  "_id": {
-    "$oid": "66ffdc997dc84f7cb828acf6"
+[
+  {
+    "_id": {
+      "$oid": "670bacd404ec36ddb74918e9"
+    },
+    "name": "FA24",
+    "status": "Ongoing",
+    "startDate": {
+      "$date": "2024-09-12T17:00:00.000Z"
+    },
+    "endDate": {
+      "$date": "2024-12-25T17:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2024-10-13T11:19:48.875Z"
+    },
+    "updatedAt": {
+      "$date": "2024-10-13T11:21:32.277Z"
+    },
+    "__v": 0
   },
-  "name": "Kỳ học mùa xuân 2025",
-  "status": "Finished",
-  "startDate": {
-    "$date": "2024-10-02T00:00:00.000Z"
+  {
+    "_id": {
+      "$oid": "670bd20ad34e56db798753b8"
+    },
+    "name": "SU20",
+    "status": "Finished",
+    "startDate": {
+      "$date": "2024-01-12T17:00:00.000Z"
+    },
+    "endDate": {
+      "$date": "2024-04-12T17:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2024-10-13T13:58:34.209Z"
+    },
+    "updatedAt": {
+      "$date": "2024-10-14T17:00:00.274Z"
+    },
+    "__v": 0
   },
-  "endDate": {
-    "$date": "2024-10-04T00:00:00.000Z"
-  },
-  "createdAt": {
-    "$date": "2024-10-04T12:16:25.853Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-04T15:42:00.928Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "670013713cc832d98001832d"
-  },
-  "name": "SU24",
-  "status": "Finished",
-  "startDate": {
-    "$date": "2024-06-30T17:00:00.000Z"
-  },
-  "endDate": {
-    "$date": "2024-09-29T17:00:00.000Z"
-  },
-  "createdAt": {
-    "$date": "2024-10-04T16:10:25.986Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-07T17:00:09.430Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "670013fb3cc832d980018341"
-  },
-  "name": "su25",
-  "status": "Upcoming",
-  "startDate": {
-    "$date": "2025-08-31T17:00:00.000Z"
-  },
-  "endDate": {
-    "$date": "2025-11-30T17:00:00.000Z"
-  },
-  "createdAt": {
-    "$date": "2024-10-04T16:12:43.698Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-04T16:12:43.698Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "670014263cc832d980018346"
-  },
-  "name": "su26",
-  "status": "Upcoming",
-  "startDate": {
-    "$date": "2026-08-31T17:00:00.000Z"
-  },
-  "endDate": {
-    "$date": "2026-11-30T17:00:00.000Z"
-  },
-  "createdAt": {
-    "$date": "2024-10-04T16:13:26.867Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-04T16:13:26.867Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "670014da2b808a2dd529cf2c"
-  },
-  "name": "SU28",
-  "status": "Upcoming",
-  "startDate": {
-    "$date": "2026-12-31T17:00:00.000Z"
-  },
-  "endDate": {
-    "$date": "2027-03-31T17:00:00.000Z"
-  },
-  "createdAt": {
-    "$date": "2024-10-04T16:16:26.650Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-04T16:16:26.650Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67102df6f90ac58f09b34552"
-  },
-  "name": "SP27",
-  "status": "Upcoming",
-  "startDate": {
-    "$date": "2027-04-30T17:00:00.000Z"
-  },
-  "endDate": {
-    "$date": "2027-07-15T17:00:00.000Z"
-  },
-  "createdAt": {
-    "$date": "2024-10-16T21:19:50.348Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-16T21:19:50.348Z"
-  },
-  "__v": 0
-}]
+  {
+    "_id": {
+      "$oid": "67109296044de73e11e58eee"
+    },
+    "name": "SU29",
+    "status": "Upcoming",
+    "startDate": {
+      "$date": "2024-12-31T17:00:00.000Z"
+    },
+    "endDate": {
+      "$date": "2025-03-11T17:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2024-10-17T04:29:10.018Z"
+    },
+    "updatedAt": {
+      "$date": "2024-10-17T04:29:10.018Z"
+    },
+    "__v": 0
+  }
+]
