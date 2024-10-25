@@ -1,31 +1,37 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Layout, Typography, Button } from "antd";
+import React, { useState, useRef } from "react";
+import { Layout, Typography } from "antd";
+import { useSelector, useDispatch } from "react-redux";
 import TreeView from "../../components/Teacher/TreeView";
 import MentorSelection from "../../components/Teacher/MentorSelection";
-import GuidedTour from "../../components/Teacher/GuidedTour";
+import {
+  setProfession,
+  setSpecialty,
+} from "../../redux/slice/SelectMentorSlice"; // Sử dụng đúng slice từ Redux
 
 const { Header, Content, Sider } = Layout;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const ChooseMentor = () => {
-  const [selectedProfession, setSelectedProfession] = useState(null);
-  const [selectedSpecialty, setSelectedSpecialty] = useState(null);
+  const dispatch = useDispatch();
+
+  const {
+    selectedProfessionId,
+    selectedSpecialtyId,
+    professionName,
+    specialtyName,
+  } = useSelector((state) => state.selectMentor); // Lấy dữ liệu từ Redux
+
   const [selectedMentorsBySpecialty, setSelectedMentorsBySpecialty] = useState(
     {}
   );
   const [collapsed, setCollapsed] = useState(false);
-  const [professionName, setProfessionName] = useState(""); // Tên chuyên ngành
-  const [specialtyName, setSpecialtyName] = useState(""); // Tên chuyên môn
 
-  // References for GuidedTour
+  // References for TreeView
   const firstProfessionRef = useRef(null);
   const firstSpecialtyRef = useRef(null);
   const mentorPriorityRef = useRef(null);
   const mentorAvailableRef = useRef(null);
   const saveButtonRef = useRef(null);
-
-  // Check if guided tour is completed
-  const guidedTourCompleted = !!localStorage.getItem("guidedTourCompleted");
 
   // Khi chọn profession hoặc specialty
   const handleSelect = (
@@ -34,30 +40,13 @@ const ChooseMentor = () => {
     professionName,
     specialtyName
   ) => {
-    setSelectedProfession(professionId);
-    // Chỉ thay đổi tên profession, không làm mất tên specialty
-    setProfessionName(professionName);
+    if (professionId) {
+      dispatch(setProfession({ professionId, professionName })); // Cập nhật profession vào Redux
+    }
 
-    // Nếu chọn mới chuyên môn thì cập nhật, nếu không thì giữ nguyên
     if (specialtyId) {
-      setSelectedSpecialty(specialtyId);
-      setSpecialtyName(specialtyName); // Cập nhật tên chuyên môn
+      dispatch(setSpecialty({ specialtyId, specialtyName })); // Cập nhật specialty vào Redux
     }
-  };
-
-  // Nếu dữ liệu mentor thay đổi thì reset specialtyName
-  useEffect(() => {
-    if (
-      selectedMentorsBySpecialty[selectedSpecialty] &&
-      selectedMentorsBySpecialty[selectedSpecialty].length > 0
-    ) {
-      setSpecialtyName(""); // Reset lại nếu có mentor mới được chọn
-    }
-  }, [selectedMentorsBySpecialty, selectedSpecialty]);
-
-  const handleRestartTour = () => {
-    localStorage.removeItem("guidedTourCompleted");
-    window.location.reload(); // Reload to restart the tour
   };
 
   const toggleCollapse = () => {
@@ -66,22 +55,6 @@ const ChooseMentor = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {!guidedTourCompleted && (
-        <GuidedTour
-          selectedProfession={selectedProfession}
-          selectedSpecialty={selectedSpecialty}
-          selectedMentors={selectedMentorsBySpecialty[selectedSpecialty] || []}
-          onComplete={() => {
-            if (firstProfessionRef.current) {
-              firstProfessionRef.current.click(); // Simulate a click on the first profession
-            }
-            if (firstSpecialtyRef.current) {
-              firstSpecialtyRef.current.click(); // Simulate a click on the first specialty
-            }
-          }}
-        />
-      )}
-
       <Sider width={250} style={{ background: "#fff", padding: "0px" }}>
         <div>
           <Title level={4}>Chọn Chuyên Ngành</Title>
@@ -90,18 +63,12 @@ const ChooseMentor = () => {
           onSelect={handleSelect}
           onFirstProfessionRefReady={(node) => {
             firstProfessionRef.current = node;
-            if (node) {
-              node.setAttribute("data-tour", "first-profession");
-            }
           }}
           onFirstSpecialtyRefReady={(node) => {
             firstSpecialtyRef.current = node;
-            if (node) {
-              node.setAttribute("data-tour", "first-specialty");
-            }
           }}
-          selectedProfession={selectedProfession}
-          selectedSpecialty={selectedSpecialty}
+          selectedProfession={selectedProfessionId}
+          selectedSpecialty={selectedSpecialtyId}
         />
       </Sider>
 
@@ -111,7 +78,6 @@ const ChooseMentor = () => {
             background: "#fff",
             padding: "0 20px",
             marginBottom: -23,
-
             paddingBottom: 2,
           }}
         >
@@ -122,17 +88,9 @@ const ChooseMentor = () => {
           </Title>
         </Header>
         <Content style={{ background: "#fff", padding: "20px" }}>
-          <Button
-            type="primary"
-            onClick={handleRestartTour}
-            style={{ marginBottom: "20px" }}
-          >
-            Bắt đầu lại hướng dẫn
-          </Button>
-
           <MentorSelection
-            professionId={selectedProfession}
-            specialtyId={selectedSpecialty}
+            professionId={selectedProfessionId}
+            specialtyId={selectedSpecialtyId}
             selectedMentorsBySpecialty={selectedMentorsBySpecialty}
             setSelectedMentorsBySpecialty={setSelectedMentorsBySpecialty}
             mentorPriorityRef={mentorPriorityRef}

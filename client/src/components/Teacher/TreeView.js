@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Tree, Spin } from "antd";
+import { useSelector, useDispatch } from "react-redux";
 import { fetchTreeData } from "../../api";
 import PropTypes from "prop-types";
+import {
+  setProfession,
+  setProfessions,
+  setSpecialty,
+} from "../../redux/slice/SelectMentorSlice"; // Sử dụng đúng slice từ Redux
 
 const TreeView = ({
   onSelect,
   onFirstProfessionRefReady,
   onFirstSpecialtyRefReady,
-  selectedProfession,
-  selectedSpecialty,
 }) => {
-  const [treeData, setTreeData] = useState([]);
+  const dispatch = useDispatch();
+  const { professions, selectedProfessionId, selectedSpecialtyId } =
+    useSelector((state) => state.selectMentor); // Lấy dữ liệu từ slice selectMentor
+
   const [loading, setLoading] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]); // Track selected keys
 
   useEffect(() => {
     const getTreeData = async () => {
@@ -24,7 +30,7 @@ const TreeView = ({
           title: profession.name,
           key: profession._id,
           professionId: profession._id,
-          professionName: profession.name, // Thêm tên chuyên ngành
+          professionName: profession.name,
           isFirstProfession: professionIndex === 0,
           children: profession.specialty.map((specialty, specialtyIndex) => ({
             title: specialty.name,
@@ -32,15 +38,15 @@ const TreeView = ({
             isLeaf: true,
             professionId: profession._id,
             specialtyId: specialty._id,
-            specialtyName: specialty.name, // Thêm tên chuyên môn
+            specialtyName: specialty.name,
             isFirstSpecialty: professionIndex === 0 && specialtyIndex === 0,
           })),
         }));
-        setTreeData(data);
+
+        dispatch(setProfessions({ data })); // Lưu professions vào redux
 
         // Expand the first profession if needed
-        const guidedTourCompleted = localStorage.getItem("guidedTourCompleted");
-        if (!guidedTourCompleted && data.length > 0) {
+        if (data.length > 0) {
           const firstProfessionKey = data[0].key;
           setExpandedKeys([firstProfessionKey]);
         }
@@ -51,31 +57,24 @@ const TreeView = ({
     };
 
     getTreeData();
-  }, [onFirstProfessionRefReady, onFirstSpecialtyRefReady, onSelect]);
+  }, [dispatch]);
 
-  useEffect(() => {
-    if (selectedProfession && selectedSpecialty) {
-      setSelectedKeys([`${selectedProfession}-${selectedSpecialty}`]); // Highlight specialty
-    } else if (selectedProfession) {
-      setSelectedKeys([selectedProfession]); // Highlight profession
-    }
-  }, [selectedProfession, selectedSpecialty]);
   const handleSelect = (selectedKeys, info) => {
     const selectedKey = selectedKeys[0];
     if (selectedKey) {
       if (!info.node.isLeaf) {
-        // Chọn chuyên ngành, không thay đổi tên chuyên môn
         const professionId = selectedKey;
-        const professionName = info.node.title; // Lấy tên chuyên ngành
-        onSelect(professionId, null, professionName, null); // Không thay đổi tên chuyên môn
+        const professionName = info.node.title;
+        dispatch(setProfession({ professionId, professionName }));
+        onSelect(professionId, null, professionName, null);
       } else {
-        // Chọn chuyên môn (leaf node)
         const [professionId, specialtyId] = selectedKey.split("-");
-        const professionNode = treeData.find(
+        const professionNode = professions.data.find(
           (item) => item.key === professionId
         );
         const professionName = professionNode ? professionNode.title : "";
-        const specialtyName = info.node.title; // Cập nhật tên chuyên môn mới
+        const specialtyName = info.node.title;
+        dispatch(setSpecialty({ specialtyId, specialtyName }));
         onSelect(professionId, specialtyId, professionName, specialtyName);
       }
     }
@@ -92,7 +91,6 @@ const TreeView = ({
           ref={(node) =>
             onFirstProfessionRefReady && onFirstProfessionRefReady(node)
           }
-          data-tour="first-profession"
           style={{ cursor: "pointer" }}
         >
           {nodeData.title}
@@ -105,7 +103,6 @@ const TreeView = ({
           ref={(node) =>
             onFirstSpecialtyRefReady && onFirstSpecialtyRefReady(node)
           }
-          data-tour="first-specialty"
           style={{ cursor: "pointer" }}
         >
           {nodeData.title}
@@ -125,9 +122,13 @@ const TreeView = ({
           onSelect={handleSelect}
           onExpand={handleExpand}
           expandedKeys={expandedKeys}
-          selectedKeys={selectedKeys} // Pass selectedKeys to Tree component
+          selectedKeys={[
+            selectedSpecialtyId
+              ? `${selectedProfessionId}-${selectedSpecialtyId}`
+              : selectedProfessionId,
+          ]}
           expandAction="click"
-          treeData={treeData}
+          treeData={professions.data}
           titleRender={titleRender}
         />
       )}
@@ -139,8 +140,6 @@ TreeView.propTypes = {
   onSelect: PropTypes.func.isRequired,
   onFirstProfessionRefReady: PropTypes.func,
   onFirstSpecialtyRefReady: PropTypes.func,
-  selectedProfession: PropTypes.string,
-  selectedSpecialty: PropTypes.string,
 };
 
 export default TreeView;
