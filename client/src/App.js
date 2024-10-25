@@ -1,7 +1,7 @@
+import React, { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-// import ProfessionManagement from "./pages/ProfessionManagement.jsx";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ChangePassword from "./pages/ChangePassword.jsx";
@@ -10,31 +10,63 @@ import { ProtectRoute } from "./utilities/auth.js";
 import TeacherRouter from "./routers/teacher/TeacherRouter.js";
 import AdminRouter from "./routers/admin/AdminRouter.js";
 
-//Route tạm thời để code không dùng thì comment lại
+const socket = io("http://localhost:9999");
 
 function App() {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    socket.on("message", (msg) => {
+      setMessages((prevMessages) => [...prevMessages, msg]);
+    });
+
+    return () => {
+      socket.off("message");
+    };
+  }, []);
+
+  const sendMessage = (msg) => {
+    socket.emit("message", msg);
+  };
+
   return (
     <BrowserRouter>
       <ToastContainer />
       <Routes>
-        {/* Layout dành cho Admin, bao gồm các route bên trong */}
         {AdminRouter()}
-
-         {/* Layout dành cho Teacher, bao gồm các route bên trong */}
         {TeacherRouter()}
         <Route
-            path="/student-dashboard"
-            element={
-              <ProtectRoute allowedRoles={["4"]}>
-                {/* <AdminLayout /> */}
-                <h1>Student Dashboard</h1>
-              </ProtectRoute>
-            }
-          />
+          path="/student-dashboard"
+          element={
+            <ProtectRoute allowedRoles={["4"]}>
+              <h1>Student Dashboard</h1>
+            </ProtectRoute>
+          }
+        />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
       </Routes>
+
+      {/* Hiển thị và gửi message */}
+      <div className="chat-container">
+        <h2>Chat</h2>
+        <div className="messages">
+          {messages.map((msg, index) => (
+            <div key={index}>{msg}</div>
+          ))}
+        </div>
+        <input
+          type="text"
+          placeholder="Type your message..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              sendMessage(e.target.value);
+              e.target.value = "";
+            }
+          }}
+        />
+      </div>
     </BrowserRouter>
   );
 }

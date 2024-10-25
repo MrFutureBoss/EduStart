@@ -25,7 +25,7 @@ tempGroupRouters.post(
   verifyAccessToken,
   tempGroupController.createNewTempGroup
 );
-tempGroupRouters.patch(
+tempGroupRouters.put(
   "/:id",
   verifyAccessToken,
   tempGroupController.updateTempGroup
