@@ -1,5 +1,5 @@
 import express, { json } from "express";
-import dotnv from "dotenv";
+import dotenv from "dotenv";
 import cors from "cors";
 import createError from "http-errors";
 import connectDB from "./database.js";
@@ -8,9 +8,10 @@ import routes from "./routes/index.js";
 import semesterController from "./controllers/semesterController/index.js";
 import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
+import { Server as SocketIOServer } from "socket.io"; // Import thêm socket.io
 
 const app = express();
-dotnv.config();
+dotenv.config();
 
 app.use(
   cors({
@@ -23,23 +24,31 @@ app.use(json());
 
 const port = process.env.PORT || 9999;
 const server = http.createServer(app);
-// const io = setupSocket(server);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: "http://localhost:3000", 
+    methods: ["GET", "POST"],
+  },
+});
 
-// app.set("io", io);
+// Kết nối socket
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
 
-// Cấu hình multer và các route
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "./uploads/");
-//   },
-//   filename: (req, file, cb) => {
-//     cb(
-//       null,
-//       file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-//     );
-//   },
-// });
+  // Example: sự kiện nhận từ client
+  socket.on("message", (msg) => {
+    console.log("Received message:", msg);
+    // Phát lại message tới các client khác
+    io.emit("message", msg);
+  });
 
+  // Khi client ngắt kết nối
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+// Các route của ứng dụng
 app.use("/semester", routes.semesterRouter);
 app.use("/admins", routes.adminRouter);
 app.use("/profession", routes.professionRouters);
@@ -50,12 +59,14 @@ app.use("/user", routes.userRouters);
 app.use("/activity", routes.activityRouters);
 app.use("/class", routes.classRouter);
 app.use("/mentorcategory", routes.mentorCategoryRouters);
-app.use("/tempgroup", routes.tempGroupRouters)
+app.use("/tempgroup", routes.tempGroupRouters);
+
 app.use(async (req, res, next) => {
   next(createError.NotFound());
 });
 app.use(errorMiddleware);
 
+// Middleware xử lý lỗi
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.json({
@@ -63,9 +74,13 @@ app.use((err, req, res, next) => {
     message: err.message,
   });
 });
+
+
 cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
+
+
 server.listen(port, () => {
   connectDB();
   console.log(`listening on ${port}`);

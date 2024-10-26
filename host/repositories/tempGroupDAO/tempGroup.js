@@ -80,6 +80,7 @@ const getTempGroupsByClassId = async (classId, skip = 0, limit = 10) => {
   } catch (error) {
     throw new Error(error);
   }
+  
 };
 
 export default {

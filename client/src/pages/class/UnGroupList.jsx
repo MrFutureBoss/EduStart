@@ -37,9 +37,7 @@ const UnGroupList = () => {
   //Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [pageSize, setPageSize] = useState(8);
-  //Pop-up
-  const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
+  const [pageSize, setPageSize] = useState(6);
 
   const config = useMemo(
     () => ({
@@ -150,14 +148,6 @@ const UnGroupList = () => {
     setCurrentPage(current);
   };
 
-  const handleOpenAddTypeModal = () => {
-    setIsModalShowTypeAdd(true);
-  };
-
-  const handleCloseAddTypeModal = () => {
-    setIsModalShowTypeAdd(false);
-  };
-
   const filteredUsers = waitUserList.filter((user) => {
     if (
       searchText &&
@@ -169,8 +159,10 @@ const UnGroupList = () => {
     ) {
       return false;
     }
-    return true;
+    return true; 
   });
+  
+
 
   return (
     <div>
@@ -245,6 +237,9 @@ const UnGroupList = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                   style={{ width: "90%" }}
                 />
+                {/* <button onClick={resetSearch} style={{ marginLeft: "10px" }}>
+                  Reset
+                </button> */}
               </Col>
             </Row>
             <Row style={{ margin: "10px auto" }}>
