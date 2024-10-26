@@ -174,9 +174,19 @@ const UnGroupList = () => {
 
   return (
     <div>
-      <CreateGroup show={isModalShowTypeAdd} close={handleCloseAddTypeModal}/>
+      <CreateGroup show={isModalShowTypeAdd} close={handleCloseAddTypeModal} />
       <h1>Lớp {className}</h1>
-      <Button type="primary" style={{margin:'20px 0px'}} onClick={handleOpenAddTypeModal}>+ Tạo nhóm lớp</Button>
+      <p>Tổng sĩ số trong lớp: 25 sinh viên</p>
+      <Button
+        type="primary"
+        style={{
+          margin: "20px 0px",
+          display: totalTempGroups > 0 ? "none" : "block",
+        }}
+        onClick={handleOpenAddTypeModal}
+      >
+        + Tạo nhóm lớp
+      </Button>
       <FloatButton
         icon={<QuestionCircleOutlined />}
         type="primary"
@@ -236,6 +246,9 @@ const UnGroupList = () => {
                   style={{ width: "90%" }}
                 />
               </Col>
+            </Row>
+            <Row style={{ margin: "10px auto" }}>
+              <Col sm={24}>Số lượng sinh viên chưa nhóm: {totalWaitUsers}</Col>
             </Row>
             {totalWaitUsers > 0 ? (
               <List
@@ -310,6 +323,9 @@ const UnGroupList = () => {
             flex: 1,
           }}
         >
+          <Row style={{ margin: "10px 20px" }}>
+            <Col sm={24}>Số lượng sinh viên đã vào nhóm: 14</Col>
+          </Row>
           <div
             style={{
               display: "flex",
