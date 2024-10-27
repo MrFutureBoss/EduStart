@@ -15,6 +15,7 @@ import {
   showErrorAlert,
   showWarningAlert,
 } from "../../../components/SweetAlert";
+import { setRecentlyUpdatedUsers } from "../../../redux/slice/UserSlice";
 const jwt = localStorage.getItem("jwt");
 
 const config = {
@@ -78,6 +79,8 @@ const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
         },
         config
       );
+      const userId = response.data.userId;
+      dispatch(setRecentlyUpdatedUsers(userId));
 
       if (response.status === 201) {
         showSuccessAlert("Thành công", response.data.message);

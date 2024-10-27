@@ -11,6 +11,8 @@ import {
 import axios from "axios";
 import { BASE_URL } from "../../../utilities/initalValue";
 import "./TransferClassModal.css"; // Import CSS file for styling
+import { useDispatch } from "react-redux";
+import { setRecentlyUpdatedUsers } from "../../../redux/slice/UserSlice";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -22,6 +24,7 @@ const TransferClassModal = ({
   refreshData,
   currentSemester,
 }) => {
+  const dispatch = useDispatch();
   const [availableClasses, setAvailableClasses] = useState([]);
   const [filteredClasses, setFilteredClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -87,7 +90,7 @@ const TransferClassModal = ({
 
       // Bắt đầu animation
       setIsAnimating(true);
-
+      dispatch(setRecentlyUpdatedUsers([student._id]));
       // Chờ animation hoàn tất trước khi đóng modal và refresh dữ liệu
       setTimeout(() => {
         setIsAnimating(false);

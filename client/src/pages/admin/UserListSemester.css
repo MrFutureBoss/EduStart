@@ -1,0 +1,5 @@
+/* Highlight cho row của bảng */
+.highlight-row {
+  background-color: #ccdce9 !important; /* Màu nền vàng */
+  transition: background-color 0.3s ease; /* Hiệu ứng chuyển đổi mượt */
+}

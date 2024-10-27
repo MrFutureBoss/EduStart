@@ -44,11 +44,12 @@ function SignIn() {
       const token = res.data.token;
       const role = res.data.user.role;
       const userId = res.data.user._id
-      
+      const username = res.data.user.username
       if (token) {
         localStorage.setItem("jwt", token);
         localStorage.setItem("role", role);
         localStorage.setItem("userId", userId);
+        localStorage.setItem("username", username);
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.role;
 
@@ -99,7 +100,10 @@ function SignIn() {
   const SignupSchema = Yup.object().shape({
     email: Yup.string()
       .required("Vui lòng nhập email!")
-      .matches(/@fpt\.edu\.vn$/, "Email phải có đuôi @fpt.edu.vn"),
+      .matches(
+        /@(fe\.edu\.vn|fpt\.edu\.vn)$/,
+        "Email phải có đuôi @fe.edu.vn hoặc @fpt.edu.vn"
+      ),
     password: Yup.string().required("Vui lòng nhập mật khẩu!"),
   });
 

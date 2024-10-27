@@ -1,6 +1,12 @@
 import Group from "../../models/groupModel.js";
 import MentorCategory from "../../models/mentorCategoryModel.js";
+import Profession from "../../models/professionModel.js";
 import ProjectCategory from "../../models/projectCategoryModel.js";
+import Specialty from "../../models/specialtyModel.js";
+import mongoose from "mongoose";
+import User from "../../models/userModel.js";
+import TeacherSelection from "../../models/teacherSelection.js";
+
 // hàm này để lọc danh sách các nhóm có cung lĩnh vực với mentor để mentor lựa chọn
 const getAvailableGroupsForMentor = async (req, res) => {
   try {
@@ -63,7 +69,7 @@ const getAvailableGroupsForMentor = async (req, res) => {
 const getAllMentorCategories = async (skip, limit) => {
   try {
     return await MentorCategory.find()
-      .populate('mentorId professionId specialties.specialtyId')
+      .populate("mentorId professionId specialties.specialtyId")
       .skip(skip)
       .limit(limit);
   } catch (error) {
@@ -75,10 +81,13 @@ const getAllMentorCategories = async (skip, limit) => {
 
 const getMentorCategoryById = async (id) => {
   try {
-    return await MentorCategory.findById(id)
-      .populate('mentorId professionId specialties.specialtyId');
+    return await MentorCategory.findById(id).populate(
+      "mentorId professionId specialties.specialtyId"
+    );
   } catch (error) {
-    throw new Error(`Unable to find mentor category with ID ${id}: ${error.message}`);
+    throw new Error(
+      `Unable to find mentor category with ID ${id}: ${error.message}`
+    );
   }
 };
 
@@ -92,9 +101,87 @@ const createNewMentorCategory = async (mentorCategoryData) => {
   }
 };
 
+// hàm lấy danh sách lĩnh vực
+const fetchTreeData = async (teacherId) => {
+  const teacher = await User.findById(teacherId);
+  if (!teacher || teacher.role !== 2) {
+    throw new Error("Giáo viên không tồn tại.");
+  }
+
+  // Lấy tất cả Profession cùng Specialty
+  const professions = await Profession.find()
+    .populate("specialty", "_id name status")
+    .lean();
+
+  // Lấy danh sách specialtyId đã cập nhật
+  const teacherSelections = await TeacherSelection.find({
+    teacherId,
+  }).lean();
+  const updatedSpecialtyIds = new Set(
+    teacherSelections.map((selection) => selection.specialtyId.toString())
+  );
+
+  // Xây dựng treeData với thông tin isUpdated
+  const treeData = professions.map((profession) => {
+    const specialties = (profession.specialty || []).map((specialty) => {
+      const isUpdated = updatedSpecialtyIds.has(specialty._id.toString());
+      return {
+        _id: specialty._id,
+        name: specialty.name,
+        status: specialty.status,
+        isUpdated,
+      };
+    });
+
+    return {
+      _id: profession._id,
+      name: profession.name,
+      status: profession.status,
+      specialty: specialties,
+    };
+  });
+
+  // Đếm số lượng profession và specialty
+  const professionCount = professions.length;
+  const specialtyCount = treeData.reduce(
+    (count, profession) =>
+      count + (profession.specialty ? profession.specialty.length : 0),
+    0
+  );
+
+  // Đếm số lượng đã cập nhật và chưa cập nhật
+  const updatedCount = teacherSelections.length;
+  const notUpdatedCount = specialtyCount - updatedCount;
+
+  return {
+    professionCount,
+    specialtyCount,
+    updatedCount,
+    notUpdatedCount,
+    treeData,
+  };
+};
+
+// hàm lấy mentor theo chuyên môn
+const getMentorsBySpecialty = async (professionId, specialtyId) => {
+  const mentors = await MentorCategory.find({
+    professionIds: professionId,
+    "specialties.specialtyId": specialtyId,
+  })
+    .populate({
+      path: "mentorId",
+      select: "username email phoneNumber",
+    })
+    .lean();
+
+  return mentors;
+};
+
 export default {
   getAvailableGroupsForMentor,
   getAllMentorCategories,
   getMentorCategoryById,
   createNewMentorCategory,
+  getMentorsBySpecialty,
+  fetchTreeData,
 };

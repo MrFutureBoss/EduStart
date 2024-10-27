@@ -1,0 +1,31 @@
+.outcome-steps-container {
+    position: relative;
+    margin-top: 20px;
+  }
+  
+  .step-progress-bar {
+    position: relative;
+    height: 30px;
+    margin-bottom: 20px;
+  }
+  
+  .person-icon {
+    position: absolute;
+    transform: translateX(1200%);
+    transition: left 0.5s ease-in-out;
+    cursor: pointer;
+  }
+  
+  .person-icon .anticon {
+    animation: move 1s infinite;
+  }
+  
+  @keyframes move {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px); /* Hiệu ứng nhảy nhẹ */
+    }
+  }
+  

@@ -1,7 +1,9 @@
 import Class from "../../models/classModel.js";
+import Matched from "../../models/matchedModel.js";
 import MentorCategory from "../../models/mentorCategoryModel.js";
 import Semester from "../../models/semesterModel.js";
 import User from "../../models/userModel.js";
+import mongoose from "mongoose";
 
 const createSemester = async (semesterData) => {
   const semester = new Semester(semesterData);
@@ -175,17 +177,104 @@ const getCurrentSemester = async () => {
 
   return semester;
 };
+
 const getCountsForSemester = async (semesterId) => {
+  // Đếm số lượng sinh viên, giáo viên và mentor
   const studentCount = await User.countDocuments({ semesterId, role: 4 });
   const teacherCount = await User.countDocuments({ semesterId, role: 2 });
   const mentorCount = await User.countDocuments({ semesterId, role: 3 });
   const classCount = await Class.countDocuments({ semesterId });
+
+  // Đếm số lượng học sinh đã có lớp và học sinh chưa có lớp
+  const studentsWithClass = await User.countDocuments({
+    semesterId,
+    role: 4,
+    classId: { $ne: null },
+  });
+  const studentsWithoutClass = studentCount - studentsWithClass;
+
+  // Đếm số lượng giáo viên có lớp và giáo viên chưa có lớp
+  const teachersWithClass = await Class.distinct("teacherId", { semesterId });
+  const teachersWithClassCount = await User.countDocuments({
+    _id: { $in: teachersWithClass },
+    role: 2,
+  });
+  const teachersWithoutClassCount = teacherCount - teachersWithClassCount;
+
+  // Lấy danh sách giáo viên có lớp và chưa có lớp
+  const teachersWithClasses = await User.find({
+    _id: { $in: teachersWithClass },
+    role: 2,
+  });
+  const teachersWithoutClasses = await User.find({
+    _id: { $nin: teachersWithClass },
+    role: 2,
+    semesterId,
+  });
+
+  // Đếm và lấy danh sách lớp có học sinh và lớp chưa có học sinh
+  const classesWithStudents = await Class.aggregate([
+    { $match: { semesterId: new mongoose.Types.ObjectId(semesterId) } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "classId",
+        as: "students",
+      },
+    },
+    {
+      $project: {
+        className: 1,
+        studentCount: { $size: "$students" },
+      },
+    },
+  ]);
+
+  const classesWithStudentsList = classesWithStudents.filter(
+    (cls) => cls.studentCount > 0
+  );
+  const classesWithoutStudentsList = classesWithStudents.filter(
+    (cls) => cls.studentCount === 0
+  );
+
+  const classesWithStudentsCount = classesWithStudentsList.length;
+  const classesWithoutStudentsCount = classCount - classesWithStudentsCount;
+
+  // Lấy danh sách mentor đã matched và chưa matched
+  const matchedMentorIds = await Matched.distinct("mentorId", {
+    semesterId,
+  });
+
+  const mentorsWithMatch = await User.find({
+    _id: { $in: matchedMentorIds },
+    role: 3,
+    semesterId,
+  });
+
+  const mentorsWithoutMatch = await User.find({
+    _id: { $nin: matchedMentorIds },
+    role: 3,
+    semesterId,
+  });
 
   return {
     studentCount,
     teacherCount,
     mentorCount,
     classCount,
+    studentsWithClass,
+    studentsWithoutClass,
+    teachersWithClassCount,
+    teachersWithoutClassCount,
+    classesWithStudentsCount,
+    classesWithoutStudentsCount,
+    classesWithStudentsList, // Danh sách lớp có học sinh
+    classesWithoutStudentsList, // Danh sách lớp chưa có học sinh
+    teachersWithClasses, // Danh sách giáo viên có lớp
+    teachersWithoutClasses, // Danh sách giáo viên chưa có lớp
+    mentorsWithMatch, // Danh sách mentor đã matched
+    mentorsWithoutMatch, // Danh sách mentor chưa matched
   };
 };
 

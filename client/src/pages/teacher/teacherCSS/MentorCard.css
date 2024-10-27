@@ -1,0 +1,62 @@
+/* CSS tổng quát cho thẻ mentor */
+.custom-mentor-card {
+  border-radius: 8px;
+  margin-bottom: 0px;
+  position: relative;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Hiệu ứng khi trỏ chuột vào */
+.custom-mentor-card:hover {
+  transform: translateY(-5px); /* Nhô lên khi hover */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* Đổ bóng khi hover */
+}
+
+/* Bố cục chia làm 2 phần: bên trái là tên, bên phải là menu và nút */
+.mentor-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Bên trái chứa avatar và tên */
+.mentor-card-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Bên phải chứa các nút điều khiển theo chiều dọc */
+.mentor-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.avatar-mentor {
+  margin: 10px;
+}
+/* Nút menu (...) */
+.mentor-card-menu {
+  font-size: 18px;
+  color: #8c8c8c;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+/* Chi tiết mentor */
+.mentor-details {
+  margin-top: 16px;
+  padding-right: 24px;
+  padding-left: 67px;
+}
+
+.mentor-email {
+  font-size: 14px;
+  color: #555;
+}
+
+.mentor-load-info {
+  margin-top: 5px;
+  font-size: 13px;
+  color: #555;
+}

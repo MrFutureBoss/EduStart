@@ -1,4 +1,5 @@
 import mentorCategoryDAO from "../../repositories/mentorDAO/mentor.js";
+import teacherDAO from "../../repositories/teacherDAO/index.js";
 import mongoose from "mongoose";
 
 // Lấy tất cả MentorCategories
@@ -57,9 +58,40 @@ const createNewMentorCategory = async (req, res, next) => {
     res.status(400).json({ message: error.message });
   }
 };
+// hàm lấy danh sách data mentor
+export const fetchTeacherTreeData = async (req, res) => {
+  const { teacherId } = req.params;
+  console.log("Teacher ID:", teacherId);
+
+  try {
+    const data = await mentorCategoryDAO.fetchTreeData(teacherId);
+    res.json(data);
+  } catch (error) {
+    console.error("Detailed server error:", error);
+    res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message || error });
+  }
+};
+
+// hàm lấy mentor theo chuyên môn
+const getMentorsBySpecialty = async (req, res) => {
+  try {
+    const { professionId, specialtyId } = req.query;
+    const mentors = await mentorCategoryDAO.getMentorsBySpecialty(
+      professionId,
+      specialtyId
+    );
+    res.json(mentors);
+  } catch (error) {
+    res.status(500).json({ message: `Lỗi server ${error.message}`, error });
+  }
+};
 
 export default {
   getAllMentorCategories,
   getMentorCategoryById,
   createNewMentorCategory,
+  getMentorsBySpecialty,
+  fetchTeacherTreeData,
 };

@@ -4,35 +4,42 @@ const activitySchema = new mongoose.Schema(
   {
     teacherId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
-      required: true,
+      ref: "User",
     },
     activityType: {
       type: String,
-      enum: ["material", "post", "assignment"], 
-      required: true,
+      enum: ["material", "post", "outcome"],
     },
     title: {
       type: String,
-      required: true,
     },
     description: {
       type: String,
     },
-    materialUrl: { 
+    materialUrl: {
       type: String,
     },
-    assignmentType: { 
+    assignmentType: {
       type: String,
       enum: ["outcome 1", "outcome 2", "outcome 3"],
     },
-    deadline: { 
+    startDate: {
       type: Date,
     },
-    classId: { 
+    deadline: {
+      type: Date,
+    },
+    classId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
-      required: true, 
+    },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+    semesterId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Semester",
     },
   },
   {

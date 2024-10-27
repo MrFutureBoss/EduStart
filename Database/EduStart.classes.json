@@ -1,0 +1,90 @@
+[{
+  "_id": {
+    "$oid": "66f3ca435b88ab7e1d62066e"
+  },
+  "className": "GD1720-AD",
+  "limitStudent": 30,
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-09-25T08:30:59.252Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-25T08:30:59.252Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66f3ca455b88ab7e1d6206ad"
+  },
+  "className": "MC1710-PR",
+  "limitStudent": 30,
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-09-25T08:31:01.024Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-25T08:31:01.024Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66f3ca465b88ab7e1d6206ec"
+  },
+  "className": "SE1746-NET",
+  "limitStudent": 30,
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-09-25T08:31:02.619Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-25T08:31:02.619Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66f3ca485b88ab7e1d62072b"
+  },
+  "className": "SE1752-NET",
+  "limitStudent": 30,
+  "teacherId": {
+    "$oid": "66f2d968b871895d857e1ab4"
+  },
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-09-25T08:31:04.228Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-25T08:31:04.228Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "className": "SE1714-NJ",
+  "limitStudent": 30,
+  "teacherId": {
+    "$oid": "670bb3642eb65e19740ca591"
+  },
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-09-25T08:31:02.619Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-25T08:31:02.619Z"
+  },
+  "__v": 0
+}]

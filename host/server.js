@@ -50,6 +50,7 @@ app.use("/user", routes.userRouters);
 app.use("/activity", routes.activityRouters);
 app.use("/class", routes.classRouter);
 app.use("/mentorcategory", routes.mentorCategoryRouters);
+app.use("/tempgroup", routes.tempGroupRouters)
 app.use(async (req, res, next) => {
   next(createError.NotFound());
 });

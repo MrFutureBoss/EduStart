@@ -25,6 +25,18 @@ const initialValue = {
   classesList: [],
   fullClassesList: [],
   maxStudentsPerClass: getInitialMaxStudentsPerClass(),
+  studentsWithClass: 0,
+  studentsWithoutClass: 0,
+  teachersWithClassCount: 0,
+  teachersWithoutClassCount: 0,
+  classesWithStudentsCount: 0,
+  classesWithoutStudentsCount: 0,
+  classesWithStudentsList: [],
+  classesWithoutStudentsList: [],
+  teachersWithClasses: [],
+  teachersWithoutClasses: [],
+  mentorsWithMatch: [],
+  mentorsWithoutMatch: [],
 };
 
 const semesterSlice = createSlice({
@@ -64,9 +76,26 @@ const semesterSlice = createSlice({
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
       state.status = action.payload.status;
+      state.studentsWithClass = action.payload.studentsWithClass;
+      state.studentsWithoutClass = action.payload.studentsWithoutClass;
+      state.teachersWithClassCount = action.payload.teachersWithClassCount;
+      state.teachersWithoutClassCount =
+        action.payload.teachersWithoutClassCount;
+      state.classesWithStudentsCount = action.payload.classesWithStudentsCount;
+      state.classesWithoutStudentsCount =
+        action.payload.classesWithoutStudentsCount;
     },
     setCurrentSemester: (state, action) => {
       state.currentSemester = action.payload;
+    },
+    setDetailSemester(state, action) {
+      state.classesWithStudentsList = action.payload.classesWithStudentsList;
+      state.classesWithoutStudentsList =
+        action.payload.classesWithoutStudentsList;
+      state.teachersWithClasses = action.payload.teachersWithClasses;
+      state.teachersWithoutClasses = action.payload.teachersWithoutClasses;
+      state.mentorsWithMatch = action.payload.mentorsWithMatch;
+      state.mentorsWithoutMatch = action.payload.mentorsWithoutMatch;
     },
     setPendingUsers: (state, action) => {
       state.pendingUsers = action.payload;
@@ -103,5 +132,6 @@ export const {
   setClassesList,
   setFullClassesList,
   setMaxStudentsPerClass,
+  setDetailSemester,
 } = actions;
 export default reducer;
