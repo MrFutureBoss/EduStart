@@ -8,7 +8,7 @@ import routes from "./routes/index.js";
 import semesterController from "./controllers/semesterController/index.js";
 import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
-import { Server as SocketIOServer } from "socket.io"; // Import thêm socket.io
+import { Server as SocketIOServer } from "socket.io";
 
 const app = express();
 dotenv.config();
@@ -31,24 +31,19 @@ const io = new SocketIOServer(server, {
   },
 });
 
-// Kết nối socket
+
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
-
-  // Example: sự kiện nhận từ client
   socket.on("message", (msg) => {
     console.log("Received message:", msg);
-    // Phát lại message tới các client khác
     io.emit("message", msg);
   });
-
-  // Khi client ngắt kết nối
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
 });
 
-// Các route của ứng dụng
+
 app.use("/semester", routes.semesterRouter);
 app.use("/admins", routes.adminRouter);
 app.use("/profession", routes.professionRouters);
