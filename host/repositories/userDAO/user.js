@@ -137,12 +137,11 @@ const changePassword = async (email, oldPassword, newPassword) => {
   }
 };
 
-
 export default {
   loginUser,
   findUserByEmail,
   findUser,
   findUserById,
   updateUserPassword,
-  changePassword, 
+  changePassword,
 };

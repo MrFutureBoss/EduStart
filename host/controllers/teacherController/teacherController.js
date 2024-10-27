@@ -1,4 +1,5 @@
 import groupDAO from "../../repositories/groupDAO/index.js";
+
 const getGroupsByTeacher = async (req, res) => {
   try {
     const { teacherId } = req.params;
