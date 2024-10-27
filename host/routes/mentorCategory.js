@@ -15,10 +15,10 @@ const mentorCategoryRouters = express.Router();
 // );
 // phần mới
 mentorCategoryRouters.get(
-  "/data_tree",
+  "/data_tree/:teacherId",
   verifyAccessToken,
   verifyRole([2]),
-  mentorCategoryController.getTreeData
+  mentorCategoryController.fetchTeacherTreeData
 );
 mentorCategoryRouters.get(
   "/mentors_list",
