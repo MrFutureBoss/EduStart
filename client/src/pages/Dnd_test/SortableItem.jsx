@@ -1,20 +1,65 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { List } from "antd";
+import { List, Avatar, Empty } from "antd";
 
 export const SortableItem = ({ id, item }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
-  const style = {
+  const itemStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
     cursor: "move",
+    display: "flex",
+    alignItems: "center",
+    padding: "8px",
+    width: "100%",
+    boxSizing: "border-box",
   };
 
+  const contentStyle = {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    flexGrow: 1,
+  };
+
+  const usernameStyle = {
+    fontSize: "1.1em", // Larger font for username
+    fontWeight: "bold",
+    lineHeight: "1.2em", // Single line height for compactness
+    marginBottom: "4px", // Space between username and details
+  };
+
+  const detailsStyle = {
+    fontSize: "0.9em",
+    color: "#666",
+    lineHeight: "1.1em",
+  };
+
+  // Check if item is a placeholder for an empty state
+  if (typeof item === 'object' && !item._id) {
+    // Render Empty component when item is a placeholder
+    return (
+      <List.Item ref={setNodeRef} style={itemStyle} {...attributes} {...listeners}>
+        <Empty description="Chưa có ai trong nhóm này" style={{ width: "100%", textAlign: "center" }} />
+      </List.Item>
+    );
+  }
+
   return (
-    <List.Item ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {item}
+    <List.Item ref={setNodeRef} style={itemStyle} {...attributes} {...listeners}>
+      <Avatar src={item.avatar} style={{ marginRight: "8px" }} />
+      <div style={contentStyle} key={item._id}>
+        <div style={usernameStyle}>{item.username}</div>
+        <div style={detailsStyle}>
+          <div>MSSV: {item.mssv}</div>
+          <div>Email: {item.email}</div>
+        </div>
+      </div>
     </List.Item>
   );
 };
