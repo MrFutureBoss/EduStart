@@ -38,6 +38,7 @@ const UnGroupList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [pageSize, setPageSize] = useState(6);
+  const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
 
   const config = useMemo(
     () => ({
@@ -161,6 +162,13 @@ const UnGroupList = () => {
     }
     return true; 
   });
+
+  const handleOpenAddTypeModal = () => {
+    setIsModalShowTypeAdd(true);
+  };
+  const handleCloseAddTypeModal = () => {
+    setIsModalShowTypeAdd(false);
+  };
   
 
 

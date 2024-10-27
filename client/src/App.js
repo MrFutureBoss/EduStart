@@ -10,24 +10,7 @@ import { ProtectRoute } from "./utilities/auth.js";
 import TeacherRouter from "./routers/teacher/TeacherRouter.js";
 import AdminRouter from "./routers/admin/AdminRouter.js";
 
-const socket = io("http://localhost:9999");
-
 function App() {
-  const [messages, setMessages] = useState([]);
-
-  useEffect(() => {
-    socket.on("message", (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
-    });
-
-    return () => {
-      socket.off("message");
-    };
-  }, []);
-
-  const sendMessage = (msg) => {
-    socket.emit("message", msg);
-  };
 
   return (
     <BrowserRouter>
@@ -47,26 +30,6 @@ function App() {
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
       </Routes>
-
-      {/* Hiển thị và gửi message */}
-      <div className="chat-container">
-        <h2>Chat</h2>
-        <div className="messages">
-          {messages.map((msg, index) => (
-            <div key={index}>{msg}</div>
-          ))}
-        </div>
-        <input
-          type="text"
-          placeholder="Type your message..."
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendMessage(e.target.value);
-              e.target.value = "";
-            }
-          }}
-        />
-      </div>
     </BrowserRouter>
   );
 }
