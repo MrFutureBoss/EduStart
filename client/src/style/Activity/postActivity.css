@@ -1,0 +1,29 @@
+@keyframes spin-border-post {
+    0% {
+      border: 2px solid #1890ff;
+      box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+    }
+    25% {
+      border-top: 2px solid #1890ff;
+      border-right: 2px solid transparent;
+      box-shadow: 0 0 10px rgba(24, 144, 255, 0.7);
+    }
+    50% {
+      border-right: 2px solid #1890ff;
+      border-bottom: 2px solid transparent;
+      box-shadow: 0 0 15px rgba(24, 144, 255, 0.9);
+    }
+    75% {
+      border-bottom: 2px solid #1890ff;
+      border-left: 2px solid transparent;
+    }
+    100% {
+      border-left: 2px solid #1890ff;
+      box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+    }
+  }
+  
+  .new-post-border {
+    animation: spin-border-post 2s linear infinite; 
+  }
+  

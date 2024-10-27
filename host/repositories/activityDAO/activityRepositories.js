@@ -37,7 +37,12 @@ const findSubmittedGroups = async (assignmentId) => {
   const submissions = await Assignment.find({ assignmentId });
   return submissions.map((submission) => submission.groupId.toString());
 };
-const findExistingActivity = async (classId, teacherId, activityType, options = {}) => {
+const findExistingActivity = async (
+  classId,
+  teacherId,
+  activityType,
+  options = {}
+) => {
   try {
     const query = {
       classId: classId,
@@ -53,12 +58,11 @@ const findExistingActivity = async (classId, teacherId, activityType, options = 
       query.assignmentType = options.assignmentType;
     }
 
-    return await Activity.findOne(query);  
+    return await Activity.findOne(query);
   } catch (error) {
     throw new Error("Error while fetching existing activity: " + error.message);
   }
 };
-
 
 const updateExistingActivity = async (existingActivity, updateData) => {
   try {
@@ -82,7 +86,32 @@ const updateExistingActivity = async (existingActivity, updateData) => {
     throw new Error("Error while updating activity: " + error.message);
   }
 };
+const findActivityByMaterialUrl = async (fileName, classId) => {
+  const regex = new RegExp(fileName, "i");
+  return Activity.findOne({
+    materialUrl: { $regex: regex },
+    classId,
+    activityType: "material",
+  });
+};
 
+async function findOutcomeByClassIdAndType(classId, assignmentType) {
+  return Activity.findOne({ classId, assignmentType });
+}
+const findActivitiesByTeacher = async (teacherId) => {
+  return Activity.find({ teacherId }).populate("classId");
+};
+const getSuggestedMaterials = async (teacherId, classId) => {
+  try {
+    return await Activity.find({
+      teacherId,
+      classId: { $ne: classId },
+      activityType: "material",
+    });
+  } catch (error) {
+    throw new Error("Error fetching suggested materials");
+  }
+};
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -94,4 +123,8 @@ export default {
   findSubmittedGroups,
   findExistingActivity,
   updateExistingActivity,
+  findActivityByMaterialUrl,
+  findOutcomeByClassIdAndType,
+  findActivitiesByTeacher,
+  getSuggestedMaterials,
 };

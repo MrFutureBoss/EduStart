@@ -12,18 +12,9 @@ import {
   Menu,
   Modal,
   message,
-  notification,
-  Badge,
-  Typography,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  EditOutlined,
-  UploadOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
+import { UploadOutlined, UserAddOutlined } from "@ant-design/icons";
 import UserAddModal from "../semester/semesterModel/UserAddModal";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -41,7 +32,6 @@ import EditSemesterModal from "../semester/semesterModel/EditSemesterModel";
 import {
   setErrorMessages,
   setFailedEmails,
-  setFullClassUsers,
 } from "../../redux/slice/ErrorSlice";
 import TransferClassModal from "../semester/userModel/TransferClassModal";
 import SwapClassModal from "../semester/userModel/SwapClassModal";
@@ -49,6 +39,7 @@ import { setRecentlyUpdatedUsers } from "../../redux/slice/UserSlice";
 import "./UserListSemester.css";
 import SemesterDetailsCard from "../semester/SemesterDetailsCard";
 import UploadFileModal from "./UploadFileModal";
+import "../../pages/teacher/teacherCSS/MentorSelectionOverview.css";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -637,6 +628,7 @@ const UserListSemester = () => {
             apiErrors={editApiErrors}
           />
           <Table
+            className="mentor-table"
             dataSource={filteredUsers}
             columns={columns}
             rowKey={(record) => record._id}

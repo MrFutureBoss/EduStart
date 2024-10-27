@@ -7,11 +7,6 @@ const teacherSelectionSchema = new Schema(
       ref: "User",
       required: true,
     },
-    mentorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     professionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profession",
@@ -22,6 +17,19 @@ const teacherSelectionSchema = new Schema(
       ref: "Specialty",
       required: true,
     },
+    selectedMentors: [
+      {
+        mentorId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        priority: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

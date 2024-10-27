@@ -31,7 +31,7 @@ semesterRouter.get(
 semesterRouter.get(
   "/current",
   verifyAccessToken,
-  verifyRole([1]),
+  verifyRole([1, 2]),
   semesterController.getCurrentSemesterController
 );
 

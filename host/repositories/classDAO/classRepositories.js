@@ -1,6 +1,6 @@
 import User from "../../models/userModel.js";
 import Class from "../../models/classModel.js";
-
+import TempGroup from "../../models/tempGroupModel.js";
 const getStudentCountByClassId = async (classId, semesterId) => {
   try {
     const count = await User.countDocuments({
@@ -140,6 +140,48 @@ const getTeachersWithClassCount = async () => {
   }
 };
 
+const getClassIdByClassName = async (className) => {
+  try {
+    const classData = await Class.findOne({
+      className: { $regex: className, $options: "i" },
+    }).exec();
+    if (!classData) {
+      return null;
+    }
+    return classData._id;
+  } catch (error) {
+    throw new Error(error.message || "Error while fetching class by className");
+  }
+};
+
+const getUsersByClassIdAndEmptyGroupId = async (classId, skip = 0, limit = 10) => {
+  try {
+    const tempGroups = await TempGroup.find({ classId }).select("userIds").lean();
+    const excludedUserIds = tempGroups.reduce((acc, group) => acc.concat(group.userIds), []);
+
+    const query = {
+      classId: classId,
+      $or: [
+        { groupId: { $exists: false } },
+        { groupId: null },
+      ],
+      _id: { $nin: excludedUserIds },
+    };
+
+    const total = await User.countDocuments(query);
+
+    const users = await User.find(query)
+      .select("username email rollNumber memberCode")
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    return { data: users, total };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export default {
   getStudentCountByClassId,
   getClassById,
@@ -149,4 +191,6 @@ export default {
   isClassNameExist,
   getFullClasses,
   getTeachersWithClassCount,
+  getClassIdByClassName,
+  getUsersByClassIdAndEmptyGroupId,
 };

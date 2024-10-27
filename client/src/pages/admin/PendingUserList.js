@@ -646,7 +646,7 @@ const PendingUsers = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
         {/* Statistic Section */}
         <Col xs={24} sm={24} md={10}>
-          <Card>
+          <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
             <Statistic
               title="Tổng số học sinh đang chờ"
               value={pendingUsers.length}

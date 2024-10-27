@@ -1,0 +1,62 @@
+[
+  {
+    "_id": {
+      "$oid": "670bacd404ec36ddb74918e9"
+    },
+    "name": "FA24",
+    "status": "Ongoing",
+    "startDate": {
+      "$date": "2024-09-12T17:00:00.000Z"
+    },
+    "endDate": {
+      "$date": "2024-12-25T17:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2024-10-13T11:19:48.875Z"
+    },
+    "updatedAt": {
+      "$date": "2024-10-13T11:21:32.277Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "670bd20ad34e56db798753b8"
+    },
+    "name": "SU20",
+    "status": "Finished",
+    "startDate": {
+      "$date": "2024-01-12T17:00:00.000Z"
+    },
+    "endDate": {
+      "$date": "2024-04-12T17:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2024-10-13T13:58:34.209Z"
+    },
+    "updatedAt": {
+      "$date": "2024-10-14T17:00:00.274Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "67109296044de73e11e58eee"
+    },
+    "name": "SU29",
+    "status": "Upcoming",
+    "startDate": {
+      "$date": "2024-12-31T17:00:00.000Z"
+    },
+    "endDate": {
+      "$date": "2025-03-11T17:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2024-10-17T04:29:10.018Z"
+    },
+    "updatedAt": {
+      "$date": "2024-10-17T04:29:10.018Z"
+    },
+    "__v": 0
+  }
+]
