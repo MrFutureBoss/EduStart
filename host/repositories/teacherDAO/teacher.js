@@ -1,5 +1,6 @@
 import MentorCategory from "../../models/mentorCategoryModel.js";
 import TeacherSelection from "../../models/teacherSelection.js";
+import mongoose from "mongoose";
 
 const saveSelection = async ({
   teacherId,
@@ -7,23 +8,40 @@ const saveSelection = async ({
   specialtyId,
   selectedMentors,
 }) => {
-  // Xóa lựa chọn cũ của giáo viên cho professionId và specialtyId này
-  await TeacherSelection.findOneAndDelete({
-    teacherId,
-    professionId,
-    specialtyId,
-  });
+  const teacherObjId = new mongoose.Types.ObjectId(teacherId);
+  const professionObjId = new mongoose.Types.ObjectId(professionId);
+  const specialtyObjId = new mongoose.Types.ObjectId(specialtyId);
 
-  // Tạo lựa chọn mới
-  const newSelection = new TeacherSelection({
-    teacherId,
-    professionId,
-    specialtyId,
-    selectedMentors,
-  });
+  if (selectedMentors.length === 0) {
+    // Nếu selectedMentors rỗng, xóa document
+    const deleted = await TeacherSelection.findOneAndDelete({
+      teacherId: teacherObjId,
+      professionId: professionObjId,
+      specialtyId: specialtyObjId,
+    });
+    return { message: "Document đã bị xóa vì không có mentor được chọn" };
+  } else {
+    // Nếu selectedMentors không rỗng, cập nhật hoặc tạo mới document
+    const updatedSelection = await TeacherSelection.findOneAndUpdate(
+      {
+        teacherId: teacherObjId,
+        professionId: professionObjId,
+        specialtyId: specialtyObjId,
+      },
+      {
+        teacherId: teacherObjId,
+        professionId: professionObjId,
+        specialtyId: specialtyObjId,
+        selectedMentors,
+      },
+      {
+        new: true, // Trả về document sau khi update
+        upsert: true, // Tạo mới document nếu không tồn tại
+      }
+    );
 
-  await newSelection.save();
-  return { message: "Lưu lựa chọn thành công" };
+    return { message: "Lưu lựa chọn thành công" };
+  }
 };
 
 const getSelection = async ({ teacherId, professionId, specialtyId }) => {
@@ -48,7 +66,7 @@ const getSelection = async ({ teacherId, professionId, specialtyId }) => {
   })
     .populate({
       path: "mentorId",
-      select: "username email",
+      select: "username email phoneNumber",
     })
     .lean();
 

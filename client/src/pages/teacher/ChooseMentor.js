@@ -1,103 +1,121 @@
-import React, { useState, useRef } from "react";
-import { Layout, Typography } from "antd";
+// ChooseMentor.js
+import React, { useState } from "react";
+import { Layout, Row, Col, Statistic, Card, Empty } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import TreeView from "../../components/Teacher/TreeView";
-import MentorSelection from "../../components/Teacher/MentorSelection";
+import TreeView from "./TreeView";
 import {
   setProfession,
   setSpecialty,
-} from "../../redux/slice/SelectMentorSlice"; // Sử dụng đúng slice từ Redux
+  setStepCheck,
+} from "../../redux/slice/SelectMentorSlice";
+import MentorSelectionOverview from "./MentorSelectionOverview";
 
-const { Header, Content, Sider } = Layout;
-const { Title } = Typography;
+const { Sider, Content } = Layout;
 
 const ChooseMentor = () => {
   const dispatch = useDispatch();
-
   const {
     selectedProfessionId,
     selectedSpecialtyId,
-    professionName,
-    specialtyName,
-  } = useSelector((state) => state.selectMentor); // Lấy dữ liệu từ Redux
-
-  const [selectedMentorsBySpecialty, setSelectedMentorsBySpecialty] = useState(
-    {}
-  );
-  const [collapsed, setCollapsed] = useState(false);
-
-  // References for TreeView
-  const firstProfessionRef = useRef(null);
-  const firstSpecialtyRef = useRef(null);
-  const mentorPriorityRef = useRef(null);
-  const mentorAvailableRef = useRef(null);
-  const saveButtonRef = useRef(null);
-
-  // Khi chọn profession hoặc specialty
+    professionCount,
+    specialtyCount,
+    updatedCount,
+    notUpdatedCount,
+    stepCheck,
+  } = useSelector((state) => state.selectMentor);
+  const [professionName, setProfessionName] = useState("");
+  const [specialtyName, setSpecialtyName] = useState("");
   const handleSelect = (
     professionId,
     specialtyId,
     professionName,
     specialtyName
   ) => {
-    if (professionId) {
-      dispatch(setProfession({ professionId, professionName })); // Cập nhật profession vào Redux
-    }
-
     if (specialtyId) {
-      dispatch(setSpecialty({ specialtyId, specialtyName })); // Cập nhật specialty vào Redux
+      dispatch(setProfession({ professionId, professionName }));
+      dispatch(setSpecialty({ specialtyId, specialtyName }));
+      dispatch(setStepCheck(1));
+      setProfessionName(professionName);
+      setSpecialtyName(specialtyName);
     }
   };
 
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-  };
+  console.log("stepCheck", stepCheck);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={250} style={{ background: "#fff", padding: "0px" }}>
-        <div>
-          <Title level={4}>Chọn Chuyên Ngành</Title>
-        </div>
-        <TreeView
-          onSelect={handleSelect}
-          onFirstProfessionRefReady={(node) => {
-            firstProfessionRef.current = node;
-          }}
-          onFirstSpecialtyRefReady={(node) => {
-            firstSpecialtyRef.current = node;
-          }}
-          selectedProfession={selectedProfessionId}
-          selectedSpecialty={selectedSpecialtyId}
-        />
-      </Sider>
+      <div style={{ backgroundColor: "#FFFF" }}>
+        <Row style={{ marginBottom: 20 }} gutter={16} justify="center">
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic title="Tổng số lĩnh vực" value={professionCount} />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic title="Tổng số chuyên môn" value={specialtyCount} />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic
+                title="Chuyên môn đã chọn"
+                value={updatedCount}
+                valueStyle={{ color: "#52c41a" }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic
+                title="Chuyên môn chưa chọn"
+                value={notUpdatedCount}
+                valueStyle={{ color: "orange" }}
+              />
+            </Card>
+          </Col>
+        </Row>
+      </div>
 
       <Layout>
-        <Header
+        <Sider
+          width={300}
           style={{
             background: "#fff",
-            padding: "0 20px",
-            marginBottom: -23,
-            paddingBottom: 2,
+            padding: "20px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Title level={3}>
-            {professionName
-              ? `${professionName} - ${specialtyName || "Chọn chuyên môn"}`
-              : "Chọn Mentor"}
-          </Title>
-        </Header>
-        <Content style={{ background: "#fff", padding: "20px" }}>
-          <MentorSelection
-            professionId={selectedProfessionId}
-            specialtyId={selectedSpecialtyId}
-            selectedMentorsBySpecialty={selectedMentorsBySpecialty}
-            setSelectedMentorsBySpecialty={setSelectedMentorsBySpecialty}
-            mentorPriorityRef={mentorPriorityRef}
-            mentorAvailableRef={mentorAvailableRef}
-            saveButtonRef={saveButtonRef}
+          <TreeView
+            onSelect={handleSelect}
+            selectedProfession={selectedProfessionId}
+            selectedSpecialty={selectedSpecialtyId}
           />
-        </Content>
+        </Sider>
+
+        <Layout>
+          <Content
+            style={{
+              padding: "29px",
+              background: "#fff",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            {professionName ? (
+              <MentorSelectionOverview
+                professionId={selectedProfessionId}
+                specialtyId={selectedSpecialtyId}
+                professionName={professionName}
+                specialtyName={specialtyName}
+              />
+            ) : (
+              <Empty
+                description={<span>Vui lòng chọn chuyên môn để hiển thị!</span>}
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              ></Empty>
+            )}
+          </Content>
+        </Layout>
       </Layout>
     </Layout>
   );

@@ -59,14 +59,21 @@ const createNewMentorCategory = async (req, res, next) => {
   }
 };
 // hàm lấy danh sách data mentor
-const getTreeData = async (req, res) => {
+export const fetchTeacherTreeData = async (req, res) => {
+  const { teacherId } = req.params;
+  console.log("Teacher ID:", teacherId);
+
   try {
-    const professions = await mentorCategoryDAO.fetchTreeData();
-    res.json(professions);
+    const data = await mentorCategoryDAO.fetchTreeData(teacherId);
+    res.json(data);
   } catch (error) {
-    res.status(500).json({ message: "Lỗi server", error });
+    console.error("Detailed server error:", error);
+    res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message || error });
   }
 };
+
 // hàm lấy mentor theo chuyên môn
 const getMentorsBySpecialty = async (req, res) => {
   try {
@@ -77,7 +84,7 @@ const getMentorsBySpecialty = async (req, res) => {
     );
     res.json(mentors);
   } catch (error) {
-    res.status(500).json({ message: "Lỗi server", error });
+    res.status(500).json({ message: `Lỗi server ${error.message}`, error });
   }
 };
 
@@ -86,5 +93,5 @@ export default {
   getMentorCategoryById,
   createNewMentorCategory,
   getMentorsBySpecialty,
-  getTreeData,
+  fetchTeacherTreeData,
 };

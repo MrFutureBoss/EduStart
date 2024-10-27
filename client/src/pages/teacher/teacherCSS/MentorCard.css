@@ -32,7 +32,9 @@
   align-items: flex-end;
   justify-content: space-between;
 }
-
+.avatar-mentor {
+  margin: 10px;
+}
 /* Nút menu (...) */
 .mentor-card-menu {
   font-size: 18px;
@@ -43,9 +45,9 @@
 
 /* Chi tiết mentor */
 .mentor-details {
-  margin-top: 10px;
-  padding-right: 7px;
-  padding-left: 7px;
+  margin-top: 16px;
+  padding-right: 24px;
+  padding-left: 67px;
 }
 
 .mentor-email {

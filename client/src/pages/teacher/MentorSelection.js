@@ -30,16 +30,27 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedMentors,
   setAvailableMentors,
+  setProfessions,
+  setProfession,
+  setSpecialty,
+  setMentorsBySpecialty,
+  setCountsUpdate,
 } from "../../redux/slice/SelectMentorSlice";
 import {
   fetchMentors,
   saveMentorSelection,
   fetchTeacherSelection,
+  fetchTreeData,
 } from "../../api";
 import PropTypes from "prop-types";
 import MentorCard from "./MentorCard";
 import "./teacherCSS/MentorSelection.css";
-
+import {
+  selectSelectedMentorsBySpecialty,
+  selectAvailableMentorsBySpecialty,
+  selectProfessionName,
+  selectSpecialtyName,
+} from "../../redux/slice/Selectors";
 const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
@@ -114,20 +125,20 @@ const MentorSelection = forwardRef(
   ({ professionId, specialtyId, saveButtonRef }, ref) => {
     const dispatch = useDispatch();
     const selectedMentors = useSelector(
-      (state) =>
-        state.selectMentor.selectedMentorsBySpecialty[specialtyId] || []
+      selectSelectedMentorsBySpecialty(specialtyId)
     );
     const availableMentors = useSelector(
-      (state) =>
-        state.selectMentor.availableMentorsBySpecialty[specialtyId] || []
+      selectAvailableMentorsBySpecialty(specialtyId)
     );
+    const professionName = useSelector(selectProfessionName);
+    const specialtyName = useSelector(selectSpecialtyName);
     const [activeId, setActiveId] = useState(null);
     const [searchAvailable, setSearchAvailable] = useState("");
     const [searchSelected, setSearchSelected] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedMentor, setSelectedMentor] = useState(null);
     const [newPosition, setNewPosition] = useState(null);
-
+    const teacherId = localStorage.getItem("userId");
     const sensors = useSensors(
       useSensor(PointerSensor, {
         activationConstraint: {
@@ -139,8 +150,6 @@ const MentorSelection = forwardRef(
     useEffect(() => {
       const getMentorsData = async () => {
         try {
-          const teacherId = localStorage.getItem("userId");
-
           // Lấy danh sách mentor đã chọn
           const selectedMentorsResponse = await fetchTeacherSelection(
             teacherId,
@@ -433,6 +442,31 @@ const MentorSelection = forwardRef(
       try {
         await saveMentorSelection(dataToSave);
         message.success("Lưu lựa chọn thành công!");
+        const response = await fetchTreeData(teacherId);
+        const {
+          professionCount,
+          specialtyCount,
+          updatedCount,
+          notUpdatedCount,
+        } = response.data;
+        dispatch(
+          setCountsUpdate({
+            professionCount,
+            specialtyCount,
+            notUpdatedCount,
+            updatedCount,
+          })
+        );
+        dispatch(setProfessions(response.data.treeData));
+        dispatch(setSpecialty([]));
+        const Selectresponse = await fetchTeacherSelection(
+          teacherId,
+          professionId,
+          specialtyId
+        );
+        dispatch(
+          setMentorsBySpecialty({ specialtyId, mentors: Selectresponse.data })
+        );
       } catch (error) {
         message.error("Lưu lựa chọn thất bại.");
         console.error("Lỗi khi lưu lựa chọn:", error);
@@ -465,7 +499,16 @@ const MentorSelection = forwardRef(
       <div ref={ref}>
         <Row gutter={[16, 16]}>
           <Col span={24}>
-            <Title level={4}>Chọn Mentor</Title>
+            <Title level={4}>
+              Chọn Mentor Cho Lĩnh Vực:
+              <strong style={{ marginLeft: 5, color: "#4682B4" }}>
+                {professionName}
+              </strong>{" "}
+              - Chuyên Môn:
+              <strong style={{ marginLeft: 5, color: "#4682B4" }}>
+                {specialtyName}
+              </strong>
+            </Title>
           </Col>
         </Row>
         <DndContext
@@ -570,7 +613,7 @@ const MentorSelection = forwardRef(
           </DragOverlay>
         </DndContext>
         <Button
-          style={{ marginTop: 20 }}
+          style={{ marginTop: 20, float: "right" }}
           type="primary"
           onClick={handleSaveSelection}
           ref={saveButtonRef}

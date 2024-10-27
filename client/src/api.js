@@ -18,8 +18,11 @@ const getConfig = () => {
 };
 
 // API để lấy danh sách profession và specialty
-export const fetchTreeData = () => {
-  return axios.get(`${BASE_URL}/mentorcategory/data_tree`, getConfig());
+export const fetchTreeData = (teacherId) => {
+  return axios.get(
+    `${BASE_URL}/mentorcategory/data_tree/${teacherId}`,
+    getConfig()
+  );
 };
 
 // API để lấy danh sách mentor dựa trên profession và specialty
