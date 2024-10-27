@@ -14,6 +14,8 @@ import { ProtectRoute } from "./utilities/auth.js";
 import MyActivity from "./pages/activity/MyActivity.jsx";
 import Tasks from "./pages/activity/Tasks.jsx";
 import MaterialList from "./pages/activity/MaterialList.jsx";
+import StudentProfile from "./pages/StudentProfile.jsx";
+import EditTeacherProfile from "./pages/EditTeacherProfile.jsx";
 
 //Route tạm thời để code không dùng thì comment lại
 
@@ -81,6 +83,8 @@ function App() {
             </ProtectRoute>
           }
         />
+          <Route path="/student-profile" element={<StudentProfile />} />
+          <Route path="/edit-teacherprofile" element={<EditTeacherProfile />} />
       </Routes>
     </BrowserRouter>
   );

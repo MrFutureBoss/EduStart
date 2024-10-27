@@ -1,45 +1,144 @@
-import React from 'react';
-import { Button, Card, Input, Avatar } from 'antd';
-import { PhoneOutlined } from '@ant-design/icons';
+import { useState } from "react";
+import { Avatar, Input, Button, Layout, Menu, Card, Typography } from "antd";
+import { UserOutlined, LockOutlined } from "@ant-design/icons";
 
-const StudentProfile = () => {
+const { Sider, Content } = Layout;
+const { Title } = Typography;
+
+export default function Component() {
+  const [activeTab, setActiveTab] = useState("Profile");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const user = {
+    username: "Trần Lê Phương Linh",
+    email: "linhtlphe170820@fpt.edu.vn",
+    rollNumber: "HE170820",
+    memberCode: "linhtlphe170820",
+  };
+
+  const menuItems = [
+    {
+      key: "Profile",
+      icon: <UserOutlined />,
+      label: "Profile",
+    },
+    {
+      key: "Security",
+      icon: <LockOutlined />,
+      label: "Security",
+    },
+  ];
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <Card
-        style={{ width: 500, backgroundColor: '#f0f2f5', padding: 20, borderRadius: 10, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}
-        bodyStyle={{ padding: 0 }}
-      >
-        
-
-        {/* Ảnh và số liên lạc */}
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <Avatar
-            size={120}
-            src="https://static.vecteezy.com/system/resources/previews/021/770/056/non_2x/avatar-of-a-student-character-free-vector.jpg"
-            alt="Ảnh đại diện"
-            style={{ marginBottom: 10 }}
-          />
-          <br />
-          <Button shape="round" icon={<PhoneOutlined />} href="tel:+849xxxxxxxx">
-            📞 Số liên lạc
-          </Button>
+    <Layout style={{ minHeight: "100vh" }}>
+      {/* Sidebar */}
+      <Sider width={250} theme="light">
+        <div className="p-4 text-center">
+          <Avatar size={100} icon={<UserOutlined />} />
+          <Title level={4} className="mt-2">
+            {user.username}
+          </Title>
+          <p className="text-sm text-gray-500">View public profile</p>
         </div>
+        <Menu
+          mode="inline"
+          selectedKeys={[activeTab]}
+          onClick={({ key }) => {
+            setActiveTab(key);
+            setIsEditing(false); // Reset editing mode
+          }}
+          items={menuItems}
+        />
+      </Sider>
 
-        {/* Thông tin sinh viên */}
-        <div style={{ marginBottom: 20 }}>
-          <p><strong>Tên:</strong></p>
-          <p><strong>Lớp:</strong></p>
-          <p><strong>Email:</strong></p>
-        </div>
+      {/* Content Area */}
+      <Layout>
+        <Content style={{ padding: "20px 40px" }}>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <Title level={3}>
+                {activeTab === "Profile" ? "Public profile" : "Security Settings"}
+              </Title>
 
-        {/* Các nút hành động */}
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Button type="default">Chỉnh sửa thông tin cá nhân</Button>
-          <Button type="default">Đổi mật khẩu</Button>
-        </div>
-      </Card>
-    </div>
+            </div>
+
+          </div>
+
+          {activeTab === "Profile" && (
+            <Card title="Your Profile" bordered={false}
+              style={{
+                maxWidth: 500, // Restrict the width of the card
+                width: "100%", // Ensure card doesn't exceed full width of screen
+                margin: "0 auto", // Center horizontally
+                padding: "20px", // Internal padding
+              }}>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                    Username
+                  </label>
+                  <Input
+                    id="username"
+                    defaultValue={user.username}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <Input id="email" defaultValue={user.email} disabled={!isEditing} />
+                </div>
+                <div>
+                  <label htmlFor="rollNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                    Roll Number
+                  </label>
+                  <Input id="rollNumber" defaultValue={user.rollNumber} disabled={!isEditing} />
+                </div>
+                <div>
+                  <label htmlFor="memberCode" className="block text-sm font-medium text-gray-700 mb-1">
+                    Member Code
+                  </label>
+                  <Input id="memberCode" defaultValue={user.memberCode} disabled={!isEditing} />
+                </div>
+                <div className="mt-6 text-right">
+                  <Button type="primary" onClick={() => setIsEditing(!isEditing)}>
+                    {isEditing ? "Save Changes" : "Edit Profile"}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {activeTab === "Security" && (
+            <Card title="Change Password" bordered={false}>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Current Password
+                  </label>
+                  <Input.Password id="currentPassword" />
+                </div>
+                <div>
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    New Password
+                  </label>
+                  <Input.Password id="newPassword" />
+                </div>
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm New Password
+                  </label>
+                  <Input.Password id="confirmPassword" />
+                </div>
+                <Button type="primary" className="mt-4">
+                  Change Password
+                </Button>
+              </div>
+            </Card>
+          )}
+        </Content>
+      </Layout>
+    </Layout>
   );
-};
-
-export default StudentProfile;
+}
