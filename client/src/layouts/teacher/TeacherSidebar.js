@@ -137,10 +137,11 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           style={{ margin: "0px", padding: "0px" }}
         >
           <Menu.Item
+            
             key="1"
             icon={<ImProfile className={toggleCollapse ? "" : "custom-icon"} />}
           >
-            Thông tin của bạn
+            <Link to="/teacher-dashboard/teacher">Thông tin của bạn</Link>
           </Menu.Item>
           <Menu.Item
             key="2"

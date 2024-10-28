@@ -11,6 +11,7 @@ import GroupProccess from "../../pages/class/GroupProccess";
 import ChooseMentor from "../../pages/teacher/ChooseMentor";
 import PostActivity from "../../pages/activity/PostActivity";
 import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
+import TeacherProfile from "../../pages/teacher/TeacherProfile";
 
 const TeacherRouter = () => {
   return (
@@ -31,6 +32,8 @@ const TeacherRouter = () => {
       <Route path="choose-mentor" element={<MainStep />} />
       <Route path="posts" element={<PostActivity />} />
       <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
+      <Route path="teacher" element={<TeacherProfile />} />
+
     </Route>
   );
 };
