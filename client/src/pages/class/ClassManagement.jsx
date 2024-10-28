@@ -1,11 +1,11 @@
 import React from 'react';
 
-const GroupList = () => {
+const ClassManagement = () => {
     return (
         <div>
-              
+            
         </div>
     );
 };
 
-export default GroupList;
+export default ClassManagement;
