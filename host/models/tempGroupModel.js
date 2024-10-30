@@ -13,6 +13,11 @@ const tempGroupSchema = new Schema(
       maxlength: 50,
       require: true,
     },
+    status: {
+      type: Boolean,
+      default: false,
+      require: true,
+    },
     userIds: [
       {
         type: mongoose.Schema.Types.ObjectId,

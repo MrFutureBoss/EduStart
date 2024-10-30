@@ -5,11 +5,11 @@ import TeacherLayout from "../../layouts/teacher/TeacherLayout";
 import MyActivity from "../../pages/activity/MyActivity";
 import Tasks from "../../pages/activity/Tasks";
 import MaterialList from "../../pages/activity/MaterialList";
-import GroupProccess from "../../pages/class/GroupProccess";
+import GroupProccess from "../../pages/create-group/GroupProccess";
 import ChooseMentor from "../../pages/teacher/ChooseMentor";
 import PostActivity from "../../pages/activity/PostActivity";
-import TestDnD from "../../pages/class/TestDnD";
 import Result from "../../pages/Dnd_test/Result";
+import ClassManagement from "../../pages/class/ClassManagement";
 
 const TeacherRouter = () => {
   return (
@@ -22,7 +22,8 @@ const TeacherRouter = () => {
       }
     >
       <Route path="professionmanagement" element={<Result />} />
-      <Route path="class/:className" element={<GroupProccess />} />
+      <Route path="class/detail/:className" element={<GroupProccess />} />
+      <Route path="class" element={<ClassManagement />} />
       <Route path="teacher-activity" element={<MyActivity />} />
       <Route path="tasks" element={<Tasks />} />
       <Route path="materials" element={<MaterialList />} />
