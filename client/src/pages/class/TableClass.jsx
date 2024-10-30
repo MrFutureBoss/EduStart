@@ -1,20 +1,24 @@
 import { useRef, useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table } from "antd";
+import { Button, Input, Space, Table, Tag, Spin } from "antd"; // Import Spin
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassTaskData } from "../../redux/slice/ClassManagementSlice";
+import { MdGroups } from "react-icons/md";
 
-const TableClass = ({ ungroup }) => {
+const TableClass = ({ ungroup, emptygroup }) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [filteredData, setFilteredData] = useState([]); // State to hold filtered data
+  const [loading, setLoading] = useState(true); // State to track loading
   const searchInput = useRef(null);
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
+  const navigate = useNavigate(); // Khai báo useNavigate
 
   const config = useMemo(
     () => ({
@@ -28,21 +32,47 @@ const TableClass = ({ ungroup }) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      setLoading(true); // Bắt đầu loading
       try {
         const response = await axios.get(
           `${BASE_URL}/class/task/${userId}`,
           config
         );
         dispatch(setClassTaskData(response.data));
+
+        if (!ungroup && !emptygroup) {
+          setFilteredData(response.data.data); 
+          return;
+        }
+
+
+        const filteredClasses = response.data.data.filter((item) => {
+          const incompleteGroups = item.tempGroupId.filter(
+            (group) => !group.status
+          ).length;
+          const hasNoGroups = item.tempGroupId.length === 0;
+
+          if (ungroup && incompleteGroups > 0) {
+            return true; 
+          }
+          if (emptygroup && hasNoGroups) {
+            return true; 
+          }
+          return false;
+        });
+
+        setFilteredData(filteredClasses);
       } catch (error) {
         console.log(
           error.response ? error.response.data.message : error.message
         );
+      } finally {
+        setLoading(false); // Kết thúc loading
       }
     };
 
     fetchUserData();
-  }, [userId, config, dispatch]);
+  }, [userId, config, dispatch, ungroup, emptygroup]);
 
   const classTask = useSelector((state) => state.classManagement.classtask);
   console.log("Class Task Data:", JSON.stringify(classTask));
@@ -94,7 +124,9 @@ const TableClass = ({ ungroup }) => {
             style={{
               width: 90,
             }}
-          ></Button>
+          >
+            Tìm
+          </Button>
           <Button
             onClick={() => clearFilters && handleReset(clearFilters)}
             size="small"
@@ -161,69 +193,95 @@ const TableClass = ({ ungroup }) => {
 
   const columns = [
     {
+      title: "STT",
+      key: "stt",
+      render: (_, __, index) => index + 1,
+      width: "5%",
+    },
+    {
       title: "Tên lớp",
       dataIndex: "className",
       key: "className",
-      width: "30%",
-      ...getColumnSearchProps("className", "Tìm lớp học"),
+      width: "20%",
+      ...getColumnSearchProps("className"),
     },
     {
       title: "Số lượng sinh viên",
       dataIndex: "totalStudentInClass",
       key: "totalStudentInClass",
-      width: "30%",
+      width: "20%",
       sorter: (a, b) => a.totalStudentInClass - b.totalStudentInClass,
       sortDirections: ["ascend", "descend"],
     },
     {
-      title: "Số nhóm chưa đủ thành viên",
-      key: "incompleteGroups",
+      title: "Số nhóm",
+      key: "totalGroups",
       dataIndex: "tempGroupId",
+      width: "15%",
+      render: (tempGroupId) => {
+        const totalGroups = tempGroupId.length;
+        return (
+          <p style={{ padding: "0px", margin: "0px" }}>
+            <span
+              style={{
+                fontWeight: "500",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {totalGroups}&nbsp; <MdGroups style={{ fontSize: "1.4rem" }} />
+            </span>
+          </p>
+        );
+      },
+    },
+    {
+      title: "Vấn đề cần giải quyết",
+      dataIndex: "tempGroupId",
+      key: "issues",
       render: (tempGroupId) => {
         const incompleteCount = tempGroupId.filter(
           (group) => !group.status
         ).length;
         const totalGroups = tempGroupId.length;
+
         return (
           <div>
-            {totalGroups > 0 ? (
-              <p style={{ padding: "0px", margin: "0px" }}>
-                <span style={{ fontWeight: "500", color: "red" }}>
-                  {incompleteCount}
-                </span>{" "}
-                / <span style={{ fontWeight: "500" }}>{totalGroups}</span> nhóm
-              </p>
+            {totalGroups === 0 ? (
+              <Tag color="red">Chưa có nhóm cần tạo nhóm</Tag>
+            ) : incompleteCount > 0 ? (
+              <Tag color="orange">
+                {incompleteCount} nhóm chưa chốt đủ thành viên
+              </Tag>
             ) : (
-              <p style={{ fontWeight: "500", color: "red" }}>
-                Chưa có nhóm cần tạo nhóm
-              </p>
+              <Tag color="green">Hoàn thành</Tag>
             )}
           </div>
         );
       },
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Link to={`/teacher-dashboard/class/detail/${record.className}`}>
-            Xem chi tiết lớp
-          </Link>
-        </Space>
-      ),
+      width: "30%",
     },
   ];
 
+  const handleRowClick = (record) => {
+    navigate(`/teacher-dashboard/class/detail/${record.className}`);
+  };
+
   return (
     <div>
-      {/* Dùng để Debug */}
-      {/* <pre>{JSON.stringify(classTask, null, 2)}</pre> */}
-      <Table
-        columns={columns}
-        dataSource={classTask?.data || []}
-        rowKey="_id"
-      />
+      {loading ? ( // Kiểm tra trạng thái loading
+        <Spin size="large" tip="Đang tải dữ liệu..." /> // Hiển thị Spinner
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={filteredData} // Use filtered data
+          rowKey="_id"
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+            style: { cursor: "pointer" },
+          })}
+        />
+      )}
     </div>
   );
 };

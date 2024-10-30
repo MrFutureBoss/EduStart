@@ -1,7 +1,20 @@
-import { Card, Col, Row, Segmented, Tag, Timeline } from "antd";
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  Radio,
+  Row,
+  Segmented,
+  Space,
+  Tag,
+  Timeline,
+  Tooltip,
+} from "antd";
 import { IoIosMove } from "react-icons/io";
 import { MdInfoOutline } from "react-icons/md";
 import { FaPen } from "react-icons/fa";
+import { MdOutlineGroupOff } from "react-icons/md";
 import "../../style/Class/ClassManagement.css";
 import TableClass from "./TableClass";
 import TeacherTask from "./TeacherTask";
@@ -9,6 +22,12 @@ import {
   AppstoreOutlined,
   BarsOutlined,
   ClockCircleOutlined,
+  FieldTimeOutlined,
+  FilterOutlined,
+  ProjectOutlined,
+  SyncOutlined,
+  TeamOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
@@ -23,6 +42,8 @@ const ClassManagement = () => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
   const [view, setView] = useState("List");
+  const [showUngropColumn, setShowUngropColumn] = useState(false);
+  const [showEmptyColumn, setShowEmptygropColumn] = useState(false);
   const gridCard = "50%";
 
   const config = useMemo(
@@ -54,7 +75,21 @@ const ClassManagement = () => {
   }, [userId, config, dispatch]);
 
   const classInfo = useSelector((state) => state.classManagement.classinfo);
-  console.log("Data check: " + JSON.stringify(classInfo));
+
+  const handleFilterClassHaveUnGroup = () => {
+    setShowUngropColumn(true);
+    setShowEmptygropColumn(false);
+  };
+
+  const handleFilterClassHaveEmptyGroup = () => {
+    setShowEmptygropColumn(true);
+    setShowUngropColumn(false);
+  };
+
+  const handleResetFilterTable = () => {
+    setShowUngropColumn(false);
+    setShowEmptygropColumn(false);
+  };
 
   return (
     <div>
@@ -200,15 +235,12 @@ const ClassManagement = () => {
               <div className="classinfo-content">
                 <p style={{ fontWeight: "700" }}>
                   {" "}
-                   Thông báo thời hạn chung cho các lớp&nbsp;{" "}
+                  Thông báo thời hạn chung cho các lớp&nbsp;{" "}
                 </p>
                 <Tag color="#FF5252">2</Tag>
               </div>
               <div className="classinfo-content">
-                <p style={{ fontWeight: "500" }}>
-                  {" "}
-                  Deadline Chốt nhóm:&nbsp;{" "}
-                </p>
+                <p style={{ fontWeight: "500" }}> Deadline Chốt nhóm:&nbsp; </p>
                 <Tag color="#FF5252">Còn 2 ngày</Tag>
               </div>
               <div className="classinfo-content">
@@ -265,16 +297,95 @@ const ClassManagement = () => {
               color: "white",
             }}
           >
-            <Segmented
-              style={{ margin: "10px 10px" }}
-              options={[
-                { label: "Danh sách", value: "List", icon: <BarsOutlined /> },
-                { label: "Thẻ", value: "Card", icon: <AppstoreOutlined /> },
-              ]}
-              onChange={setView} // Update view state based on selected option
-            />
+            <Row style={{ width: "100%", marginBottom: "1rem" }}>
+              <Col lg={8}>
+                {/* Đổi cách list data */}
+                <Segmented
+                  style={{ margin: "10px 10px" }}
+                  options={[
+                    {
+                      label: "Danh sách",
+                      value: "List",
+                      icon: <BarsOutlined />,
+                    },
+                    { label: "Thẻ", value: "Card", icon: <AppstoreOutlined /> },
+                  ]}
+                  onChange={setView}
+                />
+              </Col>
+              <Col
+                lg={24}
+                style={{
+                  display: view === "List" ? "flex" : "none",
+                  alignItems: "center",
+                  marginLeft: "0.7rem",
+                  gap: "1rem",
+                }}
+              >
+                {/* <h5><FilterOutlined />Lọc vấn đề</h5> */}
+                <Tooltip title="Làm mới bảng">
+                  <Button
+                    onClick={() => handleResetFilterTable()}
+                    style={{
+                      padding: "8px",
+                    }}
+                  >
+                    <SyncOutlined />
+                  </Button>
+                </Tooltip>
+                <Space direction="vertical">
+                  <Radio.Group>
+                    <Radio.Button style={{ display: "none" }}>
+                      <Tooltip title="Vấn đề nhóm chưa chốt đề tài">
+                        <Space>
+                          <ProjectOutlined />
+                          <Badge count="1" />
+                        </Space>
+                      </Tooltip>
+                    </Radio.Button>
+                    <Radio.Button
+                      value={showEmptyColumn}
+                      onClick={() => handleFilterClassHaveEmptyGroup()}
+                    >
+                      <Tooltip title="Vấn đề lớp chưa có nhóm">
+                        <Space>
+                          <UserOutlined />
+                          <Badge count="1" />
+                        </Space>
+                      </Tooltip>
+                    </Radio.Button>
+                    <Radio.Button
+                      value={showUngropColumn}
+                      onClick={() => handleFilterClassHaveUnGroup()}
+                    >
+                      <Tooltip title="Vấn đề nhóm chưa chốt đủ thành viên">
+                        <Space>
+                          <TeamOutlined />
+                          <Badge count="1" color="#FFBA57" />
+                        </Space>
+                      </Tooltip>
+                    </Radio.Button>
+                    <Radio.Button style={{ display: "none" }}>
+                      <Tooltip title="Vấn đề nhóm chưa nộp bài tập hoặc nộp muộn">
+                        <Space>
+                          <FieldTimeOutlined />
+                          <Badge count="1" />
+                        </Space>
+                      </Tooltip>
+                    </Radio.Button>
+                  </Radio.Group>
+                </Space>
+              </Col>
+            </Row>
             <Card.Grid style={{ width: "100%", padding: "0px" }}>
-              {view === "List" ? <TableClass /> : <CardClass />}
+              {view === "List" ? (
+                <TableClass
+                  ungroup={showUngropColumn}
+                  emptygroup={showEmptyColumn}
+                />
+              ) : (
+                <CardClass />
+              )}
             </Card.Grid>
           </Card>
         </Col>

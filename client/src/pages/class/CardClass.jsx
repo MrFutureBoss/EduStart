@@ -1,15 +1,16 @@
-import React from "react";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassTaskData } from "../../redux/slice/ClassManagementSlice";
 import { useRef, useState, useEffect, useMemo } from "react";
 import { Card, Empty, Tooltip } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const CardClass = () => {
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
   const config = useMemo(
     () => ({
@@ -41,6 +42,10 @@ const CardClass = () => {
 
   const classTask = useSelector((state) => state.classManagement.classtask);
 
+  const handleMoveToClassDetail = (value) => {
+    navigate(`/teacher-dashboard/class/detail/${value}`);
+  };
+
   return (
     <div
       style={{
@@ -64,6 +69,7 @@ const CardClass = () => {
                   <div>{cl?.className}</div>
                 </div>
               }
+              onClick={() => handleMoveToClassDetail(cl?.className)}
               bodyStyle={{
                 padding: "0",
               }}
