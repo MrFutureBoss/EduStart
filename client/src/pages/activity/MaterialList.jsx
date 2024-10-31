@@ -6,29 +6,20 @@ import {
   message,
   Modal,
   Progress,
-  Layout,
-  Dropdown,
   Tooltip,
+  Empty,
 } from "antd";
 import {
-  PlusOutlined,
-  CloudUploadOutlined,
   FileImageOutlined,
   FilePdfOutlined,
   FileWordOutlined,
   FileOutlined,
-  DownloadOutlined,
-  FolderOutlined,
-  CarryOutOutlined,
-  FormOutlined,
-  FileAddOutlined,
+  CloudUploadOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import { useDispatch, useSelector } from "react-redux";
-import { setClassList } from "../../redux/slice/ClassSlice";
+import "../../style/Activity/materialActivity.css";
 
-// Function to return the correct file icon based on file extension
 const getFileIcon = (fileName) => {
   const extension = fileName.split(".").pop().toLowerCase();
   switch (extension) {
@@ -37,58 +28,31 @@ const getFileIcon = (fileName) => {
     case "png":
     case "gif":
       return (
-        <FileImageOutlined style={{ fontSize: "24px", color: "#52c41a" }} />
+        <FileImageOutlined style={{ fontSize: "16px", color: "#52c41a" }} />
       );
     case "pdf":
-      return <FilePdfOutlined style={{ fontSize: "24px", color: "#f5222d" }} />;
+      return <FilePdfOutlined style={{ fontSize: "16px", color: "#f5222d" }} />;
     case "doc":
     case "docx":
       return (
-        <FileWordOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
+        <FileWordOutlined style={{ fontSize: "16px", color: "#1890ff" }} />
       );
-    case "folder":
-      return <FolderOutlined style={{ fontSize: "24px", color: "#faad14" }} />;
     default:
-      return <FileOutlined style={{ fontSize: "24px", color: "#8c8c8c" }} />;
+      return <FileOutlined style={{ fontSize: "16px", color: "#8c8c8c" }} />;
   }
 };
 
-const getFileType = (fileName) => {
-  const extension = fileName.split(".").pop().toLowerCase();
-  switch (extension) {
-    case "jpg":
-    case "jpeg":
-    case "png":
-      return "Image File";
-    case "pdf":
-      return "PDF Document";
-    case "doc":
-    case "docx":
-      return "Word 2007 Document";
-    default:
-      return extension.toUpperCase();
-  }
-};
-
-const MaterialList = () => {
+const MaterialList = ({ selectedClassId }) => {
   const [materials, setMaterials] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [fileToUpload, setFileToUpload] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadPercent, setUploadPercent] = useState(0);
-  const [selectedClassId, setSelectedClassId] = useState(null);
-  const [selectedClassName, setSelectedClassName] = useState("");
+  const [noMaterials, setNoMaterials] = useState(false);
 
-  const userId = localStorage.getItem("userId");
   const jwt = localStorage.getItem("jwt");
-
-  const dispatch = useDispatch();
-  const classList = useSelector((state) => state.class.classList);
-
   const config = {
-    headers: {
-      Authorization: `Bearer ${jwt}`,
-    },
+    headers: { Authorization: `Bearer ${jwt}` },
     onUploadProgress: (progressEvent) => {
       const percentCompleted = Math.round(
         (progressEvent.loaded * 100) / progressEvent.total
@@ -98,21 +62,10 @@ const MaterialList = () => {
   };
 
   useEffect(() => {
-    if (classList.length === 0) {
-      const fetchClasses = async () => {
-        try {
-          const response = await axios.get(
-            `${BASE_URL}/class/${userId}/user`,
-            config
-          );
-          dispatch(setClassList(response.data));
-        } catch (error) {
-          message.error("Error fetching classes");
-        }
-      };
-      fetchClasses();
+    if (selectedClassId) {
+      fetchMaterials(selectedClassId);
     }
-  }, [userId, config, dispatch, classList.length]);
+  }, [selectedClassId]);
 
   const fetchMaterials = async (classId) => {
     try {
@@ -124,118 +77,76 @@ const MaterialList = () => {
         (activity) => activity.activityType === "material"
       );
 
-      const docs = allMaterials.filter((material) =>
-        ["doc", "docx", "pdf"].includes(material.materialUrl.split(".").pop())
-      );
-      const images = allMaterials.filter((material) =>
-        ["jpg", "jpeg", "png", "gif"].includes(
-          material.materialUrl.split(".").pop()
-        )
-      );
+      if (allMaterials.length === 0) {
+        setNoMaterials(true);
+      } else {
+        setNoMaterials(false);
+        const docs = allMaterials.filter((m) =>
+          ["doc", "docx", "pdf"].includes(m.materialUrl.split(".").pop())
+        );
+        const images = allMaterials.filter((m) =>
+          ["jpg", "jpeg", "png", "gif"].includes(m.materialUrl.split(".").pop())
+        );
 
-      const treeData = [
-        {
-          title: "Tài liệu",
-          key: "Tài liệu",
-          // switcherIcon: <FormOutlined />,
-          children: docs.map((doc, index) => ({
-            title: doc.materialUrl.split("/").pop(),
-            key: `docs-${index}`,
-            icon: getFileIcon(doc.materialUrl),
-            materialUrl: doc.materialUrl,
-            type: getFileType(doc.materialUrl),
-          })),
-        },
-        {
-          title: "Hình ảnh",
-          key: "Hình ảnh",
-          // switcherIcon: <FormOutlined />,
-          children: images.map((img, index) => ({
-            title: img.materialUrl.split("/").pop(),
-            key: `images-${index}`,
-            icon: getFileIcon(img.materialUrl),
-            materialUrl: img.materialUrl,
-            type: getFileType(img.materialUrl),
-          })),
-        },
-      ];
-
-      setMaterials(treeData);
+        setMaterials([
+          {
+            title: (
+              <span>
+                Tài liệu {" "}
+                <span
+                  style={{
+                    backgroundColor: "#52c41a",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                    textAlign: "center",
+                    color: "#fff",
+                    minWidth: "24px",
+                  }}
+                >
+                  {docs.length}
+                </span>
+              </span>
+            ),
+            key: "Tài liệu",
+            children: docs.map((doc, i) => ({
+              title: doc.materialUrl.split("/").pop(),
+              key: `docs-${i}`,
+              icon: getFileIcon(doc.materialUrl),
+              materialUrl: doc.materialUrl,
+            })),
+          },
+          {
+            title: (
+              <span>
+                Hình ảnh {" "}
+                <span
+                  style={{
+                    backgroundColor: "#52c41a",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                    textAlign: "center",
+                    color: "#fff",
+                    minWidth: "24px",
+                  }}
+                >
+                  {images.length}
+                </span>
+              </span>
+            ),
+            key: "Hình ảnh",
+            children: images.map((img, i) => ({
+              title: img.materialUrl.split("/").pop(),
+              key: `images-${i}`,
+              icon: getFileIcon(img.materialUrl),
+              materialUrl: img.materialUrl,
+            })),
+          },
+        ]);
+      }
     } catch (error) {
-      message.error("Error fetching materials");
+      setNoMaterials(true);
+      message.error("Error fetching materials.");
     }
-  };
-
-  useEffect(() => {
-    if (selectedClassId) {
-      fetchMaterials(selectedClassId);
-    }
-  }, [selectedClassId, config]);
-
-  const checkIfFileExists = async (filename) => {
-    try {
-      const response = await axios.get(
-        `${BASE_URL}/activity/checkFileExists?fileName=${filename}&classId=${selectedClassId}`,
-        config
-      );
-      return response.data.exists;
-    } catch (error) {
-      message.error("Error checking file existence");
-      return false;
-    }
-  };
-
-  const uploadFile = async (file) => {
-    const fileExists = await checkIfFileExists(file.name);
-    if (fileExists) {
-      message.error(`File "${file.name}" already exists. Please rename.`);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("materialFile", file);
-    formData.append("classId", selectedClassId);
-    formData.append("activityType", "material");
-
-    try {
-      setUploading(true);
-      const response = await axios.post(
-        `${BASE_URL}/activity`,
-        formData,
-        config
-      );
-      message.success(`${file.name} uploaded successfully.`);
-      setFileToUpload(null);
-      fetchMaterials(selectedClassId);
-    } catch (error) {
-      message.error(`${file.name} failed to upload.`);
-    } finally {
-      setUploading(false);
-      setIsModalVisible(false);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (fileToUpload) {
-      await uploadFile(fileToUpload);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setFileToUpload(null);
-  };
-
-  const handleAddNewMaterial = () => {
-    setFileToUpload(null);
-    setIsModalVisible(true);
-  };
-
-  const uploadProps = {
-    beforeUpload: (file) => {
-      setFileToUpload(file);
-      return false;
-    },
   };
 
   const handleDownload = async (materialUrl) => {
@@ -258,113 +169,155 @@ const MaterialList = () => {
       link.click();
       link.remove();
     } catch (error) {
-      message.error("Error downloading the file");
+      message.error("Error downloading the file.");
     }
   };
 
-  const [collapsed, setCollapsed] = useState(false);
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
+  const checkIfFileExists = async (fileName) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/activity/checkFileExists?fileName=${fileName}&classId=${selectedClassId}`,
+        config
+      );
+      return response.data.exists;
+    } catch (error) {
+      message.error("Error checking file existence");
+      return false;
+    }
   };
 
-  const classMenu = {
-    items: classList.map((classItem) => ({
-      key: classItem._id,
-      label: classItem.className,
-    })),
-    onClick: ({ key }) => {
-      const selectedClass = classList.find(
-        (classItem) => classItem._id === key
+  const uploadFile = async (file) => {
+    const fileExists = await checkIfFileExists(file.name);
+    if (fileExists) {
+      message.error(
+        `Tệp "${file.name}" đã tồn tại. Đổi tên trước khi tải lên.`
       );
-      setSelectedClassId(key);
-      setSelectedClassName(selectedClass.className);
-    },
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("materialFile", file);
+    formData.append("classId", selectedClassId);
+    formData.append("activityType", "material");
+
+    try {
+      setUploading(true);
+      await axios.post(`${BASE_URL}/activity`, formData, config);
+      message.success(`${file.name} uploaded successfully.`);
+      setFileToUpload(null);
+      fetchMaterials(selectedClassId);
+    } catch (error) {
+      message.error(`${file.name} failed to upload.`);
+    } finally {
+      setUploading(false);
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (fileToUpload) {
+      await uploadFile(fileToUpload);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setFileToUpload(null);
   };
 
   return (
-    <Layout>
-      <div style={{ padding: "24px", width: "100%" }}>
-        <h1>Tài liệu chung</h1>
-
-        <Dropdown menu={classMenu} trigger={["click"]}>
-          <Button style={{ marginBottom: "16px" }}>
-            {selectedClassName
-              ? `Lớp: ${selectedClassName}`
-              : "Chọn lớp"}
-          </Button>
-        </Dropdown>
-
+    <div className="material-box">
+      <div className="material-header">
+        <span className="material-title">Tài liệu</span>
+        <CloudUploadOutlined
+          style={{ fontSize: "20px", cursor: "pointer" }}
+          onClick={() => setIsModalVisible(true)}
+        />
+      </div>
+      {noMaterials ? (
+        <p>Không có tài liệu</p>
+      ) : (
         <Tree
           showLine={{ showLeafIcon: true }}
-          showIcon={true}
-          defaultExpandedKeys={["docs"]}
+          showIcon={false}
+          defaultExpandedKeys={["Tài liệu", "Hình ảnh"]}
           treeData={materials}
+          defaultExpandAll
           titleRender={(nodeData) => (
             <Tooltip title={`File: ${nodeData.title}`}>
-              <span onClick={() => handleDownload(nodeData.materialUrl)}>
-                {nodeData.title} 
-              </span>
+              <div
+                onClick={() => handleDownload(nodeData.materialUrl)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  maxWidth: "150px",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ marginRight: "8px" }}>{nodeData.icon}</span>
+                <span
+                  style={{
+                    display: "inline-block",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    width: "100%",
+                  }}
+                  className="tree-node-title"
+                >
+                  {nodeData.title}
+                </span>
+              </div>
             </Tooltip>
           )}
         />
-
-        <Button
-          type="primary"
-          icon={<FileAddOutlined />}
-          style={{ marginTop: "16px"}}
-          onClick={handleAddNewMaterial} 
-          disabled={!selectedClassId}
-        >Thêm tệp
-        </Button>
-
-        <Modal
-          title="Tải lên thư mục mới"
-          visible={isModalVisible}
-          onCancel={handleCancel}
-          footer={[
-            <Button
-              key="submit"
-              type="primary"
-              onClick={handleUpload}
-              disabled={!fileToUpload}
-              loading={uploading}
-            >
-              Tải lên
-            </Button>,
-          ]}
+      )}
+      <Modal
+        title="Tải lên thư mục mới"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={[
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleUpload}
+            disabled={!fileToUpload}
+            loading={uploading}
+          >
+            Tải lên
+          </Button>,
+        ]}
+      >
+        <Upload.Dragger
+          beforeUpload={(file) => {
+            setFileToUpload(file);
+            return false;
+          }}
+          fileList={fileToUpload ? [fileToUpload] : []}
         >
-          <Upload.Dragger {...uploadProps}>
-            <p className="ant-upload-drag-icon">
-              <CloudUploadOutlined style={{ fontSize: "48px" }} />
+          <p className="ant-upload-drag-icon">
+            <CloudUploadOutlined style={{ fontSize: "48px" }} />
+          </p>
+          <p className="ant-upload-text">Kéo & thả 1 tệp ở đây</p>
+          <p className="ant-upload-hint">
+            Hỗ trợ .docx, .pdf, .jpg, và các tệp khác.
+          </p>
+        </Upload.Dragger>
+        {fileToUpload && (
+          <div>
+            <p>
+              <strong>Tên:</strong> {fileToUpload.name}
             </p>
-            <p className="ant-upload-text">Kéo & thả 1 tệp ở đây</p>
-            <p className="ant-upload-hint">
-              Hỗ trợ .docx, .pdf, .jpg, và các tệp khác.
+            <p>
+              <strong>Kích cỡ:</strong>{" "}
+              {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
             </p>
-          </Upload.Dragger>
-          {fileToUpload && (
-            <div>
-              <p>
-                <strong>Tên:</strong> {fileToUpload.name}
-              </p>
-              <p>
-                <strong>Định dạng:</strong> {getFileType(fileToUpload.name)}
-              </p>
-              <p>
-                <strong>Kích cỡ:</strong>{" "}
-                {(fileToUpload.size / (1024 * 1024)).toFixed(2)} MB
-              </p>
-            </div>
-          )}
-          {uploading && (
-            <Progress
-              percent={uploadPercent}
-              status={uploading ? "active" : "normal"}
-            />
-          )}
-        </Modal>
-      </div>
-    </Layout>
+          </div>
+        )}
+        {uploading && <Progress percent={uploadPercent} status="active" />}
+      </Modal>
+    </div>
   );
 };
 

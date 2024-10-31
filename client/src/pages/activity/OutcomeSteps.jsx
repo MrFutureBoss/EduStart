@@ -1,86 +1,256 @@
-import React, { useEffect, useState } from "react";
-import { Steps, Tooltip } from "antd";
-import { UserOutlined } from "@ant-design/icons";
-import moment from "moment";
+import React, { useState, useMemo } from "react";
+import {
+  Steps,
+  Tooltip,
+  Typography,
+  message,
+  Modal,
+  Select,
+  Form,
+  DatePicker,
+  Button,
+  Checkbox,
+} from "antd";
+import { UserOutlined, BellOutlined } from "@ant-design/icons";
+import axios from "axios";
 import "../../style/Activity/outcomeSteps.css";
+import { BASE_URL } from "../../utilities/initalValue";
 
 const { Step } = Steps;
+const { Text } = Typography;
+const { Option } = Select;
 
-const OutcomeSteps = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [personPosition, setPersonPosition] = useState(0);
-  const [percent, setPercent] = useState(0); // Thêm biến phần trăm
-  const [today, setToday] = useState(moment());
+const OutcomeSteps = ({
+  userId,
+  jwt,
+  assignedClassesCount,
+  unassignedClasses,
+  setAssignedClassesCount,
+  setAssignedClasses,
+  setUnassignedClasses,
+  classList,
+}) => {
+  const [currentStep] = useState(0);
+  const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
+  const [selectAll, setSelectAll] = useState(false);
 
-  // Định nghĩa các ngày bắt đầu và kết thúc của từng outcome
-  const START_DATE = moment("2024-09-15");
-  const OUTCOME_1_END = moment("2024-10-10");
-  const OUTCOME_2_END = moment("2024-11-05");
-  const END_DATE = moment("2024-11-30");
+  const config = useMemo(
+    () => ({
+      headers: { Authorization: `Bearer ${jwt}` },
+    }),
+    [jwt]
+  );
 
-  useEffect(() => {
-    // Cập nhật ngày hiện tại khi component render
-    setToday(moment());
+  const assignedClasses = classList.filter(
+    (cls) => !unassignedClasses.some((unassigned) => unassigned._id === cls._id)
+  );
 
-    // Tính toán bước tiến trình dựa trên ngày hiện tại
-    const today = moment();
-    let totalDuration = END_DATE.diff(START_DATE, "days");
-    let currentOutcomeDuration, outcomeProgress, currentPercent;
+  const showAssignModal = () => {
+    setIsAssignModalVisible(true);
+  };
 
-    // Outcome 1
-    if (today.isBefore(OUTCOME_1_END)) {
-      setCurrentStep(0);
-      currentOutcomeDuration = OUTCOME_1_END.diff(START_DATE, "days");
-      outcomeProgress = today.diff(START_DATE, "days");
-      currentPercent = Math.round((outcomeProgress / currentOutcomeDuration) * 100); // Tính phần trăm tiến trình
-      setPersonPosition((outcomeProgress / currentOutcomeDuration) * 33); // Trong phạm vi outcome 1
+  const handleCancelAssignModal = () => {
+    setIsAssignModalVisible(false);
+    form.resetFields();
+    setSelectAll(false);
+  };
+
+  const handleAssignOutcome = async (values) => {
+    setLoading(true);
+    const { startDate, deadline } = values;
+
+    try {
+      const classIdsToAssign = selectAll
+        ? unassignedClasses.map((cls) => cls._id)
+        : [values.classId];
+
+      await Promise.all(
+        classIdsToAssign.map((classId) =>
+          axios.post(
+            `${BASE_URL}/activity`,
+            {
+              assignmentType: "outcome 1",
+              startDate: startDate.toISOString(),
+              deadline: deadline.toISOString(),
+              activityType: "outcome",
+              classId,
+            },
+            config
+          )
+        )
+      );
+
+      message.success("Giao Outcome 1 thành công!");
+      setIsAssignModalVisible(false);
+      form.resetFields();
+      setSelectAll(false);
+
+      const updatedAssignedClasses = classList.filter((cls) =>
+        classIdsToAssign.includes(cls._id)
+      );
+      const updatedUnassignedClasses = unassignedClasses.filter(
+        (cls) => !classIdsToAssign.includes(cls._id)
+      );
+
+      setAssignedClasses((prev) => [...prev, ...updatedAssignedClasses]);
+      setUnassignedClasses(updatedUnassignedClasses);
+      setAssignedClassesCount((prev) => prev + classIdsToAssign.length);
+    } catch (error) {
+      console.error("Error assigning outcome:", error);
+      message.error("Giao Outcome 1 thất bại!");
+    } finally {
+      setLoading(false);
     }
-    // Outcome 2
-    else if (today.isBefore(OUTCOME_2_END)) {
-      setCurrentStep(1);
-      currentOutcomeDuration = OUTCOME_2_END.diff(OUTCOME_1_END, "days");
-      outcomeProgress = today.diff(OUTCOME_1_END, "days");
-      currentPercent = Math.round((outcomeProgress / currentOutcomeDuration) * 100); // Tính phần trăm tiến trình
-      setPersonPosition(33 + (outcomeProgress / currentOutcomeDuration) * 33); // Di chuyển giữa outcome 1 và 2
-    }
-    // Outcome 3
-    else if (today.isBefore(END_DATE)) {
-      setCurrentStep(2);
-      currentOutcomeDuration = END_DATE.diff(OUTCOME_2_END, "days");
-      outcomeProgress = today.diff(OUTCOME_2_END, "days");
-      currentPercent = Math.round((outcomeProgress / currentOutcomeDuration) * 100); // Tính phần trăm tiến trình
-      setPersonPosition(66 + (outcomeProgress / currentOutcomeDuration) * 34); // Di chuyển giữa outcome 2 và 3
-    }
-    // Sau khi tất cả outcomes đã hoàn tất
-    else {
-      setCurrentStep(3);
-      currentPercent = 100;
-      setPersonPosition(100); // Đã hoàn thành tất cả các outcome
-    }
-
-    setPercent(currentPercent); // Cập nhật phần trăm vào state
-  }, [today]);
+  };
 
   return (
     <div className="outcome-steps-container">
-      {/* Thanh tiến trình chính giữa các Step */}
       <div className="step-progress-bar">
-        <Tooltip title={`Tiến trình hiện tại: ${today.format("DD/MM/YYYY")}`}>
-          <div
-            className="person-icon"
-            style={{ left: `${personPosition}%` }} // Điều chỉnh vị trí icon theo thời gian
-          >
+        <Tooltip title="Step hiện tại đang ở Outcome 1">
+          <div className="person-icon" style={{ left: "0%" }}>
             <UserOutlined style={{ fontSize: "24px", color: "#1890ff" }} />
           </div>
         </Tooltip>
       </div>
 
-      {/* Các Step (các outcome) */}
       <Steps current={currentStep} size="default" direction="horizontal">
-        <Step title="Outcome 1" description="15/09 - 10/10/2024" />
-        <Step title="Outcome 2" percent="70%" description="11/10 - 05/11/2024" />
-        <Step title="Outcome 3" description="06/11 - 30/11/2024" />
+        <Step
+          title="Outcome 1"
+          description={
+            <>
+              <Tooltip
+                title={
+                  assignedClasses.length > 0
+                    ? assignedClasses.length === 1
+                      ? `${assignedClasses[0].className} đã được giao`
+                      : `${assignedClasses.map((cls) => cls.className).join(", ")} đã được giao`
+                    : "Chưa có lớp nào được giao"
+                }
+              >
+                <Text type="success">
+                  {assignedClassesCount}/{classList.length} lớp đã giao
+                </Text>
+              </Tooltip>
+              <br />
+              <Tooltip
+                title={
+                  unassignedClasses.length > 0
+                    ? unassignedClasses.map((cls) => cls.className).join(", ")
+                    : "Tất cả các lớp đã được giao"
+                }
+              >
+                <Text type="warning">
+                  {unassignedClasses.length}/{classList.length} chưa giao
+                </Text>
+                <BellOutlined
+                  style={{
+                    color: "#ff4d4f",
+                    marginLeft: "8px",
+                    cursor: "pointer",
+                    fontSize: "20px",
+                  }}
+                  onClick={showAssignModal}
+                />
+              </Tooltip>
+            </>
+          }
+        />
+        <Step title="Outcome 2" description="" />
+        <Step title="Outcome 3" description="" />
       </Steps>
+
+      <Modal
+        title="Giao Outcome cho các lớp"
+        visible={isAssignModalVisible}
+        onCancel={handleCancelAssignModal}
+        footer={null}
+      >
+        <Form form={form} layout="vertical" onFinish={handleAssignOutcome}>
+          <Form.Item>
+            <Checkbox
+              checked={selectAll}
+              onChange={(e) => setSelectAll(e.target.checked)}
+            >
+              Giao cho tất cả các lớp chưa có Outcome
+            </Checkbox>
+          </Form.Item>
+          <Form.Item
+            name="classId"
+            label="Chọn lớp"
+            rules={[
+              {
+                required: !selectAll,
+                message: "Vui lòng chọn lớp nếu không chọn tất cả",
+              },
+            ]}
+          >
+            <Select
+              placeholder="Chọn lớp chưa giao outcome"
+              disabled={selectAll}
+              allowClear
+            >
+              {unassignedClasses.map((classItem) => (
+                <Option key={classItem._id} value={classItem._id}>
+                  {classItem.className}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="startDate"
+            label="Ngày bắt đầu"
+            rules={[
+              { required: true, message: "Vui lòng chọn ngày bắt đầu" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const deadline = getFieldValue("deadline");
+                  if (!value) {
+                    return Promise.resolve();
+                  }
+                  if (!deadline || value.isBefore(deadline)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("Ngày bắt đầu không thể sau hạn nộp")
+                  );
+                },
+              }),
+            ]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item
+            name="deadline"
+            label="Hạn nộp"
+            rules={[
+              { required: true, message: "Vui lòng chọn hạn nộp" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const startDate = getFieldValue("startDate");
+                  if (!value) {
+                    return Promise.resolve();
+                  }
+                  if (!startDate || value.isAfter(startDate)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("Hạn nộp phải sau ngày bắt đầu")
+                  );
+                },
+              }),
+            ]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Giao Outcome (Outcome 1)
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

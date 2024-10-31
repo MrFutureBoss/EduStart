@@ -36,6 +36,7 @@
     "react-toastify": "^10.0.6",
     "redux": "^5.0.1",
     "socket.io-client": "^4.8.1",
+    "reselect": "^5.1.1",
     "sortablejs": "^1.15.3",
     "sweetalert2": "^11.14.2",
     "web-vitals": "^2.1.4",

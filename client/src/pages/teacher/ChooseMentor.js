@@ -1,145 +1,121 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Layout, Typography, Button } from "antd";
-import TreeView from "../../components/Teacher/TreeView";
-import MentorSelection from "../../components/Teacher/MentorSelection";
-import GuidedTour from "../../components/Teacher/GuidedTour";
+// ChooseMentor.js
+import React, { useState } from "react";
+import { Layout, Row, Col, Statistic, Card, Empty } from "antd";
+import { useSelector, useDispatch } from "react-redux";
+import TreeView from "./TreeView";
+import {
+  setProfession,
+  setSpecialty,
+  setStepCheck,
+} from "../../redux/slice/SelectMentorSlice";
+import MentorSelectionOverview from "./MentorSelectionOverview";
 
-const { Header, Content, Sider } = Layout;
-const { Title, Text } = Typography;
+const { Sider, Content } = Layout;
 
 const ChooseMentor = () => {
-  const [selectedProfession, setSelectedProfession] = useState(null);
-  const [selectedSpecialty, setSelectedSpecialty] = useState(null);
-  const [selectedMentorsBySpecialty, setSelectedMentorsBySpecialty] = useState(
-    {}
-  );
-  const [collapsed, setCollapsed] = useState(false);
-  const [professionName, setProfessionName] = useState(""); // Tên chuyên ngành
-  const [specialtyName, setSpecialtyName] = useState(""); // Tên chuyên môn
-
-  // References for GuidedTour
-  const firstProfessionRef = useRef(null);
-  const firstSpecialtyRef = useRef(null);
-  const mentorPriorityRef = useRef(null);
-  const mentorAvailableRef = useRef(null);
-  const saveButtonRef = useRef(null);
-
-  // Check if guided tour is completed
-  const guidedTourCompleted = !!localStorage.getItem("guidedTourCompleted");
-
-  // Khi chọn profession hoặc specialty
+  const dispatch = useDispatch();
+  const {
+    selectedProfessionId,
+    selectedSpecialtyId,
+    professionCount,
+    specialtyCount,
+    updatedCount,
+    notUpdatedCount,
+    stepCheck,
+  } = useSelector((state) => state.selectMentor);
+  const [professionName, setProfessionName] = useState("");
+  const [specialtyName, setSpecialtyName] = useState("");
   const handleSelect = (
     professionId,
     specialtyId,
     professionName,
     specialtyName
   ) => {
-    setSelectedProfession(professionId);
-    // Chỉ thay đổi tên profession, không làm mất tên specialty
-    setProfessionName(professionName);
-
-    // Nếu chọn mới chuyên môn thì cập nhật, nếu không thì giữ nguyên
     if (specialtyId) {
-      setSelectedSpecialty(specialtyId);
-      setSpecialtyName(specialtyName); // Cập nhật tên chuyên môn
+      dispatch(setProfession({ professionId, professionName }));
+      dispatch(setSpecialty({ specialtyId, specialtyName }));
+      dispatch(setStepCheck(1));
+      setProfessionName(professionName);
+      setSpecialtyName(specialtyName);
     }
   };
 
-  // Nếu dữ liệu mentor thay đổi thì reset specialtyName
-  useEffect(() => {
-    if (
-      selectedMentorsBySpecialty[selectedSpecialty] &&
-      selectedMentorsBySpecialty[selectedSpecialty].length > 0
-    ) {
-      setSpecialtyName(""); // Reset lại nếu có mentor mới được chọn
-    }
-  }, [selectedMentorsBySpecialty, selectedSpecialty]);
-
-  const handleRestartTour = () => {
-    localStorage.removeItem("guidedTourCompleted");
-    window.location.reload(); // Reload to restart the tour
-  };
-
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-  };
+  console.log("stepCheck", stepCheck);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {!guidedTourCompleted && (
-        <GuidedTour
-          selectedProfession={selectedProfession}
-          selectedSpecialty={selectedSpecialty}
-          selectedMentors={selectedMentorsBySpecialty[selectedSpecialty] || []}
-          onComplete={() => {
-            if (firstProfessionRef.current) {
-              firstProfessionRef.current.click(); // Simulate a click on the first profession
-            }
-            if (firstSpecialtyRef.current) {
-              firstSpecialtyRef.current.click(); // Simulate a click on the first specialty
-            }
-          }}
-        />
-      )}
-
-      <Sider width={250} style={{ background: "#fff", padding: "0px" }}>
-        <div>
-          <Title level={4}>Chọn Chuyên Ngành</Title>
-        </div>
-        <TreeView
-          onSelect={handleSelect}
-          onFirstProfessionRefReady={(node) => {
-            firstProfessionRef.current = node;
-            if (node) {
-              node.setAttribute("data-tour", "first-profession");
-            }
-          }}
-          onFirstSpecialtyRefReady={(node) => {
-            firstSpecialtyRef.current = node;
-            if (node) {
-              node.setAttribute("data-tour", "first-specialty");
-            }
-          }}
-          selectedProfession={selectedProfession}
-          selectedSpecialty={selectedSpecialty}
-        />
-      </Sider>
+      <div style={{ backgroundColor: "#FFFF" }}>
+        <Row style={{ marginBottom: 20 }} gutter={16} justify="center">
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic title="Tổng số lĩnh vực" value={professionCount} />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic title="Tổng số chuyên môn" value={specialtyCount} />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic
+                title="Chuyên môn đã chọn"
+                value={updatedCount}
+                valueStyle={{ color: "#52c41a" }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic
+                title="Chuyên môn chưa chọn"
+                value={notUpdatedCount}
+                valueStyle={{ color: "orange" }}
+              />
+            </Card>
+          </Col>
+        </Row>
+      </div>
 
       <Layout>
-        <Header
+        <Sider
+          width={300}
           style={{
             background: "#fff",
-            padding: "0 20px",
-            marginBottom: -23,
-
-            paddingBottom: 2,
+            padding: "20px",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Title level={3}>
-            {professionName
-              ? `${professionName} - ${specialtyName || "Chọn chuyên môn"}`
-              : "Chọn Mentor"}
-          </Title>
-        </Header>
-        <Content style={{ background: "#fff", padding: "20px" }}>
-          <Button
-            type="primary"
-            onClick={handleRestartTour}
-            style={{ marginBottom: "20px" }}
-          >
-            Bắt đầu lại hướng dẫn
-          </Button>
-
-          <MentorSelection
-            professionId={selectedProfession}
-            specialtyId={selectedSpecialty}
-            selectedMentorsBySpecialty={selectedMentorsBySpecialty}
-            setSelectedMentorsBySpecialty={setSelectedMentorsBySpecialty}
-            mentorPriorityRef={mentorPriorityRef}
-            mentorAvailableRef={mentorAvailableRef}
-            saveButtonRef={saveButtonRef}
+          <TreeView
+            onSelect={handleSelect}
+            selectedProfession={selectedProfessionId}
+            selectedSpecialty={selectedSpecialtyId}
           />
-        </Content>
+        </Sider>
+
+        <Layout>
+          <Content
+            style={{
+              padding: "29px",
+              background: "#fff",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            {professionName ? (
+              <MentorSelectionOverview
+                professionId={selectedProfessionId}
+                specialtyId={selectedSpecialtyId}
+                professionName={professionName}
+                specialtyName={specialtyName}
+              />
+            ) : (
+              <Empty
+                description={<span>Vui lòng chọn chuyên môn để hiển thị!</span>}
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              ></Empty>
+            )}
+          </Content>
+        </Layout>
       </Layout>
     </Layout>
   );

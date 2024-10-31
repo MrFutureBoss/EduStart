@@ -12,6 +12,7 @@ import {
   Card,
   Tooltip,
   Input,
+  Steps,
 } from "antd";
 import {
   UploadOutlined,
@@ -20,6 +21,11 @@ import {
   FileOutlined,
   ExclamationCircleOutlined,
   EditOutlined,
+  DownOutlined,
+  ProfileOutlined,
+  DeleteOutlined,
+  UserOutlined,
+  FlagOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -30,6 +36,8 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import DOMPurify from "dompurify";
 import "../../style/Activity/postActivity.css";
+import MaterialList from "./MaterialList";
+import OutcomeList from "./OutcomeActivity";
 
 const PostActivity = () => {
   const [posts, setPosts] = useState([]);
@@ -39,10 +47,15 @@ const PostActivity = () => {
   const [uploading, setUploading] = useState(false);
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [selectedClassName, setSelectedClassName] = useState("");
-  const [commentContent, setCommentContent] = useState("");
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const [filteredClasses, setFilteredClasses] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [suggestedText, setSuggestedText] = useState("");
+  const [noPosts, setNoPosts] = useState(false);
+  const [outcomes, setOutcomes] = useState([]);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const jwt = localStorage.getItem("jwt");
   const username = localStorage.getItem("username");
@@ -62,9 +75,18 @@ const PostActivity = () => {
         `${BASE_URL}/activity?classId=${classId}&activityType=post`,
         config
       );
-      setPosts(response.data.filter((post) => post.activityType === "post"));
+      const postData = response.data.filter(
+        (post) => post.activityType === "post"
+      );
+
+      if (postData.length === 0) {
+        setNoPosts(true);
+      } else {
+        setNoPosts(false);
+        setPosts(postData);
+      }
     } catch (error) {
-      message.error("Error fetching posts");
+      setNoPosts(true);
     }
   };
 
@@ -73,7 +95,9 @@ const PostActivity = () => {
       try {
         const response = await axios.get(
           `${BASE_URL}/class/${localStorage.getItem("userId")}/user`,
-          config
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+          }
         );
         dispatch(setClassList(response.data));
       } catch (error) {
@@ -83,13 +107,13 @@ const PostActivity = () => {
     if (classList.length === 0) {
       fetchClasses();
     }
-  }, [classList.length, config, dispatch]);
+  }, [classList.length, dispatch]);
 
-  const handleClassSelect = ({ key }) => {
-    const selectedClass = classList.find((classItem) => classItem._id === key);
-    setSelectedClassId(key);
-    setSelectedClassName(selectedClass.className);
-    fetchPosts(key);
+  const handleClassSelect = (classItem) => {
+    setSelectedClassId(classItem._id);
+    setSelectedClassName(classItem.className);
+    fetchPosts(classItem._id);
+    fetchOutcomes(classItem._id);
   };
 
   const handlePost = async () => {
@@ -116,15 +140,12 @@ const PostActivity = () => {
       setIsModalVisible(false);
       setPostContent("");
       setFileToUpload(null);
-      fetchPosts(selectedClassId); // Fetch lại posts sau khi đăng bài
+      await fetchPosts(selectedClassId);
     } catch (error) {
       message.error("Failed to create post");
     } finally {
       setUploading(false);
     }
-  };
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
   };
 
   const showModal = () => {
@@ -200,8 +221,8 @@ const PostActivity = () => {
       );
       message.success("Post updated successfully");
       setEditModalVisible(false);
-      setPostContent(""); // Reset lại nội dung sau khi chỉnh sửa
-      fetchPosts(selectedClassId); // Fetch lại posts sau khi cập nhật
+      setPostContent("");
+      fetchPosts(selectedClassId);
     } catch (error) {
       message.error("Failed to update post");
     } finally {
@@ -239,11 +260,6 @@ const PostActivity = () => {
     }
   };
 
-  const handleComment = (postId) => {
-    message.info(`Gửi nhận xét cho bài viết ${postId}`);
-    setCommentContent("");
-  };
-
   const handleDownload = async (materialUrl) => {
     try {
       const response = await axios.get(
@@ -271,158 +287,341 @@ const PostActivity = () => {
     const currentTime = moment();
     return currentTime.diff(postTime, "minutes") <= 10;
   };
+
   const handleCancelEdit = () => {
     setEditModalVisible(false);
     setPostContent("");
     setFileToUpload(null);
   };
-  const classMenu = {
-    items: classList.map((classItem) => ({
-      key: classItem._id,
-      label: classItem.className,
-    })),
-    onClick: handleClassSelect,
+  const handleInputChange = (e) => {
+    setSearchValue(e.target.value);
   };
-  return (
-      <Layout>
-        <div style={{ padding: "24px", width: "100%" }}>
-          <Dropdown menu={classMenu} trigger={["click"]}>
-            <Button style={{ marginBottom: "16px" }}>
-              {selectedClassName
-                ? `Lớp: ${selectedClassName}`
-                : "Chọn lớp"}
-            </Button>
-          </Dropdown>
+  const handleDropdownClick = () => {
+    setIsSearching(true);
+    setSearchValue("");
+  };
+  const classDropdown = (
+    <div style={{ padding: "8px" }}>
+      {isSearching ? (
+        <div style={{ position: "relative" }}>
+          <Input
+            placeholder="Tìm kiếm lớp học"
+            value={searchValue}
+            onChange={handleInputChange}
+            style={{ marginBottom: "8px", paddingRight: "8px" }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: `${searchValue.length * 8.5 + 12}px`,
+              transform: "translateY(-50%)",
+              color: "#bfbfbf",
+              pointerEvents: "none",
+            }}
+          >
+            {suggestedText}
+          </span>
+        </div>
+      ) : null}
+      <Menu>
+        {filteredClasses.length > 0 ? (
+          filteredClasses.map((classItem) => (
+            <Menu.Item
+              key={classItem._id}
+              onClick={() => handleClassSelect(classItem)}
+            >
+              {classItem.className}
+            </Menu.Item>
+          ))
+        ) : (
+          <Menu.Item disabled>Không tìm thấy lớp</Menu.Item>
+        )}
+      </Menu>
+    </div>
+  );
+  useEffect(() => {
+    if (searchValue) {
+      const filtered = classList.filter((classItem) =>
+        classItem.className.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setFilteredClasses(filtered);
 
+      const suggestion = filtered.length > 0 ? filtered[0].className : "";
+      setSuggestedText(
+        suggestion.startsWith(searchValue)
+          ? suggestion.slice(searchValue.length)
+          : ""
+      );
+    } else {
+      setFilteredClasses(classList);
+      setSuggestedText("");
+    }
+  }, [searchValue, classList]);
+  const refreshPosts = () => {
+    if (selectedClassId) {
+      fetchPosts(selectedClassId);
+    }
+  };
+  useEffect(() => {
+    if (selectedClassId) {
+      fetchOutcomes(selectedClassId);
+    } else {
+      setOutcomes([]);
+      setCurrentStep(0);
+    }
+  }, [selectedClassId]);
+  const determineCurrentStep = (outcomesList) => {
+    let step = 0;
+
+    while (step <= 3) {
+      const outcome = outcomesList.find(
+        (outcome) => outcome.assignmentType.toLowerCase() === `outcome ${step}`
+      );
+
+      if (!outcome) {
+        setCurrentStep(step);
+        return;
+      }
+
+      const deadline = moment(outcome.deadline);
+      const now = moment();
+
+      if (now.isBefore(deadline)) {
+        setCurrentStep(step);
+        return;
+      }
+
+      step += 1;
+    }
+
+    setCurrentStep(3);
+  };
+
+  const fetchOutcomes = async (classId) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/activity?activityType=outcome&classId=${classId}`,
+        config
+      );
+
+      const filteredOutcomes = response.data.filter(
+        (activity) => activity.activityType === "outcome"
+      );
+
+      setOutcomes(filteredOutcomes || []);
+      determineCurrentStep(filteredOutcomes);
+    } catch (error) {
+      message.error("Error fetching outcomes. Please try again.");
+      setOutcomes([]);
+      setCurrentStep(0);
+    }
+  };
+  const getProgressPercentage = (startDate, deadline) => {
+    const now = moment();
+    const start = moment(startDate);
+    const end = moment(deadline);
+
+    if (now.isBefore(start)) {
+      return 0;
+    } else if (now.isAfter(end)) {
+      return 100;
+    } else {
+      const totalDuration = end.diff(start);
+      const elapsed = now.diff(start);
+      return Math.round((elapsed / totalDuration) * 100);
+    }
+  };
+
+  return (
+    <Layout>
+      <div style={{ padding: "24px", width: "100%", backgroundColor: "#fff" }}>
+        <Dropdown
+          overlay={classDropdown}
+          trigger={["click"]}
+          onOpenChange={handleDropdownClick}
+        >
+          <Button>
+            {selectedClassName ? `Lớp: ${selectedClassName}` : "Chọn lớp"}{" "}
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+        {selectedClassId && (
+          <Steps
+            current={currentStep}
+            size="default"
+            direction="horizontal"
+            style={{ margin: "24px 0", position: "relative" }}
+          >
+            {[1, 2, 3].map((stepNumber) => {
+              const assignmentType = `outcome ${stepNumber}`;
+              const outcome = outcomes.find(
+                (outcome) =>
+                  outcome.assignmentType.toLowerCase() === assignmentType
+              );
+              const progressPercentage = outcome
+                ? getProgressPercentage(outcome.startDate, outcome.deadline)
+                : 0;
+
+              return (
+                <Steps.Step
+                  key={stepNumber}
+                  title={`Outcome ${stepNumber}`}
+                  description={
+                    outcome ? (
+                      <div style={{ position: "relative" }}>
+                        <Tooltip title="Start date">
+                          <p style={{ color: "green" }}>
+                            {moment(outcome.startDate).format("DD-MM-YYYY")}
+                          </p>
+                        </Tooltip>
+                        <Tooltip title="Deadline">
+                          <p style={{ color: "red" }}>
+                            {moment(outcome.deadline).format("DD-MM-YYYY")}
+                          </p>
+                        </Tooltip>
+                        <Tooltip title="5/6 nhóm chưa nộp">
+                          <FlagOutlined
+                            style={{
+                              position: "absolute",
+                              top: "-38%",
+                              // left: `${progressPercentage}%`,
+                              left: "110%",
+                              transform: "translate(-50%, -50%)",
+                              color:
+                                progressPercentage === 100 ? "#52c41a" : "red",
+                              fontSize: "16px",
+                            }}
+                          />
+                        </Tooltip>
+                        <Tooltip title="1/6 nhóm đã nộp ">
+                          <FlagOutlined
+                            style={{
+                              position: "absolute",
+                              top: "-38%",
+                              // left: `${progressPercentage}%`,
+                              left: "405%",
+                              transform: "translate(-50%, -50%)",
+                              color:
+                                progressPercentage === 100
+                                  ? "#52c41a"
+                                  : "green",
+                              fontSize: "16px",
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    ) : (
+                      "Chưa tạo Outcome " + stepNumber
+                    )
+                  }
+                />
+              );
+            })}
+          </Steps>
+        )}
+
+        {selectedClassId ? (
           <div
             style={{
-              backgroundColor: "white",
               padding: "16px",
               borderRadius: "8px",
               marginBottom: "16px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
+              border: "1px solid #d3e4f3",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#f0f0f0";
+              e.currentTarget.style.backgroundColor = "#e6f7ff";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "white";
+              e.currentTarget.style.backgroundColor = "#f0f8ff";
             }}
             onClick={showModal}
           >
             <p>
               Đăng bài viết nào đó cho lớp của bạn. Bấm vào đây!{" "}
               <EditOutlined style={{ marginRight: "8px", fontSize: "18px" }} />
+              <br />
+              <ProfileOutlined
+                style={{ marginRight: "5px", fontSize: "16px" }}
+              />
+              {posts ? (
+                <b style={{ color: "#1890ff" }}>{posts.length} Bài viết</b>
+              ) : (
+                ""
+              )}
             </p>
           </div>
-          {posts.length > 0 ? (
-            <h2 style={{ textAlign: "center" }}>Danh sách bài viết</h2>
-          ) : (
-            ""
-          )}
-          <List
-            grid={{ gutter: 16, column: 1 }}
-            dataSource={posts.slice().reverse()}
-            renderItem={(post) => (
-              <List.Item>
-                <Card
-                  className={isNewPost(post.createdAt) ? "new-post-border" : ""}
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: "8px",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    border: isNewPost(post.createdAt)
-                      ? "2px solid #1890ff"
-                      : "1px solid #f0f0f0",
-                    transition: "border 0.5s ease-in-out",
-                    position: "relative",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <List.Item.Meta
-                      avatar={<Avatar icon={<FileOutlined />} />}
-                      title={username}
-                      description={new Date(
-                        post.createdAt
-                      ).toLocaleTimeString()}
-                    />
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {isNewPost(post.createdAt) && (
-                        <span
-                          style={{
-                            backgroundColor: "#1890ff",
-                            color: "#fff",
-                            padding: "2px 8px",
-                            borderRadius: "12px",
-                            marginRight: "8px",
-                            fontSize: "12px",
-                          }}
-                        >
-                          Bài mới
+        ) : (
+          ""
+        )}
+        <div style={{ display: "flex" }}>
+          <div style={{ flex: 8 }}>
+            {noPosts ? (
+              <p>Chưa có bài đăng nào!</p>
+            ) : (
+              <div className="post-container">
+                {posts
+                  .slice()
+                  .reverse()
+                  .map((post) => (
+                    <div
+                      key={post._id}
+                      className={`post-card gradient-animated ${
+                        isNewPost(post.createdAt) ? "new-post-border" : ""
+                      }`}
+                    >
+                      <div className="post-card-body">
+                        {isNewPost(post.createdAt) && (
+                          <span className="new-post-badge">Bài mới</span>
+                        )}
+                        <span className="tag tag-blue">
+                          {post.tag || "Bài đăng"}
                         </span>
-                      )}
-                      <Dropdown
-                        overlay={postActionsMenu(post._id)}
-                        trigger={["click"]}
-                      >
-                        <MoreOutlined
-                          style={{ cursor: "pointer", fontSize: "18px" }}
+                        <div
+                          className="post-content"
+                          dangerouslySetInnerHTML={{ __html: post.description }}
                         />
-                      </Dropdown>
-                    </div>
-                  </div>
-                  <div dangerouslySetInnerHTML={{ __html: post.description }} />
-                  Tài liệu:{post.materialUrl && (
-                    <Button
-                      type="link"
-                      onClick={() =>
-                        handleDownload(post.materialUrl.split("/").pop())
-                      }
-                    >
-                      {post.materialUrl.split("/").pop()}
-                    </Button>
-                  )}
-                  <ul
-                    className="ant-card-actions"
-                    style={{ borderTop: "1px solid #f0f0f0" }}
-                  >
-                    <li
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        display: "flex",
-                      }}
-                    >
-                      <Input
-                        placeholder="Thêm nhận xét cho bài viết..."
-                        value={commentContent}
-                        onChange={(e) => setCommentContent(e.target.value)}
-                        style={{ width: "100%", borderRadius: "18px" }}
-                      />
-                      <Tooltip title="Send Comment">
-                        <SendOutlined
-                          onClick={() => handleComment(post._id)}
-                          style={{
-                            fontSize: "24px",
-                            cursor: "pointer",
-                            color: "#1890ff",
-                          }}
-                        />
-                      </Tooltip>
-                    </li>
-                  </ul>
-                </Card>
-              </List.Item>
-            )}
-          />
+                        {post.materialUrl ? (
+                          <Button
+                            type="link"
+                            onClick={() => handleDownload(post.materialUrl)}
+                            style={{ padding: 0 }}
+                          >
+                            <h6>
+                              Tài liệu: {post.materialUrl.split("/").pop()}
+                            </h6>
+                          </Button>
+                        ) : (
+                          <h4></h4>
+                        )}
 
-          {/* Modal thêm bài viết mới */}
+                        <div className="user">
+                          <Avatar icon={<FileOutlined />} />
+                          <div className="user-info">
+                            <h5>{username}</h5>
+                            <small>{moment(post.createdAt).fromNow()}</small>
+                          </div>
+                          <Dropdown
+                            overlay={postActionsMenu(post._id)}
+                            trigger={["click"]}
+                          >
+                            <MoreOutlined
+                              className="more-options"
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "18px",
+                              }}
+                            />
+                          </Dropdown>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
           <Modal
             title="Đăng bài viết"
             visible={isModalVisible}
@@ -444,13 +643,11 @@ const PostActivity = () => {
               theme="snow"
               style={{ marginBottom: "16px" }}
             />
-
             <Upload {...uploadProps}>
               <Button icon={<UploadOutlined />}>Đính kèm file</Button>
             </Upload>
           </Modal>
 
-          {/* Modal chỉnh sửa bài viết */}
           <Modal
             title="Chỉnh sửa bài viết"
             visible={editModalVisible}
@@ -476,8 +673,46 @@ const PostActivity = () => {
               <Button icon={<UploadOutlined />}>Cập nhật file đính kèm</Button>
             </Upload>
           </Modal>
+          <div style={{ width: "24%" }}>
+            {selectedClassId ? (
+              <>
+                <MaterialList
+                  style={{ flex: 2 }}
+                  selectedClassId={selectedClassId}
+                />
+                <OutcomeList
+                  selectedClassId={selectedClassId}
+                  refreshPosts={refreshPosts}
+                />
+              </>
+            ) : (
+              <p></p>
+            )}
+          </div>
         </div>
-      </Layout>
+        {posts.length > 0 ? (
+          <Tooltip title="Kéo vào thùng rác để xóa">
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<DeleteOutlined />}
+              danger
+              size="large"
+              onClick={{}}
+              style={{
+                position: "fixed",
+                bottom: 20,
+                right: 20,
+                zIndex: 1000,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+              }}
+            />
+          </Tooltip>
+        ) : (
+          ""
+        )}
+      </div>
+    </Layout>
   );
 };
 
