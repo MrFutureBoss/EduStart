@@ -22,4 +22,16 @@ classRouter.get(
     classController.getClassesByUserId
 );
 
+classRouter.get(
+    "/info/:teacherId",
+    verifyAccessToken,
+    classController.getSemestersAndClassesByTeacherId
+);
+
+classRouter.get(
+    "/task/:teacherId",
+    verifyAccessToken,
+    classController.getClassesInfoAndTaskByTeacherId
+  );
+
 export default classRouter;

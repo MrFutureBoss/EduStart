@@ -42,18 +42,21 @@ const CreateGroup = ({ show, close }) => {
           }
         >
           <Form.Item label="Chọn quy luật tham gia nhóm">
-            <Select>
+            <Select style={{ zIndex: 2 }}>
+              <Select.Option value="2-majors">
+                2 chuyên ngành khác nhau cùng 1 nhóm
+              </Select.Option>
               <Select.Option value="demo">Demo</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item label="Chọn thời gian kết thúc">
-            <DatePicker />
+            <DatePicker style={{ zIndex: 2 }} />
           </Form.Item>
           {/* <Form.Item label="Chọn thời gian bắt đầu và kết thúc">
             <RangePicker />
           </Form.Item> */}
           <Form.Item label="Số lượng nhóm">
-            <Slider />
+            <Slider min={5} max={10} defaultValue={5} />
           </Form.Item>
         </Form>
       </Col>

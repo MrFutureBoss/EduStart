@@ -23,10 +23,12 @@ import {
   setTotalWaitUsers,
   setWaitUserList,
 } from "../../redux/slice/TempGroupSlice";
+
+import { setClassTaskData } from "../../redux/slice/ClassManagementSlice";
 import "../../style/Class/ClassDetail.css";
 import Search from "antd/es/input/Search";
 import CreateGroup from "./CreateGroup";
-
+import Result from "./DnD_Group/Result";
 const UnGroupList = () => {
   const { className } = useParams();
   const dispatch = useDispatch();
@@ -37,9 +39,9 @@ const UnGroupList = () => {
   //Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [pageSize, setPageSize] = useState(8);
-  //Pop-up
+  const [pageSize, setPageSize] = useState(6);
   const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
+  const userId = localStorage.getItem("userId");
 
   const config = useMemo(
     () => ({
@@ -50,6 +52,28 @@ const UnGroupList = () => {
     }),
     [jwt]
   );
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/class/task/${userId}`,
+          config
+        );
+        dispatch(setClassTaskData(response.data));
+      } catch (error) {
+        console.log(
+          error.response ? error.response.data.message : error.message
+        );
+      }
+    };
+
+    fetchUserData();
+  }, [userId, config, dispatch]);
+
+  const classTask = useSelector((state) => state.classManagement.classtask) || {
+    data: [],
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -70,7 +94,7 @@ const UnGroupList = () => {
     fetchUserData();
   }, [className, config]);
 
-  //Danh sách những nhóm đã join vào group chưa đến hạn join nhóm
+  //Danh sách những nhóm đã join vào group chưa đến hạn hết được join nhóm
   useEffect(() => {
     if (!classId) return;
     const fetchUserData = async () => {
@@ -130,15 +154,6 @@ const UnGroupList = () => {
   console.log("Fetch data redux: " + JSON.stringify(tempGroups));
   console.log("Fetch total data redux: " + totalTempGroups);
 
-  // Function to extract the number from the groupName and sort by it
-  const sortedTempGroups = [...tempGroups].sort((a, b) => {
-    const getGroupNumber = (group) => {
-      const match = group.groupName.match(/\d+/); // Extract number from groupName
-      return match ? parseInt(match[0], 10) : 0; // Return the number or 0 if not found
-    };
-    return getGroupNumber(a) - getGroupNumber(b); // Sort based on extracted number
-  });
-
   const onPageChange = (pageNumber) => {
     console.log(`Changing to page: ${pageNumber}`);
     setCurrentPage(pageNumber);
@@ -148,14 +163,6 @@ const UnGroupList = () => {
     console.log(`Changing page size to: ${size}`);
     setPageSize(size);
     setCurrentPage(current);
-  };
-
-  const handleOpenAddTypeModal = () => {
-    setIsModalShowTypeAdd(true);
-  };
-
-  const handleCloseAddTypeModal = () => {
-    setIsModalShowTypeAdd(false);
   };
 
   const filteredUsers = waitUserList.filter((user) => {
@@ -172,11 +179,47 @@ const UnGroupList = () => {
     return true;
   });
 
+  const handleOpenAddTypeModal = () => {
+    setIsModalShowTypeAdd(true);
+  };
+  const handleCloseAddTypeModal = () => {
+    setIsModalShowTypeAdd(false);
+  };
+
   return (
     <div>
-      <CreateGroup show={isModalShowTypeAdd} close={handleCloseAddTypeModal}/>
+      <CreateGroup show={isModalShowTypeAdd} close={handleCloseAddTypeModal} />
       <h1>Lớp {className}</h1>
-      <Button type="primary" style={{margin:'20px 0px'}} onClick={handleOpenAddTypeModal}>+ Tạo nhóm lớp</Button>
+      <Card
+        bordered={true}
+        style={{
+          display: "flex",
+          justifyContent: "start",
+          width: "80%",
+          padding: "0.5rem 8rem 0.5rem 0.5rem",
+          borderStyle: "dotted",
+          backgroundColor: "#E6F4FF",
+          border: "2px solid #1677FF",
+          lineHeight:'1rem',
+          marginBottom:'2rem'
+        }}
+      >
+        <p >Sĩ số lớp: 25 sinh viên</p>
+        <p>Tổng số nhóm đã đủ thành viên: ?</p>
+        <p>Deadline tạo nhóm và thời gian còn lại </p>
+        <p>Điều kiện tham gia nhóm: </p>
+      </Card>
+
+      <Button
+        type="primary"
+        style={{
+          margin: "20px 0px",
+          display: totalTempGroups > 0 ? "none" : "block",
+        }}
+        onClick={handleOpenAddTypeModal}
+      >
+        + Tạo nhóm lớp
+      </Button>
       <FloatButton
         icon={<QuestionCircleOutlined />}
         type="primary"
@@ -235,7 +278,13 @@ const UnGroupList = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                   style={{ width: "90%" }}
                 />
+                {/* <button onClick={resetSearch} style={{ marginLeft: "10px" }}>
+                  Reset
+                </button> */}
               </Col>
+            </Row>
+            <Row style={{ margin: "10px auto" }}>
+              <Col sm={24}>Số lượng sinh viên chưa nhóm: {totalWaitUsers}</Col>
             </Row>
             {totalWaitUsers > 0 ? (
               <List
@@ -310,6 +359,9 @@ const UnGroupList = () => {
             flex: 1,
           }}
         >
+          <Row style={{ margin: "10px 20px" }}>
+            <Col sm={24}>Số lượng sinh viên đã vào nhóm: 14</Col>
+          </Row>
           <div
             style={{
               display: "flex",
@@ -320,123 +372,7 @@ const UnGroupList = () => {
               boxSizing: "border-box",
             }}
           >
-            {totalTempGroups > 0 ? (
-              <Row gutter={[16, 16]}>
-                {sortedTempGroups.map((tp) => (
-                  <Col xs={24} sm={12} md={12} lg={8} key={tp?.groupId}>
-                    <Card
-                      title={
-                        <div className="card-groupname">
-                          <div>{tp?.groupName}</div>
-                        </div>
-                      }
-                      bodyStyle={{
-                        padding: "0",
-                      }}
-                      headStyle={{
-                        background:
-                          "linear-gradient(-45deg, #005241, #128066, #00524f, #008d87)",
-                        color: "white",
-                      }}
-                      bordered
-                      className="card-groupstudents"
-                    >
-                      {tp?.maxStudent > 0 ? (
-                        <List
-                          className="list-container-groupstudent"
-                          style={{
-                            width: "100%",
-                          }}
-                          itemLayout="horizontal"
-                          dataSource={tp?.userIds}
-                          bordered
-                          renderItem={(user, index) => (
-                            <List.Item
-                              key={user?._id}
-                              className="list-groupstudent"
-                            >
-                              <List.Item.Meta
-                                avatar={<Avatar icon={<UserOutlined />} />}
-                                title={
-                                  <p className="list-title">
-                                    {user?.username}
-                                    {/* <span style={{ fontWeight: "bold" }}>
-                                      <IdcardOutlined
-                                        style={{ fontSize: "0.8rem" }}
-                                      />
-                                      {user?.rollNumber}
-                                    </span> */}
-                                  </p>
-                                }
-                                description={
-                                  <p className="list-description">
-                                    {
-                                      <p style={{ fontWeight: "500" }}>
-                                        <span style={{ fontWeight: "700" }}>
-                                          MSSV:
-                                        </span>
-                                        &nbsp;
-                                        {user?.rollNumber}
-                                      </p>
-                                    }
-                                    {
-                                      <p style={{ fontWeight: "500" }}>
-                                        <span style={{ fontWeight: "700" }}>
-                                          Email:
-                                        </span>
-                                        &nbsp;
-                                        {user?.email}
-                                      </p>
-                                    }
-                                  </p>
-                                }
-                              />
-                            </List.Item>
-                          )}
-                        >
-                          {/* Add extra List.Item elements for empty slots */}
-                          {Array.from(
-                            { length: tp?.maxStudent - tp?.userIds.length },
-                            (_, idx) => (
-                              <List.Item
-                                key={`empty-${idx}`}
-                                className="list-groupstudent-empty"
-                              >
-                                <List.Item.Meta
-                                  className="addmorestudent"
-                                  title="+ Thành viên"
-                                />
-                              </List.Item>
-                            )
-                          )}
-                        </List>
-                      ) : (
-                        <div className="empty-listgroup">+ Empty</div>
-                      )}
-                      <div className="cardbody-numberstudent">
-                        Số lượng thành viên hiện tại:{" "}
-                        <span
-                          style={{
-                            color:
-                              tp?.userIds.length < tp?.maxStudent - 1
-                                ? "red"
-                                : tp?.userIds.length === tp?.maxStudent - 1 &&
-                                  tp?.maxStudent
-                                ? "green"
-                                : "default",
-                          }}
-                        >
-                          {tp?.userIds.length}
-                        </span>
-                        /<span>{tp?.maxStudent}</span>
-                      </div>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            ) : (
-              <>Chưa có nhóm nào</>
-            )}
+            <Result className={className} />
           </div>
         </Splitter.Panel>
       </Splitter>

@@ -21,6 +21,16 @@ const initialState = {
     mentor: [],
     classList: [],
   },
+
+  classinfo: {
+    semesters: [],
+    classes: [],
+    totalClasses: 0,
+    totalStudents: 0,
+  },
+
+  classtask: {},
+
   loading: false,
   error: null,
 };
@@ -37,12 +47,16 @@ const classManagementSlice = createSlice({
     setTeacherData(state, action) {
       state.teacher = action.payload;
     },
+    //Action to load class information
+    setClassInfoData(state, action) {
+      state.classinfo = action.payload;
+    },
+    setClassTaskData(state, action) {
+      state.classtask = action.payload;
+    },
   },
 });
 
 const { reducer, actions } = classManagementSlice;
-export const {
-  setLoading,
-  setTeacherData,
-} = actions;
+export const { setLoading, setTeacherData, setClassInfoData, setClassTaskData } = actions;
 export default reducer;

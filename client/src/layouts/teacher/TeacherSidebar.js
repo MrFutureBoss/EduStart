@@ -63,15 +63,11 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
     fetchUserData();
   }, [userId, config, dispatch]);
 
-  console.log(JSON.stringify(teacher));
+  console.log("Teacher:" + JSON.stringify(teacher));
 
   const handleLogout = () => {
     navigate("/");
     localStorage.removeItem("jwt");
-  };
-
-  const handleSubMenuClick = () => {
-    navigate("teacher-activity");
   };
 
   return (
@@ -83,14 +79,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
       className="site-layout-background"
       style={{
         boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
-        // overflow: 'auto',
-        // height: '100vh',
-        // position: 'fixed',
-        // insetInlineStart: 0,
-        // top: 0,
-        // bottom: 0,
-        // scrollbarWidth: 'thin',
-        // scrollbarColor: 'unset',
       }}
     >
       <Menu
@@ -173,30 +161,11 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           </Link>
         </Menu.Item>
         {teacher?.classList?.length > 0 ? (
-          <SubMenu
-            key="sub2"
-            icon={<GrGroup className="custom-icon" />}
-            title="Lớp học"
-            style={{ margin: "0px", padding: "0px" }}
-          >
-            {teacher?.classList?.length > 0 &&
-              teacher.classList.map((cl, index) => (
-                <Menu.Item
-                  key={index}
-                  icon={
-                    <GrGroup className={toggleCollapse ? "" : "custom-icon"} />
-                  }
-                >
-                  <Link
-                    key={cl._id}
-                    style={{ textDecoration: "none" }}
-                    to={`class/${cl.className}`}
-                  >
-                    {cl.className}
-                  </Link>
-                </Menu.Item>
-              ))}
-          </SubMenu>
+          <Menu.Item key="5" icon={<GrGroup className="custom-icon" />}>
+            <Link style={{ textDecoration: "none" }} to="class">
+              Lớp học
+            </Link>
+          </Menu.Item>
         ) : (
           <></>
         )}
