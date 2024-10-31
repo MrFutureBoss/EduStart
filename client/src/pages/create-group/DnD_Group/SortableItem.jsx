@@ -2,14 +2,16 @@ import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { List, Avatar, Empty } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 
 export const SortableItem = ({ id, item }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-  
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
   const itemStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
-    cursor: "point",
+    cursor: "move",
     display: "flex",
     alignItems: "center",
     padding: "8px",
@@ -46,15 +48,28 @@ export const SortableItem = ({ id, item }) => {
   if (typeof item === "object" && !item._id) {
     // Render Empty component when item is a placeholder
     return (
-      <List.Item ref={setNodeRef} style={itemStyle} {...attributes} {...listeners}>
-        <Empty description="Chưa có ai trong nhóm này" style={{ width: "100%", textAlign: "center" }} />
+      <List.Item
+        ref={setNodeRef}
+        style={itemStyle}
+        {...attributes}
+        {...listeners}
+      >
+        <Empty
+          description="Chưa có ai trong nhóm này"
+          style={{ width: "100%", textAlign: "center" }}
+        />
       </List.Item>
     );
   }
 
   return (
-    <List.Item ref={setNodeRef} style={itemStyle} {...attributes} {...listeners}>
-      <Avatar src={item.avatar} style={{ marginRight: "8px" }} />
+    <List.Item
+      ref={setNodeRef}
+      style={itemStyle}
+      {...attributes}
+      {...listeners}
+    >
+      <Avatar style={{marginRight:'10px'}} icon={<UserOutlined />}></Avatar>
       <div style={contentStyle} key={item._id}>
         <div style={usernameStyle}>{item.username}</div>
         <div style={detailsStyle}>

@@ -94,6 +94,93 @@ const ClassManagement = () => {
   return (
     <div>
       <h1 style={{ marginBottom: "40px" }}>Quản lý lớp học</h1>
+      <Row>
+        <Col
+          span={24}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "1rem auto 2rem auto",
+          }}
+        >
+          {classInfo?.semesters.length > 0 &&
+          classInfo.semesters.some(
+            (semester) => semester.status === "Ongoing"
+          ) ? (
+            classInfo.semesters
+              .filter((semester) => semester.status === "Ongoing")
+              .map((semester) => {
+                const { phases, daysRemain } = calculateWeekAndPhase(
+                  semester.startDate
+                );
+                return (
+                  <Card
+                    bordered={true}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      width: "80%",
+                      padding: "0.5rem 8rem",
+                      borderStyle: "dotted",
+                      backgroundColor: "#E6F4FF",
+                      border: "2px solid #1677FF",
+                    }}
+                  >
+                    <div>
+                      <div className="classinfo-content">
+                        <p
+                          style={{
+                            fontWeight: "700",
+                            fontSize: "1.5rem",
+                            marginBottom: "2rem",
+                          }}
+                        >
+                          {" "}
+                          Thông báo thời hạn còn lại cho tất cả giáo viên&nbsp;{" "}
+                          <Tag
+                            color="#FF5252"
+                            style={{
+                              fontSize: "1.2rem",
+                              padding: "0.2rem 0.5rem",
+                            }}
+                          >
+                            {phases.length}
+                          </Tag>
+                        </p>
+                      </div>
+                      <div
+                        className="classinfo-content"
+                        style={{
+                          justifyContent: "center",
+                          flexDirection: "column",
+                        }}
+                      >
+                        {phases.map((phase, index) => (
+                          <div key={index} style={{ marginBottom: "8px" }}>
+                            <p
+                              style={{
+                                height: "fit-content",
+                                marginBottom: "4px",
+                                fontWeight: "500",
+                              }}
+                            >
+                              Thời gian {phase.toLowerCase()}:{" "}
+                              <Tag color="#FF5252">
+                                <FieldTimeOutlined /> Còn {daysRemain} ngày
+                              </Tag>
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })
+          ) : (
+            <h5>Hiện tại chưa có deadline nào rành cho các lớp</h5>
+          )}
+        </Col>
+      </Row>
       <Row gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <Card
@@ -193,6 +280,11 @@ const ClassManagement = () => {
                         <p style={{ fontWeight: "700", whiteSpace: "nowrap" }}>
                           Giai đoạn:&nbsp;
                         </p>
+                      </div>
+                      <div
+                        className="classinfo-content"
+                        style={{ display: "flex", justifyContent: "start" }}
+                      >
                         {phases.map((phase, index) => (
                           <Tag
                             key={index}
@@ -223,32 +315,15 @@ const ClassManagement = () => {
               </div>
             </Card.Grid>
             <Card.Grid style={{ width: `${gridCard}` }}>
-              <div className="classinfo-content">
+              <div
+                className="classinfo-content"
+                style={{ display: "flex", justifyContent: "start" }}
+              >
                 <p style={{ fontWeight: "700" }}>
                   {" "}
-                  Tổng số sinh viên bạn dạy kì này:&nbsp;{" "}
+                  Tổng sĩ số sinh viên:&nbsp;{" "}
                 </p>
                 <Tag color="#108ee9">{classInfo?.totalStudents}</Tag>
-              </div>
-            </Card.Grid>
-            <Card.Grid style={{ width: `100%` }}>
-              <div className="classinfo-content">
-                <p style={{ fontWeight: "700" }}>
-                  {" "}
-                  Thông báo thời hạn chung cho các lớp&nbsp;{" "}
-                </p>
-                <Tag color="#FF5252">2</Tag>
-              </div>
-              <div className="classinfo-content">
-                <p style={{ fontWeight: "500" }}> Deadline Chốt nhóm:&nbsp; </p>
-                <Tag color="#FF5252">Còn 2 ngày</Tag>
-              </div>
-              <div className="classinfo-content">
-                <p style={{ fontWeight: "500" }}>
-                  {" "}
-                  Deadline chốt đề tài nhóm:&nbsp;{" "}
-                </p>
-                <Tag color="#FF5252">Còn 2 ngày</Tag>
               </div>
             </Card.Grid>
           </Card>
@@ -304,11 +379,21 @@ const ClassManagement = () => {
                   style={{ margin: "10px 10px" }}
                   options={[
                     {
-                      label: "Danh sách",
+                      label: (
+                        <Tooltip title="Danh sách">
+                          <BarsOutlined />
+                        </Tooltip>
+                      ),
                       value: "List",
-                      icon: <BarsOutlined />,
                     },
-                    { label: "Thẻ", value: "Card", icon: <AppstoreOutlined /> },
+                    {
+                      label: (
+                        <Tooltip title="Thẻ">
+                          <AppstoreOutlined />
+                        </Tooltip>
+                      ),
+                      value: "Card",
+                    },
                   ]}
                   onChange={setView}
                 />
@@ -349,7 +434,7 @@ const ClassManagement = () => {
                     >
                       <Tooltip title="Vấn đề lớp chưa có nhóm">
                         <Space>
-                          <UserOutlined />
+                          <MdOutlineGroupOff />
                           <Badge count="1" />
                         </Space>
                       </Tooltip>
@@ -377,7 +462,7 @@ const ClassManagement = () => {
                 </Space>
               </Col>
             </Row>
-            <Card.Grid style={{ width: "100%", padding: "0px" }}>
+            <Card.Grid id="TaskTable" style={{ width: "100%", padding: "0px" }}>
               {view === "List" ? (
                 <TableClass
                   ungroup={showUngropColumn}
@@ -407,7 +492,7 @@ const ClassManagement = () => {
             }}
             bodyStyle={{ padding: "20px" }}
           >
-            <Timeline
+            {/* <Timeline
               mode="alternate"
               items={[
                 {
@@ -445,7 +530,7 @@ const ClassManagement = () => {
                   children: "Technical testing 2015-09-01",
                 },
               ]}
-            />
+            /> */}
           </Card>
         </Col>
       </Row>

@@ -13,6 +13,10 @@ const TeacherTask = () => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
 
+  const handleAnchorToTable = () => {
+    window.location.href = "#TaskTable";
+  };
+
   const config = useMemo(
     () => ({
       headers: {
@@ -45,8 +49,6 @@ const TeacherTask = () => {
     data: [],
   };
 
-  console.log("TeacherTask: " + JSON.stringify(classTask));
-
   const classesWithEmptyGroup = Array.isArray(classTask.data)
     ? classTask.data.filter((item) => item.tempGroupId.length === 0)
     : [];
@@ -78,18 +80,27 @@ const TeacherTask = () => {
           <span style={{ fontSize: "1rem", fontWeight: "500" }}>
             Loại vấn đề:&nbsp;
           </span>
-          <span style={{ fontSize: "1rem", fontWeight: "500", color:'red' }}>
+          <span style={{ fontSize: "1rem", fontWeight: "500", color: "red" }}>
             {countClassesWithEmptyGroup} ưu tiên
           </span>
-          <span style={{ fontSize: "1rem"}}>, &nbsp;</span>
-          <span style={{ fontSize: "1rem", fontWeight: "500", color:'#FFBA57' }}>
+          <span style={{ fontSize: "1rem" }}>, &nbsp;</span>
+          <span
+            style={{ fontSize: "1rem", fontWeight: "500", color: "#FFBA57" }}
+          >
             {countClassesWithIncompleteGroups} nhắc nhở
           </span>
         </Row>
         <Row gutter={[32, 16]}>
           {/* Task cần làm */}
           {countClassesWithEmptyGroup > 0 && (
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+            <Col
+              onClick={() => handleAnchorToTable()}
+              xs={24}
+              sm={12}
+              md={12}
+              lg={12}
+              xl={12}
+            >
               <Row
                 className="class-management-card priorityhigh"
                 gutter={[16, 16]}
@@ -121,7 +132,14 @@ const TeacherTask = () => {
           )}
           {/* Số nhóm chưa có đủ thành viên */}
           {countClassesWithIncompleteGroups > 0 && (
-            <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+            <Col
+              xs={24}
+              sm={12}
+              md={12}
+              lg={12}
+              xl={12}
+              onClick={() => handleAnchorToTable()}
+            >
               <Row className="class-management-card" gutter={[16, 16]}>
                 <Col xs={24} style={{ padding: "0px" }}>
                   {/* Upper Content */}

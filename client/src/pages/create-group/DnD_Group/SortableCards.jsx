@@ -16,14 +16,14 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItem";
-import { BASE_URL } from "../../utilities/initalValue";
+import { BASE_URL } from "../../../utilities/initalValue";
 import {
   setTempGroups,
   setTotalTempGroups,
-} from "../../redux/slice/TempGroupSlice";
-import "../../style/Class/ClassDetail.css";
+} from "../../../redux/slice/TempGroupSlice";
+import "../../../style/Class/ClassDetail.css";
 
-const SortableCards = () => {
+const SortableCards = ({className}) => {
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const config = useMemo(
@@ -53,7 +53,7 @@ const SortableCards = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          `${BASE_URL}/class/className/SE1714-NJ`,
+          `${BASE_URL}/class/className/${className}`,
           config
         );
         setClassId(response.data?.classId);
