@@ -1,0 +1,124 @@
+/* Container cho mỗi khu vực mentor */
+.mentor-container {
+  background-color: #f9fafc;
+  padding: 15px;
+  border: 2px solid #d9d9d9;
+  border-radius: 10px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+/* Header của mỗi khu vực mentor */
+.mentor-container .ant-typography-title {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Search box */
+.mentor-container .ant-input-search {
+  margin-bottom: 10px;
+}
+
+/* Container danh sách mentor */
+.mentor-list {
+  flex: 1;
+  padding: 10px;
+  background-color: #fff;
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  overflow-y: auto;
+  transition: border-color 0.3s, background-color 0.3s;
+  min-height: 200px;
+}
+
+/* Placeholder khi danh sách mentor trống */
+.mentor-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Mỗi mentor item */
+.mentor-item {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  padding-top: 7px;
+  padding-right: 7px;
+  padding-left: 7px;
+  padding-bottom: 7px;
+  /* margin-bottom: 10px; */
+  cursor: grab;
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.mentor-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Mentor đã được chọn */
+.selected-mentor {
+  border-left: 4px solid #429364;
+  background-color: #e6f7ff;
+}
+
+/* Tag hiển thị vị trí (index) của mentor đã chọn */
+.mentor-index-tag {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background-color: #3a836f;
+  color: white;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 50%;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.mentor-item:hover .mentor-index-tag {
+  transform: scale(1.1);
+}
+
+/* Nhãn ưu tiên */
+.priority-label {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #1890ff;
+  color: white;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* Drag Overlay styling */
+.drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Hiển thị viền xanh khi kéo thả vào khu vực đã chọn */
+.selected-mentor-list.drag-over {
+  border-color: #52c41a;
+  background-color: #e6fffb;
+}
+
+/* Hiển thị viền vàng khi kéo thả vào khu vực chưa chọn */
+.available-mentor-list.drag-over {
+  border-color: #faad14;
+  background-color: #fffbe6;
+}

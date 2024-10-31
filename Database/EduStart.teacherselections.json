@@ -1,0 +1,237 @@
+[{
+  "_id": {
+    "$oid": "67186611634414a9b98104fa"
+  },
+  "teacherId": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "professionId": {
+    "$oid": "6715dd20e3b96d4ba609da54"
+  },
+  "specialtyId": {
+    "$oid": "6715dd20e3b96d4ba609da4e"
+  },
+  "selectedMentors": [
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da5b"
+      },
+      "priority": 1,
+      "_id": {
+        "$oid": "67186611634414a9b98104fb"
+      }
+    },
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da66"
+      },
+      "priority": 2,
+      "_id": {
+        "$oid": "67186611634414a9b98104fc"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-23T02:57:21.245Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T02:57:21.245Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67186634634414a9b9810539"
+  },
+  "teacherId": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "professionId": {
+    "$oid": "6715dd20e3b96d4ba609da56"
+  },
+  "specialtyId": {
+    "$oid": "6715dd20e3b96d4ba609da4e"
+  },
+  "selectedMentors": [
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da5b"
+      },
+      "priority": 1,
+      "_id": {
+        "$oid": "67186634634414a9b981053a"
+      }
+    },
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da66"
+      },
+      "priority": 2,
+      "_id": {
+        "$oid": "67186634634414a9b981053b"
+      }
+    },
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da68"
+      },
+      "priority": 3,
+      "_id": {
+        "$oid": "67186634634414a9b981053c"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-23T02:57:56.171Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T02:57:56.171Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6718666d634414a9b981054c"
+  },
+  "teacherId": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "professionId": {
+    "$oid": "6715dd20e3b96d4ba609da56"
+  },
+  "specialtyId": {
+    "$oid": "6715dd20e3b96d4ba609da4f"
+  },
+  "selectedMentors": [
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da5c"
+      },
+      "priority": 1,
+      "_id": {
+        "$oid": "6718666d634414a9b981054d"
+      }
+    },
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da5a"
+      },
+      "priority": 2,
+      "_id": {
+        "$oid": "6718666d634414a9b981054e"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-23T02:58:53.543Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T02:58:53.543Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67186809634414a9b98105a1"
+  },
+  "teacherId": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "professionId": {
+    "$oid": "6715dd20e3b96d4ba609da55"
+  },
+  "specialtyId": {
+    "$oid": "6715dd20e3b96d4ba609da4f"
+  },
+  "selectedMentors": [
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da5a"
+      },
+      "priority": 1,
+      "_id": {
+        "$oid": "67186809634414a9b98105a2"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-23T03:05:45.269Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-23T03:05:45.269Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6719c43b4d054c6895ca4b14"
+  },
+  "teacherId": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "professionId": {
+    "$oid": "6715dd20e3b96d4ba609da54"
+  },
+  "specialtyId": {
+    "$oid": "6715dd20e3b96d4ba609da51"
+  },
+  "selectedMentors": [
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da69"
+      },
+      "priority": 1,
+      "_id": {
+        "$oid": "6719c43b4d054c6895ca4b15"
+      }
+    },
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da5e"
+      },
+      "priority": 2,
+      "_id": {
+        "$oid": "6719c43b4d054c6895ca4b16"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-24T03:51:23.329Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-24T03:51:23.329Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6719e3c82bf6366232b5ff6d"
+  },
+  "teacherId": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "professionId": {
+    "$oid": "6715dd20e3b96d4ba609da54"
+  },
+  "specialtyId": {
+    "$oid": "6715dd20e3b96d4ba609da4d"
+  },
+  "selectedMentors": [
+    {
+      "mentorId": {
+        "$oid": "6715dd20e3b96d4ba609da5d"
+      },
+      "priority": 1,
+      "_id": {
+        "$oid": "6719e3c82bf6366232b5ff6e"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-10-24T06:06:00.790Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-24T06:06:00.790Z"
+  },
+  "__v": 0
+}]
