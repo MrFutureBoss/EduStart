@@ -54,3 +54,40 @@ export const fetchTeacherSelection = (teacherId, professionId, specialtyId) => {
   };
   return axios.get(`${BASE_URL}/mentorcategory/selection`, config);
 };
+// API này để lấy data tree của dự án của các lớp mà giáo viên đó phụ trách
+export const fetchClassSummaryData = (teacherId) => {
+  return axios.get(
+    `${BASE_URL}/class/${teacherId}/summary_classses`,
+    getConfig()
+  );
+};
+
+export const fetchProjectData = (teacherId, classId) => {
+  return axios.get(
+    `${BASE_URL}/class/projects/${teacherId}/${classId}`,
+    getConfig()
+  );
+};
+
+export const fetchMentorsTempMatching = (classId, teacherId) => {
+  const config = {
+    ...getConfig(),
+  };
+
+  const data = {
+    classId,
+    teacherId,
+  };
+
+  return axios.post(`${BASE_URL}/tempMatching/recommend`, data, config);
+};
+
+export const assignMentorToProject = async (projectId, mentorId) => {
+  const response = await axios.post(
+    `${BASE_URL}/projects/${projectId}/assign-mentor`,
+    {
+      mentorId,
+    }
+  );
+  return response.data;
+};

@@ -1,0 +1,196 @@
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.class-select-container,
+.button-group {
+  display: flex;
+  align-items: center;
+}
+
+.container-projects.grid-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.container-projects.single-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.single-project-row.grid-layout {
+  width: calc(33.33% - 20px); /* 3 cards per row */
+}
+
+.single-project-row.suggestion-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background-color: #e4eff3;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.suggestions-and-drop-zone {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  flex: 1;
+}
+
+.mentor-suggestions-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 30px;
+  background-color: #c2e1eb;
+}
+
+.mentor-suggestion-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 3px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-top: 2px dashed white;
+}
+
+.mentor-cards-row {
+  display: flex;
+  gap: 12px;
+}
+
+/* Draggable Mentor card */
+.draggable-mentor-card {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  width: 150px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.draggable-mentor-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+.draggable-mentor-card.mentor-preferred-card {
+  background-color: #fafafa; /* Màu xanh nhạt cho mentor ưu tiên */
+  border-radius: 30px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: fit-content;
+}
+
+.draggable-mentor-card.teacher-preferred-card {
+  background-color: #fafafa; /* Màu vàng nhạt cho mentor ưu tiên giáo viên */
+  border-radius: 30px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: fit-content;
+  width: 80%;
+  height: 80%;
+}
+
+.draggable-mentor-card.matching-mentors-card {
+  background-color: #fafafa; /* Màu mặc định cho mentor phù hợp */
+  border-radius: 30px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: fit-content;
+  width: 80%;
+}
+
+/* Mentor card content */
+.mentor-card-content1 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 8px;
+}
+
+.mentor-card-content1 h4 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+}
+
+.mentor-card-content1 p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #888;
+  width: 100%;
+}
+
+.assigned-mentor-tag {
+  margin-top: 5px;
+}
+
+.mentor-info-card {
+  position: relative; /* Đảm bảo thẻ có vị trí relative */
+  display: flex;
+  align-items: center;
+  background-color: #f0f2f5;
+  border: 1px solid #d9d9d9;
+  border-radius: 60px;
+  padding: 12px;
+  margin: 3px;
+  margin-bottom: -3px;
+  min-width: fit-content;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow: hidden; /* Giữ cho pseudo-element không vượt ra ngoài */
+}
+
+.mentor-info-card:hover .mentor-info-hover-content {
+  opacity: 1;
+}
+
+/* Đảm bảo các phần tử con luôn ở trên lớp phủ và nội dung thay thế */
+.mentor-info-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.mentor-info-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mentor-info-left div {
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-info-left p {
+  margin: 5px 6px;
+}
+
+.mentor-info-left span {
+  font-size: 12px;
+  color: #595959;
+  margin-top: 4px;
+}
+.mentor-info-card.fade-out {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.mentor-info-card.preview-card {
+  position: absolute;
+  top: 62px;
+  left: 53px;
+  z-index: 2;
+  opacity: 1;
+  height: 80px;
+  transition: opacity 0.3s ease;
+}

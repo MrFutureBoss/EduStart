@@ -174,7 +174,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           <SubMenu
             key="sub2"
             icon={<GrGroup className="custom-icon" />}
-            title="Lớp học"
+            title="Lớp Học"
             style={{ margin: "0px", padding: "0px" }}
           >
             {teacher?.classList?.length > 0 &&
@@ -204,22 +204,22 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           icon={
             <FaClipboardList className={toggleCollapse ? "" : "custom-icon"} />
           }
-          title="Hoạt động chung"
+          title="Hoạt Động Chung"
           style={{ margin: "0px", padding: "0px" }}
         >
           <Menu.Item key="6" icon={<BookOutlined />}>
             <Link style={{ textDecoration: "none" }} to="posts">
-              Bài đăng
+              Bài Đăng
             </Link>
           </Menu.Item>
           <Menu.Item key="7" icon={<FileDoneOutlined />}>
             <Link style={{ textDecoration: "none" }} to="assignments">
-              Bài tập
+              Bài Tập
             </Link>
           </Menu.Item>
           <Menu.Item key="8" icon={<FileTextOutlined />}>
             <Link style={{ textDecoration: "none" }} to="materials">
-              Tài liệu chung
+              Tài Liệu Chung
             </Link>
           </Menu.Item>
         </SubMenu>
@@ -248,7 +248,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
               />
             </svg>
           }
-          title="Mức độ ưu tiên Mentor"
+          title="Mức Độ Ưu Tiên Mentor"
           style={{ margin: "0px", padding: "0px" }}
         >
           <Menu.Item
@@ -301,7 +301,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
               style={{ textDecoration: "none" }}
               to="dashboard-choose-mentor"
             >
-              Tổng quan
+              Tổng Quan
             </Link>
           </Menu.Item>
           <Menu.Item
@@ -338,12 +338,164 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
             }
           >
             <Link style={{ textDecoration: "none" }} to="choose-mentor">
-              Lựa chọn độ ưu tiên của Mentor
+              Lựa Chọn Độ Ưu Tiên
+            </Link>
+          </Menu.Item>
+        </SubMenu>
+        <SubMenu
+          key="sub5"
+          icon={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width={19}
+              height={19}
+              color={"#000000"}
+              fill={"none"}
+            >
+              <path
+                d="M22 6.75003H19.2111C18.61 6.75003 18.3094 6.75003 18.026 6.66421C17.7426 6.5784 17.4925 6.41168 16.9923 6.07823C16.2421 5.57806 15.3862 5.00748 14.961 4.87875C14.5359 4.75003 14.085 4.75003 13.1833 4.75003C11.9571 4.75003 11.1667 4.75003 10.6154 4.97839C10.0641 5.20675 9.63056 5.6403 8.76347 6.50739L8.00039 7.27047C7.80498 7.46588 7.70727 7.56359 7.64695 7.66005C7.42335 8.01764 7.44813 8.47708 7.70889 8.80854C7.77924 8.89796 7.88689 8.98459 8.10218 9.15785C8.89796 9.79827 10.0452 9.73435 10.7658 9.00945L12 7.76789H13L19 13.8036C19.5523 14.3592 19.5523 15.2599 19 15.8155C18.4477 16.3711 17.5523 16.3711 17 15.8155L16.5 15.3125M13.5 12.2947L16.5 15.3125M16.5 15.3125C17.0523 15.8681 17.0523 16.7689 16.5 17.3244C15.9477 17.88 15.0523 17.88 14.5 17.3244L13.5 16.3185M13.5 16.3185C14.0523 16.874 14.0523 17.7748 13.5 18.3304C12.9477 18.8859 12.0523 18.8859 11.5 18.3304L10 16.8214M13.5 16.3185L11.5 14.3185M9.5 16.3185L10 16.8214M10 16.8214C10.5523 17.377 10.5523 18.2778 10 18.8334C9.44772 19.3889 8.55229 19.3889 8 18.8334L5.17637 15.9509C4.59615 15.3586 4.30604 15.0625 3.93435 14.9062C3.56266 14.75 3.14808 14.75 2.31894 14.75H2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M22 14.75H19.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M8.5 6.75003L2 6.75003"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          }
+          title="Ghép Nhóm Với Mentor"
+          style={{ margin: "0px", padding: "0px" }}
+        >
+          <Menu.Item
+            key="11"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width={19}
+                height={19}
+                color={"#000000"}
+                fill={"none"}
+              >
+                <path
+                  d="M11 6L21 6"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M11 12L21 12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M11 18L21 18"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M3 7.39286C3 7.39286 4 8.04466 4.5 9C4.5 9 6 5.25 8 4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3 18.3929C3 18.3929 4 19.0447 4.5 20C4.5 20 6 16.25 8 15"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
+          >
+            <Link style={{ textDecoration: "none" }} to="summary-class">
+              Tổng Quan
+            </Link>
+          </Menu.Item>
+          <Menu.Item
+            key="12"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width={19}
+                height={19}
+                color={"#000000"}
+                fill={"none"}
+              >
+                <path
+                  d="M6.08938 14.9992C5.71097 14.1486 5.5 13.2023 5.5 12.2051C5.5 8.50154 8.41015 5.49921 12 5.49921C15.5899 5.49921 18.5 8.50154 18.5 12.2051C18.5 13.2023 18.289 14.1486 17.9106 14.9992"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M12 1.99921V2.99921"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M22 11.9992H21"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3 11.9992H2"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M19.0704 4.92792L18.3633 5.63503"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M5.6368 5.636L4.92969 4.92889"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M14.517 19.3056C15.5274 18.9788 15.9326 18.054 16.0466 17.1238C16.0806 16.8459 15.852 16.6154 15.572 16.6154L8.47685 16.6156C8.18725 16.6156 7.95467 16.8614 7.98925 17.1489C8.1009 18.0773 8.3827 18.7555 9.45345 19.3056M14.517 19.3056C14.517 19.3056 9.62971 19.3056 9.45345 19.3056M14.517 19.3056C14.3955 21.2506 13.8338 22.0209 12.0068 21.9993C10.0526 22.0354 9.60303 21.0833 9.45345 19.3056"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
+          >
+            <Link style={{ textDecoration: "none" }} to="temp-matching">
+              Gợi Ý Ghép Mentor
             </Link>
           </Menu.Item>
         </SubMenu>
         <Menu.Item
-          key="12"
+          key="13"
           icon={
             <MdSupportAgent
               style={{ fontSize: "1.5em" }}

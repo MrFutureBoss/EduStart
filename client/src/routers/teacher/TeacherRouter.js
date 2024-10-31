@@ -8,9 +8,12 @@ import MaterialList from "../../pages/activity/MaterialList";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
 import UnGroupList from "../../pages/class/UnGroupList";
 import GroupProccess from "../../pages/class/GroupProccess";
-import ChooseMentor from "../../pages/teacher/ChooseMentor";
+import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
 import PostActivity from "../../pages/activity/PostActivity";
 import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
+import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTreeView";
+import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
+import ProjectCardMain from "../../pages/teacher/matchingMentor/ProjectCardMain";
 
 const TeacherRouter = () => {
   return (
@@ -31,6 +34,8 @@ const TeacherRouter = () => {
       <Route path="choose-mentor" element={<MainStep />} />
       <Route path="posts" element={<PostActivity />} />
       <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
+      <Route path="temp-matching" element={<ProjectCardMain />} />
+      <Route path="summary-class" element={<MatchingMentorIndex />} />
     </Route>
   );
 };
