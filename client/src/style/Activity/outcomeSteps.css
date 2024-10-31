@@ -1,31 +1,48 @@
 .outcome-steps-container {
-    position: relative;
-    margin-top: 20px;
+  position: relative;
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+}
+
+.step-progress-bar {
+  position: relative;
+  height: 30px;
+  margin-bottom: 20px;
+}
+
+.person-icon {
+  position: absolute;
+  transform: translateX(600%);
+  transition: left 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+.person-icon .anticon {
+  animation: move 1s infinite;
+}
+.early-group-card {
+  min-width: 120px; 
+  min-height: 80px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.late-group-card {
+  min-width: 120px;
+  min-height: 80px;
+  font-size: 12px;
+  text-align: center;
+}
+
+@keyframes move {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  
-  .step-progress-bar {
-    position: relative;
-    height: 30px;
-    margin-bottom: 20px;
+  50% {
+    transform: translateY(-5px);
   }
-  
-  .person-icon {
-    position: absolute;
-    transform: translateX(1200%);
-    transition: left 0.5s ease-in-out;
-    cursor: pointer;
-  }
-  
-  .person-icon .anticon {
-    animation: move 1s infinite;
-  }
-  
-  @keyframes move {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-5px); /* Hiệu ứng nhảy nhẹ */
-    }
-  }
-  
+}

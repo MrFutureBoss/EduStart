@@ -51,4 +51,10 @@ activityRouters.get(
   verifyRole([2]),
   activityController.getSuggestedMaterials
 );
+activityRouters.post(
+  "/send-reminder",
+  verifyAccessToken,
+  verifyRole([2]),
+  activityController.sendReminder
+)
 export default activityRouters;
