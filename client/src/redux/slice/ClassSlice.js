@@ -8,6 +8,16 @@ const initialValue = {
   editClass: {},
   pageNo: 0,
   class: {},
+  classSummaries: [],
+  selectedGroup: {
+    groupId: null,
+    groupName: "",
+  },
+  counts: {},
+  emptyClasses: [],
+  matchedClasses: [],
+  notMatchedClasses: [],
+  classesWithUnupdatedProjects: [],
 };
 const classSlice = createSlice({
   name: "class",
@@ -37,6 +47,33 @@ const classSlice = createSlice({
     setClass: (state, action) => {
       state.class = action.payload;
     },
+    setClassSummaries: (state, action) => {
+      if (
+        JSON.stringify(state.classSummaries) !== JSON.stringify(action.payload)
+      ) {
+        state.classSummaries = action.payload;
+      }
+    },
+    setSelectedGroup: (state, action) => {
+      if (state.selectedGroup.groupId !== action.payload.groupId) {
+        state.selectedGroup = action.payload;
+      }
+    },
+    setCounts: (state, action) => {
+      state.counts = action.payload;
+    },
+    setEmptyClasses: (state, action) => {
+      state.emptyClasses = action.payload;
+    },
+    setMatchedClasses: (state, action) => {
+      state.matchedClasses = action.payload;
+    },
+    setNotMatchedClasses: (state, action) => {
+      state.notMatchedClasses = action.payload;
+    },
+    setClassesWithUnupdatedProjects: (state, action) => {
+      state.classesWithUnupdatedProjects = action.payload;
+    },
   },
 });
 
@@ -50,5 +87,12 @@ export const {
   setdeleteClass,
   setEditClass,
   setClass,
+  setClassSummaries,
+  setSelectedGroup,
+  setCounts,
+  setMatchedClasses,
+  setNotMatchedClasses,
+  setEmptyClasses,
+  setClassesWithUnupdatedProjects,
 } = actions;
 export default reducer;

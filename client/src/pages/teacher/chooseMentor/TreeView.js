@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Tree, Spin, Badge } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchTreeData } from "../../api";
+import { fetchTreeData } from "../../../api";
 import {
   setCountsUpdate,
   setProfessions,
-} from "../../redux/slice/SelectMentorSlice";
+} from "../../../redux/slice/SelectMentorSlice";
 import PropTypes from "prop-types";
 
 const TreeView = ({ onSelect }) => {

@@ -14,10 +14,10 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
         padding: 0,
         display: "flex",
         alignItems: "center",
-        position: 'sticky',
+        position: "sticky",
         top: 0,
-        zIndex: 1,
-        width: '100%',
+        zIndex: 1000,
+        width: "100%",
       }}
     >
       <div

@@ -7,11 +7,13 @@ const projectCategorySchema = new Schema(
       ref: "Project",
       required: true,
     },
-    professionId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Profession",
-      required: true,
-    },
+    professionId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Profession",
+        required: true,
+      },
+    ],
     specialtyIds: [
       {
         type: mongoose.Schema.Types.ObjectId,
