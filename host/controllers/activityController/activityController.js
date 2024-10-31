@@ -1,4 +1,5 @@
 import activityDAO from "../../repositories/activityDAO/index.js";
+import moment from "moment";
 
 const createActivity = async (req, res) => {
   try {
@@ -26,8 +27,8 @@ const createActivity = async (req, res) => {
         teacherId,
         activityType: "material",
         classId,
-        materialUrl,  
-      }
+        materialUrl,
+      };
 
       const savedMaterial = await activityDAO.createActivity(newMaterial);
       return res.status(201).json({
@@ -65,12 +66,11 @@ const createActivity = async (req, res) => {
     }
 
     if (activityType === "outcome") {
-      if (!title || !classId || !assignmentType || !deadline || !startDate || !semesterId) {
-        return res.status(400).json({ message: "All fields (Title, ClassId, AssignmentType, Deadline, StartDate, SemesterId) are required for Outcome" });
-      }
-
       if (assignmentType === "outcome 2") {
-        const outcome1Exists = await activityDAO.findOutcomeByClassIdAndType(classId, "outcome 1");
+        const outcome1Exists = await activityDAO.findOutcomeByClassIdAndType(
+          classId,
+          "outcome 1"
+        );
         if (!outcome1Exists) {
           return res.status(400).json({
             message: "Cannot create Outcome 2 before Outcome 1 is completed",
@@ -79,7 +79,10 @@ const createActivity = async (req, res) => {
       }
 
       if (assignmentType === "outcome 3") {
-        const outcome2Exists = await activityDAO.findOutcomeByClassIdAndType(classId, "outcome 2");
+        const outcome2Exists = await activityDAO.findOutcomeByClassIdAndType(
+          classId,
+          "outcome 2"
+        );
         if (!outcome2Exists) {
           return res.status(400).json({
             message: "Cannot create Outcome 3 before Outcome 2 is completed",
@@ -87,7 +90,10 @@ const createActivity = async (req, res) => {
         }
       }
 
-      const existingOutcome = await activityDAO.findOutcomeByClassIdAndType(classId, assignmentType);
+      const existingOutcome = await activityDAO.findOutcomeByClassIdAndType(
+        classId,
+        assignmentType
+      );
       if (existingOutcome) {
         return res.status(400).json({
           message: `An Outcome of type ${assignmentType} already exists for this class.`,
@@ -140,7 +146,9 @@ const updateActivity = async (req, res) => {
   try {
     const { activityId } = req.params;
     const { description, deadline } = req.body;
-    let materialUrl = req.file ? `uploads/materials/${req.file.filename}` : null;
+    let materialUrl = req.file
+      ? `uploads/materials/${req.file.filename}`
+      : null;
 
     const existingActivity = await activityDAO.findActivityById(activityId);
     if (!existingActivity) {
@@ -156,7 +164,10 @@ const updateActivity = async (req, res) => {
       updatedData.materialUrl = materialUrl;
     }
 
-    const updatedActivity = await activityDAO.updateActivityById(activityId, updatedData);
+    const updatedActivity = await activityDAO.updateActivityById(
+      activityId,
+      updatedData
+    );
 
     res.status(200).json({
       message: "Activity updated successfully",
@@ -167,7 +178,6 @@ const updateActivity = async (req, res) => {
     res.status(500).json({ message: "Failed to update activity", error });
   }
 };
-
 
 const deleteActivity = async (req, res) => {
   try {
@@ -227,7 +237,12 @@ const updateMaterial = async (req, res) => {
 const getActivitiesByTeacher = async (req, res) => {
   try {
     const teacherId = req.user._id;
-    const activities = await activityDAO.findActivitiesByTeacher(teacherId);
+    const { activityType } = req.query; 
+
+    const activities = await activityDAO.findActivitiesByTeacher(
+      teacherId,
+      activityType
+    );
 
     if (!activities || activities.length === 0) {
       return res.status(404).json({
@@ -247,6 +262,7 @@ const getActivitiesByTeacher = async (req, res) => {
     });
   }
 };
+
 const checkFileExists = async (req, res) => {
   try {
     const { fileName, classId } = req.query;
@@ -262,12 +278,10 @@ const checkFileExists = async (req, res) => {
 
     res.status(200).json({ exists: false });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to check file existence",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Failed to check file existence",
+      error: error.message,
+    });
   }
 };
 
@@ -289,6 +303,36 @@ const getSuggestedMaterials = async (req, res) => {
       .json({ success: false, message: "Failed to fetch suggested materials" });
   }
 };
+const sendReminder = async (req, res) => {
+  const { classId, assignmentType, deadline } = req.body;
+  const teacherId = req.user?._id;
+
+  if (!classId || !assignmentType || !deadline) {
+    return res.status(400).json({ message: "Missing required fields." });
+  }
+
+  try {
+    const formattedDeadline = moment(deadline).format("DD-MM-YYYY HH:mm:ss");
+    const reminderPost = {
+      teacherId,
+      classId,
+      activityType: "post",
+      description: `Thông báo: ${assignmentType} sẽ hết hạn vào ngày ${formattedDeadline}.`,
+    };
+
+    const savedReminder = await activityDAO.createActivity(reminderPost);
+    return res.status(201).json({
+      message: "Reminder post created successfully",
+      activity: savedReminder,
+    });
+  } catch (error) {
+    console.error("Error creating reminder:", error);
+    return res.status(500).json({
+      message: "Failed to create reminder",
+      error: error.message,
+    });
+  }
+};
 
 export default {
   createActivity,
@@ -299,4 +343,5 @@ export default {
   getActivitiesByTeacher,
   checkFileExists,
   getSuggestedMaterials,
+  sendReminder,
 };

@@ -43,9 +43,11 @@ const getUsersByClassIdAndEmptyGroupId = async (req, res, next) => {
     );
 
     if (total === 0) {
-      return res.status(404).send({
-        message: "No users found with empty or null groupId in this class",
-      });
+      return res
+        .status(404)
+        .send({
+          message: "No users found with empty or null groupId in this class",
+        });
     }
 
     res.status(200).send({ data, total });
@@ -53,6 +55,7 @@ const getUsersByClassIdAndEmptyGroupId = async (req, res, next) => {
     next(error);
   }
 };
+
 
 const getProjectsByTeacherAndClass = async (req, res) => {
   const { teacherId, classId } = req.params;
@@ -97,6 +100,37 @@ const getTeacherClassSummary = async (req, res) => {
         message: "Đã xảy ra lỗi khi lấy thông tin tổng hợp lớp học.",
         error: error.message,
       });
+
+const getSemestersAndClassesByTeacherId = async (req, res, next) => {
+  try {
+    const { teacherId } = req.params;
+    const { semesters, classes, totalClasses, totalStudents } =
+      await classDAO.getSemestersAndClassesByTeacherId(teacherId);
+
+    if (!semesters.length && !classes.length) {
+      return res
+        .status(404)
+        .send({ message: "No semesters or classes found for this teacher" });
+    }
+
+    res.status(200).send({
+      semesters,
+      classes,
+      totalClasses, // Trả về tổng số lớp
+      totalStudents, // Trả về tổng số sinh viên
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getClassesInfoAndTaskByTeacherId = async (req, res, next) => {
+  try {
+    const { teacherId } = req.params;
+    const classes = await classDAO.getClassesInfoAndTaskByTeacherId(teacherId);
+    res.status(200).json({ data: classes });
+  } catch (error) {
+    next(error);
   }
 };
 export default {
@@ -105,4 +139,6 @@ export default {
   getUsersByClassIdAndEmptyGroupId,
   getProjectsByTeacherAndClass,
   getTeacherClassSummary,
+  getSemestersAndClassesByTeacherId,
+  getClassesInfoAndTaskByTeacherId,
 };

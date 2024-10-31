@@ -5,6 +5,8 @@ import Group from "../../models/groupModel.js";
 import Project from "../../models/projectModel.js";
 import Matched from "../../models/matchedModel.js";
 import ProjectCategory from "../../models/projectCategoryModel.js";
+import Semester from "../../models/semesterModel.js";
+
 const getStudentCountByClassId = async (classId, semesterId) => {
   try {
     const count = await User.countDocuments({
@@ -390,6 +392,76 @@ const findTeacherClassSummary = async (teacherId) => {
   };
 };
 
+const getSemestersAndClassesByTeacherId = async (teacherId) => {
+  try {
+    // Lấy thông tin người dùng với teacherId và các semesterId
+    const user = await User.findById(teacherId).select("semesterId");
+    const semesterIds = user?.semesterId || [];
+
+    // Tìm kiếm thông tin semester dựa trên semesterIds
+    const semesters = await Semester.find({ _id: { $in: semesterIds } });
+
+    // Tìm kiếm tất cả các lớp học mà teacherId là giáo viên
+    const classes = await Class.find({ teacherId })
+      .populate("semesterId", "name status startDate endDate");
+
+    // Tính tổng số lớp và tổng số sinh viên
+    let totalStudents = 0;
+
+    const classesWithStudentCount = await Promise.all(
+      classes.map(async (cls) => {
+        const studentCount = await User.countDocuments({ classId: cls._id });
+        totalStudents += studentCount; 
+        return {
+          ...cls.toObject(),
+          totalStudentsInClass: studentCount,
+        };
+      })
+    );
+
+    const totalClasses = classes.length;
+
+    return {
+      semesters,
+      classes: classesWithStudentCount,
+      totalClasses,
+      totalStudents, 
+    };
+  } catch (error) {
+    console.error(`Error in getSemestersAndClassesByTeacherId: ${error.message}`);
+    throw new Error("Error fetching semesters and classes by teacherId");
+  }
+};
+
+const getClassesInfoAndTaskByTeacherId = async (teacherId) => {
+  try {
+    const classes = await Class.find({ teacherId })
+      .populate("teacherId", "username email")
+      .populate("semesterId", "name status startDate endDate")
+      .lean();
+
+    const classesWithDetails = await Promise.all(
+      classes.map(async (cls) => {
+        const groups = await Group.find({ classId: cls._id }).select("name description status");
+        const tempGroups = await TempGroup.find({ classId: cls._id }).select("groupName status");
+        const totalStudentInClass = await User.countDocuments({ classId: cls._id });
+
+        return {
+          ...cls,
+          groupId: groups,
+          tempGroupId: tempGroups,
+          totalStudentInClass,
+        };
+      })
+    );
+
+    return classesWithDetails;
+  } catch (error) {
+    console.error(`Error in getClassesInfoAndTaskByTeacherId: ${error.message}`);
+    throw new Error("Error fetching class information and tasks.");
+  }
+};
+
 export default {
   getStudentCountByClassId,
   getClassById,
@@ -403,4 +475,6 @@ export default {
   getUsersByClassIdAndEmptyGroupId,
   findProjectsByTeacherAndClass,
   findTeacherClassSummary,
+  getSemestersAndClassesByTeacherId,
+  getClassesInfoAndTaskByTeacherId,
 };

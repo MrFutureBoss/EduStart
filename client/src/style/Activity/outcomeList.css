@@ -1,0 +1,86 @@
+.google-classroom-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.google-classroom-modal .ant-modal-content {
+  border-radius: 8px;
+}
+
+.google-classroom-modal .ant-modal-footer {
+  display: none; /* Hides the default footer */
+}
+
+.google-classroom-modal .ant-divider-horizontal {
+  margin: 12px 0;
+}
+
+.google-classroom-modal .ant-form-item-label > label {
+  font-weight: bold;
+  color: #333;
+}
+
+@keyframes shake {
+  0% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+  75% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+.bell-icon {
+  font-size: 24px;
+  color: #ff4d4f;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.bell-icon:hover {
+  animation: shake 0.5s ease-in-out;
+}
+
+.outcome-list-container {
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin: 10px;
+  border: 1px solid black;
+}
+
+.outcome-list-item {
+  padding: 12px 0;
+  background-color: "#fff";
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.outcome-avatar {
+  background-color: #ffa726;
+  font-size: 20px;
+}
+
+.deadline-text {
+  color: red;
+  font-weight: bold;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.create-outcome-button {
+  margin-top: 15px;
+}
+
+.form-padding {
+  padding: 10px 0;
+}
