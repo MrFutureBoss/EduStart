@@ -98,9 +98,15 @@ const findActivityByMaterialUrl = async (fileName, classId) => {
 async function findOutcomeByClassIdAndType(classId, assignmentType) {
   return Activity.findOne({ classId, assignmentType });
 }
-const findActivitiesByTeacher = async (teacherId) => {
-  return Activity.find({ teacherId }).populate("classId");
+const findActivitiesByTeacher = async (teacherId, activityType = null) => {
+  const filter = { teacherId };
+  if (activityType) {
+    filter.activityType = activityType;
+  }
+
+  return Activity.find(filter).populate("classId");
 };
+
 const getSuggestedMaterials = async (teacherId, classId) => {
   try {
     return await Activity.find({

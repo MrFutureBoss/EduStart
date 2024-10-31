@@ -168,7 +168,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           </Menu.Item>
         </SubMenu>
         <Menu.Item key="4" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="teacher-activity">
+          <Link style={{ textDecoration: "none" }} to="teacher-dashboard">
             Dashboard
           </Link>
         </Menu.Item>
@@ -201,30 +201,17 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           <></>
         )}
 
-        <SubMenu
-          key="sub3"
+        <Menu.Item
+          key="6"
           icon={
             <FaClipboardList className={toggleCollapse ? "" : "custom-icon"} />
           }
           title="Hoạt động chung"
-          style={{ margin: "0px", padding: "0px" }}
         >
-          <Menu.Item key="6" icon={<BookOutlined />}>
-            <Link style={{ textDecoration: "none" }} to="posts">
-              Bài đăng
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="7" icon={<FileDoneOutlined />}>
-            <Link style={{ textDecoration: "none" }} to="assignments">
-              Bài tập
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="8" icon={<FileTextOutlined />}>
-            <Link style={{ textDecoration: "none" }} to="materials">
-              Tài liệu chung
-            </Link>
-          </Menu.Item>
-        </SubMenu>
+          <Link style={{ textDecoration: "none" }} to="posts">
+            Hoạt động chung
+          </Link>
+        </Menu.Item>
         <Menu.Item
           key="9"
           icon={
