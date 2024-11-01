@@ -175,22 +175,20 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           icon={
             <FaClipboardList className={toggleCollapse ? "" : "custom-icon"} />
           }
-
           title="Hoạt động chung"
         >
           <Link style={{ textDecoration: "none" }} to="posts">
             Hoạt động chung
           </Link>
         </Menu.Item>
-        <Menu.Item
-          key="9"
+        <SubMenu
+          key="7"
           icon={
             <StarOutlined
               style={{ fontSize: "1.5em" }}
               className={toggleCollapse ? "" : "custom-icon"}
             />
           }
-
           title="Mức Độ Ưu Tiên Mentor"
           style={{ margin: "0px", padding: "0px" }}
         >
@@ -437,15 +435,13 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
             </Link>
           </Menu.Item>
         </SubMenu>
-        <Menu.Item
-          key="13"
-        >
+        {/* <Menu.Item key="13">
           <Link style={{ textDecoration: "none" }} to="choose-mentor">
             Chọn Mentor ưu tiên.
           </Link>
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item
-          key="10"
+          key="15"
           icon={
             <MdSupportAgent
               style={{ fontSize: "1.5em" }}

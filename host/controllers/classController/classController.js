@@ -43,11 +43,9 @@ const getUsersByClassIdAndEmptyGroupId = async (req, res, next) => {
     );
 
     if (total === 0) {
-      return res
-        .status(404)
-        .send({
-          message: "No users found with empty or null groupId in this class",
-        });
+      return res.status(404).send({
+        message: "No users found with empty or null groupId in this class",
+      });
     }
 
     res.status(200).send({ data, total });
@@ -55,7 +53,6 @@ const getUsersByClassIdAndEmptyGroupId = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const getProjectsByTeacherAndClass = async (req, res) => {
   const { teacherId, classId } = req.params;
@@ -94,13 +91,12 @@ const getTeacherClassSummary = async (req, res) => {
     res.status(200).json(summary);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message: "Đã xảy ra lỗi khi lấy thông tin tổng hợp lớp học.",
-        error: error.message,
-      });
-
+    res.status(500).json({
+      message: "Đã xảy ra lỗi khi lấy thông tin tổng hợp lớp học.",
+      error: error.message,
+    });
+  }
+};
 const getSemestersAndClassesByTeacherId = async (req, res, next) => {
   try {
     const { teacherId } = req.params;
