@@ -9,7 +9,7 @@ const GroupProccess = () => {
       title: "Tạo nhóm",
       description: "Thời gian còn lại: 10 ngày",
       content: {},
-      subTitle: "05-08-2024",
+      // subTitle: "05-08-2024",
     },
     {
       title: "Ghép nhóm với mentor",

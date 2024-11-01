@@ -1,6 +1,12 @@
 import User from "../../models/userModel.js";
 import Class from "../../models/classModel.js";
 import TempGroup from "../../models/tempGroupModel.js";
+import Group from "../../models/groupModel.js";
+import Project from "../../models/projectModel.js";
+import Matched from "../../models/matchedModel.js";
+import ProjectCategory from "../../models/projectCategoryModel.js";
+import Semester from "../../models/semesterModel.js";
+
 const getStudentCountByClassId = async (classId, semesterId) => {
   try {
     const count = await User.countDocuments({
@@ -68,7 +74,7 @@ const createClass = async ({
     limitStudent,
     teacherId,
     semesterId,
-    status,
+    status: "Active",
   });
 
   // Save the new class
@@ -125,7 +131,7 @@ const getTeachersWithClassCount = async () => {
       teachers.map(async (teacher) => {
         const classCount = await Class.countDocuments({
           teacherId: teacher._id,
-          status: "Active", // Giả định rằng chỉ các lớp Active được tính
+          status: "Active",
         });
         return {
           ...teacher.toObject(),
@@ -154,17 +160,23 @@ const getClassIdByClassName = async (className) => {
   }
 };
 
-const getUsersByClassIdAndEmptyGroupId = async (classId, skip = 0, limit = 10) => {
+const getUsersByClassIdAndEmptyGroupId = async (
+  classId,
+  skip = 0,
+  limit = 10
+) => {
   try {
-    const tempGroups = await TempGroup.find({ classId }).select("userIds").lean();
-    const excludedUserIds = tempGroups.reduce((acc, group) => acc.concat(group.userIds), []);
+    const tempGroups = await TempGroup.find({ classId })
+      .select("userIds")
+      .lean();
+    const excludedUserIds = tempGroups.reduce(
+      (acc, group) => acc.concat(group.userIds),
+      []
+    );
 
     const query = {
       classId: classId,
-      $or: [
-        { groupId: { $exists: false } },
-        { groupId: null },
-      ],
+      $or: [{ groupId: { $exists: false } }, { groupId: null }],
       _id: { $nin: excludedUserIds },
     };
 
@@ -181,6 +193,274 @@ const getUsersByClassIdAndEmptyGroupId = async (classId, skip = 0, limit = 10) =
     throw new Error(error.message);
   }
 };
+// hàm này để tìm các dự án theo lớp đã được giáo viên duyệt
+const findProjectsByTeacherAndClass = async (teacherId, classId) => {
+  // Kiểm tra xem lớp học có tồn tại với giáo viên cụ thể không
+  console.log(teacherId, classId);
+
+  const classData = await Class.findOne({ _id: classId, teacherId });
+  if (!classData) {
+    throw new Error("Không tìm thấy lớp học với giáo viên này.");
+  }
+
+  // Tìm các nhóm trong lớp học đó và populate projectId
+  const groups = await Group.find({ classId }).populate({
+    path: "projectId",
+    match: { status: "InProgress" },
+  });
+
+  // Lấy danh sách các groupId đã matched
+  const matchedGroupIds = await Matched.find({
+    groupId: { $in: groups.map((group) => group._id) },
+  }).distinct("groupId");
+
+  // Lặp qua các nhóm để lấy thông tin dự án và danh mục
+  const projects = await Promise.all(
+    groups
+      .filter((group) => group.projectId != null) // Chỉ lấy các nhóm có projectId
+      .map(async (group) => {
+        // Tìm ProjectCategory tương ứng với projectId của nhóm
+        const projectCategory = await ProjectCategory.findOne({
+          projectId: group.projectId._id,
+        })
+          .populate([
+            {
+              path: "professionId",
+              model: "Profession",
+              select: "name",
+            },
+            {
+              path: "specialtyIds",
+              model: "Specialty",
+              select: "name",
+            },
+          ])
+          .lean();
+
+        // Kiểm tra nếu group này đã matched
+        const isMatched = matchedGroupIds.includes(group._id.toString());
+
+        // Trả về thông tin project cùng với groupId và projectCategory
+        return {
+          ...group.projectId.toObject(),
+          groupId: group._id, // Thêm groupId vào kết quả
+          projectCategory: projectCategory || null,
+          isMatched,
+        };
+      })
+  );
+
+  return projects;
+};
+
+const findTeacherClassSummary = async (teacherId) => {
+  const classes = await Class.find({ teacherId });
+
+  const classSummaries = await Promise.all(
+    classes.map(async (classItem) => {
+      const groups = await Group.find({ classId: classItem._id });
+
+      if (groups.length === 0) {
+        return {
+          classId: classItem._id,
+          className: classItem.className,
+          matchedCount: 0,
+          unmatchedCount: 0,
+          isFullyMatched: false,
+          groupDetails: [],
+          isEmpty: true,
+          groupsWithoutProject: [], // Đảm bảo luôn có giá trị mảng
+        };
+      }
+
+      const matchedGroupIds = await Matched.find({
+        groupId: { $in: groups.map((group) => group._id) },
+      }).distinct("groupId");
+
+      const matchedCount = groups.filter((group) =>
+        matchedGroupIds.includes(group._id.toString())
+      ).length;
+      const unmatchedCount = groups.length - matchedCount;
+      const isFullyMatched = unmatchedCount === 0;
+
+      let groupsWithoutProject = []; // Danh sách các nhóm chưa cập nhật dự án cho lớp này
+
+      const groupDetails = await Promise.all(
+        groups.map(async (group) => {
+          // Kiểm tra projectId của nhóm
+          const isProjectUpdated = !!group.projectId;
+
+          let projectDetails = null;
+          if (isProjectUpdated) {
+            const project = await Project.findById(group.projectId);
+            if (project) {
+              projectDetails = {
+                projectId: project._id,
+                projectName: project.name,
+                projectStatus: project.status,
+              };
+            }
+          } else {
+            groupsWithoutProject.push({
+              groupId: group._id,
+              groupName: group.name,
+            });
+          }
+
+          return {
+            groupId: group._id,
+            groupName: group.name,
+            isMatched: matchedGroupIds.includes(group._id.toString()),
+            isProjectUpdated,
+            projectDetails,
+          };
+        })
+      );
+
+      return {
+        classId: classItem._id,
+        className: classItem.className,
+        matchedCount,
+        unmatchedCount,
+        isFullyMatched,
+        groupDetails,
+        isEmpty: false,
+        groupsWithoutProject, // Luôn là mảng, ngay cả khi không có nhóm nào chưa cập nhật dự án
+      };
+    })
+  );
+
+  const emptyClasses = classSummaries
+    .filter((classItem) => classItem.isEmpty)
+    .map((classItem) => ({
+      classId: classItem.classId,
+      className: classItem.className,
+    }));
+
+  const nonEmptyClasses = classSummaries.filter(
+    (classItem) => !classItem.isEmpty
+  );
+  const totalFullyMatchedClasses = nonEmptyClasses.filter(
+    (classItem) => classItem.isFullyMatched
+  ).length;
+
+  // Các lớp chưa ghép mentor đầy đủ, bao gồm chi tiết các nhóm chưa được ghép
+  const notMatchedClasses = nonEmptyClasses
+    .filter((classItem) => !classItem.isFullyMatched)
+    .map((classItem) => ({
+      classId: classItem.classId,
+      className: classItem.className,
+      unmatchedGroups: classItem.groupDetails
+        .filter((group) => !group.isMatched) // Lọc ra các nhóm chưa được ghép
+        .map((group) => ({
+          groupId: group.groupId,
+          groupName: group.groupName,
+        })),
+    }));
+
+  // Tính tổng số nhóm chưa cập nhật dự án và danh sách các lớp có nhóm chưa cập nhật dự án
+  const classesWithUnupdatedProjects = classSummaries
+    .filter((classItem) => (classItem.groupsWithoutProject || []).length > 0)
+    .map((classItem) => ({
+      classId: classItem.classId,
+      className: classItem.className,
+      groupsWithoutProject: classItem.groupsWithoutProject,
+    }));
+
+  const totalUnupdatedProjects = classesWithUnupdatedProjects.reduce(
+    (total, classItem) => total + (classItem.groupsWithoutProject || []).length,
+    0
+  );
+
+  return {
+    classSummaries: nonEmptyClasses,
+    counts: {
+      totalClasses: classes.length,
+      totalFullyMatchedClasses,
+      totalNotFullyMatchedClasses: notMatchedClasses.length,
+      totalUnupdatedProjects, // Tổng số nhóm chưa cập nhật dự án
+    },
+    matchedClasses: nonEmptyClasses
+      .filter((classItem) => classItem.isFullyMatched)
+      .map((classItem) => ({
+        classId: classItem.classId,
+        className: classItem.className,
+      })),
+    notMatchedClasses, // Bao gồm các lớp và các nhóm chưa được ghép trong từng lớp
+    emptyClasses,
+    classesWithUnupdatedProjects, // Danh sách các lớp có nhóm chưa cập nhật dự án và chi tiết nhóm
+  };
+};
+
+const getSemestersAndClassesByTeacherId = async (teacherId) => {
+  try {
+    // Lấy thông tin người dùng với teacherId và các semesterId
+    const user = await User.findById(teacherId).select("semesterId");
+    const semesterIds = user?.semesterId || [];
+
+    // Tìm kiếm thông tin semester dựa trên semesterIds
+    const semesters = await Semester.find({ _id: { $in: semesterIds } });
+
+    // Tìm kiếm tất cả các lớp học mà teacherId là giáo viên
+    const classes = await Class.find({ teacherId })
+      .populate("semesterId", "name status startDate endDate");
+
+    // Tính tổng số lớp và tổng số sinh viên
+    let totalStudents = 0;
+
+    const classesWithStudentCount = await Promise.all(
+      classes.map(async (cls) => {
+        const studentCount = await User.countDocuments({ classId: cls._id });
+        totalStudents += studentCount; 
+        return {
+          ...cls.toObject(),
+          totalStudentsInClass: studentCount,
+        };
+      })
+    );
+
+    const totalClasses = classes.length;
+
+    return {
+      semesters,
+      classes: classesWithStudentCount,
+      totalClasses,
+      totalStudents, 
+    };
+  } catch (error) {
+    console.error(`Error in getSemestersAndClassesByTeacherId: ${error.message}`);
+    throw new Error("Error fetching semesters and classes by teacherId");
+  }
+};
+
+const getClassesInfoAndTaskByTeacherId = async (teacherId) => {
+  try {
+    const classes = await Class.find({ teacherId })
+      .populate("teacherId", "username email")
+      .populate("semesterId", "name status startDate endDate")
+      .lean();
+
+    const classesWithDetails = await Promise.all(
+      classes.map(async (cls) => {
+        const groups = await Group.find({ classId: cls._id }).select("name description status");
+        const tempGroups = await TempGroup.find({ classId: cls._id }).select("groupName status");
+        const totalStudentInClass = await User.countDocuments({ classId: cls._id });
+
+        return {
+          ...cls,
+          groupId: groups,
+          tempGroupId: tempGroups,
+          totalStudentInClass,
+        };
+      })
+    );
+
+    return classesWithDetails;
+  } catch (error) {
+    console.error(`Error in getClassesInfoAndTaskByTeacherId: ${error.message}`);
+    throw new Error("Error fetching class information and tasks.");
+  }
+};
 
 export default {
   getStudentCountByClassId,
@@ -193,4 +473,8 @@ export default {
   getTeachersWithClassCount,
   getClassIdByClassName,
   getUsersByClassIdAndEmptyGroupId,
+  findProjectsByTeacherAndClass,
+  findTeacherClassSummary,
+  getSemestersAndClassesByTeacherId,
+  getClassesInfoAndTaskByTeacherId,
 };

@@ -1,29 +1,159 @@
-@keyframes spin-border-post {
-    0% {
-      border: 2px solid #1890ff;
-      box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
-    }
-    25% {
-      border-top: 2px solid #1890ff;
-      border-right: 2px solid transparent;
-      box-shadow: 0 0 10px rgba(24, 144, 255, 0.7);
-    }
-    50% {
-      border-right: 2px solid #1890ff;
-      border-bottom: 2px solid transparent;
-      box-shadow: 0 0 15px rgba(24, 144, 255, 0.9);
-    }
-    75% {
-      border-bottom: 2px solid #1890ff;
-      border-left: 2px solid transparent;
-    }
-    100% {
-      border-left: 2px solid #1890ff;
-      box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
-    }
+.post-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  width: 90%;
+  max-height: 600px;
+  overflow-y: hidden;
+  position: relative;
+}
+
+.post-container:hover {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.post-container::-webkit-scrollbar {
+  width: 0;
+}
+
+.post-container:hover::-webkit-scrollbar {
+  width: 8px;
+  background-color: #f1f1f1;
+}
+
+.post-container:hover::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+
+.post-container:hover::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+.post-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.new-post-border {
+  border: 2px solid #1890ff;
+  animation: highlight 1s ease-in-out infinite alternate;
+}
+
+@keyframes highlight {
+  0% {
+    box-shadow: 0 0 8px rgba(24, 144, 255, 0.5);
   }
-  
-  .new-post-border {
-    animation: spin-border-post 2s linear infinite; 
+  100% {
+    box-shadow: 0 0 16px rgba(24, 144, 255, 0.7);
   }
-  
+}
+
+.post-card-body {
+  padding: 20px;
+}
+
+.new-post-badge {
+  position: absolute;
+  top: 10px;
+  right: 60px;
+  background-color: #1890ff;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 12px;
+}
+
+.tag {
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 2px 8px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.tag-blue {
+  background-color: #1890ff;
+}
+
+.post-card-body h4 {
+  font-size: 18px;
+  color: #333;
+  margin: 8px 0;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info h5 {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.user-info small {
+  color: #888;
+}
+
+@media (max-width: 940px) {
+  .post-container {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+}
+/* Gradient animation */
+@keyframes gradientBg {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-animated {
+  background: linear-gradient(-45deg, #f1e9e9ee, #f5f5f5, #eeeeee, #e1d8d8);
+  background-size: 400% 400%;
+  animation: gradientBg 15s ease infinite;
+  padding: 20px;
+  border-radius: 8px;
+  color: #333333;
+}
+
+.post-card {
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #fff;
+  border: 1px solid #c6c1c1;
+}
+
+.post-content {
+  font-size: 16px;
+  color: #333;
+}
+
+.more-options {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.more-options:hover {
+  background-color: #cccccc;
+}

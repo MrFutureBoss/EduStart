@@ -1,7 +1,7 @@
 // MentorSelectionOverview.js
 import React, { useEffect, useState } from "react";
 import { Typography, Spin, Alert, Button } from "antd";
-import { fetchTeacherSelection } from "../../api";
+import { fetchTeacherSelection } from "../../../api";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -9,9 +9,9 @@ import {
   setProfession,
   setSpecialty,
   setStepCheck,
-} from "../../redux/slice/SelectMentorSlice";
+} from "../../../redux/slice/SelectMentorSlice";
 import MentorCard from "./MentorCard";
-import "./teacherCSS/MentorSelectionOverview.css";
+import "../teacherCSS/MentorSelectionOverview.css";
 import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;

@@ -34,6 +34,71 @@ const SpecialtySubSchema = new Schema(
   { _id: false }
 );
 
+const MatchedSpecialtySchema = new Schema(
+  {
+    specialtyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Specialty",
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    proficiencyLevel: {
+      type: Number,
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
+const MentorSuggestionSchema = new Schema(
+  {
+    mentorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    degree: {
+      type: String,
+      required: true,
+    },
+    score: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    isPreferredGroup: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    professions: {
+      type: [ProfessionSubSchema],
+      default: [],
+    },
+    specialties: {
+      type: [SpecialtySubSchema],
+      default: [],
+    },
+    currentLoad: Number,
+    maxLoad: Number,
+    priority: Number,
+    matchedSpecialties: [MatchedSpecialtySchema],
+    matchCount: Number,
+  },
+  { _id: false }
+);
+
 const temporaryMatchingSchema = new Schema(
   {
     groupId: {
@@ -41,48 +106,6 @@ const temporaryMatchingSchema = new Schema(
       required: true,
       ref: "Group",
     },
-    mentorIds: [
-      {
-        mentorId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        username: {
-          type: String,
-          required: true,
-        },
-        email: {
-          type: String,
-          required: true,
-        },
-        degree: {
-          type: String,
-          required: true,
-        },
-        score: {
-          type: Number,
-          required: true,
-          default: 0,
-        },
-        isPreferredGroup: {
-          type: Boolean,
-          required: true,
-          default: false,
-        },
-        professions: {
-          type: [ProfessionSubSchema],
-          default: [],
-        },
-        specialties: {
-          type: [SpecialtySubSchema],
-          default: [],
-        },
-        currentLoad: Number,
-        maxLoad: Number,
-      },
-    ],
-
     teacherId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -92,6 +115,9 @@ const temporaryMatchingSchema = new Schema(
       type: String,
       default: "Pending",
     },
+    mentorPreferred: [MentorSuggestionSchema],
+    teacherPreferredMentors: [MentorSuggestionSchema],
+    matchingMentors: [MentorSuggestionSchema],
   },
   {
     timestamps: true,
@@ -102,5 +128,4 @@ const TemporaryMatching = mongoose.model(
   "TemporaryMatching",
   temporaryMatchingSchema
 );
-
 export default TemporaryMatching;

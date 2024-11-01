@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, Avatar, Dropdown, Menu, Button, Progress, Tag } from "antd";
 import { EllipsisOutlined, UpOutlined, DownOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
-import "./teacherCSS/MentorCard.css";
+import "../teacherCSS/MentorCard.css";
 
 const { Meta } = Card;
 

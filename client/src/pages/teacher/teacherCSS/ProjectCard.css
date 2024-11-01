@@ -1,0 +1,167 @@
+/* Outer container that includes both the tag container and card */
+.project-outer-container {
+  position: relative;
+  display: inline-block;
+  margin: 20px;
+  padding-top: 30px; /* Adjust padding to ensure tags are above the card */
+}
+
+/* Container for profession tags positioned above the card */
+.project-tag-container {
+  position: absolute;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.project-specialties {
+  display: none;
+  margin: 10px 20px;
+}
+
+/* Show project-specialties when hovering over project-card */
+.project-card:hover .project-specialties {
+  display: block;
+}
+/* Design for each profession tag */
+.tag-overlay {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px #87bacf;
+  background-color: #62b6cb;
+  z-index: 1;
+  font-weight: bold;
+  border: none;
+  color: #f0f8fa;
+}
+.project-specialties-tag {
+  background-color: #b3dbe6;
+  border: none;
+  color: #373635;
+  box-shadow: 0 2px 6px #87bacf;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-weight: bold;
+}
+
+/* Main card design */
+.project-card {
+  position: relative;
+  background-color: #c2e1eb;
+  color: #333;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  width: 300px;
+  margin: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 220px;
+  height: 220px;
+}
+
+.project-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: scale(1.03);
+  max-height: 240px;
+}
+
+/* Hover background effect */
+.project-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -16px;
+  right: -16px;
+  background: #a3d4e0;
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+  transform: scale(1);
+  transition: transform 0.4s ease-out;
+}
+
+.project-card:hover::before {
+  transform: scale(30);
+}
+
+/* Card contents styling */
+.project-title {
+  color: #262626;
+  font-size: 1.375rem;
+  font-weight: 700;
+  margin: 20px 20px 10px;
+}
+
+.project-description {
+  color: #666666;
+  font-size: 1.063rem;
+  line-height: 1.5rem;
+  margin: 0 20px 10px;
+}
+
+.project-status {
+  margin: 10px 20px;
+  font-weight: 500;
+  color: #333;
+}
+
+.project-specialties {
+  margin: 10px 20px;
+}
+
+/* Corner arrow styling */
+.go-corner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  top: 0;
+  right: 0;
+  background-color: #a3d4e0;
+  border-radius: 0 4px 0 32px;
+}
+
+.go-arrow {
+  color: #ffffff;
+  font-family: courier, sans-serif;
+  font-size: 1.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1380px) {
+  .project-card {
+    padding-bottom: 10px;
+  }
+  .project-title {
+    font-size: 20px;
+  }
+  .project-description {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-card {
+    text-align: center;
+  }
+  .project-title {
+    font-size: 18px;
+  }
+  .project-description {
+    font-size: 14px;
+  }
+  .go-corner {
+    width: 28px;
+    height: 28px;
+  }
+}
+.project-card-main-container {
+  padding: 20px;
+}
+.project-outer-container {
+  margin: 10px 0;
+}

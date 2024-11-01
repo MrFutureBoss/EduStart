@@ -31,26 +31,25 @@ import {
   setSelectedMentors,
   setAvailableMentors,
   setProfessions,
-  setProfession,
   setSpecialty,
   setMentorsBySpecialty,
   setCountsUpdate,
-} from "../../redux/slice/SelectMentorSlice";
+} from "../../../redux/slice/SelectMentorSlice";
 import {
   fetchMentors,
   saveMentorSelection,
   fetchTeacherSelection,
   fetchTreeData,
-} from "../../api";
+} from "../../../api";
 import PropTypes from "prop-types";
 import MentorCard from "./MentorCard";
-import "./teacherCSS/MentorSelection.css";
+import "../teacherCSS/MentorSelection.css";
 import {
   selectSelectedMentorsBySpecialty,
   selectAvailableMentorsBySpecialty,
   selectProfessionName,
   selectSpecialtyName,
-} from "../../redux/slice/Selectors";
+} from "../../../redux/slice/Selectors";
 const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
@@ -480,18 +479,21 @@ const MentorSelection = forwardRef(
     const handleSearchSelected = (value) => {
       setSearchSelected(value.toLowerCase());
     };
+    console.log("availableMentors", availableMentors);
 
-    const filteredAvailableMentors = availableMentors.filter(
-      (mentor) =>
-        mentor.mentorId.email.toLowerCase().includes(searchAvailable) ||
-        mentor.mentorId.username.toLowerCase().includes(searchAvailable)
-    );
+    const filteredAvailableMentors =
+      availableMentors?.filter(
+        (mentor) =>
+          mentor.mentorId?.email?.toLowerCase().includes(searchAvailable) ||
+          mentor.mentorId?.username?.toLowerCase().includes(searchAvailable)
+      ) || [];
 
-    const filteredSelectedMentors = selectedMentors.filter(
-      (mentor) =>
-        mentor.mentorId.email.toLowerCase().includes(searchSelected) ||
-        mentor.mentorId.username.toLowerCase().includes(searchSelected)
-    );
+    const filteredSelectedMentors =
+      selectedMentors?.filter(
+        (mentor) =>
+          mentor.mentorId?.email?.toLowerCase().includes(searchSelected) ||
+          mentor.mentorId?.username?.toLowerCase().includes(searchSelected)
+      ) || [];
 
     if (!selectedMentors || !availableMentors) return <Spin />;
 
