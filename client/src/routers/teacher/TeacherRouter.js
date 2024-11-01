@@ -6,7 +6,7 @@ import MyActivity from "../../pages/activity/MyActivity";
 import Tasks from "../../pages/activity/Tasks";
 import MaterialList from "../../pages/activity/MaterialList";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
-import UnGroupList from "../../pages/class/UnGroupList";
+// import UnGroupList from "../../pages/class/UnGroupList";
 import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
 import GroupProccess from "../../pages/create-group/GroupProccess";
 import PostActivity from "../../pages/activity/PostActivity";
@@ -34,7 +34,7 @@ const TeacherRouter = () => {
       <Route path="teacher-activity" element={<MyActivity />} />
       <Route path="tasks" element={<Tasks />} />
       <Route path="materials" element={<MaterialList />} />
-      <Route path="choose-mentor" element={<ChooseMentor />} />
+
       <Route path="professionmanagement" element={<ProfessionManagement />} />
       <Route path="class/:className" element={<GroupProccess />} />
       <Route path="teacher-dashboard" element={<MyActivity />} />
