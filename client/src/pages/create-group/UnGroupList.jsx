@@ -200,11 +200,11 @@ const UnGroupList = () => {
           borderStyle: "dotted",
           backgroundColor: "#E6F4FF",
           border: "2px solid #1677FF",
-          lineHeight:'1rem',
-          marginBottom:'2rem'
+          lineHeight: "1rem",
+          marginBottom: "2rem",
         }}
       >
-        <p >Sĩ số lớp: 25 sinh viên</p>
+        <p>Sĩ số lớp: 25 sinh viên</p>
         <p>Tổng số nhóm đã đủ thành viên: ?</p>
         <p>Deadline tạo nhóm và thời gian còn lại </p>
         <p>Điều kiện tham gia nhóm: </p>
@@ -359,6 +359,11 @@ const UnGroupList = () => {
             flex: 1,
           }}
         >
+          <Row>
+            <Col sm={24}>
+              <h4>Danh sách nhóm</h4>
+            </Col>
+          </Row>
           <Row style={{ margin: "10px 20px" }}>
             <Col sm={24}>Số lượng sinh viên đã vào nhóm: 14</Col>
           </Row>

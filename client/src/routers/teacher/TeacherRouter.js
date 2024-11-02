@@ -30,7 +30,6 @@ const TeacherRouter = () => {
       <Route path="tasks" element={<Tasks />} />
       <Route path="materials" element={<MaterialList />} />
       <Route path="choose-mentor" element={<ChooseMentor />} />
-      <Route path="professionmanagement" element={<ProfessionManagement />} />
       <Route path="class/:className" element={<GroupProccess />} />
       <Route path="teacher-dashboard" element={<MyActivity />} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />

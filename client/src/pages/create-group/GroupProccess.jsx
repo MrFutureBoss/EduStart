@@ -36,7 +36,7 @@ const GroupProccess = () => {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "center" }}>
+      {/* <div style={{ display: "flex", justifyContent: "center" }}>
         <Steps
           percent={60}
           current={current}
@@ -44,7 +44,7 @@ const GroupProccess = () => {
           items={items}
           style={{ width: "90%" }}
         />
-      </div>
+      </div> */}
       <div
         style={{
           margin: "40px 0px",

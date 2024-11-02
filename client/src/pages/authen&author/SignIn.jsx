@@ -16,6 +16,7 @@ import {
 } from "../../components/SweetAlert/index.js";
 import ForgotPasswordModal from "./ForgotPasswordModal.jsx";
 import { jwtDecode } from "jwt-decode";
+import { triggerTeacherDashboardNotification } from "../../redux/slice/NotificationSlice.js";
 
 function SignIn() {
   const [forgotPasswordVisible, setForgotPasswordVisible] = useState(false);
@@ -43,8 +44,8 @@ function SignIn() {
       const res = await axios.post(`${BASE_URL}/user/login`, formData);
       const token = res.data.token;
       const role = res.data.user.role;
-      const userId = res.data.user._id
-      const username = res.data.user.username
+      const userId = res.data.user._id;
+      const username = res.data.user.username;
       if (token) {
         localStorage.setItem("jwt", token);
         localStorage.setItem("role", role);
@@ -66,6 +67,7 @@ function SignIn() {
             navigation("/admin-dashboard", { replace: true });
           } else if (userRole === 2) {
             navigation("/teacher-dashboard"); // Nếu là giáo viên
+            dispatch(triggerTeacherDashboardNotification());
           } else if (userRole === 3) {
             navigation("/student-dashboard"); // Nếu là học sinh
           } else {
