@@ -65,6 +65,7 @@ const getTempGroupsByClassId = async (classId, skip = 0, limit = 10) => {
   try {
     const query = { classId };  // Tìm theo classId
 
+    // Lấy danh sách TempGroup theo điều kiện
     const result = await TempGroup.find(query)
       .populate({
         path: "userIds",
@@ -75,13 +76,18 @@ const getTempGroupsByClassId = async (classId, skip = 0, limit = 10) => {
       .limit(limit)
       .exec();
 
+    // Tính tổng số lượng sinh viên trong tất cả các TempGroup
+    const totalStudent = result.reduce((acc, group) => acc + group.userIds.length, 0);
+
+    // Tính tổng số lượng TempGroup dựa trên classId
     const total = await TempGroup.countDocuments(query);
-    return { data: result, total };
+
+    return { data: result, total, totalStudent };
   } catch (error) {
     throw new Error(error);
   }
-  
 };
+
 
 export default {
   getAllTempGroups,

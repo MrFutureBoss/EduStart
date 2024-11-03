@@ -19,6 +19,7 @@ import { BASE_URL } from "../../utilities/initalValue";
 import { QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
 import {
   setTempGroups,
+  setTotalJoinUser,
   setTotalTempGroups,
   setTotalWaitUsers,
   setWaitUserList,
@@ -29,6 +30,7 @@ import "../../style/Class/ClassDetail.css";
 import Search from "antd/es/input/Search";
 import CreateGroup from "./CreateGroup";
 import Result from "./DnD_Group/Result";
+import { setSettingCreateGroupData } from "../../redux/slice/SettingCreateGroup";
 const UnGroupList = () => {
   const { className } = useParams();
   const dispatch = useDispatch();
@@ -94,6 +96,26 @@ const UnGroupList = () => {
     fetchUserData();
   }, [className, config]);
 
+  //Setting của tạo nhóm
+  useEffect(() => {
+    if (!classId) return;
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/creategroupsetting/class/${classId}`,
+          config
+        );
+        dispatch(setSettingCreateGroupData(response.data));
+      } catch (error) {
+        console.log(
+          error.response ? error.response.data.message : error.message
+        );
+      }
+    };
+
+    fetchUserData();
+  }, [classId, config, dispatch]);
+
   //Danh sách những nhóm đã join vào group chưa đến hạn hết được join nhóm
   useEffect(() => {
     if (!classId) return;
@@ -105,7 +127,7 @@ const UnGroupList = () => {
         );
         dispatch(setTempGroups(response.data?.data));
         dispatch(setTotalTempGroups(response.data?.total));
-        console.log("Fetch data: " + JSON.stringify(response.data.data));
+        dispatch(setTotalJoinUser(response.data?.totalStudent));
       } catch (error) {
         console.log(
           error.response ? error.response.data.message : error.message
@@ -134,7 +156,6 @@ const UnGroupList = () => {
         dispatch(setWaitUserList(response.data?.data));
         dispatch(setTotalWaitUsers(response.data?.total));
         setTotalItems(response.data?.total);
-        console.log("Fetch data: " + JSON.stringify(response.data.data));
       } catch (error) {
         console.log(
           error.response ? error.response.data.message : error.message
@@ -151,8 +172,10 @@ const UnGroupList = () => {
     (state) => state.tempGroup.waituserlist || []
   );
   const totalWaitUsers = useSelector((state) => state.tempGroup.waittotal || 0);
-  console.log("Fetch data redux: " + JSON.stringify(tempGroups));
-  console.log("Fetch total data redux: " + totalTempGroups);
+  const totalJoinUsers = useSelector((state) => state.tempGroup.jointotal || 0);
+  const settingCreateGroup = useSelector(
+    (state) => state.settingCreateGroup.settingcreategroups || []
+  );
 
   const onPageChange = (pageNumber) => {
     console.log(`Changing to page: ${pageNumber}`);
@@ -188,7 +211,11 @@ const UnGroupList = () => {
 
   return (
     <div>
-      <CreateGroup show={isModalShowTypeAdd} close={handleCloseAddTypeModal} />
+      <CreateGroup
+        classId={classId}
+        show={isModalShowTypeAdd}
+        close={handleCloseAddTypeModal}
+      />
       <h1>Lớp {className}</h1>
       <Card
         bordered={true}
@@ -204,10 +231,21 @@ const UnGroupList = () => {
           marginBottom: "2rem",
         }}
       >
-        <p>Sĩ số lớp: 25 sinh viên</p>
-        <p>Tổng số nhóm đã đủ thành viên: ?</p>
-        <p>Deadline tạo nhóm và thời gian còn lại </p>
-        <p>Điều kiện tham gia nhóm: </p>
+        <p>Sĩ số lớp: {totalWaitUsers + totalJoinUsers} sinh viên</p>
+        <p>
+          Tổng số nhóm đã đủ thành viên: {}/{totalTempGroups}
+        </p>
+        <p>Deadline tạo nhóm: {} và thời gian còn lại </p>
+        <p>
+          Điều kiện tham gia nhóm:{" "}
+          {/* {settingCreateGroup?.ruleJoin.length > 0 ? (
+            settingCreateGroup?.ruleJoin.map((rule) => (
+              <span key={rule._id}>{rule?.title}</span>
+            ))
+          ) : (
+            <></>
+          )} */}
+        </p>
       </Card>
 
       <Button
@@ -360,8 +398,15 @@ const UnGroupList = () => {
           }}
         >
           <Row>
-            <Col sm={24}>
-              <h4>Danh sách nhóm</h4>
+            <Col
+              sm={24}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "1.5rem",
+              }}
+            >
+              <h4>Danh sách nhóm lớp</h4>
             </Col>
           </Row>
           <Row style={{ margin: "10px 20px" }}>
@@ -371,9 +416,8 @@ const UnGroupList = () => {
             style={{
               display: "flex",
               justifyContent: "center",
-              alignItems: "center",
               height: "100%",
-              padding: "20px",
+              padding: "0px 20px",
               boxSizing: "border-box",
             }}
           >

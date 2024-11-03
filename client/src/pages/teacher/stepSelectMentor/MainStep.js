@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Step1SelectProfession from "./Step1SelectProfession";
 import Step2SelectSpecialty from "./Step2SelectSpecialty";
-import MentorSelection from "../MentorSelection";
+import MentorSelection from "../chooseMentor/MentorSelection";
 import { Steps, Button } from "antd";
 import { useSelector } from "react-redux";
 

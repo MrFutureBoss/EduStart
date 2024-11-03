@@ -7,7 +7,7 @@ import {
   setProfession,
   setSpecialty,
   setStepCheck,
-} from "../../redux/slice/SelectMentorSlice";
+} from "../../../redux/slice/SelectMentorSlice";
 import MentorSelectionOverview from "./MentorSelectionOverview";
 
 const { Sider, Content } = Layout;

@@ -43,11 +43,9 @@ const getUsersByClassIdAndEmptyGroupId = async (req, res, next) => {
     );
 
     if (total === 0) {
-      return res
-        .status(404)
-        .send({
-          message: "No users found with empty or null groupId in this class",
-        });
+      return res.status(404).send({
+        message: "No users found with empty or null groupId in this class",
+      });
     }
 
     res.status(200).send({ data, total });
@@ -56,6 +54,49 @@ const getUsersByClassIdAndEmptyGroupId = async (req, res, next) => {
   }
 };
 
+const getProjectsByTeacherAndClass = async (req, res) => {
+  const { teacherId, classId } = req.params;
+
+  try {
+    const projects = await classDAO.findProjectsByTeacherAndClass(
+      teacherId,
+      classId
+    );
+
+    if (!projects.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy dự án nào cho giáo viên này trong lớp học.",
+      });
+    }
+
+    res.status(200).json({ projects });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi lấy danh sách dự án." });
+  }
+};
+
+const getTeacherClassSummary = async (req, res) => {
+  const { teacherId } = req.params;
+
+  try {
+    const summary = await classDAO.findTeacherClassSummary(teacherId);
+
+    if (!summary.classSummaries.length) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy lớp học nào cho giáo viên này." });
+    }
+
+    res.status(200).json(summary);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Đã xảy ra lỗi khi lấy thông tin tổng hợp lớp học.",
+      error: error.message,
+    });
+  }
+};
 const getSemestersAndClassesByTeacherId = async (req, res, next) => {
   try {
     const { teacherId } = req.params;
@@ -92,6 +133,8 @@ export default {
   getClassesByUserId,
   getClassIdByClassName,
   getUsersByClassIdAndEmptyGroupId,
+  getProjectsByTeacherAndClass,
+  getTeacherClassSummary,
   getSemestersAndClassesByTeacherId,
   getClassesInfoAndTaskByTeacherId,
 };

@@ -10,6 +10,7 @@ import classRouter from "./classRouter.js";
 import mentorCategoryRouters from "./mentorCategory.js";
 import tempGroupRouters from "./tempGroupRoutes.js";
 import createGroupSettingRouter from "./createGroupSettingRoutes.js";
+import ruleJoinRouter from "./ruleJoinRoutes.js";
 
 const routes = {
   professionRouters,
@@ -24,6 +25,7 @@ const routes = {
   mentorCategoryRouters,
   tempGroupRouters,
   createGroupSettingRouter,
+  ruleJoinRouter,
 };
 
 export default routes;

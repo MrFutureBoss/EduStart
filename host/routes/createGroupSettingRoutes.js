@@ -13,13 +13,19 @@ createGroupSettingRouter.get(
 createGroupSettingRouter.post(
   "/",
   verifyAccessToken,
-  createGroupSettingController.createCreateGroupSetting
+  createGroupSettingController.createCreateGroupSettingWithTempGroup
 );
 
 createGroupSettingRouter.get(
-  "/:id",  
+  "/:id",
   verifyAccessToken,
   createGroupSettingController.getCreateGroupSettingById
+);
+
+createGroupSettingRouter.get(
+  "/class/:classId",
+  verifyAccessToken,
+  createGroupSettingController.getCreateGroupSettingByClassId
 );
 
 createGroupSettingRouter.put(

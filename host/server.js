@@ -10,9 +10,11 @@ import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import { Server as SocketIOServer } from "socket.io";
 
-const app = express();
 dotenv.config();
 
+const app = express();
+
+// Enable CORS with specific options for your frontend origin
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -20,18 +22,25 @@ app.use(
     credentials: true,
   })
 );
+
+// Add JSON parsing middleware at the start for all incoming requests
 app.use(json());
 
 const port = process.env.PORT || 9999;
+
+// Connect to the database before starting the server
+connectDB();
+
+// Create HTTP and WebSocket servers
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "http://localhost:3000", 
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
 
-
+// Set up WebSocket connections
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
   socket.on("message", (msg) => {
@@ -43,7 +52,7 @@ io.on("connection", (socket) => {
   });
 });
 
-
+// API Routes
 app.use("/semester", routes.semesterRouter);
 app.use("/admins", routes.adminRouter);
 app.use("/profession", routes.professionRouters);
@@ -56,28 +65,30 @@ app.use("/class", routes.classRouter);
 app.use("/mentorcategory", routes.mentorCategoryRouters);
 app.use("/tempgroup", routes.tempGroupRouters);
 app.use("/creategroupsetting", routes.createGroupSettingRouter);
+app.use("/rulejoin", routes.ruleJoinRouter);
 
-app.use(async (req, res, next) => {
-  next(createError.NotFound());
+// Handle 404 errors for undefined routes
+app.use((req, res, next) => {
+  next(createError(404, "Resource not found"));
 });
+
+// Custom error handling middleware
 app.use(errorMiddleware);
 
-// Middleware xử lý lỗi
+// Global error handler for unhandled errors
 app.use((err, req, res, next) => {
-  res.status(err.status || 500);
-  res.json({
+  res.status(err.status || 500).json({
     error: err.status || 500,
-    message: err.message,
+    message: err.message || "Internal Server Error",
   });
 });
 
-
+// Schedule a CRON job for the auto-update function
 cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
 
-
+// Start the server
 server.listen(port, () => {
-  connectDB();
-  console.log(`listening on ${port}`);
+  console.log(`Server listening on port ${port}`);
 });
