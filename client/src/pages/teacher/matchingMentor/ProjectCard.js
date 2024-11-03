@@ -3,9 +3,9 @@ import React from "react";
 import { Card, Tag, Space } from "antd";
 import "../teacherCSS/ProjectCard.css";
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, style, className }) => {
   return (
-    <div className="project-outer-container">
+    <div className={`project-outer-container ${className}`}>
       {/* Thẻ Tag cho professions nằm ở bên ngoài viền của Card */}
       <div className="project-tag-container">
         {project.projectCategory.professionId.map((profession) => (
@@ -17,10 +17,10 @@ const ProjectCard = ({ project }) => {
 
       {/* Thẻ Card chính */}
       <Card
-        className="project-card"
+        className="project-card custom-width"
         bordered={false}
         hoverable
-        onClick={() => window.open(project.url, "_blank")}
+        style={style}
       >
         <div className="go-corner">
           <div className="go-arrow"></div>

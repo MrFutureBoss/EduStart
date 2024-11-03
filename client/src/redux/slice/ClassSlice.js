@@ -18,6 +18,7 @@ const initialValue = {
   matchedClasses: [],
   notMatchedClasses: [],
   classesWithUnupdatedProjects: [],
+  loadingClasses: false,
 };
 const classSlice = createSlice({
   name: "class",
@@ -74,6 +75,9 @@ const classSlice = createSlice({
     setClassesWithUnupdatedProjects: (state, action) => {
       state.classesWithUnupdatedProjects = action.payload;
     },
+    setLoadingClasses(state, action) {
+      state.loadingClasses = action.payload;
+    },
   },
 });
 
@@ -94,5 +98,6 @@ export const {
   setNotMatchedClasses,
   setEmptyClasses,
   setClassesWithUnupdatedProjects,
+  setLoadingClasses,
 } = actions;
 export default reducer;

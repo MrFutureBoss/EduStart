@@ -26,11 +26,10 @@ const port = process.env.PORT || 9999;
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "http://localhost:3000", 
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
-
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -42,7 +41,6 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
-
 
 app.use("/semester", routes.semesterRouter);
 app.use("/admins", routes.adminRouter);
@@ -56,6 +54,7 @@ app.use("/class", routes.classRouter);
 app.use("/mentorcategory", routes.mentorCategoryRouters);
 app.use("/tempgroup", routes.tempGroupRouters);
 app.use("/creategroupsetting", routes.createGroupSettingRouter);
+app.use("/matched", routes.matchedRouter);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound());
@@ -71,11 +70,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-
 cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
-
 
 server.listen(port, () => {
   connectDB();

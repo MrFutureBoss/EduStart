@@ -82,12 +82,14 @@ export const fetchMentorsTempMatching = (classId, teacherId) => {
   return axios.post(`${BASE_URL}/tempMatching/recommend`, data, config);
 };
 
-export const assignMentorToProject = async (projectId, mentorId) => {
-  const response = await axios.post(
-    `${BASE_URL}/projects/${projectId}/assign-mentor`,
-    {
-      mentorId,
-    }
-  );
-  return response.data;
+export const assignMentorToProject = async (groupId, mentorId) => {
+  const config = {
+    ...getConfig(),
+  };
+
+  const data = {
+    groupId,
+    mentorId,
+  };
+  return axios.post(`${BASE_URL}/matched/add-matched`, data, config);
 };

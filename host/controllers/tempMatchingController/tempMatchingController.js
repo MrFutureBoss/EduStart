@@ -2,8 +2,6 @@ import temporaryMatchingDAO from "../../repositories/temporaryMatchingDAO/index.
 
 const recommendMentorsForClassGroups = async (req, res) => {
   const { classId, teacherId } = req.body;
-  console.log(classId, teacherId);
-
   try {
     const result =
       await temporaryMatchingDAO.recommendAndSaveMentorsForClassGroups(
