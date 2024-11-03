@@ -2,6 +2,7 @@ import Group from "../../models/groupModel.js";
 import User from "../../models/userModel.js";
 import Project from "../../models/projectModel.js";
 import mongoose from "mongoose";
+import ProjectCategory from "../../models/projectCategoryModel.js";
 
 const getGroupById = async (id) => {
   try {
@@ -162,6 +163,38 @@ const getAllGroupsByTeacherId = async (teacherId) => {
     throw new Error(error.message);
   }
 };
+
+const getProjectByGroupId = async (groupId) => {
+  try {
+    // Tìm nhóm theo groupId để lấy projectId
+    const group = await Group.findById(groupId);
+    if (!group || !group.projectId) {
+      throw new Error("Không tìm thấy dự án liên quan đến nhóm này.");
+    }
+
+    // Tìm thông tin dự án bằng projectId từ nhóm
+    const project = await Project.findById(group.projectId);
+    if (!project) {
+      throw new Error("Dự án không tồn tại.");
+    }
+
+    // Tìm thêm thông tin ProjectCategory dựa vào projectId
+    const projectCategory = await ProjectCategory.findOne({
+      projectId: group.projectId,
+    })
+      .populate({ path: "professionId", model: "Profession", select: "name" })
+      .populate({ path: "specialtyIds", model: "Specialty", select: "name" });
+
+    // Kết hợp thông tin project và projectCategory
+    return {
+      ...project.toObject(),
+      projectCategory: projectCategory ? projectCategory.toObject() : null,
+    };
+  } catch (error) {
+    throw new Error("Lỗi khi lấy thông tin dự án từ database.");
+  }
+};
+
 export default {
   checkGroupsExist,
   addUserToGroup,
@@ -171,4 +204,5 @@ export default {
   getAllGroupsByTeacherId,
   getGroupMembers,
   getGroupById,
+  getProjectByGroupId,
 };

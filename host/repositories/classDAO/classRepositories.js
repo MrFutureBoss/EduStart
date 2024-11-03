@@ -195,30 +195,41 @@ const getUsersByClassIdAndEmptyGroupId = async (
 };
 // hàm này để tìm các dự án theo lớp đã được giáo viên duyệt
 const findProjectsByTeacherAndClass = async (teacherId, classId) => {
-  // Kiểm tra xem lớp học có tồn tại với giáo viên cụ thể không
-  console.log(teacherId, classId);
+  try {
+    // Kiểm tra xem lớp học có tồn tại với giáo viên cụ thể không
+    const classData = await Class.findOne({ _id: classId, teacherId });
+    if (!classData) {
+      throw new Error("Không tìm thấy lớp học với giáo viên này.");
+    }
 
-  const classData = await Class.findOne({ _id: classId, teacherId });
-  if (!classData) {
-    throw new Error("Không tìm thấy lớp học với giáo viên này.");
-  }
+    // Tìm các nhóm trong lớp học đó và populate projectId với điều kiện project.status = "InProgress"
+    const groups = await Group.find({ classId }).populate({
+      path: "projectId",
+      match: { status: "InProgress" },
+    });
 
-  // Tìm các nhóm trong lớp học đó và populate projectId
-  const groups = await Group.find({ classId }).populate({
-    path: "projectId",
-    match: { status: "InProgress" },
-  });
+    const validGroups = groups.filter((group) => group.projectId != null);
 
-  // Lấy danh sách các groupId đã matched
-  const matchedGroupIds = await Matched.find({
-    groupId: { $in: groups.map((group) => group._id) },
-  }).distinct("groupId");
+    if (validGroups.length === 0) {
+      return [];
+    }
 
-  // Lặp qua các nhóm để lấy thông tin dự án và danh mục
-  const projects = await Promise.all(
-    groups
-      .filter((group) => group.projectId != null) // Chỉ lấy các nhóm có projectId
-      .map(async (group) => {
+    const groupIds = validGroups.map((group) => group._id);
+
+    const matchedDocs = await Matched.find({
+      groupId: { $in: groupIds },
+    })
+      .select("groupId status")
+      .lean();
+
+    const matchedMap = new Map();
+    matchedDocs.forEach((doc) => {
+      matchedMap.set(doc.groupId.toString(), doc.status);
+    });
+
+    // Tìm các dự án và thêm thông tin về việc đã được matched hay chưa và trạng thái của việc matched
+    const projects = await Promise.all(
+      validGroups.map(async (group) => {
         // Tìm ProjectCategory tương ứng với projectId của nhóm
         const projectCategory = await ProjectCategory.findOne({
           projectId: group.projectId._id,
@@ -238,19 +249,26 @@ const findProjectsByTeacherAndClass = async (teacherId, classId) => {
           .lean();
 
         // Kiểm tra nếu group này đã matched
-        const isMatched = matchedGroupIds.includes(group._id.toString());
+        const groupIdStr = group._id.toString();
+        const isMatched = matchedMap.has(groupIdStr);
+        const statusMatched = isMatched ? matchedMap.get(groupIdStr) : null;
 
-        // Trả về thông tin project cùng với groupId và projectCategory
+        // Trả về thông tin project cùng với groupId, projectCategory, isMatched và status
         return {
           ...group.projectId.toObject(),
-          groupId: group._id, // Thêm groupId vào kết quả
+          groupId: group._id,
           projectCategory: projectCategory || null,
           isMatched,
+          statusMatched,
         };
       })
-  );
+    );
 
-  return projects;
+    return projects;
+  } catch (error) {
+    console.error("Error in findProjectsByTeacherAndClass:", error);
+    throw error;
+  }
 };
 
 const findTeacherClassSummary = async (teacherId) => {
@@ -269,25 +287,27 @@ const findTeacherClassSummary = async (teacherId) => {
           isFullyMatched: false,
           groupDetails: [],
           isEmpty: true,
-          groupsWithoutProject: [], // Đảm bảo luôn có giá trị mảng
+          groupsWithoutProject: [], // Đảm bảo luôn là mảng
         };
       }
 
-      const matchedGroupIds = await Matched.find({
+      const matchedGroupData = await Matched.find({
         groupId: { $in: groups.map((group) => group._id) },
-      }).distinct("groupId");
+      });
 
+      const matchedGroupIds = matchedGroupData.map((matched) =>
+        matched.groupId.toString()
+      );
       const matchedCount = groups.filter((group) =>
         matchedGroupIds.includes(group._id.toString())
       ).length;
       const unmatchedCount = groups.length - matchedCount;
       const isFullyMatched = unmatchedCount === 0;
 
-      let groupsWithoutProject = []; // Danh sách các nhóm chưa cập nhật dự án cho lớp này
+      let groupsWithoutProject = [];
 
       const groupDetails = await Promise.all(
         groups.map(async (group) => {
-          // Kiểm tra projectId của nhóm
           const isProjectUpdated = !!group.projectId;
 
           let projectDetails = null;
@@ -307,10 +327,17 @@ const findTeacherClassSummary = async (teacherId) => {
             });
           }
 
+          const matchedData = matchedGroupData.find(
+            (matched) => matched.groupId.toString() === group._id.toString()
+          );
+          const isMatched = !!matchedData;
+          const matchStatus = isMatched ? matchedData.status : null;
+
           return {
             groupId: group._id,
             groupName: group.name,
-            isMatched: matchedGroupIds.includes(group._id.toString()),
+            isMatched,
+            matchStatus, // Trạng thái của nhóm được ghép
             isProjectUpdated,
             projectDetails,
           };
@@ -325,71 +352,13 @@ const findTeacherClassSummary = async (teacherId) => {
         isFullyMatched,
         groupDetails,
         isEmpty: false,
-        groupsWithoutProject, // Luôn là mảng, ngay cả khi không có nhóm nào chưa cập nhật dự án
+        groupsWithoutProject,
       };
     })
   );
 
-  const emptyClasses = classSummaries
-    .filter((classItem) => classItem.isEmpty)
-    .map((classItem) => ({
-      classId: classItem.classId,
-      className: classItem.className,
-    }));
-
-  const nonEmptyClasses = classSummaries.filter(
-    (classItem) => !classItem.isEmpty
-  );
-  const totalFullyMatchedClasses = nonEmptyClasses.filter(
-    (classItem) => classItem.isFullyMatched
-  ).length;
-
-  // Các lớp chưa ghép mentor đầy đủ, bao gồm chi tiết các nhóm chưa được ghép
-  const notMatchedClasses = nonEmptyClasses
-    .filter((classItem) => !classItem.isFullyMatched)
-    .map((classItem) => ({
-      classId: classItem.classId,
-      className: classItem.className,
-      unmatchedGroups: classItem.groupDetails
-        .filter((group) => !group.isMatched) // Lọc ra các nhóm chưa được ghép
-        .map((group) => ({
-          groupId: group.groupId,
-          groupName: group.groupName,
-        })),
-    }));
-
-  // Tính tổng số nhóm chưa cập nhật dự án và danh sách các lớp có nhóm chưa cập nhật dự án
-  const classesWithUnupdatedProjects = classSummaries
-    .filter((classItem) => (classItem.groupsWithoutProject || []).length > 0)
-    .map((classItem) => ({
-      classId: classItem.classId,
-      className: classItem.className,
-      groupsWithoutProject: classItem.groupsWithoutProject,
-    }));
-
-  const totalUnupdatedProjects = classesWithUnupdatedProjects.reduce(
-    (total, classItem) => total + (classItem.groupsWithoutProject || []).length,
-    0
-  );
-
-  return {
-    classSummaries: nonEmptyClasses,
-    counts: {
-      totalClasses: classes.length,
-      totalFullyMatchedClasses,
-      totalNotFullyMatchedClasses: notMatchedClasses.length,
-      totalUnupdatedProjects, // Tổng số nhóm chưa cập nhật dự án
-    },
-    matchedClasses: nonEmptyClasses
-      .filter((classItem) => classItem.isFullyMatched)
-      .map((classItem) => ({
-        classId: classItem.classId,
-        className: classItem.className,
-      })),
-    notMatchedClasses, // Bao gồm các lớp và các nhóm chưa được ghép trong từng lớp
-    emptyClasses,
-    classesWithUnupdatedProjects, // Danh sách các lớp có nhóm chưa cập nhật dự án và chi tiết nhóm
-  };
+  // Đảm bảo luôn trả về đối tượng có `classSummaries`
+  return { classSummaries };
 };
 
 const getSemestersAndClassesByTeacherId = async (teacherId) => {
@@ -402,8 +371,10 @@ const getSemestersAndClassesByTeacherId = async (teacherId) => {
     const semesters = await Semester.find({ _id: { $in: semesterIds } });
 
     // Tìm kiếm tất cả các lớp học mà teacherId là giáo viên
-    const classes = await Class.find({ teacherId })
-      .populate("semesterId", "name status startDate endDate");
+    const classes = await Class.find({ teacherId }).populate(
+      "semesterId",
+      "name status startDate endDate"
+    );
 
     // Tính tổng số lớp và tổng số sinh viên
     let totalStudents = 0;
@@ -411,7 +382,7 @@ const getSemestersAndClassesByTeacherId = async (teacherId) => {
     const classesWithStudentCount = await Promise.all(
       classes.map(async (cls) => {
         const studentCount = await User.countDocuments({ classId: cls._id });
-        totalStudents += studentCount; 
+        totalStudents += studentCount;
         return {
           ...cls.toObject(),
           totalStudentsInClass: studentCount,
@@ -425,10 +396,12 @@ const getSemestersAndClassesByTeacherId = async (teacherId) => {
       semesters,
       classes: classesWithStudentCount,
       totalClasses,
-      totalStudents, 
+      totalStudents,
     };
   } catch (error) {
-    console.error(`Error in getSemestersAndClassesByTeacherId: ${error.message}`);
+    console.error(
+      `Error in getSemestersAndClassesByTeacherId: ${error.message}`
+    );
     throw new Error("Error fetching semesters and classes by teacherId");
   }
 };
@@ -442,9 +415,15 @@ const getClassesInfoAndTaskByTeacherId = async (teacherId) => {
 
     const classesWithDetails = await Promise.all(
       classes.map(async (cls) => {
-        const groups = await Group.find({ classId: cls._id }).select("name description status");
-        const tempGroups = await TempGroup.find({ classId: cls._id }).select("groupName status");
-        const totalStudentInClass = await User.countDocuments({ classId: cls._id });
+        const groups = await Group.find({ classId: cls._id }).select(
+          "name description status"
+        );
+        const tempGroups = await TempGroup.find({ classId: cls._id }).select(
+          "groupName status"
+        );
+        const totalStudentInClass = await User.countDocuments({
+          classId: cls._id,
+        });
 
         return {
           ...cls,
@@ -457,7 +436,9 @@ const getClassesInfoAndTaskByTeacherId = async (teacherId) => {
 
     return classesWithDetails;
   } catch (error) {
-    console.error(`Error in getClassesInfoAndTaskByTeacherId: ${error.message}`);
+    console.error(
+      `Error in getClassesInfoAndTaskByTeacherId: ${error.message}`
+    );
     throw new Error("Error fetching class information and tasks.");
   }
 };

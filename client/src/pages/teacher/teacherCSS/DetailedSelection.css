@@ -1,0 +1,136 @@
+/* src/components/DetailedSelection.css */
+
+.detailed-selection-container {
+  padding: 20px;
+}
+
+.back-button {
+  margin-bottom: 20px;
+}
+
+.main-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Space between columns */
+}
+
+/* Left Column Styles */
+.left-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .left-column {
+    width: 30%;
+  }
+}
+
+.left-content {
+  display: flex;
+  width: 100%;
+  gap: 20px; /* Space between ProjectCard and Assigned Mentors */
+}
+
+/* Right Column Styles */
+.right-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .right-column {
+    width: 70%;
+  }
+}
+
+.mentors-list-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 102%;
+  margin-left: -7px;
+  margin-top: 10px;
+}
+
+/* Assigned Mentors Section */
+.assigned-mentor-section {
+  padding: 16px;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 217px;
+  z-index: 10;
+  margin-top: 34px;
+}
+
+/* Mentor Category Section */
+.mentor-category-section {
+  margin-bottom: 40px;
+}
+
+/* Assigned Mentor Card Hover Effect */
+.assigned-mentor-card {
+  transition: transform 0.3s;
+}
+
+.assigned-mentor-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .main-row {
+    flex-direction: column;
+  }
+
+  .left-column,
+  .right-column {
+    width: 100%;
+  }
+}
+.assigned-mentor-card-meta {
+  width: 388px;
+  height: 122px;
+}
+
+.always-hover::before {
+  transform: scale(30);
+}
+
+.always-hover .project-specialties {
+  display: block;
+}
+.mentor-card-detail-select {
+  width: 335px;
+  min-height: fit-content;
+  height: 194px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.mentor-card-detail-select:hover {
+  transform: translateY(-5px);
+}
+
+.flashing-specialty {
+  color: #6ea02c;
+  font-weight: bold;
+  display: inline-block;
+  animation: pulse 1.5s ease-in-out infinite;
+  animation-delay: 0s !important;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
