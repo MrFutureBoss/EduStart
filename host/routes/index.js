@@ -11,6 +11,7 @@ import mentorCategoryRouters from "./mentorCategory.js";
 import tempGroupRouters from "./tempGroupRoutes.js";
 import createGroupSettingRouter from "./createGroupSettingRoutes.js";
 import matchedRouter from "./matchedRouter.js";
+import groupRouter from "./groupRouter.js";
 
 const routes = {
   professionRouters,
@@ -26,6 +27,7 @@ const routes = {
   tempGroupRouters,
   createGroupSettingRouter,
   matchedRouter,
+  groupRouter,
 };
 
 export default routes;

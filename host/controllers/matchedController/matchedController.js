@@ -26,6 +26,24 @@ const createMatchedHandler = async (req, res) => {
   }
 };
 
+const getMatchedInfoByGroupId = async (req, res) => {
+  const { groupId } = req.params;
+
+  try {
+    const matchedInfo = await matchedDAO.getMatchedInfoByGroupId(groupId);
+    if (!matchedInfo) {
+      return res
+        .status(404)
+        .json({ message: "Thông tin matched không tồn tại." });
+    }
+    res.status(200).json(matchedInfo);
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin matched:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export default {
   createMatchedHandler,
+  getMatchedInfoByGroupId,
 };

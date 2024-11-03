@@ -19,7 +19,7 @@ const MatchedSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Accept"],
+      enum: ["Pending", "Accepted"],
       default: "Pending",
     },
     time: [eventSchema],

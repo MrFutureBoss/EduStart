@@ -8,7 +8,7 @@ const ProjectCard = ({ project, style, className }) => {
     <div className={`project-outer-container ${className}`}>
       {/* Thẻ Tag cho professions nằm ở bên ngoài viền của Card */}
       <div className="project-tag-container">
-        {project.projectCategory.professionId.map((profession) => (
+        {project.projectCategory?.professionId?.map((profession) => (
           <Tag key={profession._id} className="tag-overlay">
             {profession.name}
           </Tag>
@@ -26,12 +26,16 @@ const ProjectCard = ({ project, style, className }) => {
           <div className="go-arrow"></div>
         </div>
 
-        <h2 className="project-title">{project.name}</h2>
-        <p className="project-description">{project.description}</p>
+        <h2 className="project-title">
+          {project.name || project?.groupId?.projectId?.name}
+        </h2>
+        <p className="project-description">
+          {project.description || project?.groupId?.projectId?.description}
+        </p>
 
         <div className="project-specialties">
           <Space size={[0, 8]} wrap>
-            {project.projectCategory.specialtyIds.map((specialty) => (
+            {project.projectCategory?.specialtyIds?.map((specialty) => (
               <Tag className="project-specialties-tag" key={specialty._id}>
                 {specialty.name}
               </Tag>

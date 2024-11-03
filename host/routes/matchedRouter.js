@@ -10,4 +10,11 @@ matchedRouter.post(
   verifyRole([2]),
   matchedController.createMatchedHandler
 );
+
+matchedRouter.get(
+  "/infor-matched/:groupId",
+  verifyAccessToken,
+  verifyRole([2]),
+  matchedController.getMatchedInfoByGroupId
+);
 export default matchedRouter;

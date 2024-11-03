@@ -1,0 +1,33 @@
+.elevated-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.elevated-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.elevated-card::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 140%;
+  height: 140%;
+  z-index: -1;
+  transition: transform 0.5s ease;
+  transform: scale(1);
+}
+
+.elevated-card:hover::before {
+  transform: scale(1.1);
+}
+
+.elevated-card .card-content {
+  padding: 20px;
+  color: #333;
+}

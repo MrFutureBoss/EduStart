@@ -93,3 +93,11 @@ export const assignMentorToProject = async (groupId, mentorId) => {
   };
   return axios.post(`${BASE_URL}/matched/add-matched`, data, config);
 };
+
+export const getProjectGroupData = (groupId) => {
+  return axios.get(`${BASE_URL}/group/project/${groupId}`, getConfig());
+};
+
+export const getMatchedProject = (groupId) => {
+  return axios.get(`${BASE_URL}/matched/infor-matched/${groupId}`, getConfig());
+};

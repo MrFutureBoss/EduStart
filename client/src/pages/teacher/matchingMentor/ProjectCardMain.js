@@ -539,7 +539,7 @@ const ProjectCardMain = () => {
   const navigate = useNavigate();
 
   // Lấy dữ liệu từ Redux
-  const { classSummaries, loadingClasses } = useSelector(
+  const { classSummaries, loadingClasses, selectedGroup } = useSelector(
     (state) => state.class
   );
 
@@ -607,7 +607,11 @@ const ProjectCardMain = () => {
       message.error("Lỗi khi tải lại dữ liệu dự án.");
     }
   };
-
+  useEffect(() => {
+    if (selectedGroup?.classId) {
+      handleClassChange(selectedGroup.classId); // Gọi với `classId` từ `selectedGroup`
+    }
+  }, [selectedGroup]);
   // Xử lý khi chọn lớp học
   const handleClassChange = async (classId) => {
     dispatch(setSelectedClassId(classId));

@@ -43,6 +43,7 @@ const TeacherRouter = () => {
       <Route path="posts" element={<PostActivity />} />
       <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
       <Route path="temp-matching" element={<ProjectCardMain />} />
+      <Route path="summary-class/temp-matching" element={<ProjectCardMain />} />
       <Route path="summary-class" element={<MatchingMentorIndex />} />
       <Route
         path="temp-matching/detailed-selection/:projectId"
