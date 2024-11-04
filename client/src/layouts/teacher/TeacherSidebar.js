@@ -63,8 +63,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
     fetchUserData();
   }, [userId, config, dispatch]);
 
-  console.log("Teacher:" + JSON.stringify(teacher));
-
   const handleLogout = () => {
     navigate("/");
     localStorage.removeItem("jwt");
@@ -315,7 +313,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
               />
             </svg>
           }
-          title="Ghép Nhóm Với Mentor"
+          title="Chọn Mentor Cho Nhóm"
           style={{ margin: "0px", padding: "0px" }}
         >
           <Menu.Item

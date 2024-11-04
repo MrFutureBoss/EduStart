@@ -14,6 +14,7 @@ import tempGroupSlice from "./slice/TempGroupSlice.js";
 import selectMentorSlice from "./slice/SelectMentorSlice.js";
 import notificationSlice from "./slice/NotificationSlice.js";
 import settingCreateGroupSlice from "./slice/SettingCreateGroup.js";
+import suggestMatchingSlice from "./slice/MatchingSlice.js";
 
 const rootReducer = {
   profession: professionSlice,
@@ -28,6 +29,7 @@ const rootReducer = {
   selectMentor: selectMentorSlice,
   notification: notificationSlice,
   settingCreateGroup: settingCreateGroupSlice,
+  matching: suggestMatchingSlice,
 };
 
 const store = configureStore(

@@ -12,12 +12,18 @@ const initialValue = {
   selectedGroup: {
     groupId: null,
     groupName: "",
+    classId: null,
+    isProjectUpdated: "",
+    isMatched: "",
+    matchStatus: "",
   },
   counts: {},
   emptyClasses: [],
   matchedClasses: [],
   notMatchedClasses: [],
   classesWithUnupdatedProjects: [],
+  loadingClasses: false,
+  pendingGroups: [],
 };
 const classSlice = createSlice({
   name: "class",
@@ -74,6 +80,12 @@ const classSlice = createSlice({
     setClassesWithUnupdatedProjects: (state, action) => {
       state.classesWithUnupdatedProjects = action.payload;
     },
+    setLoadingClasses(state, action) {
+      state.loadingClasses = action.payload;
+    },
+    setPendingGroups(state, action) {
+      state.pendingGroups = action.payload;
+    },
   },
 });
 
@@ -94,5 +106,7 @@ export const {
   setNotMatchedClasses,
   setEmptyClasses,
   setClassesWithUnupdatedProjects,
+  setLoadingClasses,
+  setPendingGroups,
 } = actions;
 export default reducer;

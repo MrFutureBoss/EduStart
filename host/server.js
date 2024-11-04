@@ -40,7 +40,6 @@ const io = new SocketIOServer(server, {
   },
 });
 
-// Set up WebSocket connections
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
   socket.on("message", (msg) => {
@@ -52,7 +51,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// API Routes
 app.use("/semester", routes.semesterRouter);
 app.use("/admins", routes.adminRouter);
 app.use("/profession", routes.professionRouters);
@@ -66,6 +64,8 @@ app.use("/mentorcategory", routes.mentorCategoryRouters);
 app.use("/tempgroup", routes.tempGroupRouters);
 app.use("/creategroupsetting", routes.createGroupSettingRouter);
 app.use("/rulejoin", routes.ruleJoinRouter);
+app.use("/matched", routes.matchedRouter);
+app.use("/group", routes.groupRouter);
 
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {
@@ -83,12 +83,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Schedule a CRON job for the auto-update function
 cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
 
-// Start the server
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });

@@ -9,7 +9,7 @@ import {
   setMatchedClasses,
   setNotMatchedClasses,
   setEmptyClasses,
-  setClassesWithUnupdatedProjects,
+  setPendingGroups,
 } from "../../../redux/slice/ClassSlice";
 
 const ClassGroupTreeView = () => {
@@ -17,8 +17,7 @@ const ClassGroupTreeView = () => {
   const teacherId = localStorage.getItem("userId");
 
   // Lấy dữ liệu từ Redux
-  const { classSummaries, selectedGroup, classesWithUnupdatedProjects } =
-    useSelector((state) => state.class);
+  const { classSummaries, selectedGroup } = useSelector((state) => state.class);
   const [loading, setLoading] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState([]);
 
@@ -33,16 +32,25 @@ const ClassGroupTreeView = () => {
           matchedClasses,
           notMatchedClasses,
           emptyClasses,
-          classesWithUnupdatedProjects,
         } = response.data;
+        const totalClasses = fetchedClassSummaries.length;
 
+        const pendingGroupsByClass = fetchedClassSummaries
+          .map((classItem) => ({
+            classId: classItem.classId,
+            className: classItem.className,
+            pendingGroups: classItem.groupDetails.filter(
+              (group) => group.matchStatus === "Pending"
+            ),
+          }))
+          .filter((classItem) => classItem.pendingGroups.length > 0);
         // Dispatch toàn bộ dữ liệu lên Redux
         dispatch(setClassSummaries(fetchedClassSummaries));
-        dispatch(setCounts(counts));
+        dispatch(setCounts({ totalClasses }));
         dispatch(setMatchedClasses(matchedClasses));
         dispatch(setNotMatchedClasses(notMatchedClasses));
         dispatch(setEmptyClasses(emptyClasses));
-        dispatch(setClassesWithUnupdatedProjects(classesWithUnupdatedProjects));
+        dispatch(setPendingGroups(pendingGroupsByClass));
       } catch (error) {
         console.error("Error fetching class data:", error);
       }
@@ -54,27 +62,36 @@ const ClassGroupTreeView = () => {
     }
   }, [teacherId, dispatch, classSummaries.length]);
 
-  // Chuyển đổi `classSummaries` từ Redux thành `treeData` cho `Tree`
-  const treeData = classSummaries.map((classItem) => ({
-    title: classItem.className,
-    key: classItem.classId,
-    children: classItem.groupDetails.map((group) => ({
-      title: group.groupName,
-      key: `${classItem.classId}-${group.groupId}`,
-      isLeaf: true,
-      groupId: group.groupId,
-      groupName: group.groupName,
-      isMatched: group.isMatched,
-      isProjectUpdated: group.isProjectUpdated,
-    })),
-  }));
-  console.log(classesWithUnupdatedProjects);
+  // Tạo `classesWithUnupdatedProjects` từ `classSummaries`
+  const classesWithUnupdatedProjects = classSummaries.filter(
+    (classItem) => classItem.groupsWithoutProject.length > 0
+  );
 
-  // Hàm kiểm tra nếu nhóm nằm trong danh sách `classesWithUnupdatedProjects`
+  // Chuyển đổi `classSummaries` từ Redux thành `treeData` cho `Tree`
+  const treeData = classSummaries
+    .filter((classItem) => classItem.groupDetails.length > 0) // Lọc các lớp có nhóm
+    .map((classItem) => ({
+      title: classItem.className,
+      key: classItem.classId,
+      children: classItem.groupDetails.map((group) => ({
+        title: group.groupName,
+        key: `${classItem.classId}-${group.groupId}`,
+        isLeaf: true,
+        classId: classItem.classId,
+        groupId: group.groupId,
+        groupName: group.groupName,
+        isMatched: group.isMatched,
+        isProjectUpdated: group.isProjectUpdated,
+        matchStatus: group.matchStatus,
+      })),
+    }));
+
+  // Hàm kiểm tra nếu nhóm nằm trong `groupsWithoutProject`
   const isGroupInUnupdatedProjects = (classId, groupId) => {
     const classWithUnupdatedProjects = classesWithUnupdatedProjects.find(
       (classItem) => classItem.classId === classId
     );
+
     return (
       classWithUnupdatedProjects &&
       classWithUnupdatedProjects.groupsWithoutProject.some(
@@ -95,12 +112,28 @@ const ClassGroupTreeView = () => {
 
   const handleSelect = (selectedKeys, info) => {
     if (info.node.isLeaf) {
-      const { groupId, groupName } = info.node;
+      const {
+        groupId,
+        groupName,
+        classId,
+        isProjectUpdated,
+        isMatched,
+        matchStatus,
+      } = info.node;
       if (selectedGroup.groupId !== groupId) {
-        dispatch(setSelectedGroup({ groupId, groupName }));
+        dispatch(
+          setSelectedGroup({
+            groupId,
+            groupName,
+            classId,
+            isProjectUpdated,
+            isMatched,
+            matchStatus,
+          })
+        );
       }
     } else {
-      handleExpandToggle(info.node.key); // Toggle mở/đóng nhánh
+      handleExpandToggle(info.node.key);
     }
   };
 
@@ -132,22 +165,38 @@ const ClassGroupTreeView = () => {
       );
     }
 
-    // Kiểm tra nếu nhóm nằm trong `classesWithUnupdatedProjects`
-    const badgeColor = isGroupInUnupdatedProjects(
-      nodeData.key.split("-")[0],
-      nodeData.groupId
-    )
-      ? "#CC0000"
-      : nodeData.isMatched
-      ? "green"
-      : "orange";
+    // Thiết lập màu sắc cho từng trạng thái nhóm
+    let badgeColor = "";
+    let badgeText = "";
+
+    if (!nodeData.isProjectUpdated) {
+      // Nhóm chưa cập nhật dự án
+      badgeColor = "red";
+      badgeText = "Chưa cập nhật dự án";
+    } else if (nodeData.isProjectUpdated && !nodeData.isMatched) {
+      // Dự án cập nhật nhưng chưa chọn mentor
+      badgeColor = "orange";
+      badgeText = "Chưa chọn Mentor";
+    } else if (nodeData.isMatched && nodeData.matchStatus === "Pending") {
+      // Chọn mentor và đang chờ duyệt
+      badgeColor = "purple";
+      badgeText = "Chờ duyệt";
+    } else if (nodeData.isMatched && nodeData.matchStatus === "Accept") {
+      // Mentor đã được duyệt
+      badgeColor = "green";
+      badgeText = "Đã duyệt";
+    }
 
     return (
-      <span>
+      <span style={{ display: "flex", alignItems: "center" }}>
         {nodeData.title}
         <Badge
-          status={nodeData.isMatched ? "success" : "warning"}
           color={badgeColor}
+          text={
+            <span style={{ fontStyle: "italic", fontSize: "0.85em" }}>
+              ({badgeText})
+            </span>
+          }
           style={{ marginLeft: 8 }}
         />
       </span>

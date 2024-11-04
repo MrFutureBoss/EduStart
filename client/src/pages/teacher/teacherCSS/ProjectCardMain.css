@@ -3,6 +3,9 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  background-color: #e4eff3;
+  box-shadow: rgba(0, 0, 0, 0.1) 2px 0px 5px;
+  border-radius: 14px;
 }
 
 .class-select-container,
@@ -64,6 +67,7 @@
 .mentor-cards-row {
   display: flex;
   gap: 12px;
+  margin-top: 23px;
 }
 
 /* Draggable Mentor card */
@@ -89,6 +93,7 @@
   border-radius: 30px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
   min-width: fit-content;
+  width: 80%;
 }
 
 .draggable-mentor-card.teacher-preferred-card {
@@ -97,7 +102,6 @@
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
   min-width: fit-content;
   width: 80%;
-  height: 80%;
 }
 
 .draggable-mentor-card.matching-mentors-card {
@@ -193,4 +197,40 @@
   opacity: 1;
   height: 80px;
   transition: opacity 0.3s ease;
+}
+.main-title-suggest {
+  margin-left: 10px;
+}
+.class-select-label {
+  margin-right: 10px;
+  font-weight: 500;
+  font-size: 16px;
+  margin-left: 19px;
+}
+
+.class-select {
+  width: 130px;
+}
+.mentor-suggestion-title {
+  position: absolute;
+}
+.blinking-number {
+  color: #62b6cb;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.view-more-suggest {
+  margin-left: 82%;
+  margin-top: -19px;
+  margin-bottom: 0;
+  font-size: 14px;
 }
