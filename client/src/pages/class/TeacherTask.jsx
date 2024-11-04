@@ -4,8 +4,6 @@ import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassTaskData } from "../../redux/slice/ClassManagementSlice";
 import { useMemo, useEffect } from "react";
-import { GrGroup } from "react-icons/gr";
-import { FaRegCalendar } from "react-icons/fa";
 import { CiWarning } from "react-icons/ci";
 
 const TeacherTask = () => {
