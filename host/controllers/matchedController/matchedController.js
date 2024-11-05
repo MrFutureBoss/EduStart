@@ -43,7 +43,35 @@ const getMatchedInfoByGroupId = async (req, res) => {
   }
 };
 
+const updateMatchedStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status, mentorId } = req.body;
+
+  try {
+    // Gọi hàm updateMatchedById và truyền vào id và dữ liệu cập nhật
+    const updatedMatched = await matchedDAO.updateMatchedById(id, {
+      status,
+      mentorId,
+    });
+
+    // Kiểm tra kết quả và trả về response phù hợp
+    if (updatedMatched) {
+      return res.status(200).json({
+        message: "Matched status updated successfully",
+        data: updatedMatched,
+      });
+    } else {
+      return res.status(404).json({ message: "Matched record not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Error updating matched status", error });
+  }
+};
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
+  updateMatchedStatus,
 };

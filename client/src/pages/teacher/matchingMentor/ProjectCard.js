@@ -36,7 +36,10 @@ const ProjectCard = ({ project, style, className }) => {
         <div className="project-specialties">
           <Space size={[0, 8]} wrap>
             {project.projectCategory?.specialtyIds?.map((specialty) => (
-              <Tag className="project-specialties-tag" key={specialty._id}>
+              <Tag
+                className={`project-specialties-tag ${className}`}
+                key={specialty._id}
+              >
                 {specialty.name}
               </Tag>
             ))}

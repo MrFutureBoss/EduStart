@@ -153,19 +153,20 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
     // 1. Mentor đã chọn nhóm này
     const preferredMentors = await findMentorPreferencesByGroupId(group._id);
 
-    // Kiểm tra nếu dữ liệu preferredMentors đã bao gồm isPreferredGroup
-    const structuredPreferredMentors = preferredMentors.map((mentor) => ({
-      mentorId: mentor.mentorId,
-      username: mentor.username,
-      email: mentor.email,
-      degree: mentor.degree,
-      phoneNumber: mentor.phoneNumber,
-      currentLoad: mentor.currentLoad,
-      maxLoad: mentor.maxLoad,
-      isPreferredGroup: mentor.isPreferredGroup || false,
-      professions: mentor.professions || [],
-      specialties: mentor.specialties || [],
-    }));
+    const structuredPreferredMentors = preferredMentors
+      .filter((mentor) => mentor.currentLoad < mentor.maxLoad) // Loại bỏ mentor đạt maxLoad
+      .map((mentor) => ({
+        mentorId: mentor.mentorId,
+        username: mentor.username,
+        email: mentor.email,
+        degree: mentor.degree,
+        phoneNumber: mentor.phoneNumber,
+        currentLoad: mentor.currentLoad,
+        maxLoad: mentor.maxLoad,
+        isPreferredGroup: mentor.isPreferredGroup || false,
+        professions: mentor.professions || [],
+        specialties: mentor.specialties || [],
+      }));
 
     // 2. Mentor được giáo viên ưu tiên trong lĩnh vực
     const teacherPreferredMentorsRaw = await findPreferredMentorsByTeacher(
@@ -183,7 +184,11 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
         const mentorCategory = await findMentorCategoryByMentorId(
           preferredMentorData.mentorId
         );
-        if (!mentorCategory) continue;
+        if (
+          !mentorCategory ||
+          mentorCategory.currentLoad >= mentorCategory.maxLoad
+        )
+          continue; // Loại bỏ mentor đạt maxLoad
 
         const matchedProfessions = (mentorCategory.professionIds || [])
           .filter((profession) =>
@@ -239,7 +244,9 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
       );
 
     const filteredMatchingMentors = matchingMentors
-      .filter((mentor) => mentor.mentorId)
+      .filter(
+        (mentor) => mentor.mentorId && mentor.currentLoad < mentor.maxLoad
+      ) // Loại bỏ mentor đạt maxLoad
       .map((mentor) => {
         const matchedSpecialties = (mentor.specialties || [])
           .filter((specialty) =>

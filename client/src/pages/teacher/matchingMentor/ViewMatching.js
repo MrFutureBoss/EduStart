@@ -1,14 +1,14 @@
+// ViewMatching.js
 import React, { useEffect, useState } from "react";
 import { Card, message } from "antd";
 import { useSelector } from "react-redux";
 import { getProjectGroupData, getMatchedProject } from "../../../api";
 import MatchedProjectDetails from "../../../components/Card/MatchedProjectDetails";
-import ProjectCard from "./ProjectCard";
 
 const ViewMatching = () => {
   const { selectedGroup } = useSelector((state) => state.class);
-  const [projectData, setProjectData] = useState(null);
-  const [matchedData, setMatchedData] = useState(null);
+  const [data, setData] = useState(null);
+  const [isMatched, setIsMatched] = useState(false);
 
   useEffect(() => {
     if (!selectedGroup) return;
@@ -16,15 +16,20 @@ const ViewMatching = () => {
     const fetchData = async () => {
       try {
         if (selectedGroup.isMatched) {
-          // Call API for matched project
-          const data = await getMatchedProject(selectedGroup.groupId);
-          setMatchedData(data.data);
-          setProjectData(null); // Reset projectData to ensure only one component shows
+          // Call API cho dự án đã ghép
+          const response = await getMatchedProject(selectedGroup.groupId);
+          setData(response.data);
+          setIsMatched(true);
         } else if (selectedGroup.isProjectUpdated) {
-          // Call API for project group data
-          const project = await getProjectGroupData(selectedGroup.groupId);
-          setProjectData(project.data);
-          setMatchedData(null); // Reset matchedData to ensure only one component shows
+          // Call API cho dữ liệu nhóm dự án
+          const response = await getProjectGroupData(selectedGroup.groupId);
+          setData(response.data);
+          setIsMatched(false);
+        } else if (!selectedGroup.isProjectUpdated) {
+          message.warning(
+            "Dự án chưa cập nhật! Vui lòng yêu cầu sinh viên cập nhật để tiếp tục"
+          );
+          setData([]);
         }
       } catch (error) {
         message.error("Không thể tải dữ liệu.");
@@ -35,18 +40,16 @@ const ViewMatching = () => {
   }, [selectedGroup]);
 
   if (!selectedGroup) return <p>Vui lòng chọn một nhóm để xem chi tiết.</p>;
-  console.log("matchedData", matchedData);
 
   return (
-    <Card style={{ marginLeft: "-12px", width: "962px" }}>
-      {projectData && (
-        <ProjectCard
-          style={{ width: "100%" }}
-          project={projectData}
-          className={"always-hover"}
-        />
-      )}
-      {matchedData && <MatchedProjectDetails matchedData={matchedData} />}
+    <Card
+      style={{
+        marginLeft: "-12px",
+        width: "104%",
+        backgroundColor: "#fbfbfb75",
+      }}
+    >
+      {data && <MatchedProjectDetails data={data} isMatched={isMatched} />}
     </Card>
   );
 };
