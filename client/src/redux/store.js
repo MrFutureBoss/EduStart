@@ -13,6 +13,7 @@ import classManagementSlice from "./slice/ClassManagementSlice.js";
 import tempGroupSlice from "./slice/TempGroupSlice.js";
 import selectMentorSlice from "./slice/SelectMentorSlice.js";
 import suggestMatchingSlice from "./slice/MatchingSlice.js";
+import projectSlice from "./slice/ProjectSlice.js";
 
 const rootReducer = {
   profession: professionSlice,
@@ -26,6 +27,7 @@ const rootReducer = {
   tempGroup: tempGroupSlice,
   selectMentor: selectMentorSlice,
   matching: suggestMatchingSlice,
+  project: projectSlice,
 };
 
 const store = configureStore(

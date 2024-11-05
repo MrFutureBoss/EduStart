@@ -18,6 +18,7 @@ import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTre
 import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
 import ProjectCardMain from "../../pages/teacher/matchingMentor/ProjectCardMain";
 import DetailedSelection from "../../pages/teacher/matchingMentor/DetailedSelection";
+import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
 
 const TeacherRouter = () => {
   return (
@@ -49,6 +50,7 @@ const TeacherRouter = () => {
         path="temp-matching/detailed-selection/:projectId"
         element={<DetailedSelection />}
       />
+      <Route path="project-request" element={<ProjectRequest />} />
     </Route>
   );
 };
