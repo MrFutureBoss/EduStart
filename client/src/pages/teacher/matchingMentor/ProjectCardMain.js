@@ -26,6 +26,7 @@ import {
   setLoadingClasses,
   setMatchedClasses,
   setNotMatchedClasses,
+  setPendingGroups,
 } from "../../../redux/slice/ClassSlice";
 import ProjectCard from "./ProjectCard";
 import {
@@ -219,7 +220,6 @@ const MentorSuggestionRow = ({
   const handleToggleShowAll = () => {
     setShowAll(!showAll);
   };
-  console.log("displayedMentors", displayedMentors);
 
   return (
     <div className="mentor-suggestion-row">
@@ -586,7 +586,7 @@ const ProjectCardMain = () => {
         dispatch(setClassesWithUnupdatedProjects(classesWithUnupdatedProjects));
       } catch (error) {
         console.error("Error fetching data:", error);
-        message.error("Lỗi khi tải dữ liệu lớp học.");
+        message.warning("Lỗi khi tải dữ liệu lớp học.");
       }
       dispatch(setLoadingClasses(false));
     };
@@ -595,26 +595,59 @@ const ProjectCardMain = () => {
   }, [teacherId, dispatch]);
 
   const reloadProjectData = async () => {
+    const classId = selectedClassId || localStorage.getItem("selectedClassId");
+
+    if (!classId) {
+      console.warn("Không có classId để tải lại dữ liệu dự án.");
+      return;
+    }
     try {
-      const projectResponse = await fetchProjectData(
-        teacherId,
-        selectedClassId
-      );
+      const projectResponse = await fetchProjectData(teacherId, classId);
       const projects = projectResponse.data.projects;
       dispatch(setProjectData(projects));
+      const response = await fetchClassSummaryData(teacherId);
+      const {
+        classSummaries: fetchedClassSummaries,
+        counts,
+        matchedClasses,
+        notMatchedClasses,
+        emptyClasses,
+      } = response.data;
+      const totalClasses = fetchedClassSummaries.length;
+
+      const pendingGroupsByClass = fetchedClassSummaries
+        .map((classItem) => ({
+          classId: classItem.classId,
+          className: classItem.className,
+          pendingGroups: classItem.groupDetails.filter(
+            (group) => group.matchStatus === "Pending"
+          ),
+        }))
+        .filter((classItem) => classItem.pendingGroups.length > 0);
+      // Dispatch toàn bộ dữ liệu lên Redux
+      dispatch(setClassSummaries(fetchedClassSummaries));
+      dispatch(setCounts({ totalClasses }));
+      dispatch(setMatchedClasses(matchedClasses));
+      dispatch(setNotMatchedClasses(notMatchedClasses));
+      dispatch(setEmptyClasses(emptyClasses));
+      dispatch(setPendingGroups(pendingGroupsByClass));
+      fetchSuggestedMentors(classId, projects);
     } catch (error) {
       console.error("Error reloading project data:", error);
       message.error("Lỗi khi tải lại dữ liệu dự án.");
     }
   };
+
   useEffect(() => {
     if (selectedGroup?.classId) {
-      handleClassChange(selectedGroup.classId); // Gọi với `classId` từ `selectedGroup`
+      handleClassChange(selectedGroup.classId);
     }
   }, [selectedGroup]);
+
   // Xử lý khi chọn lớp học
   const handleClassChange = async (classId) => {
     dispatch(setSelectedClassId(classId));
+    localStorage.setItem("selectedClassId", classId);
     dispatch(setLoadingProjects(true));
     try {
       const projectResponse = await fetchProjectData(teacherId, classId);
@@ -626,17 +659,16 @@ const ProjectCardMain = () => {
       projects.forEach((project) => {
         initialAssignedMap[project._id] = [];
       });
-      console.log("initialAssignedMap", initialAssignedMap);
 
       dispatch(setAssignedMentorsMap(initialAssignedMap));
 
       // Gợi ý mentor
       await fetchSuggestedMentors(classId, projects);
-      message.success("Đã gợi ý thành công!");
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu dự án:", error);
       dispatch(setProjectData([]));
-      message.error("Lỗi khi tải dữ liệu dự án.");
+
+      message.warning("Lớp học chưa có nhóm!");
     }
     dispatch(setLoadingProjects(false));
   };
@@ -750,6 +782,7 @@ const ProjectCardMain = () => {
   };
 
   const unmatchedProjects = projectData.filter((project) => !project.isMatched);
+  console.log(classSummaries);
 
   return (
     <DndContext
@@ -784,11 +817,28 @@ const ProjectCardMain = () => {
                 value={selectedClassId}
                 className="class-select"
               >
-                {classSummaries.map((classItem) => (
-                  <Option key={classItem.classId} value={classItem.classId}>
-                    {classItem.className}
-                  </Option>
-                ))}
+                {classSummaries.map((classItem) => {
+                  // Đếm số nhóm có isMatched: true và isProjectUpdated: true
+                  const matchedGroupsCount = classItem.groupDetails
+                    ? classItem.groupDetails.filter(
+                        (group) =>
+                          group.isMatched === true &&
+                          group.isProjectUpdated === true
+                      ).length
+                    : 0;
+                  const totalGroupsCount = classItem.groupDetails
+                    ? classItem.groupDetails.filter(
+                        (group) => group.isProjectUpdated === true
+                      ).length
+                    : 0;
+
+                  return (
+                    <Option key={classItem.classId} value={classItem.classId}>
+                      {classItem.className} ({matchedGroupsCount}/
+                      {totalGroupsCount})
+                    </Option>
+                  );
+                })}
               </Select>
             )}
           </div>
@@ -799,8 +849,10 @@ const ProjectCardMain = () => {
               {selectedClassId
                 ? classSummaries
                     .find((cls) => cls.classId === selectedClassId)
-                    ?.groupDetails.filter((grp) => grp.isProjectUpdated)
-                    .length || 0
+                    ?.groupDetails.filter(
+                      (grp) =>
+                        grp.isMatched === false && grp.isProjectUpdated === true
+                    ).length || 0
                 : 0}
             </Button>
           </div>
@@ -915,7 +967,22 @@ const ProjectCardMain = () => {
               </div>
             ))
           ) : selectedClassId ? (
-            <p>Lớp đã ghép Mentor</p>
+            (() => {
+              const selectedClass = classSummaries.find(
+                (cls) => cls.classId === selectedClassId
+              );
+
+              if (!selectedClass)
+                return <p>Vui lòng chọn một lớp để xem dự án.</p>;
+
+              return selectedClass.groupDetails?.length === 0 ? (
+                <p>Lớp chưa có nhóm</p>
+              ) : selectedClass.isFullyMatched ? (
+                <p>Lớp đã ghép xong tất cả các nhóm</p>
+              ) : (
+                <p>Lớp chưa ghép xong tất cả các nhóm</p>
+              );
+            })()
           ) : (
             <p>Vui lòng chọn một lớp để xem dự án.</p>
           )}

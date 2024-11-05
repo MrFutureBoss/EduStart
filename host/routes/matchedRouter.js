@@ -17,4 +17,11 @@ matchedRouter.get(
   verifyRole([2]),
   matchedController.getMatchedInfoByGroupId
 );
+
+matchedRouter.put(
+  "/edit-matched/:id",
+  verifyAccessToken,
+  verifyRole([2]),
+  matchedController.updateMatchedStatus
+);
 export default matchedRouter;
