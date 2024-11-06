@@ -56,6 +56,7 @@ app.use("/tempgroup", routes.tempGroupRouters);
 app.use("/creategroupsetting", routes.createGroupSettingRouter);
 app.use("/matched", routes.matchedRouter);
 app.use("/group", routes.groupRouter);
+app.use("/project", routes.projectRouter);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound());
