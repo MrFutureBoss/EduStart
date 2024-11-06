@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Card, message } from "antd";
 import { useSelector } from "react-redux";
 import { getProjectGroupData, getMatchedProject } from "../../../api";
-import MatchedProjectDetails from "../../../components/Card/MatchedProjectDetails";
+import MatchedProjectDetails from "./MatchedProjectDetails";
 
 const ViewMatching = () => {
   const { selectedGroup } = useSelector((state) => state.class);

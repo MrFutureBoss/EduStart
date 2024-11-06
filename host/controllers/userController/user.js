@@ -2,6 +2,8 @@ import userDAO from "../../repositories/userDAO/index.js";
 import { clearOTP, verifyOTP } from "../../utilities/otpStore.js";
 import { sendEmail } from "../../utilities/email.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const getUserLogin = async (req, res, next) => {
   try {
@@ -19,6 +21,32 @@ const getUserLogin = async (req, res, next) => {
     if (error.message === "User not found.") {
       return res.status(404).json({ error: error.message });
     }
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const userProfile = async (req, res, next) => {
+  const token = req.headers["authorization"];
+  if (!token) {
+    return res.status(401).send("Access denied");
+  }
+
+  const tokenString = token.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(tokenString, process.env.SECRETKEY);
+    req.user = decoded;
+
+    if (!mongoose.Types.ObjectId.isValid(decoded._id)) {
+      return res.status(400).json({ error: "Invalid user ID format in token" });
+    }
+
+    const result = await userDAO.findUserById(
+      new mongoose.Types.ObjectId(decoded._id)
+    );
+    res.status(201).json(result);
+  } catch (error) {
+    console.error("Error in userProfile:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -69,7 +97,11 @@ const changePassword = async (req, res) => {
   const { email, oldPassword, newPassword } = req.body; // Get email, old password, and new password from request
 
   try {
-    const result = await userDAO.changePassword(email, oldPassword, newPassword);
+    const result = await userDAO.changePassword(
+      email,
+      oldPassword,
+      newPassword
+    );
     res.status(200).json(result);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -77,7 +109,7 @@ const changePassword = async (req, res) => {
 };
 
 const findUserById = async (req, res) => {
-  const { id } = req.params;  
+  const { id } = req.params;
   try {
     const user = await userDAO.findUserById(id);
     if (!user) {
@@ -94,5 +126,6 @@ export default {
   forgotPassword,
   resetPassword,
   findUserById,
-  changePassword
+  changePassword,
+  userProfile,
 };

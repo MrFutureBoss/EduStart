@@ -19,6 +19,7 @@ import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
 import ProjectCardMain from "../../pages/teacher/matchingMentor/ProjectCardMain";
 import DetailedSelection from "../../pages/teacher/matchingMentor/DetailedSelection";
 import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
+import GroupMembers from "../../pages/group/GroupMembers";
 
 const TeacherRouter = () => {
   return (
@@ -50,7 +51,12 @@ const TeacherRouter = () => {
         path="temp-matching/detailed-selection/:projectId"
         element={<DetailedSelection />}
       />
+      <Route
+        path="summary-class/temp-matching/detailed-selection/:projectId"
+        element={<DetailedSelection />}
+      />
       <Route path="project-request" element={<ProjectRequest />} />
+      <Route path="group-detail" element={<GroupMembers />} />
     </Route>
   );
 };

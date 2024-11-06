@@ -43,8 +43,8 @@ function SignIn() {
       const res = await axios.post(`${BASE_URL}/user/login`, formData);
       const token = res.data.token;
       const role = res.data.user.role;
-      const userId = res.data.user._id
-      const username = res.data.user.username
+      const userId = res.data.user._id;
+      const username = res.data.user.username;
       if (token) {
         localStorage.setItem("jwt", token);
         localStorage.setItem("role", role);
@@ -66,7 +66,7 @@ function SignIn() {
             navigation("/admin-dashboard", { replace: true });
           } else if (userRole === 2) {
             navigation("/teacher-dashboard"); // Nếu là giáo viên
-          } else if (userRole === 3) {
+          } else if (userRole === 4) {
             navigation("/student-dashboard"); // Nếu là học sinh
           } else {
             navigation("/"); // Nếu không xác định, chuyển về trang chủ

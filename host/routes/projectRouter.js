@@ -5,10 +5,10 @@ import { verifyAccessToken, verifyRole } from "../utilities/jwt.js";
 const projectRouter = express.Router();
 
 projectRouter.get("/:id", verifyAccessToken, projectController.getProjectById);
-projectRouter.patch(
-  "/:id/update_project",
+projectRouter.put(
+  "/:groupId/update_project",
   verifyAccessToken,
-  projectController.updateProject
+  projectController.updateGroupProject
 );
 projectRouter.get(
   "/planning-projects/:teacherId",
@@ -42,7 +42,7 @@ projectRouter.put(
 );
 
 projectRouter.patch(
-  "/:id/revise_project",
+  "/:groupId/revise_project",
   verifyAccessToken,
   projectController.reviseProject
 );
