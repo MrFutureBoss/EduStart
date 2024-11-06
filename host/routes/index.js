@@ -13,6 +13,7 @@ import createGroupSettingRouter from "./createGroupSettingRoutes.js";
 import ruleJoinRouter from "./ruleJoinRoutes.js";
 import matchedRouter from "./matchedRouter.js";
 import groupRouter from "./groupRouter.js";
+import projectRouter from "./projectRouter.js";
 
 const routes = {
   professionRouters,
@@ -30,6 +31,7 @@ const routes = {
   ruleJoinRouter,
   matchedRouter,
   groupRouter,
+  projectRouter,
 };
 
 export default routes;

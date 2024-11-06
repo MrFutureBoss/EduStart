@@ -45,47 +45,60 @@ const findUser = async (query) => {
 const findUserById = async (id) => {
   try {
     const user = await User.aggregate([
+      // Tìm người dùng theo `_id`
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
+
+      // Kết nối với bảng `classes` để lấy thông tin lớp học của người dùng
       {
         $lookup: {
           from: "classes",
           localField: "classId",
           foreignField: "_id",
-          as: "classId",
+          as: "classInfo",
         },
       },
+
+      // Kết nối với bảng `groups` để lấy thông tin nhóm của người dùng
       {
         $lookup: {
           from: "groups",
           localField: "groupId",
           foreignField: "_id",
-          as: "groupId",
+          as: "groupInfo",
         },
       },
+
+      // Kết nối với bảng `projects` thông qua `groupInfo.projectId` để lấy thông tin dự án
       {
         $lookup: {
           from: "projects",
-          localField: "groupId.projectId",
+          localField: "groupInfo.projectId",
           foreignField: "_id",
-          as: "project",
+          as: "projectInfo",
         },
       },
+
+      // Kết nối với bảng `matcheds` thông qua `groupInfo._id` để lấy thông tin ghép nối
       {
         $lookup: {
           from: "matcheds",
-          localField: "groupId.matchedId",
-          foreignField: "_id",
-          as: "matched",
+          localField: "groupInfo._id",
+          foreignField: "groupId",
+          as: "matchedInfo",
         },
       },
+
+      // Kết nối với bảng `users` để lấy thông tin mentor từ `matchedInfo.mentorId`
       {
         $lookup: {
           from: "users",
-          localField: "matched.mentorId",
+          localField: "matchedInfo.mentorId",
           foreignField: "_id",
-          as: "mentor",
+          as: "mentorInfo",
         },
       },
+
+      // Kết nối với bảng `classes` để lấy danh sách lớp dạy của giáo viên nếu user có vai trò là giáo viên
       {
         $lookup: {
           from: "classes",
@@ -94,7 +107,34 @@ const findUserById = async (id) => {
           as: "classList",
         },
       },
+
+      // Thêm trường isLeader và các trường khác vào kết quả
+      {
+        $addFields: {
+          isLeader: "$isLeader",
+          username: "$username",
+          email: "$email",
+          role: "$role",
+          Dob: "$Dob",
+          phoneNumber: "$phoneNumber",
+          degree: "$degree",
+          semesterId: "$semesterId",
+          status: "$status",
+          rollNumber: "$rollNumber",
+          memberCode: "$memberCode",
+          createdAt: "$createdAt",
+          updatedAt: "$updatedAt",
+        },
+      },
+
+      // Chọn các trường cần thiết trong kết quả để tránh trùng lặp
+      {
+        $project: {
+          password: 0, // Ẩn trường mật khẩu để bảo mật
+        },
+      },
     ]);
+
     return user[0];
   } catch (error) {
     throw new Error(error.message);
@@ -138,12 +178,11 @@ const changePassword = async (email, oldPassword, newPassword) => {
   }
 };
 
-
 export default {
   loginUser,
   findUserByEmail,
   findUser,
   findUserById,
   updateUserPassword,
-  changePassword, 
+  changePassword,
 };

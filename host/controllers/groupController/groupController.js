@@ -15,6 +15,19 @@ const getProjectByGroupId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const getInforGroupById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const groupInfo = await groupDAO.getGroupById(id);
+    res.send(groupInfo);
+  } catch (error) {
+    console.error("Error fetching group info:", error);
+    next(error);
+  }
+};
+
 export default {
   getProjectByGroupId,
+  getInforGroupById,
 };

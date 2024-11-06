@@ -1,19 +1,19 @@
 .custom-modal .modal-dialog {
-    max-width: 800px;
-    width: 90%;
+  max-width: 800px;
+  width: 90%;
 }
 
 .custom-modal .modal-content {
-    padding: 20px;
-    border-radius: 15px;
+  padding: 20px;
+  border-radius: 15px;
 }
 
 .custom-modal .modal-header {
-    display: flex;
-    justify-content: center;
-    border-bottom: none;
-    position: relative;
-    padding-bottom: 0;
+  display: flex;
+  justify-content: center;
+  border-bottom: none;
+  position: relative;
+  padding-bottom: 0;
 }
 
 .modal-title-custom {
@@ -34,32 +34,32 @@
 }
 
 .custom-modal .modal-header {
-    display: flex;
-    justify-content: center;
-    position: relative;
-    padding: 0;
-    border-bottom: none;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  padding: 0;
+  border-bottom: none;
 }
 
 .custom-modal .modal-content {
-    border-radius: 20px;
+  border-radius: 20px;
 }
 
 .modal-body {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
 }
 
 .modal-body img {
-    max-width: 200px;
+  max-width: 200px;
 }
 
 .vertical-line {
-    border-left: 1px solid #ccc;
-    height: 100%;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+  border-left: 1px solid #ccc;
+  height: 100%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }

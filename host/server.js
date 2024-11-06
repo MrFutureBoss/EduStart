@@ -66,6 +66,7 @@ app.use("/creategroupsetting", routes.createGroupSettingRouter);
 app.use("/rulejoin", routes.ruleJoinRouter);
 app.use("/matched", routes.matchedRouter);
 app.use("/group", routes.groupRouter);
+app.use("/project", routes.projectRouter);
 
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {
