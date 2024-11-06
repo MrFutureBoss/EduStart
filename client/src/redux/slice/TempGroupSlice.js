@@ -25,7 +25,7 @@ const tempGroupSlice = createSlice({
       state.error = action.payload;
     },
     setWaitUserList: (state, action) => {
-      state.waituserlist = action.payload;
+      state.waituserlist = action.payload || [];
     },
     setTotalWaitUsers: (state, action) => {
       state.waittotal = action.payload;

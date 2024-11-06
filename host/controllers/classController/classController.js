@@ -129,6 +129,28 @@ const getClassesInfoAndTaskByTeacherId = async (req, res, next) => {
     next(error);
   }
 };
+
+const autoFillGroupsOnDeadline = async (req, res, next) => {
+  try {
+    const result = await classDAO.checkAndFillExpiredGroups();
+
+    if (result.unassignedGroups.length > 0) {
+      return res.status(207).json({
+        message: "Auto-filling complete with some unassigned students.",
+        data: result.unassignedGroups,
+      });
+    }
+
+    res
+      .status(200)
+      .json({
+        message: "Auto-filling complete with all students assigned to groups.",
+      });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getClassesByUserId,
   getClassIdByClassName,
@@ -137,4 +159,5 @@ export default {
   getTeacherClassSummary,
   getSemestersAndClassesByTeacherId,
   getClassesInfoAndTaskByTeacherId,
+  autoFillGroupsOnDeadline,
 };

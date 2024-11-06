@@ -1,22 +1,14 @@
-import {
-  Card,
-  FloatButton,
-  Row,
-  Col,
-  List,
-  Avatar,
-  Splitter,
-  Typography,
-  Empty,
-  Pagination,
-  Button,
-} from "antd";
+import { Card, FloatButton, Button, Tooltip, Tag, message } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import { QuestionCircleOutlined, UserOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { IoPersonAddOutline } from "react-icons/io5";
+import { MdAutoFixHigh } from "react-icons/md";
+import { MdAutoFixOff } from "react-icons/md";
+
 import {
   setTempGroups,
   setTotalJoinUser,
@@ -27,22 +19,17 @@ import {
 
 import { setClassTaskData } from "../../redux/slice/ClassManagementSlice";
 import "../../style/Class/ClassDetail.css";
-import Search from "antd/es/input/Search";
 import CreateGroup from "./CreateGroup";
 import Result from "./DnD_Group/Result";
 import { setSettingCreateGroupData } from "../../redux/slice/SettingCreateGroup";
+import moment from "moment";
 const UnGroupList = () => {
   const { className } = useParams();
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const [classId, setClassId] = useState("");
-  //Tìm kiếm
-  const [searchText, setSearchText] = useState("");
-  //Phân trang
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [pageSize, setPageSize] = useState(6);
   const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
+  const [isDndActive, setIsDndActive] = useState(false);
   const userId = localStorage.getItem("userId");
 
   const config = useMemo(
@@ -147,15 +134,10 @@ const UnGroupList = () => {
           `${BASE_URL}/class/ungroup/${classId}`,
           {
             ...config,
-            params: {
-              skip: currentPage,
-              limit: pageSize,
-            },
           }
         );
         dispatch(setWaitUserList(response.data?.data));
         dispatch(setTotalWaitUsers(response.data?.total));
-        setTotalItems(response.data?.total);
       } catch (error) {
         console.log(
           error.response ? error.response.data.message : error.message
@@ -164,7 +146,7 @@ const UnGroupList = () => {
     };
 
     fetchUserData();
-  }, [classId, config, currentPage, pageSize, dispatch]);
+  }, [classId, config, dispatch]);
 
   const tempGroups = useSelector((state) => state.tempGroup.data || []);
   const totalTempGroups = useSelector((state) => state.tempGroup.total || 0);
@@ -177,31 +159,6 @@ const UnGroupList = () => {
     (state) => state.settingCreateGroup.settingcreategroups || []
   );
 
-  const onPageChange = (pageNumber) => {
-    console.log(`Changing to page: ${pageNumber}`);
-    setCurrentPage(pageNumber);
-  };
-
-  const onPageSizeChange = (current, size) => {
-    console.log(`Changing page size to: ${size}`);
-    setPageSize(size);
-    setCurrentPage(current);
-  };
-
-  const filteredUsers = waitUserList.filter((user) => {
-    if (
-      searchText &&
-      !(
-        user.username.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchText.toLowerCase()) ||
-        user.rollNumber?.toLowerCase().includes(searchText.toLowerCase())
-      )
-    ) {
-      return false;
-    }
-    return true;
-  });
-
   const handleOpenAddTypeModal = () => {
     setIsModalShowTypeAdd(true);
   };
@@ -209,6 +166,52 @@ const UnGroupList = () => {
     setIsModalShowTypeAdd(false);
   };
 
+  const handleOpenModifyStudentInGroup = () => {
+    setIsDndActive(true);
+  };
+  const handleCloseModifyStudentInGroup = () => {
+    setIsDndActive(false);
+  };
+
+  const handleAutoGroup = async () => {
+    try {
+      await axios.post(`${BASE_URL}/tempgroup/auto-fill`);
+      const response = await axios.get(
+        `${BASE_URL}/tempgroup/class/${classId}`,
+        config
+      );
+      dispatch(setTempGroups(response.data?.data));
+      dispatch(setTotalTempGroups(response.data?.total));
+
+      message.success("Nhóm đã được ghép tự động!");
+    } catch (error) {
+      console.error("Error during auto-grouping:", error);
+      message.error("Đã xảy ra lỗi khi ghép nhóm tự động");
+    }
+  };
+
+  const countActiveTempGroups = (tempGroups) => {
+    return tempGroups.filter((group) => group.status === true).length;
+  };
+
+  const activeTempGroupCount = countActiveTempGroups(tempGroups);
+
+  console.log("Setting: " + JSON.stringify(settingCreateGroup));
+
+  const filteredSettingCreateGroup = settingCreateGroup.filter(
+    (setting) => setting.classId._id === classId
+  );
+
+  const deadline = filteredSettingCreateGroup[0]?.deadline;
+  const autoFinish = filteredSettingCreateGroup[0]?.autoFinish;
+  const ruleJoin = filteredSettingCreateGroup[0]?.ruleJoin || [];
+
+  const remainingTime = useMemo(() => {
+    if (!deadline) return null;
+    const now = moment();
+    const deadlineTime = moment(deadline);
+    return deadlineTime.isAfter(now) ? deadlineTime.fromNow() : "Đã hết hạn";
+  }, [deadline]);
   return (
     <div>
       <CreateGroup
@@ -217,39 +220,109 @@ const UnGroupList = () => {
         close={handleCloseAddTypeModal}
       />
       <h1>Lớp {className}</h1>
-      <Card
-        bordered={true}
-        style={{
-          display: "flex",
-          justifyContent: "start",
-          width: "80%",
-          padding: "0.5rem 8rem 0.5rem 0.5rem",
-          borderStyle: "dotted",
-          backgroundColor: "#E6F4FF",
-          border: "2px solid #1677FF",
-          lineHeight: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <p>Sĩ số lớp: {totalWaitUsers + totalJoinUsers} sinh viên</p>
-        <p>
-          Tổng số nhóm đã đủ thành viên: {}/{totalTempGroups}
-        </p>
-        <p>Deadline tạo nhóm: {} và thời gian còn lại </p>
-        <p>
-          Điều kiện tham gia nhóm:{" "}
-          {/* {settingCreateGroup?.ruleJoin.length > 0 ? (
-            settingCreateGroup?.ruleJoin.map((rule) => (
-              <span key={rule._id}>{rule?.title}</span>
-            ))
-          ) : (
-            <></>
-          )} */}
-        </p>
+      <Card bordered={true}>
+        <Card.Grid style={{ width: "50%" }}>
+          <p className="remove-default-style-p" style={{ fontWeight: "700" }}>
+            Sĩ số lớp:{" "}
+            <Tag style={{ height: "fit-content" }} color="#108ee9">
+              {totalWaitUsers + totalJoinUsers} sinh viên
+            </Tag>
+          </p>
+        </Card.Grid>
+        <Card.Grid style={{ width: "50%" }}>
+          <p className="remove-default-style-p" style={{ fontWeight: "700" }}>
+            Tổng số nhóm đã đủ thành viên:{" "}
+            <Tag
+              style={{
+                height: "fit-content",
+                marginBottom: "4px",
+              }}
+              color="#108ee9"
+            >
+              {" "}
+              {activeTempGroupCount}/{totalTempGroups}
+            </Tag>
+          </p>
+        </Card.Grid>
+        <Card.Grid style={{ width: "50%" }}>
+          <p className="remove-default-style-p" style={{ fontWeight: "700" }}>
+            Deadline tạo nhóm:{" "}
+            <Tag
+              style={{
+                height: "fit-content",
+                marginBottom: "4px",
+              }}
+              color="#6F7479"
+            >
+              {deadline
+                ? moment(deadline).format("DD-MM-YYYY")
+                : "Chưa thiết lập"}{" "}
+            </Tag>
+          </p>
+        </Card.Grid>
+        <Card.Grid style={{ width: "50%" }}>
+          <p className="remove-default-style-p" style={{ fontWeight: "700" }}>
+            Thời gian còn lại:{" "}
+            <Tag
+              style={{
+                height: "fit-content",
+                marginBottom: "4px",
+              }}
+              color="#D20336"
+            >
+              {remainingTime}
+            </Tag>
+          </p>
+        </Card.Grid>
+        <Card.Grid style={{ width: "50%" }}>
+          <p className="remove-default-style-p" style={{ fontWeight: "700" }}>
+            Điều kiện tham gia mỗi nhóm:{" "}
+            <Tag
+              style={{
+                height: "fit-content",
+                marginBottom: "4px",
+              }}
+              color="#108ee9"
+            >
+              {ruleJoin.length > 0
+                ? ruleJoin.map((rule) => (
+                    <span key={rule._id}>{rule.title}</span>
+                  ))
+                : "Không có điều kiện"}
+            </Tag>
+          </p>
+        </Card.Grid>
+        <Card.Grid style={{ width: "50%" }}>
+          <p className="remove-default-style-p" style={{ fontWeight: "700" }}>
+            Hết thời gian tự động xếp nhóm:{" "}
+            {autoFinish ? (
+              <Tag
+                style={{
+                  height: "fit-content",
+                  marginBottom: "4px",
+                }}
+                color="#59B259"
+              >
+                Đã kích hoạt
+              </Tag>
+            ) : (
+              <Tag
+                style={{
+                  height: "fit-content",
+                  marginBottom: "4px",
+                }}
+                color="#D20336"
+              >
+                Chưa kích hoạt
+              </Tag>
+            )}
+          </p>
+        </Card.Grid>
       </Card>
 
       <Button
-        type="primary"
+        color="primary"
+        variant="solid"
         style={{
           margin: "20px 0px",
           display: totalTempGroups > 0 ? "none" : "block",
@@ -258,6 +331,83 @@ const UnGroupList = () => {
       >
         + Tạo nhóm lớp
       </Button>
+      <div style={{ display: "flex", gap: "1rem" }}>
+        {!isDndActive ? (
+          <Tooltip
+            title="Tự động ghép nhóm luôn bỏ qua deadline"
+            style={{ display: "flex", textAlign: "center" }}
+          >
+            <Button
+              color="primary"
+              variant="solid"
+              style={{
+                margin: "20px 0px",
+                display: totalTempGroups <= 0 ? "none" : "block",
+              }}
+              onClick={handleAutoGroup}
+            >
+              <MdAutoFixHigh style={{ fontSize: "1.1rem" }} />
+              &nbsp;Tự động ghép nhóm
+            </Button>
+          </Tooltip>
+        ) : (
+          <Tooltip
+            title="Tự động ghép nhóm luôn bỏ qua deadline"
+            style={{ display: "flex", textAlign: "center" }}
+          >
+            <Button
+              color="default"
+              variant="solid"
+              disabled={true}
+              style={{
+                margin: "20px 0px",
+                display: totalTempGroups <= 0 ? "none" : "block",
+              }}
+            >
+              <MdAutoFixOff style={{ fontSize: "1.1rem" }} />
+              &nbsp;Tự động ghép nhóm
+            </Button>
+          </Tooltip>
+        )}
+
+        {!isDndActive ? (
+          <Tooltip
+            title="Bật chế độ xếp sinh viên vào nhóm"
+            style={{ display: "flex", textAlign: "center" }}
+          >
+            <Button
+              color="primary"
+              variant="solid"
+              style={{
+                margin: "20px 0px",
+                display: totalTempGroups <= 0 ? "none" : "block",
+              }}
+              onClick={handleOpenModifyStudentInGroup}
+            >
+              <IoPersonAddOutline style={{ fontSize: "1.1rem" }} />
+              &nbsp;Xếp vào nhóm
+            </Button>
+          </Tooltip>
+        ) : (
+          <Tooltip
+            title="Tắt chế độ xếp sinh viên vào nhóm"
+            style={{ display: "flex", textAlign: "center" }}
+          >
+            <Button
+              color="danger"
+              variant="solid"
+              style={{
+                margin: "20px 0px",
+                display: totalTempGroups <= 0 ? "none" : "block",
+              }}
+              onClick={handleCloseModifyStudentInGroup}
+            >
+              <IoPersonAddOutline style={{ fontSize: "1.1rem" }} />
+              &nbsp;Dừng Xếp vào nhóm
+            </Button>
+          </Tooltip>
+        )}
+      </div>
       <FloatButton
         icon={<QuestionCircleOutlined />}
         type="primary"
@@ -265,166 +415,7 @@ const UnGroupList = () => {
           insetInlineEnd: 88,
         }}
       />
-      <Splitter
-        style={{
-          height: "100%",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <Splitter.Panel
-          collapsible
-          style={{
-            width: "17rem",
-            maxWidth: "17rem",
-          }}
-        >
-          <Typography.Title
-            type="secondary"
-            level={5}
-            style={{
-              whiteSpace: "normal",
-              wordWrap: "break-word",
-            }}
-          >
-            <Row>
-              <Col
-                sm={24}
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "15px",
-                }}
-              >
-                <p style={{ color: "black", fontStyle: "bold" }}>
-                  Danh sách sinh viên chưa có nhóm
-                </p>
-              </Col>
-            </Row>
-            <Row>
-              <Col
-                sm={24}
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "5px",
-                  marginBottom: "15px",
-                  alignItems: "center",
-                }}
-              >
-                <Search
-                  placeholder="Nhập tên, email hoặc MSSV"
-                  onChange={(e) => setSearchText(e.target.value)}
-                  style={{ width: "90%" }}
-                />
-                {/* <button onClick={resetSearch} style={{ marginLeft: "10px" }}>
-                  Reset
-                </button> */}
-              </Col>
-            </Row>
-            <Row style={{ margin: "10px auto" }}>
-              <Col sm={24}>Số lượng sinh viên chưa nhóm: {totalWaitUsers}</Col>
-            </Row>
-            {totalWaitUsers > 0 ? (
-              <List
-                className="list-container-groupstudent"
-                style={{
-                  width: "100%",
-                }}
-                itemLayout="horizontal"
-                dataSource={filteredUsers}
-                renderItem={(user, index) => (
-                  <List.Item
-                    key={user?._id}
-                    style={{ marginLeft: "0px", paddingLeft: "10px" }}
-                    className="list-groupstudent"
-                  >
-                    <List.Item.Meta
-                      avatar={<Avatar icon={<UserOutlined />} />}
-                      title={<p className="list-title">{user?.username}</p>}
-                      description={
-                        <p className="list-description">
-                          {
-                            <p style={{ fontWeight: "500" }}>
-                              <span style={{ fontWeight: "700" }}>MSSV:</span>
-                              &nbsp;
-                              {user?.rollNumber}
-                            </p>
-                          }
-                          {
-                            <p style={{ fontWeight: "500" }}>
-                              <span style={{ fontWeight: "700" }}>Email:</span>
-                              &nbsp;
-                              {user?.email}
-                            </p>
-                          }
-                        </p>
-                      }
-                    />
-                  </List.Item>
-                )}
-              ></List>
-            ) : (
-              <Empty />
-            )}
-            <Row>
-              <Pagination
-                showQuickJumper
-                style={{
-                  display: "block",
-                  justifyContent: "center",
-                  width: "fit-content",
-                  margin: "0 auto",
-                  textAlign: "center",
-                }}
-                current={currentPage}
-                pageSize={pageSize}
-                total={totalItems}
-                onChange={onPageChange}
-                onShowSizeChange={onPageSizeChange}
-                itemRender={(page, type, originalElement) => {
-                  if (type === "page") {
-                    return <a style={{ padding: "0 4px" }}>{page}</a>;
-                  }
-                  return originalElement;
-                }}
-              />
-            </Row>
-          </Typography.Title>
-        </Splitter.Panel>
-        <Splitter.Panel
-          collapsible={false}
-          style={{
-            flex: 1,
-          }}
-        >
-          <Row>
-            <Col
-              sm={24}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "1.5rem",
-              }}
-            >
-              <h4>Danh sách nhóm lớp</h4>
-            </Col>
-          </Row>
-          <Row style={{ margin: "10px 20px" }}>
-            <Col sm={24}>Số lượng sinh viên đã vào nhóm: 14</Col>
-          </Row>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              height: "100%",
-              padding: "0px 20px",
-              boxSizing: "border-box",
-            }}
-          >
-            <Result className={className} />
-          </div>
-        </Splitter.Panel>
-      </Splitter>
+      <Result dndActive={isDndActive} />
     </div>
   );
 };

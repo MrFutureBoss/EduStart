@@ -68,16 +68,9 @@ const CreateGroup = ({ classId, show, close }) => {
     try {
       const values = await form.validateFields();
 
+      const deadline = values.deadline;
+
       const ruleId = values.ruleJoin;
-      const deadline = "2024-08-31T23:59:59Z";
-      console.log("Deadline after standardizing:", deadline);
-
-      if (!deadline) {
-        console.error("Error: Deadline is required but not provided.");
-        message.error("Deadline is required but not provided.");
-        return; // Prevent submitting request if deadline is still null
-      }
-
       const autoFinish = values.autoFinish || false;
       const groupCount = values.groupCount;
 
@@ -91,14 +84,15 @@ const CreateGroup = ({ classId, show, close }) => {
         maxStudent: index < remainder ? baseMaxStudent + 1 : baseMaxStudent,
       }));
 
-      console.log("Preparing to submit data with structure:");
-      console.log("tempGroups:", tempGroups);
-      console.log("createGroupSettingData:", {
-        classId: classId,
-        deadline: deadline,
-        autoFinish: autoFinish,
-        status: false,
-        ruleJoin: [ruleId],
+      console.log("Data being sent:", {
+        createGroupSettingData: {
+          classId: classId,
+          deadline: deadline.toISOString(),
+          autoFinish: autoFinish,
+          status: false,
+          ruleJoin: [ruleId],
+        },
+        tempGroupsData: tempGroups,
       });
 
       await axios.post(
@@ -116,17 +110,12 @@ const CreateGroup = ({ classId, show, close }) => {
         config
       );
 
-      message.success("Data submitted successfully!");
+      message.success("Bạn đã tạo nhóm thành công!");
       setShowConfirmModal(false);
       close();
+      window.location.reload();
     } catch (error) {
-      console.error(
-        "Error submitting form:",
-        error.response && error.response.data
-          ? error.response.data.message
-          : error.message || "Unknown error"
-      );
-
+      console.error("Error submitting form:", error);
       message.error(
         error.response && error.response.data
           ? `Submission failed: ${error.response.data.message}`
@@ -162,6 +151,11 @@ const CreateGroup = ({ classId, show, close }) => {
             maxWidth: 800,
           }}
           form={form}
+          onFinish={handleSubmit} // Sử dụng onFinish để xử lý submit form
+          initialValues={{
+            autoFinish: false,
+            groupCount: 5,
+          }}
         >
           <Form.Item
             name="ruleJoin"
@@ -174,19 +168,23 @@ const CreateGroup = ({ classId, show, close }) => {
               </p>
             }
             rules={[
-              { required: true, message: "Vui lòng chọn điều kiện tham gia" },
+              {
+                required: true,
+                message: "Vui lòng chọn điều kiện tham gia nhóm",
+              },
             ]}
           >
             <Select style={{ width: "11rem" }}>
+              <Select.Option value="">Không có</Select.Option>
               {ruleJoin.length > 0 &&
                 ruleJoin.map((rj) => (
                   <Select.Option key={rj?._id} value={rj?._id}>
                     {rj?.title}
                   </Select.Option>
                 ))}
-              <Select.Option value="">Không có</Select.Option>
             </Select>
           </Form.Item>
+
           <Form.Item
             name="groupCount"
             label={
@@ -199,32 +197,34 @@ const CreateGroup = ({ classId, show, close }) => {
             }
             rules={[{ required: true, message: "Vui lòng chọn số lượng nhóm" }]}
           >
-            <InputNumber
-              min={3}
-              max={10}
-              defaultValue={5}
-              prefix={<TeamOutlined />}
-            />
+            <InputNumber min={3} max={10} prefix={<TeamOutlined />} />
           </Form.Item>
+
           <Form.Item
             name="deadline"
-            label={
-              <p
-                className="remove-default-style-p"
-                style={{ fontWeight: "600" }}
-              >
-                Chọn thời gian kết thúc
-              </p>
-            }
+            label="Chọn thời gian kết thúc"
+            rules={[{ required: true, message: "Vui lòng chọn ngày kết thúc" }]}
           >
             <ConfigProvider locale={locale}>
               <DatePicker
                 placeholder="VD: 2024-08-23"
                 disabledDate={disabledDate}
                 showToday={false}
+                format="YYYY-MM-DD"
+                onChange={(date) => {
+                  if (date) {
+                    const dateAsJSDate = date.toDate();
+                    form.setFieldsValue({ deadline: dateAsJSDate });
+                    console.log("Selected date as JS Date:", dateAsJSDate);
+                  } else {
+                    console.log("No date selected");
+                    form.setFieldsValue({ deadline: null });
+                  }
+                }}
               />
             </ConfigProvider>
           </Form.Item>
+
           <Form.Item
             name="autoFinish"
             valuePropName="checked"

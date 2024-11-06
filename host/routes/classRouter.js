@@ -32,15 +32,20 @@ classRouter.get(
 );
 
 classRouter.get(
-    "/info/:teacherId",
-    verifyAccessToken,
-    classController.getSemestersAndClassesByTeacherId
+  "/info/:teacherId",
+  verifyAccessToken,
+  classController.getSemestersAndClassesByTeacherId
 );
 
 classRouter.get(
-    "/task/:teacherId",
-    verifyAccessToken,
-    classController.getClassesInfoAndTaskByTeacherId
-  );
+  "/task/:teacherId",
+  verifyAccessToken,
+  classController.getClassesInfoAndTaskByTeacherId
+);
+
+// classRouter.post(
+//   "/auto-fill-deadline",
+//   classController.autoFillGroupsOnDeadline
+// );
 
 export default classRouter;

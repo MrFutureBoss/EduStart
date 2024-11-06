@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
@@ -35,9 +35,8 @@ import {
 } from "../../redux/slice/TempGroupSlice";
 import "../../style/Class/ClassDetail.css";
 import Search from "antd/es/transfer/search";
-import { UserOutlined } from "@ant-design/icons";
 
-const SortableCards = () => {
+const SortableCards = ({dndActive}) => {
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const config = useMemo(
@@ -56,10 +55,11 @@ const SortableCards = () => {
   const [dropTargetCard, setDropTargetCard] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
   const [isConfirming, setIsConfirming] = useState(false);
-
+  const [isWaitListConfirming, setIsWaitListConfirming] = useState(false);
+  const [popconfirmTitle, setPopconfirmTitle] = useState("");
   const [searchText, setSearchText] = useState("");
   //Phân trang
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [pageSize, setPageSize] = useState(6);
 
@@ -87,7 +87,7 @@ const SortableCards = () => {
     fetchUserData();
   }, [config]);
 
-  // Fetch Groups Data
+  // /Danh sách nhóm chưa chốt xong và danh sách sinh trong nhóm đó
   useEffect(() => {
     if (!classId) return;
     const fetchGroups = async () => {
@@ -150,8 +150,8 @@ const SortableCards = () => {
   );
   const totalWaitUsers = useSelector((state) => state.tempGroup.waittotal || 0);
 
-  console.log("group yet: " + JSON.stringify(tempGroups));
-  console.log("Ungroup yet: " + JSON.stringify(waitUserList));
+  // console.log("group yet: " + JSON.stringify(tempGroups));
+  // console.log("Ungroup yet: " + JSON.stringify(waitUserList));
 
   const onPageChange = (pageNumber) => {
     console.log(`Changing to page: ${pageNumber}`);
@@ -180,23 +180,27 @@ const SortableCards = () => {
 
   // Handle Confirm Changes
   const handleConfirm = async () => {
-    setIsConfirming(false);
+    console.log("Đã đi đến confirm của thẻ");
     try {
+      // Only update actual groups in the database, ignoring `waitUserList`
       const groupRequests = Object.entries(data).map(([groupName, users]) => {
         const groupId = tempGroups.find(
           (group) => group.groupName === groupName
         )?._id;
-        return axios.put(
-          `${BASE_URL}/tempgroup/${groupId}`,
-          { userIds: users.map((user) => user._id) },
-          config
-        );
+        if (groupId) {
+          return axios.put(
+            `${BASE_URL}/tempgroup/${groupId}`,
+            { userIds: users.map((user) => user._id) },
+            config
+          );
+        }
+        return null;
       });
 
-      await Promise.all(groupRequests);
+      await Promise.all(groupRequests.filter(Boolean));
       message.success("Cập nhật thành công!");
 
-      // Update Redux with the latest data
+      // Update Redux with the latest groups data
       dispatch(
         setTempGroups(
           Object.entries(data).map(([groupName, users]) => ({
@@ -210,11 +214,67 @@ const SortableCards = () => {
       console.error("Lỗi khi cập nhật:", error.message || error);
       setData(previousData);
       message.error("Hoàn tác thay đổi do lỗi cập nhật");
+    } finally {
+      setIsConfirming(false); // Ensure Popconfirm is closed
+      setIsWaitListConfirming(false);
     }
   };
 
-  const handleCancel = () => {
+  const handleWaitListConfirm = async () => {
+    setIsWaitListConfirming(false);
+    try {
+      // Map over each group and perform an update request, allowing empty user arrays
+      const groupRequests = Object.entries(data).map(
+        async ([groupName, users]) => {
+          const groupId = tempGroups.find(
+            (group) => group.groupName === groupName
+          )?._id;
+          if (groupId !== undefined) {
+            await axios.put(
+              `${BASE_URL}/tempgroup/${groupId}`,
+              { userIds: users.map((user) => user._id) }, // Allows empty arrays to be passed
+              config
+            );
+          }
+        }
+      );
+
+      // Wait for all updates to complete
+      await Promise.all(groupRequests);
+
+      // Fetch updated waitUserList data only
+      const waitListResponse = await axios.get(
+        `${BASE_URL}/class/ungroup/${classId}`,
+        config
+      );
+
+      // Update Redux with the latest waitUserList
+      dispatch(setWaitUserList(waitListResponse.data.data));
+      dispatch(setTotalWaitUsers(waitListResponse.data.total));
+
+      // Show success message regardless of empty or non-empty data
+      message.success("Danh sách đã cập nhật lại");
+    } catch (error) {
+      console.error("Error updating waitUserList:", error.message || error);
+      message.success("Danh sách đã cập nhật lại");
+    } finally {
+      setIsWaitListConfirming(false); // Ensure Popconfirm is closed
+    }
+  };
+
+  const handleCancel = async () => {
+    // Fetch updated waitUserList data only
+    const waitListResponse = await axios.get(
+      `${BASE_URL}/class/ungroup/${classId}`,
+      config
+    );
+
+    // Update Redux with the latest waitUserList
+    dispatch(setWaitUserList(waitListResponse.data.data));
+    dispatch(setTotalWaitUsers(waitListResponse.data.total));
+
     setIsConfirming(false);
+    setIsWaitListConfirming(false);
     message.info("Thay đổi bị hủy bỏ.");
     setData(previousData);
     setDropTargetCard(null);
@@ -234,54 +294,83 @@ const SortableCards = () => {
 
   const onDragEnd = ({ active, over }) => {
     setActiveItem(null);
+
     if (!over) {
       message.error("Drop thất bại: Không có vị trí thả hợp lệ.");
       return;
     }
 
-    const activeId = active.id.split("-")[1];
-    const overId = over.id.split("-")[1];
-    const activeContainer =
-      Object.keys(data).find((key) =>
-        data[key].some((item) => item._id.toString() === activeId)
-      ) || "waitUserList";
-    const overContainer =
-      Object.keys(data).find((key) =>
-        data[key].some((item) => item._id.toString() === overId)
-      ) || over.id.split("-")[0];
+    const [activeContainer, activeId] = active.id.split("-");
+    const [overContainer] = over.id.split("-");
 
-    // Check if we're moving from `waitUserList` to a group in `tempGroups`
+    const itemToMove =
+      waitUserList.find((item) => item._id === activeId) ||
+      data[activeContainer]?.find((item) => item._id === activeId);
+
+    if (!itemToMove) return;
+
     if (
       activeContainer === "waitUserList" &&
       overContainer !== "waitUserList"
     ) {
-      const activeItems = waitUserList.filter((item) => item._id !== activeId);
-      const overItems = [...data[overContainer], activeItem];
-
-      setData((prev) => ({
-        ...prev,
-        [overContainer]: overItems,
-      }));
-      dispatch(setWaitUserList(activeItems));
-      setDropTargetCard(overContainer);
-      setIsConfirming(true);
-    } else if (
-      activeContainer !== "waitUserList" &&
-      overContainer === "waitUserList"
-    ) {
-      // Moving from a group to `waitUserList`
-      const sourceItems = data[activeContainer].filter(
+      const updatedWaitUserList = waitUserList.filter(
         (item) => item._id !== activeId
       );
-      const updatedWaitUserList = [...waitUserList, activeItem];
+      const updatedGroup = [...(data[overContainer] || []), itemToMove];
 
       setData((prev) => ({
         ...prev,
-        [activeContainer]: sourceItems,
+        [overContainer]: updatedGroup,
       }));
+
       dispatch(setWaitUserList(updatedWaitUserList));
-      setDropTargetCard("waitUserList");
+      dispatch(setTotalWaitUsers(updatedWaitUserList.length));
+
+      // Make sure to trigger Popconfirm
+      setPopconfirmTitle(
+        `Bạn muốn chuyển ${itemToMove.username} sang nhóm ${overContainer}?`
+      );
+      setDropTargetCard(overContainer);
+      setIsWaitListConfirming(true); // Force Popconfirm even if waitUserList is empty
+    } else if (
+      overContainer === "waitUserList" &&
+      activeContainer !== "waitUserList"
+    ) {
+      const updatedGroup = data[activeContainer].filter(
+        (item) => item._id !== activeId
+      );
+      const updatedWaitUserList = [...waitUserList, itemToMove];
+
+      setData((prev) => ({
+        ...prev,
+        [activeContainer]: updatedGroup,
+      }));
+
+      dispatch(setWaitUserList(updatedWaitUserList));
+      dispatch(setTotalWaitUsers(updatedWaitUserList.length));
+
+      setPopconfirmTitle(
+        `Bạn muốn chuyển ${itemToMove.username} về danh sách chờ?`
+      );
+      setIsWaitListConfirming(true);
+    } else if (activeContainer !== overContainer) {
+      const updatedActiveGroup = data[activeContainer].filter(
+        (item) => item._id !== activeId
+      );
+      const updatedOverGroup = [...(data[overContainer] || []), itemToMove];
+
+      setData((prev) => ({
+        ...prev,
+        [activeContainer]: updatedActiveGroup,
+        [overContainer]: updatedOverGroup,
+      }));
+
+      setPopconfirmTitle(
+        `Bạn muốn chuyển ${itemToMove.username} sang nhóm ${overContainer}?`
+      );
+      setDropTargetCard(overContainer);
       setIsConfirming(true);
+      setIsWaitListConfirming(false);
     }
   };
 
@@ -322,28 +411,59 @@ const SortableCards = () => {
           <Row style={{ margin: "10px auto" }}>
             <Col sm={24}>Số lượng sinh viên chưa nhóm: {totalWaitUsers}</Col>
           </Row>
-
-          {totalWaitUsers > 0 ? (
-            <SortableContext
-              items={filteredUsers.map((user) => `waitUserList-${user._id}`)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div
-                className="list-container-groupstudent"
-                style={{ width: "100%" }}
+          <SortableContext
+            disabled={isConfirming || isWaitListConfirming}
+            items={
+              totalWaitUsers > 0
+                ? waitUserList.map((user) => `waitUserList-${user._id}`)
+                : ["waitUserList-empty"]
+            }
+            strategy={verticalListSortingStrategy}
+          >
+            {totalWaitUsers > 0 ? (
+              <Popconfirm
+                title={popconfirmTitle}
+                onConfirm={handleWaitListConfirm}
+                onCancel={handleCancel}
+                visible={isWaitListConfirming}
+                okText="Có"
+                cancelText="Không"
               >
-                {filteredUsers.map((user) => (
-                  <SortableItem
-                    key={user._id}
-                    id={`waitUserList-${user._id}`}
-                    item={user}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          ) : (
-            <Empty description="Chưa có sinh viên nào trong danh sách chờ" />
-          )}
+                <List
+                  className="list-container-groupstudent"
+                  style={{ width: "100%" }}
+                  bordered
+                  dataSource={filteredUsers}
+                  renderItem={(user) => (
+                    <SortableItem
+                      key={user._id}
+                      id={`waitUserList-${user._id}`}
+                      item={user}
+                    />
+                  )}
+                />
+              </Popconfirm>
+            ) : (
+              <Popconfirm
+                title={popconfirmTitle}
+                onConfirm={handleWaitListConfirm}
+                onCancel={handleCancel}
+                visible={isWaitListConfirming}
+                okText="Có"
+                cancelText="Không"
+              >
+                <SortableItem
+                  id="waitUserList-empty"
+                  item={
+                    <Empty
+                      description="Chưa có sinh viên nào trong danh sách chờ"
+                      style={{ padding: "20px" }}
+                    />
+                  }
+                />
+              </Popconfirm>
+            )}
+          </SortableContext>
 
           <Row>
             <Pagination
@@ -394,7 +514,7 @@ const SortableCards = () => {
                     className="card-groupstudents"
                   >
                     <SortableContext
-                      disabled={isConfirming}
+                      disabled={isConfirming || isWaitListConfirming}
                       items={
                         data[groupKey].length > 0
                           ? data[groupKey].map(
@@ -406,18 +526,19 @@ const SortableCards = () => {
                     >
                       {data[groupKey].length > 0 ? (
                         <Popconfirm
-                          title="Bạn có chắc chắn muốn thực hiện thay đổi này không?"
+                          title={popconfirmTitle}
                           onConfirm={handleConfirm}
                           onCancel={handleCancel}
-                          visible={dropTargetCard === groupKey && isConfirming}
-                          okText="Yes"
-                          cancelText="No"
+                          visible={isConfirming && dropTargetCard === groupKey}
+                          okText="Có"
+                          cancelText="Không"
                         >
                           <List
                             bordered
                             dataSource={data[groupKey]}
                             renderItem={(item) => (
                               <SortableItem
+                                key={item._id}
                                 id={`${groupKey}-${item._id}`}
                                 item={item}
                               />
