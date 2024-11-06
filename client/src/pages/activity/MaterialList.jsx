@@ -26,7 +26,7 @@ import { BASE_URL } from "../../utilities/initalValue";
 import TeacherSidebar from "./TeacherSidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassList } from "../../redux/slice/ClassSlice";
-import AppHeader from "../../components/Admin/AdminHeader";
+import AppHeader from "../../components/Admin/AdminMain";
 
 const MaterialList = () => {
   const [materials, setMaterials] = useState([]);

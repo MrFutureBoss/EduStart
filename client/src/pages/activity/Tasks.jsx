@@ -19,7 +19,7 @@ import {
 } from "../../redux/slice/ActivitySlice";
 import { BASE_URL } from "../../utilities/initalValue";
 import TeacherSidebar from "./TeacherSidebar";
-import AppHeader from "../../components/Admin/AdminHeader";
+import AppHeader from "../../components/Admin/AdminMain";
 
 const { Option } = Select;
 

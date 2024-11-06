@@ -8,6 +8,9 @@ import tempMatchingRouter from "./tempMatching.js";
 import teacherRouter from "./teacherRouter.js";
 import classRouter from "./classRouter.js";
 import mentorCategoryRouters from "./mentorCategory.js";
+import investmentRoutes from "./investmentRoutes.js";
+
+
 
 const routes = {
   professionRouters,
@@ -20,6 +23,7 @@ const routes = {
   teacherRouter,
   classRouter,
   mentorCategoryRouters,
+  investmentRoutes,
 };
 
 export default routes;

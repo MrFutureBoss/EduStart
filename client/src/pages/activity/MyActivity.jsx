@@ -9,7 +9,7 @@ import {
   BellOutlined,
   ClockCircleOutlined,
 } from "@ant-design/icons";
-import AppHeader from "../../components/Admin/AdminHeader";
+import AppHeader from "../../components/Admin/AdminMain";
 
 const MyActivity = () => {
   const jwt = localStorage.getItem("jwt");

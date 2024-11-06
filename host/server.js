@@ -8,6 +8,8 @@ import routes from "./routes/index.js";
 import semesterController from "./controllers/semesterController/index.js";
 import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
+import projectRoutes from "./routes/projectRoutes.js";
+import investmentRoutes from "./routes/investmentRoutes.js";
 
 const app = express();
 dotnv.config();
@@ -50,6 +52,9 @@ app.use("/user", routes.userRouters);
 app.use("/activity", routes.activityRouters);
 app.use("/class", routes.classRouter);
 app.use("/mentorcategory", routes.mentorCategoryRouters);
+app.use("/api", projectRoutes);
+app.use("/api/investments", investmentRoutes);
+
 app.use(async (req, res, next) => {
   next(createError.NotFound());
 });
