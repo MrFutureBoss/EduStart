@@ -1,0 +1,124 @@
+/* GroupMembersStyles.css */
+
+/* Container styles */
+.group-members-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 34px;
+  margin: 0 30px 22px;
+  gap: 20px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.header-content-group-detail {
+  position: relative;
+  /* padding: 0; */
+  background-color: #dedede;
+  z-index: 20;
+  padding: 13px;
+  margin: 20px 15px -2px 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 13px 13px 9px 9px;
+  color: #dad7cd;
+  background-color: #011936;
+}
+/* Content and Card styles */
+.group-members-content {
+  width: 65%;
+}
+
+.group-members-project-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e8e8e8;
+}
+
+.group-members-project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.group-members-list-card {
+  border-radius: 12px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Title styling */
+.group-members-project-title {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* List and ListItem styles */
+.group-members-list-item {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.3s ease, transform 0.2s;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-radius: 22px;
+}
+
+.group-members-list-item:hover {
+  background-color: #f5f5f5;
+  transform: translateX(5px);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px 10px 20px;
+  border-radius: 22px;
+}
+
+/* Mentor Section styling */
+.group-members-mentor-section {
+  width: 30%;
+}
+
+.group-members-mentor-card {
+  text-align: center;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.group-members-mentor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.group-members-mentor-card .ant-avatar {
+  margin-bottom: 12px;
+  border: 2px solid #fafafa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.group-members-mentor-card h5 {
+  color: #333;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Button styling */
+.group-members-project-card .ant-btn-primary,
+.group-members-mentor-card .ant-btn-primary {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.group-members-project-card .ant-btn-primary:hover,
+.group-members-mentor-card .ant-btn-primary:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}

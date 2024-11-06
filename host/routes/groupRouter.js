@@ -11,4 +11,10 @@ groupRouter.get(
   groupController.getProjectByGroupId
 );
 
+groupRouter.get(
+  "/group-infor/:id",
+  verifyAccessToken,
+  groupController.getInforGroupById
+);
+
 export default groupRouter;

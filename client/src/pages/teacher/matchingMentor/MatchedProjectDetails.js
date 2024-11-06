@@ -2,24 +2,31 @@
 import React from "react";
 import { Tag, Space, Card, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import ProjectCard from "../../pages/teacher/matchingMentor/ProjectCard";
-import "../../pages/teacher/teacherCSS/MatchedProjectCard.css";
+import ProjectCard from "./ProjectCard";
+import "../teacherCSS/MatchedProjectCard.css";
 import { useSelector } from "react-redux";
 
 const statusColors = {
-  Pending: "orange",
-  Accepted: "green",
-  InProgress: "red",
+  Pending: "#700576",
+  Planning: "#108ee9",
+  Changing: "#108ee9",
+  Accepted: "#04724d",
+  InProgress: "#FFB85C",
+  Decline: "#963638",
 };
 const statusTexts = {
   Pending: "Chờ Mentor chấp nhận",
   Accepted: "Mentor đã chấp nhận",
   InProgress: "Chưa chọn Mentor cho nhóm",
+  Planning: "Chờ giáo viên duyệt dự án",
+  Changing: "Chờ giáo viên duyệt lại dự án",
+  Decline: "Dự án bị từ chối",
 };
 
 const MatchedProjectDetails = ({ data, isMatched }) => {
   const navigate = useNavigate();
   const { selectedGroup } = useSelector((state) => state.class);
+  console.log(data);
 
   const handleNavigate = () => {
     navigate("temp-matching");
@@ -36,7 +43,7 @@ const MatchedProjectDetails = ({ data, isMatched }) => {
           Trạng thái: {statusTexts[data.status]}
         </Tag>
       )}
-      {!isMatched && data.status && (
+      {!isMatched && data.status === "InProgress" && (
         <>
           <div>
             <Tag
@@ -55,6 +62,54 @@ const MatchedProjectDetails = ({ data, isMatched }) => {
             >
               Lựa Chọn Ngay!
             </Button>
+          </div>
+        </>
+      )}
+      {!isMatched && data.status === "Planning" && (
+        <>
+          <div>
+            <Tag
+              color={statusColors[data.status]}
+              style={{
+                fontSize: "1rem",
+                padding: "7px 10px",
+                fontWeight: "bold",
+              }}
+            >
+              Trạng thái: {statusTexts[data.status]}
+            </Tag>
+          </div>
+        </>
+      )}
+      {!isMatched && data.status === "Changing" && (
+        <>
+          <div>
+            <Tag
+              color={statusColors[data.status]}
+              style={{
+                fontSize: "1rem",
+                padding: "7px 10px",
+                fontWeight: "bold",
+              }}
+            >
+              Trạng thái: {statusTexts[data.status]}
+            </Tag>
+          </div>
+        </>
+      )}
+      {!isMatched && data.status === "Decline" && (
+        <>
+          <div>
+            <Tag
+              color={statusColors[data.status]}
+              style={{
+                fontSize: "1rem",
+                padding: "7px 10px",
+                fontWeight: "bold",
+              }}
+            >
+              Trạng thái: {statusTexts[data.status]}
+            </Tag>
           </div>
         </>
       )}

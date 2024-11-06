@@ -181,7 +181,7 @@ const ClassGroupTreeView = () => {
       // Chọn mentor và đang chờ duyệt
       badgeColor = "purple";
       badgeText = "Chờ duyệt";
-    } else if (nodeData.isMatched && nodeData.matchStatus === "Accept") {
+    } else if (nodeData.isMatched && nodeData.matchStatus === "Accepted") {
       // Mentor đã được duyệt
       badgeColor = "green";
       badgeText = "Đã duyệt";

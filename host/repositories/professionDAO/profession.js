@@ -37,10 +37,12 @@ const getProfessionById = async (id) => {
 
 const getAllSpecialtyByProfessionID = async (professionId) => {
   try {
-    const profession = await Profession.findById(professionId).populate('specialty').exec();
+    const profession = await Profession.findById(professionId)
+      .populate("specialty")
+      .exec();
 
     if (!profession) {
-      throw new Error('Không tìm thấy lĩnh vực với ID này');
+      throw new Error("Không tìm thấy lĩnh vực với ID này");
     }
 
     const specialties = profession.specialty;
@@ -48,13 +50,14 @@ const getAllSpecialtyByProfessionID = async (professionId) => {
 
     return {
       data: specialties,
-      total: totalSpecialties
+      total: totalSpecialties,
     };
   } catch (error) {
-    throw new Error(`Error finding specialties for profession: ${error.message}`);
+    throw new Error(
+      `Error finding specialties for profession: ${error.message}`
+    );
   }
 };
-
 
 const findProfessionAndSpecialtyByName = async (name) => {
   try {
@@ -92,27 +95,30 @@ const removeVietnameseTones = (str) => {
   return str
     .normalize("NFD") // Tách các ký tự Unicode tổ hợp (dấu)
     .replace(/[\u0300-\u036f]/g, "") // Loại bỏ các dấu
-    .replace(/đ/g, "d").replace(/Đ/g, "D") // Thay thế 'đ' thành 'd'
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D") // Thay thế 'đ' thành 'd'
     .toLowerCase(); // Chuyển thành chữ thường
 };
 
 const searchProfessionsAndSpecialtiesByName = async (name) => {
   try {
-    const searchRegex = new RegExp(name, 'i'); // Tạo regex để tìm kiếm theo chuỗi con không phân biệt chữ hoa/thường
+    const searchRegex = new RegExp(name, "i"); // Tạo regex để tìm kiếm theo chuỗi con không phân biệt chữ hoa/thường
 
     // Tìm tất cả các profession có tên chứa chuỗi tìm kiếm
     const professions = await Profession.find({
-      name: { $regex: searchRegex }
+      name: { $regex: searchRegex },
     });
 
     // Tìm tất cả các specialty có tên chứa chuỗi tìm kiếm
     const specialties = await Specialty.find({
-      name: { $regex: searchRegex }
+      name: { $regex: searchRegex },
     });
 
     // Kiểm tra nếu không tìm thấy profession hoặc specialty nào
     if (professions.length === 0 && specialties.length === 0) {
-      throw new Error("Không tìm thấy lĩnh vực hoặc chuyên môn nào khớp với chuỗi tìm kiếm.");
+      throw new Error(
+        "Không tìm thấy lĩnh vực hoặc chuyên môn nào khớp với chuỗi tìm kiếm."
+      );
     }
 
     return {
@@ -120,7 +126,9 @@ const searchProfessionsAndSpecialtiesByName = async (name) => {
       specialties,
     };
   } catch (error) {
-    throw new Error(`Error finding profession and specialty by search: ${error.message}`);
+    throw new Error(
+      `Error finding profession and specialty by search: ${error.message}`
+    );
   }
 };
 
@@ -160,18 +168,21 @@ const updateProfession = async (id, values) => {
   }
 };
 
-
-const updateProfessionAndSpecialty = async (professionId, professionData, specialtiesData) => {
+const updateProfessionAndSpecialty = async (
+  professionId,
+  professionData,
+  specialtiesData
+) => {
   try {
     // Cập nhật profession
     const updatedProfession = await Profession.findByIdAndUpdate(
       professionId,
-      { ...professionData }, 
+      { ...professionData },
       { new: true }
     );
 
     if (!updatedProfession) {
-      throw new Error('Profession not found');
+      throw new Error("Profession not found");
     }
 
     // Xử lý specialties
@@ -202,7 +213,6 @@ const updateProfessionAndSpecialty = async (professionId, professionData, specia
   }
 };
 
-
 const patchProfession = async (id, values) => {
   try {
     return await Profession.findByIdAndUpdate(
@@ -214,7 +224,6 @@ const patchProfession = async (id, values) => {
     throw new Error(error.message);
   }
 };
-
 
 const deleteProfessionAndSpecialties = async (professionId) => {
   try {
@@ -237,6 +246,21 @@ const deleteProfessionAndSpecialties = async (professionId) => {
   }
 };
 
+const getAllProfessionsWithSpecialties = async () => {
+  try {
+    // Lấy tất cả các profession cùng với các specialty liên quan
+    const professions = await Profession.find({})
+      .populate("specialty") // Lấy các specialty liên quan
+      .sort({ name: 1 }) // Sắp xếp theo tên cho dễ chọn lựa (có thể bỏ nếu không cần)
+      .exec();
+
+    return professions;
+  } catch (error) {
+    throw new Error(
+      `Error fetching professions with specialties: ${error.message}`
+    );
+  }
+};
 export default {
   getAllProfessions,
   getProfessionById,
@@ -248,4 +272,5 @@ export default {
   updateProfession,
   deleteProfessionAndSpecialties,
   patchProfession,
+  getAllProfessionsWithSpecialties,
 };

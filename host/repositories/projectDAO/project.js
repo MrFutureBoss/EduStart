@@ -1,24 +1,56 @@
 import Group from "../../models/groupModel.js";
+import ProjectCategory from "../../models/projectCategoryModel.js";
 import Project from "../../models/projectModel.js";
 import mongoose from "mongoose";
+
 // hàm để tạo dự án
 const createProject = async (projectData) => {
-  try {
-    const project = await Project.create(projectData);
-    return project;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const project = new Project(projectData);
+  return await project.save();
 };
+
 // hàm để cập nhật dự án
-const updateProject = async (id, project) => {
-  try {
-    const result = await Project.findByIdAndUpdate(id, project);
-    return result;
-  } catch (error) {
-    throw new Error(error.message);
-  }
+const updateGroupWithProjectId = async (groupId, projectId) => {
+  return await Group.findByIdAndUpdate(
+    groupId,
+    { projectId: new mongoose.Types.ObjectId(projectId) },
+    { new: true }
+  );
 };
+// hàm để cập nhật hoặc tạo mới projectCategory
+const upsertProjectCategory = async (
+  projectId,
+  professionIds = [],
+  specialtyIds = []
+) => {
+  const validProfessionIds = Array.isArray(professionIds) ? professionIds : [];
+  const validSpecialtyIds = Array.isArray(specialtyIds) ? specialtyIds : [];
+
+  return await ProjectCategory.findOneAndUpdate(
+    { projectId: new mongoose.Types.ObjectId(projectId) },
+    {
+      projectId: new mongoose.Types.ObjectId(projectId),
+      professionId: validProfessionIds.map(
+        (id) => new mongoose.Types.ObjectId(id)
+      ),
+      specialtyIds: validSpecialtyIds.map(
+        (id) => new mongoose.Types.ObjectId(id)
+      ),
+    },
+    { new: true, upsert: true }
+  );
+};
+
+// Hàm cập nhật thông tin dự án bằng projectId
+const updateProjectById = async (projectId, projectData) => {
+  return await Project.findByIdAndUpdate(projectId, projectData, { new: true });
+};
+
+// Tìm nhóm theo groupId
+const findGroupById = async (groupId) => {
+  return await Group.findById(groupId);
+};
+
 // hàm để lấy dự án theo id
 const getProjectById = async (id) => {
   try {
@@ -230,10 +262,13 @@ const updateProjectDeclineMessage = async (projectId, declineMessage) => {
 export default {
   createProject,
   getProjectById,
-  updateProject,
+  updateGroupWithProjectId,
   getPlanningProjectsForTeacher,
   updateProjectStatusPlanning,
   getChangingProjectsForTeacher,
   updateProjectStatusChanging,
   updateProjectDeclineMessage,
+  upsertProjectCategory,
+  findGroupById,
+  updateProjectById,
 };
