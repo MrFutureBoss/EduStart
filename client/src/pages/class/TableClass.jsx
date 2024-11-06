@@ -75,7 +75,6 @@ const TableClass = ({ ungroup, emptygroup }) => {
   }, [userId, config, dispatch, ungroup, emptygroup]);
 
   const classTask = useSelector((state) => state.classManagement.classtask);
-  console.log("Class Task Data:", JSON.stringify(classTask));
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();

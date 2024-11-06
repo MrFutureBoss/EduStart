@@ -17,6 +17,7 @@ import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
 import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTreeView";
 import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
 import ProjectCardMain from "../../pages/teacher/matchingMentor/ProjectCardMain";
+import OutcomeDetail from "../../pages/activity/OutcomeDetail";
 
 const TeacherRouter = () => {
   return (
@@ -32,15 +33,12 @@ const TeacherRouter = () => {
       <Route path="class/detail/:className" element={<GroupProccess />} />
       <Route path="class" element={<ClassManagement />} />
       <Route path="teacher-activity" element={<MyActivity />} />
-      <Route path="tasks" element={<Tasks />} />
-      <Route path="materials" element={<MaterialList />} />
-
       <Route path="professionmanagement" element={<ProfessionManagement />} />
       <Route path="class/:className" element={<GroupProccess />} />
       <Route path="teacher-dashboard" element={<MyActivity />} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />
       <Route path="choose-mentor" element={<MainStep />} />
-      <Route path="posts" element={<PostActivity />} />
+      <Route path="class/detail/:className/outcomes" element={<OutcomeDetail/>} />
       <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
       <Route path="temp-matching" element={<ProjectCardMain />} />
       <Route path="summary-class" element={<MatchingMentorIndex />} />

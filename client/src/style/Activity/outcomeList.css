@@ -7,7 +7,7 @@
 }
 
 .google-classroom-modal .ant-modal-footer {
-  display: none; /* Hides the default footer */
+  display: none;
 }
 
 .google-classroom-modal .ant-divider-horizontal {
@@ -53,11 +53,10 @@
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   margin: 10px;
-  border: 1px solid black;
 }
 
 .outcome-list-item {
-  padding: 12px 0;
+  padding: 12px;
   background-color: "#fff";
   border-radius: 8px;
   display: flex;

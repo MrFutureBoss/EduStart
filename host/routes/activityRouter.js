@@ -56,5 +56,17 @@ activityRouters.post(
   verifyAccessToken,
   verifyRole([2]),
   activityController.sendReminder
-)
+);
+activityRouters.post(
+  "/assign-outcome",
+  verifyAccessToken,
+  verifyRole([2]),
+  activityController.assignOutcomeToAllGroups
+);
+activityRouters.patch(
+  "/update-outcome",
+  verifyAccessToken,
+  verifyRole([2]),
+  activityController.updateOutcomeDeadline
+);
 export default activityRouters;

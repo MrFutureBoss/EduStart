@@ -63,8 +63,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
     fetchUserData();
   }, [userId, config, dispatch]);
 
-  console.log("Teacher:" + JSON.stringify(teacher));
-
   const handleLogout = () => {
     navigate("/");
     localStorage.removeItem("jwt");
@@ -169,18 +167,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         ) : (
           <></>
         )}
-
-        <Menu.Item
-          key="6"
-          icon={
-            <FaClipboardList className={toggleCollapse ? "" : "custom-icon"} />
-          }
-          title="Hoạt động chung"
-        >
-          <Link style={{ textDecoration: "none" }} to="posts">
-            Hoạt động chung
-          </Link>
-        </Menu.Item>
         <SubMenu
           key="7"
           icon={

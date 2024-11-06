@@ -1,4 +1,6 @@
 import activityDAO from "../../repositories/activityDAO/index.js";
+import groupDAO from "../../repositories/groupDAO/index.js";
+import mongoose from "mongoose";
 import moment from "moment";
 
 const createActivity = async (req, res) => {
@@ -12,7 +14,7 @@ const createActivity = async (req, res) => {
       deadline,
       startDate,
       semesterId,
-      content,
+      materialUrl,
     } = req.body;
     const teacherId = req.user._id;
 
@@ -110,6 +112,7 @@ const createActivity = async (req, res) => {
         deadline,
         startDate,
         semesterId,
+        materialUrl,
       };
 
       const savedOutcome = await activityDAO.createActivity(newOutcome);
@@ -237,7 +240,7 @@ const updateMaterial = async (req, res) => {
 const getActivitiesByTeacher = async (req, res) => {
   try {
     const teacherId = req.user._id;
-    const { activityType } = req.query; 
+    const { activityType } = req.query;
 
     const activities = await activityDAO.findActivitiesByTeacher(
       teacherId,
@@ -333,7 +336,152 @@ const sendReminder = async (req, res) => {
     });
   }
 };
+const assignOutcomeToAllGroups = async (req, res) => {
+  try {
+    const { description, classIds, outcomes } = req.body;
 
+    if (!Array.isArray(classIds) || classIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ classIds." });
+    }
+
+    if (!Array.isArray(outcomes) || outcomes.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ outcomes." });
+    }
+
+    const allGroups = await groupDAO.getGroupsByClassIds(classIds);
+
+    if (!allGroups || allGroups.length === 0) {
+      return res
+        .status(404)
+        .json({
+          message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
+        });
+    }
+
+    const groupsByClassId = {};
+    allGroups.forEach((group) => {
+      if (!groupsByClassId[group.classId]) {
+        groupsByClassId[group.classId] = [];
+      }
+      groupsByClassId[group.classId].push(group);
+    });
+
+    const classIdsWithGroups = classIds.filter(
+      (classId) =>
+        groupsByClassId[classId] && groupsByClassId[classId].length > 0
+    );
+    const classIdsWithoutGroups = classIds.filter(
+      (classId) =>
+        !groupsByClassId[classId] || groupsByClassId[classId].length === 0
+    );
+
+    if (classIdsWithGroups.length === 0) {
+      return res
+        .status(404)
+        .json({
+          message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
+        });
+    }
+
+    const activities = [];
+    classIdsWithGroups.forEach((classId) => {
+      const groups = groupsByClassId[classId];
+      groups.forEach((group) => {
+        outcomes.forEach((outcome) => {
+          activities.push({
+            teacherId: req.user._id,
+            activityType: "outcome",
+            description: description,
+            assignmentType: outcome.assignmentType,
+            startDate: outcome.startDate,
+            deadline: outcome.deadline,
+            classId: classId,
+            groupId: group._id,
+          });
+        });
+      });
+    });
+
+    if (activities.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Không có hoạt động nào để giao." });
+    }
+
+    await activityDAO.createActivity(activities);
+
+    if (classIdsWithoutGroups.length > 0) {
+      return res.status(207).json({
+        message:
+          "Giao Outcome thành công tới các lớp có nhóm. Một số lớp không có nhóm để giao Outcome.",
+        details: {
+          successfulClasses: classIdsWithGroups,
+          failedClasses: classIdsWithoutGroups,
+        },
+      });
+    } else {
+      return res.status(201).json({
+        message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
+      });
+    }
+  } catch (error) {
+    console.error("Error in assignOutcomeToAllGroups:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi giao Outcome." });
+  }
+};
+
+const updateOutcomeDeadline = async (req, res) => {
+  try {
+    const { activityId, newDeadline } = req.body;
+
+    if (!activityId || !newDeadline) {
+      return res.status(400).json({ message: "Thiếu thông tin cần thiết." });
+    }
+
+    const activity = await activityDAO.findActivityById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: "Không tìm thấy Outcome." });
+    }
+
+    if (activity.completed) {
+      return res.status(400).json({
+        message: "Không thể thay đổi deadline, Outcome đã được hoàn thành.",
+      });
+    }
+
+    const currentDeadline = moment(activity.deadline);
+    const proposedDeadline = moment(newDeadline, "YYYY-MM-DD");
+
+    if (proposedDeadline.diff(currentDeadline, "days") > 7) {
+      return res.status(400).json({
+        message:
+          "Deadline không được vượt quá 7 ngày so với deadline hiện tại.",
+      });
+    }
+
+    if (proposedDeadline.isBefore(moment(), "day")) {
+      return res
+        .status(400)
+        .json({ message: "Deadline mới không được trước ngày hiện tại." });
+    }
+
+    const updatedActivity = await activityDAO.updateActivityById(activityId, {
+      deadline: proposedDeadline.toDate(),
+    });
+
+    res.status(200).json({
+      message: "Cập nhật deadline thành công.",
+      activity: updatedActivity,
+    });
+  } catch (error) {
+    console.error("Error updating Outcome deadline:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi cập nhật deadline." });
+  }
+};
 export default {
   createActivity,
   getActivities,
@@ -344,4 +492,6 @@ export default {
   checkFileExists,
   getSuggestedMaterials,
   sendReminder,
+  updateOutcomeDeadline,
+  assignOutcomeToAllGroups,
 };

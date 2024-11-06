@@ -36,6 +36,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setClassInfoData } from "../../redux/slice/ClassManagementSlice";
 import calculateWeekAndPhase from "./calculateWeekAndPhase";
 import CardClass from "./CardClass";
+import AssignOutcome from "../activity/AssignOutcome";
 
 const ClassManagement = () => {
   const dispatch = useDispatch();
@@ -531,6 +532,27 @@ const ClassManagement = () => {
                 },
               ]}
             /> */}
+          </Card>
+        </Col>
+      </Row>
+      <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={16}>
+          <Card
+            bordered={true}
+            title={
+              <h5 style={{ padding: "0px", margin: "0px" }}>Quản lý Outcome</h5>
+            }
+            extra={
+              <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
+            }
+            headStyle={{
+              background: "green",
+              color: "white",
+            }}
+            bodyStyle={{ padding: "20px" }}
+          >
+            {/* <TableOutcome /> */}
+            <AssignOutcome />
           </Card>
         </Col>
       </Row>

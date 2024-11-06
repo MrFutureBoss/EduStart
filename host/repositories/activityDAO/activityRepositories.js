@@ -1,9 +1,13 @@
 import Activity from "../../models/activityModel.js";
 import Assignment from "../../models/assignmentModel.js";
 
-const createActivity = async (activityData) => {
-  const activity = new Activity(activityData);
-  return await activity.save();
+const createActivity = async (activities, session) => {
+  try {
+    return await Activity.insertMany(activities, { session });
+  } catch (error) {
+    console.error("Error creating activities:", error);
+    throw error;
+  }
 };
 
 const findActivitiesByClassAndTeacher = async (classId, teacherId) => {

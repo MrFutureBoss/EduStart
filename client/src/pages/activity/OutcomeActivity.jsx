@@ -81,6 +81,7 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
   };
 
   const handleCreateOutcome = async (values) => {
+    console.log("handleCreateOutcome called with values:", values); // Debugging
     const { description, assignmentType, startDate, deadline } = values;
 
     if (assignmentType.toLowerCase() === "outcome 2") {
@@ -135,6 +136,7 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
+      console.error("Error creating outcome:", error); // Debugging
       if (error.response?.data?.message?.includes("already exists")) {
         message.warning("This Outcome type already exists for this class.");
       } else {
@@ -155,6 +157,7 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
   };
 
   const handleUpdateOutcome = async (values) => {
+    console.log("handleUpdateOutcome called with values:", values); // Debugging
     const { description, startDate, deadline } = values;
 
     try {
@@ -172,6 +175,7 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
       setIsEditModalVisible(false);
       editForm.resetFields();
     } catch (error) {
+      console.error("Error updating outcome:", error); // Debugging
       message.error("Error updating outcome");
     }
   };
@@ -225,6 +229,7 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
               title={<span>{outcome.assignmentType.toUpperCase()}</span>}
               description={
                 <div>
+                  {" "}
                   <div>{`Đã đăng vào ${moment(outcome.createdAt).format(
                     "HH:mm, DD MMM YYYY"
                   )}`}</div>
@@ -283,9 +288,13 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
               { required: true, message: "Vui lòng chọn ngày bắt đầu" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || value.isBefore(getFieldValue("deadline"))) {
+                  const deadline = getFieldValue("deadline");
+                  if (!value || !deadline || value.isBefore(deadline)) {
                     return Promise.resolve();
                   }
+                  return Promise.reject(
+                    new Error("Ngày bắt đầu không thể sau hạn nộp.")
+                  );
                 },
               }),
             ]}
@@ -295,7 +304,20 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
           <Form.Item
             name="deadline"
             label="Hạn nộp"
-            rules={[{ required: true, message: "Vui lòng chọn hạn nộp" }]}
+            rules={[
+              { required: true, message: "Vui lòng chọn hạn nộp" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const startDate = getFieldValue("startDate");
+                  if (!value || !startDate || value.isAfter(startDate)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("Hạn nộp không thể trước Ngày bắt đầu.")
+                  );
+                },
+              }),
+            ]}
           >
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
@@ -334,9 +356,13 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
               { required: true, message: "Vui lòng chọn ngày bắt đầu" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || value.isBefore(getFieldValue("deadline"))) {
+                  const deadline = getFieldValue("deadline");
+                  if (!value || !deadline || value.isBefore(deadline)) {
                     return Promise.resolve();
                   }
+                  return Promise.reject(
+                    new Error("Ngày bắt đầu không thể sau hạn nộp.")
+                  );
                 },
               }),
             ]}
@@ -350,10 +376,13 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
               { required: true, message: "Vui lòng chọn hạn nộp" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || value.isAfter(getFieldValue("startDate"))) {
+                  const startDate = getFieldValue("startDate");
+                  if (!value || !startDate || value.isAfter(startDate)) {
                     return Promise.resolve();
                   }
-                  return Promise.reject("Hạn nộp không thể trước Ngày bắt đầu");
+                  return Promise.reject(
+                    new Error("Hạn nộp không thể trước Ngày bắt đầu.")
+                  );
                 },
               }),
             ]}
@@ -368,13 +397,13 @@ const OutcomeList = ({ selectedClassId, refreshPosts }) => {
         </Form>
       </Modal>
 
-      <Button
+      {/* <Button
         icon={<PlusCircleOutlined />}
         onClick={showCreateModal}
         className="create-outcome-button"
       >
         Giao outcome
-      </Button>
+      </Button> */}
     </div>
   );
 };

@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
-import { Button, Space, Table, Tooltip, Spin, message, DatePicker } from "antd";
+import {
+  Button,
+  Space,
+  Table,
+  Tooltip,
+  Spin,
+  Modal,
+  DatePicker,
+  message,
+} from "antd";
 import moment from "moment";
 import axios from "axios";
-import CustomModal from "../../components/Modal/LargeModal";
 
 const TableOutcome = () => {
+  const [outcomesData, setOutcomesData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isDeadlineModalVisible, setIsDeadlineModalVisible] = useState(false);
   const [currentRecord, setCurrentRecord] = useState(null);
-  const [groupData, setGroupData] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newDeadline, setNewDeadline] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,28 +37,44 @@ const TableOutcome = () => {
           config
         );
 
-        const outcomes = Array.isArray(response.data) ? response.data : response.data.activities || [];
+        const outcomes = Array.isArray(response.data)
+          ? response.data
+          : response.data.activities || [];
 
-        const uniqueClasses = [];
-        const uniqueClassData = outcomes.filter((outcome) => {
-          if (!uniqueClasses.includes(outcome.classId._id)) {
-            uniqueClasses.push(outcome.classId._id);
+        if (!Array.isArray(outcomes)) {
+          throw new Error("Expected an array but received something else");
+        }
+
+        const today = moment();
+        const currentOutcomes = outcomes.filter((outcome) =>
+          today.isBetween(
+            moment(outcome.startDate),
+            moment(outcome.deadline),
+            null,
+            "[]"
+          )
+        );
+        const seenClasses = new Set();
+        const tableData = currentOutcomes
+          .filter((outcome) => {
+            if (seenClasses.has(outcome.classId?.className)) {
+              return false;
+            }
+            seenClasses.add(outcome.classId?.className);
             return true;
-          }
-          return false;
-        });
+          })
+          .map((outcome) => ({
+            key: outcome._id,
+            className: outcome.classId?.className || "N/A",
+            title: outcome.assignmentType,
+            startDate: moment(outcome.startDate).format("YYYY-MM-DD"),
+            deadline: moment(outcome.deadline).format("YYYY-MM-DD"),
+            assignedGroups: 5,
+            totalGroups: 5,
+            completed: outcome.completed,
+          }));
 
-        const tableData = uniqueClassData.map((outcome) => ({
-          key: outcome._id,
-          className: outcome.classId?.className || "N/A",
-          title: outcome.assignmentType,
-          startDate: moment(outcome.startDate).format("YYYY-MM-DD"),
-          deadline: moment(outcome.deadline).format("YYYY-MM-DD"),
-          assignedGroups: 5,
-          totalGroups: 5,
-          completed: outcome.completed,
-        }));
-
+        setOutcomesData(outcomes);
         setFilteredData(tableData);
         setLoading(false);
       } catch (error) {
@@ -62,40 +87,32 @@ const TableOutcome = () => {
     fetchOutcomesData();
   }, []);
 
-  const fetchGroupData = async (classId, outcomeType) => {
-    try {
-      const jwt = localStorage.getItem("jwt");
-      const config = {
-        headers: { Authorization: `Bearer ${jwt}` },
-      };
-      const response = await axios.get(
-        `http://localhost:9999/group-data/${classId}?outcomeType=${outcomeType}`,
-        config
-      );
-      setGroupData(response.data);
-    } catch (error) {
-      console.error("Error fetching group data:", error);
-      message.error("Failed to fetch group data.");
-    }
-  };
-
-  const showEditDeadlineModal = async (record) => {
+  const showEditDeadlineModal = (record) => {
     setCurrentRecord(record);
-    await fetchGroupData(record.classId, record.title); // Fetch group data based on classId and outcome type
-    setIsModalVisible(true);
+    setIsDeadlineModalVisible(true);
   };
 
-  const handleCancelModal = () => {
-    setIsModalVisible(false);
-    setGroupData([]);
+  const handleCancelDeadlineModal = () => {
+    setIsDeadlineModalVisible(false);
+    setCurrentRecord(null);
+    setNewDeadline(null);
   };
 
-  const handleUpdateGroupDeadline = (groupId, newDeadline) => {
-    setGroupData((prevData) =>
-      prevData.map((group) =>
-        group._id === groupId ? { ...group, deadline: newDeadline } : group
-      )
-    );
+  const handleSubmitDeadline = () => {
+    if (!newDeadline) {
+      message.error("Please select a new deadline!");
+      return;
+    }
+
+    const updatedData = filteredData.map((outcome) => {
+      if (outcome.key === currentRecord.key) {
+        return { ...outcome, deadline: newDeadline.format("YYYY-MM-DD") };
+      }
+      return outcome;
+    });
+    setFilteredData(updatedData);
+    message.success("Deadline updated successfully!");
+    handleCancelDeadlineModal();
   };
 
   const columns = [
@@ -186,30 +203,22 @@ const TableOutcome = () => {
         />
       )}
 
-      <CustomModal
-        show={isModalVisible}
-        onHide={handleCancelModal}
-        title={`Edit Deadline for ${currentRecord?.className} - ${currentRecord?.title}`}
-        content={
-          <div>
-            {groupData.map((group) => (
-              <div key={group._id} style={{ marginBottom: "10px" }}>
-                <span>{group.name}:</span>
-                <DatePicker
-                  value={moment(group.deadline)}
-                  onChange={(date) => handleUpdateGroupDeadline(group._id, date.format("YYYY-MM-DD"))}
-                  style={{ marginLeft: "10px" }}
-                />
-              </div>
-            ))}
-          </div>
-        }
-        footer={
-          <Button variant="primary" onClick={() => message.success("Deadlines updated!")}>
-            Save Changes
-          </Button>
-        }
-      />
+      <Modal
+        title={`Edit deadline for "${currentRecord?.title}"`}
+        visible={isDeadlineModalVisible}
+        onCancel={handleCancelDeadlineModal}
+        onOk={handleSubmitDeadline}
+        okText="Save"
+        cancelText="Cancel"
+      >
+        <DatePicker
+          onChange={(date) => setNewDeadline(date)}
+          style={{ width: "100%" }}
+          disabledDate={(current) =>
+            current && current < moment().startOf("day")
+          }
+        />
+      </Modal>
     </div>
   );
 };

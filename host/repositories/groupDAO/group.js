@@ -162,6 +162,17 @@ const getAllGroupsByTeacherId = async (teacherId) => {
     throw new Error(error.message);
   }
 };
+const getGroupsByClassId = async (classId) => {
+  return await Group.find({ classId: mongoose.Types.ObjectId(classId) });
+};
+const getGroupsByClassIds = async (classIds) => {
+  try {
+    return await Group.find({ classId: { $in: classIds } });
+  } catch (error) {
+    console.error("Error fetching groups by classIds:", error);
+    throw error;
+  }
+};
 export default {
   checkGroupsExist,
   addUserToGroup,
@@ -171,4 +182,6 @@ export default {
   getAllGroupsByTeacherId,
   getGroupMembers,
   getGroupById,
+  getGroupsByClassId,
+  getGroupsByClassIds,
 };
