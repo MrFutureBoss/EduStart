@@ -9,13 +9,10 @@ import "react-toastify/dist/ReactToastify.css";
 import ChangePassword from "./pages/ChangePassword.jsx";
 import ProfessionManagement from "./pages/professiona&specialty/ProfessionManagement.jsx";
 import SignIn from "./pages/authen&author/SignIn.jsx";
-import { ProtectRoute } from "./utilities/auth.js";
-import MyActivity from "./pages/activity/MyActivity.jsx";
-import Tasks from "./pages/activity/Tasks.jsx";
-import MaterialList from "./pages/activity/MaterialList.jsx";
-import InvestmentProjectUploader from "./components/InvestmentProjectUploader";
-import InvestmentProjectList from "./components/InvestmentProjectList";
-import React, { useState } from "react";
+import TeacherRouter from "./routers/teacher/TeacherRouter.js";
+import AdminRouter from "./routers/admin/AdminRouter.js";
+import StudentRouter from "./routers/student/StudentRouter.js";
+import Support from "./pages/Support"; 
 
 function App() {
 
@@ -46,47 +43,7 @@ function App() {
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
-        <Route
-          path="/student-dashboard"
-          element={
-            <ProtectRoute allowedRoles={["4"]}>
-              <h1>Student Dashboard</h1>
-            </ProtectRoute>
-          }
-        />
-        <Route
-          path="/teacher-dashboard"
-          element={
-            <ProtectRoute allowedRoles={["2"]}>
-              <MyActivity />
-            </ProtectRoute>
-          }
-        />
-        <Route
-          path="/tasks"
-          element={
-            <ProtectRoute allowedRoles={["2"]}>
-              <Tasks />
-            </ProtectRoute>
-          }
-        />
-        <Route
-          path="/materials"
-          element={
-            <ProtectRoute allowedRoles={["2"]}>
-              <MaterialList />
-            </ProtectRoute>
-          }
-        />
-   <Route
-          path="/investments"
-          element={
-            <>
-              <InvestmentProjectUploader onUploadSuccess={handleUploadSuccess} />
-              <InvestmentProjectList key={refreshKey} />
-            </>
-          }
-        />
+        <Route path="/support" element={<Support />} />
       </Routes>
     </BrowserRouter>
   );
