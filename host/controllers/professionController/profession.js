@@ -71,10 +71,14 @@ const searchProfessionsAndSpecialtiesByName = async (req, res, next) => {
   try {
     const { name } = req.query;
     if (!name || name.length < 2) {
-      return res.status(400).json({ message: "Tên tìm kiếm cần có ít nhất 2 ký tự" });
+      return res
+        .status(400)
+        .json({ message: "Tên tìm kiếm cần có ít nhất 2 ký tự" });
     }
 
-    const result = await professionDAO.searchProfessionsAndSpecialtiesByName(name);
+    const result = await professionDAO.searchProfessionsAndSpecialtiesByName(
+      name
+    );
 
     res.status(200).json(result); // Trả về kết quả tìm kiếm
   } catch (error) {
@@ -99,8 +103,8 @@ const createNewProfession = async (req, res, next) => {
 
 const updateProfessionAndSpecialty = async (req, res, next) => {
   try {
-    const { id } = req.params; 
-    const { name, status, specialties } = req.body; 
+    const { id } = req.params;
+    const { name, status, specialties } = req.body;
 
     const updatedProfession = await professionDAO.updateProfessionAndSpecialty(
       id, // Profession ID
@@ -145,6 +149,15 @@ const deleteProfessionAndSpecialties = async (req, res, next) => {
   }
 };
 
+const getProfessionsAndSpecialties = async (req, res) => {
+  try {
+    const professionsWithSpecialties =
+      await professionDAO.getAllProfessionsWithSpecialties();
+    res.status(200).json(professionsWithSpecialties);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 export default {
   getAllProfessions,
   getProfessionById,
@@ -156,4 +169,5 @@ export default {
   updateProfession,
   deleteProfessionAndSpecialties,
   patchProfession,
+  getProfessionsAndSpecialties,
 };

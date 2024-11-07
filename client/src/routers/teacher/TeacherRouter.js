@@ -3,8 +3,6 @@ import { Route } from "react-router-dom";
 import { ProtectRoute } from "../../utilities/auth";
 import TeacherLayout from "../../layouts/teacher/TeacherLayout";
 import MyActivity from "../../pages/activity/MyActivity";
-import Tasks from "../../pages/activity/Tasks";
-import MaterialList from "../../pages/activity/MaterialList";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
 // import UnGroupList from "../../pages/class/UnGroupList";
 import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
@@ -17,6 +15,9 @@ import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
 import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTreeView";
 import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
 import ProjectCardMain from "../../pages/teacher/matchingMentor/ProjectCardMain";
+import DetailedSelection from "../../pages/teacher/matchingMentor/DetailedSelection";
+import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
+import GroupMembers from "../../pages/group/GroupMembers";
 import OutcomeDetail from "../../pages/activity/OutcomeDetail";
 
 const TeacherRouter = () => {
@@ -41,7 +42,18 @@ const TeacherRouter = () => {
       <Route path="class/detail/:className/outcomes" element={<OutcomeDetail/>} />
       <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
       <Route path="temp-matching" element={<ProjectCardMain />} />
+      <Route path="summary-class/temp-matching" element={<ProjectCardMain />} />
       <Route path="summary-class" element={<MatchingMentorIndex />} />
+      <Route
+        path="temp-matching/detailed-selection/:projectId"
+        element={<DetailedSelection />}
+      />
+      <Route
+        path="summary-class/temp-matching/detailed-selection/:projectId"
+        element={<DetailedSelection />}
+      />
+      <Route path="project-request" element={<ProjectRequest />} />
+      <Route path="group-detail" element={<GroupMembers />} />
     </Route>
   );
 };
