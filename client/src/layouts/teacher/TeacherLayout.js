@@ -19,11 +19,17 @@ const TeacherLayout = () => {
       <Layout style={{ backgroundColor: "#F5F5F5" }}>
         <TeacherSider collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <TeacherNotification
-        type="error"
-        title="Có 1 lớp chưa được tạo nhóm"
-        description={<Link to='class'>Bấm vào đây để xem chi tiết</Link>}
-        triggerNotification={showNotification}
-      />
+          type="error"
+          title="Có 1 lớp chưa được tạo nhóm"
+          description={<Link to="class">Bấm vào đây để xem chi tiết</Link>}
+          triggerNotification={showNotification}
+        />
+        <TeacherNotification
+          type="warning"
+          title="Sắp tới thời gian outcome"
+          description={<Link to="class#outcome-management">Bấm vào đây để thêm ngay</Link>}
+          triggerNotification={showNotification}
+        />
         <Layout
           style={{
             padding: "0 24px 24px",
@@ -39,8 +45,8 @@ const TeacherLayout = () => {
             className="site-layout-background"
             style={{
               padding: 30,
-              margin: '24px 16px 0',
-              overflow: 'initial',
+              margin: "24px 16px 0",
+              overflow: "initial",
               minHeight: 280,
               background: "#FFF",
             }}

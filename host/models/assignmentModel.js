@@ -5,12 +5,10 @@ const assignmentSchema = new mongoose.Schema(
       groupId: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: "Group",
-        required: true,
       },
       classId: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: "Class",
-        required: true,
       },
       assignmentId: { 
         type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +22,6 @@ const assignmentSchema = new mongoose.Schema(
       },
       fileUrl: { 
         type: String,
-        required: true,
       },
       submittedAt: { 
         type: Date,
