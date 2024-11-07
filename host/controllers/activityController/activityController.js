@@ -2,6 +2,7 @@ import activityDAO from "../../repositories/activityDAO/index.js";
 import groupDAO from "../../repositories/groupDAO/index.js";
 import mongoose from "mongoose";
 import moment from "moment";
+import { ObjectId } from "mongodb";
 
 const createActivity = async (req, res) => {
   try {
@@ -355,11 +356,9 @@ const assignOutcomeToAllGroups = async (req, res) => {
     const allGroups = await groupDAO.getGroupsByClassIds(classIds);
 
     if (!allGroups || allGroups.length === 0) {
-      return res
-        .status(404)
-        .json({
-          message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
-        });
+      return res.status(404).json({
+        message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
+      });
     }
 
     const groupsByClassId = {};
@@ -380,11 +379,9 @@ const assignOutcomeToAllGroups = async (req, res) => {
     );
 
     if (classIdsWithGroups.length === 0) {
-      return res
-        .status(404)
-        .json({
-          message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
-        });
+      return res.status(404).json({
+        message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
+      });
     }
 
     const activities = [];
@@ -436,52 +433,33 @@ const assignOutcomeToAllGroups = async (req, res) => {
 
 const updateOutcomeDeadline = async (req, res) => {
   try {
-    const { activityId, newDeadline } = req.body;
+    const { activityId } = req.params; // Lấy activityId từ URL
+    const { newDeadline } = req.body;  // Lấy newDeadline từ request body
 
-    if (!activityId || !newDeadline) {
-      return res.status(400).json({ message: "Thiếu thông tin cần thiết." });
-    }
+    console.log("Received activityId:", activityId);
+    console.log("Received newDeadline:", newDeadline);
 
-    const activity = await activityDAO.findActivityById(activityId);
+    // Tìm Activity qua repository
+    const activity = await activityDAO.findActivityByIdAndType(activityId, "outcome");
     if (!activity) {
-      return res.status(404).json({ message: "Không tìm thấy Outcome." });
+      return res.status(404).json({ error: "Outcome activity not found." });
     }
 
-    if (activity.completed) {
-      return res.status(400).json({
-        message: "Không thể thay đổi deadline, Outcome đã được hoàn thành.",
-      });
-    }
+    // Cập nhật deadline
+    activity.deadline = new Date(newDeadline);
+    await activity.save();
 
-    const currentDeadline = moment(activity.deadline);
-    const proposedDeadline = moment(newDeadline, "YYYY-MM-DD");
-
-    if (proposedDeadline.diff(currentDeadline, "days") > 7) {
-      return res.status(400).json({
-        message:
-          "Deadline không được vượt quá 7 ngày so với deadline hiện tại.",
-      });
-    }
-
-    if (proposedDeadline.isBefore(moment(), "day")) {
-      return res
-        .status(400)
-        .json({ message: "Deadline mới không được trước ngày hiện tại." });
-    }
-
-    const updatedActivity = await activityDAO.updateActivityById(activityId, {
-      deadline: proposedDeadline.toDate(),
-    });
-
+    // Trả về phản hồi thành công
     res.status(200).json({
-      message: "Cập nhật deadline thành công.",
-      activity: updatedActivity,
+      message: "Deadline updated successfully.",
+      activity,
     });
   } catch (error) {
-    console.error("Error updating Outcome deadline:", error);
-    res.status(500).json({ message: "Đã xảy ra lỗi khi cập nhật deadline." });
+    console.error("Error updating deadline:", error);
+    res.status(500).json({ error: "An error occurred while updating the deadline." });
   }
 };
+
 export default {
   createActivity,
   getActivities,

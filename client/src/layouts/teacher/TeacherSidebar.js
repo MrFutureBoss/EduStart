@@ -167,18 +167,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         ) : (
           <></>
         )}
-
-        <Menu.Item
-          key="6"
-          icon={
-            <FaClipboardList className={toggleCollapse ? "" : "custom-icon"} />
-          }
-          title="Hoạt động chung"
-        >
-          <Link style={{ textDecoration: "none" }} to="posts">
-            Hoạt động chung
-          </Link>
-        </Menu.Item>
         <Menu.Item
           key="13"
           style={{ marginLeft: 1 }}

@@ -92,6 +92,16 @@ const ClassManagement = () => {
     setShowEmptygropColumn(false);
   };
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#outcome-management") {
+      const outcomeSection = document.getElementById("outcome-management");
+      if (outcomeSection) {
+        outcomeSection.scrollIntoView({ behavior: "instant", block: "start" });
+      }
+    }
+  }, []);
+
   return (
     <div>
       <h1 style={{ marginBottom: "40px" }}>Quản lý lớp học</h1>
@@ -476,7 +486,7 @@ const ClassManagement = () => {
           </Card>
         </Col>
 
-        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+        {/* <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <Card
             bordered={true}
             title={
@@ -493,7 +503,7 @@ const ClassManagement = () => {
             }}
             bodyStyle={{ padding: "20px" }}
           >
-            {/* <Timeline
+            <Timeline
               mode="alternate"
               items={[
                 {
@@ -531,9 +541,9 @@ const ClassManagement = () => {
                   children: "Technical testing 2015-09-01",
                 },
               ]}
-            /> */}
+            />
           </Card>
-        </Col>
+        </Col> */}
       </Row>
       <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={24} xl={16}>
@@ -550,8 +560,9 @@ const ClassManagement = () => {
               color: "white",
             }}
             bodyStyle={{ padding: "20px" }}
+            id="outcome-management"
           >
-            {/* <TableOutcome /> */}
+            <h3>Danh sách các lớp đã giao outcome</h3>
             <AssignOutcome />
           </Card>
         </Col>

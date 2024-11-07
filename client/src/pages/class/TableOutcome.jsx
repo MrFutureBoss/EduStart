@@ -1,26 +1,18 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { EditOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Space,
-  Table,
-  Tooltip,
-  Spin,
-  Modal,
-  DatePicker,
-  message,
-} from "antd";
+import { Table, Space, Spin, message, Button, Input } from "antd";
+import Highlighter from "react-highlight-words";
+import { SearchOutlined } from "@ant-design/icons";
 import moment from "moment";
 import axios from "axios";
+import { BASE_URL } from "../../utilities/initalValue";
 
 const TableOutcome = () => {
-  const [outcomesData, setOutcomesData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isDeadlineModalVisible, setIsDeadlineModalVisible] = useState(false);
-  const [currentRecord, setCurrentRecord] = useState(null);
-  const [newDeadline, setNewDeadline] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const searchInput = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,17 +25,13 @@ const TableOutcome = () => {
         };
 
         const response = await axios.get(
-          `http://localhost:9999/activity/${userId}?activityType=outcome`,
+          `${BASE_URL}/activity/${userId}?activityType=outcome`,
           config
         );
 
         const outcomes = Array.isArray(response.data)
           ? response.data
           : response.data.activities || [];
-
-        if (!Array.isArray(outcomes)) {
-          throw new Error("Expected an array but received something else");
-        }
 
         const today = moment();
         const currentOutcomes = outcomes.filter((outcome) =>
@@ -54,6 +42,7 @@ const TableOutcome = () => {
             "[]"
           )
         );
+
         const seenClasses = new Set();
         const tableData = currentOutcomes
           .filter((outcome) => {
@@ -63,23 +52,34 @@ const TableOutcome = () => {
             seenClasses.add(outcome.classId?.className);
             return true;
           })
-          .map((outcome) => ({
-            key: outcome._id,
-            className: outcome.classId?.className || "N/A",
-            title: outcome.assignmentType,
-            startDate: moment(outcome.startDate).format("YYYY-MM-DD"),
-            deadline: moment(outcome.deadline).format("YYYY-MM-DD"),
-            assignedGroups: 5,
-            totalGroups: 5,
-            completed: outcome.completed,
-          }));
+          .map((outcome) => {
+            const groupsForClass = currentOutcomes.filter(
+              (o) => o.classId.className === outcome.classId.className
+            );
 
-        setOutcomesData(outcomes);
+            const totalGroupsCount = groupsForClass.length;
+            const assignedGroupsCount = totalGroupsCount;
+            const notSubmittedCount = groupsForClass.filter(
+              (group) => !group.completed
+            ).length;
+
+            return {
+              key: outcome._id,
+              className: outcome.classId?.className || "N/A",
+              title: outcome.assignmentType,
+              startDate: moment(outcome.startDate).format("YYYY-MM-DD"),
+              deadline: moment(outcome.deadline).format("YYYY-MM-DD"),
+              assignedGroups: assignedGroupsCount,
+              totalGroups: totalGroupsCount,
+              notSubmittedCount,
+            };
+          });
+
         setFilteredData(tableData);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching or processing data:", error);
         message.error("Failed to fetch outcome data.");
+      } finally {
         setLoading(false);
       }
     };
@@ -87,86 +87,120 @@ const TableOutcome = () => {
     fetchOutcomesData();
   }, []);
 
-  const showEditDeadlineModal = (record) => {
-    setCurrentRecord(record);
-    setIsDeadlineModalVisible(true);
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
 
-  const handleCancelDeadlineModal = () => {
-    setIsDeadlineModalVisible(false);
-    setCurrentRecord(null);
-    setNewDeadline(null);
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
   };
 
-  const handleSubmitDeadline = () => {
-    if (!newDeadline) {
-      message.error("Please select a new deadline!");
-      return;
-    }
-
-    const updatedData = filteredData.map((outcome) => {
-      if (outcome.key === currentRecord.key) {
-        return { ...outcome, deadline: newDeadline.format("YYYY-MM-DD") };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
       }
-      return outcome;
-    });
-    setFilteredData(updatedData);
-    message.success("Deadline updated successfully!");
-    handleCancelDeadlineModal();
-  };
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
 
   const columns = [
     {
       title: "STT",
       key: "stt",
       render: (_, __, index) => index + 1,
-      width: "5%",
+      width: "3%",
     },
     {
-      title: "Class Name",
+      title: "Tên lớp",
       dataIndex: "className",
       key: "className",
-      width: "20%",
+      width: "17%",
+      ...getColumnSearchProps("className"),
     },
     {
-      title: "Assignment Type",
+      title: "Loại",
       dataIndex: "title",
       key: "title",
-      width: "20%",
+      width: "15%",
+      ...getColumnSearchProps("title"),
     },
     {
-      title: "Start Date",
+      title: "Ngày bắt đầu",
       dataIndex: "startDate",
       key: "startDate",
-      width: "15%",
+      width: "13%",
+      sorter: (a, b) => moment(a.startDate).unix() - moment(b.startDate).unix(),
       render: (text) => moment(text).format("DD/MM/YYYY"),
     },
     {
-      title: "Deadline",
+      title: "Hạn nộp",
       dataIndex: "deadline",
       key: "deadline",
-      width: "15%",
-      render: (text, record) => (
-        <Space>
-          <span>{moment(text).format("DD/MM/YYYY")}</span>
-          <Tooltip title="Edit Deadline">
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                showEditDeadlineModal(record);
-              }}
-            />
-          </Tooltip>
-        </Space>
-      ),
+      width: "11%",
+      sorter: (a, b) => moment(a.deadline).unix() - moment(b.deadline).unix(),
+      render: (text) => <span>{moment(text).format("DD/MM/YYYY")}</span>,
     },
     {
-      title: "Assigned Groups",
+      title: "Nhóm đã giao",
       dataIndex: "assignedGroups",
       key: "assignedGroups",
-      width: "15%",
+      width: "13%",
       render: (assignedGroups, record) => (
         <span>
           {assignedGroups}/{record.totalGroups}
@@ -174,11 +208,15 @@ const TableOutcome = () => {
       ),
     },
     {
-      title: "Completed",
-      dataIndex: "completed",
-      key: "completed",
-      width: "10%",
-      render: (completed) => (completed ? "Yes" : "No"),
+      title: "Nhóm chưa nộp",
+      dataIndex: "notSubmittedCount",
+      key: "notSubmittedCount",
+      width: "15%",
+      render: (notSubmittedCount, record) => (
+        <span>
+          {notSubmittedCount}/{record.totalGroups}
+        </span>
+      ),
     },
   ];
 
@@ -191,34 +229,22 @@ const TableOutcome = () => {
       {loading ? (
         <Spin size="large" tip="Loading data..." />
       ) : (
-        <Table
-          columns={columns}
-          dataSource={filteredData}
-          rowKey="key"
-          onRow={(record) => ({
-            onClick: () => handleRowClick(record),
-            style: { cursor: "pointer" },
-          })}
-          pagination={{ pageSize: 5 }}
-        />
+        <>
+          <Table
+            columns={columns}
+            dataSource={filteredData}
+            rowKey="key"
+            onRow={(record) => ({
+              onClick: () => handleRowClick(record),
+              style: { cursor: "pointer" },
+            })}
+            pagination={{ pageSize: 5 }}
+            locale={{
+              emptyText: "Chưa có lớp nào được giao Outcome. Giao outcome",
+            }}
+          />
+        </>
       )}
-
-      <Modal
-        title={`Edit deadline for "${currentRecord?.title}"`}
-        visible={isDeadlineModalVisible}
-        onCancel={handleCancelDeadlineModal}
-        onOk={handleSubmitDeadline}
-        okText="Save"
-        cancelText="Cancel"
-      >
-        <DatePicker
-          onChange={(date) => setNewDeadline(date)}
-          style={{ width: "100%" }}
-          disabledDate={(current) =>
-            current && current < moment().startOf("day")
-          }
-        />
-      </Modal>
     </div>
   );
 };

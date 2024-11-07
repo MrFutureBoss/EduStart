@@ -1,5 +1,6 @@
 import Activity from "../../models/activityModel.js";
 import Assignment from "../../models/assignmentModel.js";
+import mongoose from "mongoose";
 
 const createActivity = async (activities, session) => {
   try {
@@ -122,6 +123,12 @@ const getSuggestedMaterials = async (teacherId, classId) => {
     throw new Error("Error fetching suggested materials");
   }
 };
+const findActivityByIdAndType = async (activityId, activityType) => {
+  if (!mongoose.Types.ObjectId.isValid(activityId)) {
+    throw new Error("Invalid activityId format");
+  }
+  return await Activity.findOne({ _id: activityId, activityType });
+};
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -137,4 +144,5 @@ export default {
   findOutcomeByClassIdAndType,
   findActivitiesByTeacher,
   getSuggestedMaterials,
+  findActivityByIdAndType,
 };

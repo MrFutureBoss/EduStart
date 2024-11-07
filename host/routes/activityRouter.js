@@ -64,7 +64,7 @@ activityRouters.post(
   activityController.assignOutcomeToAllGroups
 );
 activityRouters.patch(
-  "/update-outcome",
+  "/update-outcome/:activityId",
   verifyAccessToken,
   verifyRole([2]),
   activityController.updateOutcomeDeadline

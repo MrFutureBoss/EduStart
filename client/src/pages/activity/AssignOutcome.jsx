@@ -203,6 +203,10 @@ const AssignOutcome = ({ onAssigned }) => {
 
       if (response.status === 201 || response.status === 207) {
         message.success(response.data.message);
+
+        // Set activityExists to true to trigger the display of TableOutcome
+        setActivityExists(true);
+
         if (onAssigned && typeof onAssigned === "function") {
           onAssigned();
         }
@@ -248,12 +252,8 @@ const AssignOutcome = ({ onAssigned }) => {
   return (
     <>
       {!activityExists ? (
-        <Button
-          type="primary"
-          onClick={showModal}
-          style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
-        >
-          Giao Outcome
+        <Button type="primary" onClick={showModal}>
+          Chưa có lớp nào được giao Outcome. Giao ngay!
         </Button>
       ) : (
         <TableOutcome classList={classList} />
