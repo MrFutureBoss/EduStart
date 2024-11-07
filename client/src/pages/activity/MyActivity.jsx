@@ -134,6 +134,9 @@ const MyActivity = () => {
   return (
     <Layout style={{ padding: "24px", backgroundColor: "#fff" }}>
       <Content>
+        <Typography.Title style={{ textAlign: "center" }} level={2}>
+          Dashboard Giáo Viên
+        </Typography.Title>
         <div style={{ marginBottom: "24px" }}>
           <OutcomeSteps
             userId={userId}
