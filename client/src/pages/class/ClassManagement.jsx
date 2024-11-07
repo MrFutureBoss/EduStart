@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Col,
+  Dropdown,
   Radio,
   Row,
   Segmented,
@@ -20,14 +21,14 @@ import TableClass from "./TableClass";
 import TeacherTask from "./TeacherTask";
 import {
   AppstoreOutlined,
+  ArrowsAltOutlined,
   BarsOutlined,
-  ClockCircleOutlined,
+  EyeInvisibleOutlined,
   FieldTimeOutlined,
-  FilterOutlined,
+  MoreOutlined,
   ProjectOutlined,
   SyncOutlined,
   TeamOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
@@ -46,7 +47,23 @@ const ClassManagement = () => {
   const [showUngropColumn, setShowUngropColumn] = useState(false);
   const [showEmptyColumn, setShowEmptygropColumn] = useState(false);
   const gridCard = "50%";
-
+  const items = [
+    {
+      key: "1",
+      label: <p style={{ padding: "0px", margin: "0px" }}>Ẩn đi</p>,
+      icon: <EyeInvisibleOutlined />,
+    },
+    {
+      key: "2",
+      label: <p style={{ padding: "0px", margin: "0px" }}>Mở rộng</p>,
+      icon: <ArrowsAltOutlined />,
+    },
+    {
+      key: "3",
+      label: <p style={{ padding: "0px", margin: "0px" }}>Di chuyển</p>,
+      icon: <IoIosMove />,
+    },
+  ];
   const config = useMemo(
     () => ({
       headers: {
@@ -105,93 +122,6 @@ const ClassManagement = () => {
   return (
     <div>
       <h1 style={{ marginBottom: "40px" }}>Quản lý lớp học</h1>
-      <Row>
-        <Col
-          span={24}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            margin: "1rem auto 2rem auto",
-          }}
-        >
-          {classInfo?.semesters.length > 0 &&
-          classInfo.semesters.some(
-            (semester) => semester.status === "Ongoing"
-          ) ? (
-            classInfo.semesters
-              .filter((semester) => semester.status === "Ongoing")
-              .map((semester) => {
-                const { phases, daysRemain } = calculateWeekAndPhase(
-                  semester.startDate
-                );
-                return (
-                  <Card
-                    bordered={true}
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      width: "80%",
-                      padding: "0.5rem 8rem",
-                      borderStyle: "dotted",
-                      backgroundColor: "#E6F4FF",
-                      border: "2px solid #1677FF",
-                    }}
-                  >
-                    <div>
-                      <div className="classinfo-content">
-                        <p
-                          style={{
-                            fontWeight: "700",
-                            fontSize: "1.5rem",
-                            marginBottom: "2rem",
-                          }}
-                        >
-                          {" "}
-                          Thông báo thời hạn còn lại cho tất cả giáo viên&nbsp;{" "}
-                          <Tag
-                            color="#FF5252"
-                            style={{
-                              fontSize: "1.2rem",
-                              padding: "0.2rem 0.5rem",
-                            }}
-                          >
-                            {phases.length}
-                          </Tag>
-                        </p>
-                      </div>
-                      <div
-                        className="classinfo-content"
-                        style={{
-                          justifyContent: "center",
-                          flexDirection: "column",
-                        }}
-                      >
-                        {phases.map((phase, index) => (
-                          <div key={index} style={{ marginBottom: "8px" }}>
-                            <p
-                              style={{
-                                height: "fit-content",
-                                marginBottom: "4px",
-                                fontWeight: "500",
-                              }}
-                            >
-                              Thời gian {phase.toLowerCase()}:{" "}
-                              <Tag color="#FF5252">
-                                <FieldTimeOutlined /> Còn {daysRemain} ngày
-                              </Tag>
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })
-          ) : (
-            <h5>Hiện tại chưa có deadline nào rành cho các lớp</h5>
-          )}
-        </Col>
-      </Row>
       <Row gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <Card
@@ -203,9 +133,23 @@ const ClassManagement = () => {
               </h5>
             }
             extra={
-              <IoIosMove
-                style={{ fontSize: "1.2rem", cursor: "pointer", color: "#FFF" }}
-              />
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
             }
             headStyle={{
               background:
@@ -349,9 +293,23 @@ const ClassManagement = () => {
               </h5>
             }
             extra={
-              <IoIosMove
-                style={{ fontSize: "1.2rem", cursor: "pointer", color: "#FFF" }}
-              />
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
             }
             headStyle={{
               background:
@@ -374,9 +332,23 @@ const ClassManagement = () => {
               </h5>
             }
             extra={
-              <IoIosMove
-                style={{ fontSize: "1.2rem", cursor: "pointer", color: "#FFF" }}
-              />
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
             }
             headStyle={{
               background: "linear-gradient(-45deg, #005241, #128066)",
@@ -495,7 +467,23 @@ const ClassManagement = () => {
               </h5>
             }
             extra={
-              <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
             }
             headStyle={{
               background: "#008d87",

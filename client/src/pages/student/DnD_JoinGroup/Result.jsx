@@ -1,7 +1,7 @@
 import React from "react";
 import SortableCards from "./SortableCards.jsx";
 
-const Result = ({dndActive}) => {
+const Result2 = ({dndActive}) => {
   return (
     <div style={{ padding: "24px" }}>
       <SortableCards dndActive={dndActive} />
@@ -9,4 +9,4 @@ const Result = ({dndActive}) => {
   );
 };
 
-export default Result;
+export default Result2;

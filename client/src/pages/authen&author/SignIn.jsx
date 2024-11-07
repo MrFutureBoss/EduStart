@@ -16,6 +16,7 @@ import {
 } from "../../components/SweetAlert/index.js";
 import ForgotPasswordModal from "./ForgotPasswordModal.jsx";
 import { jwtDecode } from "jwt-decode";
+import { triggerTeacherDashboardNotification } from "../../redux/slice/NotificationSlice.js";
 
 function SignIn() {
   const [forgotPasswordVisible, setForgotPasswordVisible] = useState(false);
@@ -66,6 +67,8 @@ function SignIn() {
             navigation("/admin-dashboard", { replace: true });
           } else if (userRole === 2) {
             navigation("/teacher-dashboard"); // Nếu là giáo viên
+            dispatch(triggerTeacherDashboardNotification());
+          } else if (userRole === 3) {
           } else if (userRole === 4) {
             navigation("/student-dashboard"); // Nếu là học sinh
           } else {

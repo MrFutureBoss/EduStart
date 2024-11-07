@@ -10,6 +10,7 @@ import classRouter from "./classRouter.js";
 import mentorCategoryRouters from "./mentorCategory.js";
 import tempGroupRouters from "./tempGroupRoutes.js";
 import createGroupSettingRouter from "./createGroupSettingRoutes.js";
+import ruleJoinRouter from "./ruleJoinRoutes.js";
 import matchedRouter from "./matchedRouter.js";
 import groupRouter from "./groupRouter.js";
 import projectRouter from "./projectRouter.js";
@@ -27,6 +28,7 @@ const routes = {
   mentorCategoryRouters,
   tempGroupRouters,
   createGroupSettingRouter,
+  ruleJoinRouter,
   matchedRouter,
   groupRouter,
   projectRouter,

@@ -6,7 +6,8 @@ import Project from "../../models/projectModel.js";
 import Matched from "../../models/matchedModel.js";
 import ProjectCategory from "../../models/projectCategoryModel.js";
 import Semester from "../../models/semesterModel.js";
-
+import CreateGroupSetting from "../../models/CreateGroupSettingModel.js";
+import classDAO from "./classRepositories.js";
 const getStudentCountByClassId = async (classId, semesterId) => {
   try {
     const count = await User.countDocuments({
@@ -443,6 +444,117 @@ const getClassesInfoAndTaskByTeacherId = async (teacherId) => {
   }
 };
 
+const checkAndFillExpiredGroups = async () => {
+  try {
+    // Get all CreateGroupSetting documents with deadlines on or before the current date and autoFinish is true
+    const expiredSettings = await CreateGroupSetting.find({
+      deadline: { $lte: new Date() },
+      autoFinish: true, // Only select documents with autoFinish set to true
+    }).populate("classId");
+
+    if (expiredSettings.length === 0) {
+      console.log("No expired or due deadlines with autoFinish enabled found.");
+      return;
+    }
+
+    const excessStudentsLog = []; // To track students who could not be assigned
+
+    for (const setting of expiredSettings) {
+      const { classId } = setting;
+
+      // Get users in the class without group assignment
+      const { data: ungroupedUsers } =
+        await classDAO.getUsersByClassIdAndEmptyGroupId(classId._id);
+
+      if (!ungroupedUsers || ungroupedUsers.length === 0) continue;
+
+      // Fetch TempGroups for the class with unfilled slots
+      const tempGroups = await TempGroup.find({
+        classId: classId._id,
+        status: false,
+      });
+
+      for (const tempGroup of tempGroups) {
+        const remainingSlots = tempGroup.maxStudent - tempGroup.userIds.length;
+
+        if (remainingSlots <= 0) {
+          // Update tempGroup status if filled
+          tempGroup.status = true;
+          await tempGroup.save();
+          continue;
+        }
+
+        // Assign users to this group until maxStudent is reached
+        const usersToAssign = ungroupedUsers.splice(0, remainingSlots);
+        tempGroup.userIds.push(...usersToAssign.map((user) => user._id));
+        tempGroup.status = tempGroup.userIds.length === tempGroup.maxStudent;
+
+        await tempGroup.save();
+      }
+
+      // If any users remain unassigned, add them to the log
+      if (ungroupedUsers.length > 0) {
+        excessStudentsLog.push({
+          classId: classId._id,
+          className: classId.className,
+          unassignedStudents: ungroupedUsers,
+        });
+      }
+    }
+
+    // Log results
+    console.log("Auto-filled groups after deadline:");
+    excessStudentsLog.forEach((log) => {
+      console.log(`Class: ${log.className} (ID: ${log.classId})`);
+      console.log("Unassigned Students:");
+      log.unassignedStudents.forEach((student) =>
+        console.log(`- ${student.username} (ID: ${student._id})`)
+      );
+    });
+
+    return {
+      message: "Auto-filling complete.",
+      unassignedGroups: excessStudentsLog,
+    };
+  } catch (error) {
+    console.error("Error in checkAndFillExpiredGroups:", error.message);
+    throw new Error("Error checking and filling expired groups.");
+  }
+};
+
+const unGroupUser = async (classId) => {
+  try {
+    // Fetch all TempGroups in the specified class and gather userIds already assigned to groups
+    const tempGroups = await TempGroup.find({ classId })
+      .select("userIds")
+      .lean();
+
+    const excludedUserIds = tempGroups.reduce(
+      (acc, group) => acc.concat(group.userIds),
+      []
+    );
+
+    // Query to find ungrouped users who are not in any TempGroup
+    const query = {
+      classId: classId,
+      $or: [{ groupId: { $exists: false } }, { groupId: null }],
+      _id: { $nin: excludedUserIds },
+    };
+
+    // Retrieve all ungrouped users without skip or limit
+    const users = await User.find(query)
+      .select("username email rollNumber memberCode")
+      .lean();
+
+    // Count the total number of users matching the query
+    const total = users.length;
+
+    return { data: users, total };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export default {
   getStudentCountByClassId,
   getClassById,
@@ -458,4 +570,6 @@ export default {
   findTeacherClassSummary,
   getSemestersAndClassesByTeacherId,
   getClassesInfoAndTaskByTeacherId,
+  checkAndFillExpiredGroups,
+  unGroupUser,
 };

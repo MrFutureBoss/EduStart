@@ -15,6 +15,7 @@ const SmallModal = ({
       onOk={handleOk}
       onCancel={handleCancel}
       footer={footer}
+      closable={false}
     >
       {content}
     </Modal>

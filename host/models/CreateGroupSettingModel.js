@@ -14,21 +14,21 @@ const createGroupSettingSchema = new Schema(
       type: Date,
       required: true,
     },
+    autoFinish: {
+      type: Boolean,
+      require: true,
+      default: false,
+    },
     status: {
       type: Boolean,
+      require: true,
       default: true,
     },
     ruleJoin: [
       {
-        ruleJoinId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: RuleJoin,
-          required: true,
-        },
-        status: {
-          type: Boolean,
-          default: true,
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: RuleJoin,
+        required: true,
       },
     ],
     tempGroupId: [
@@ -41,5 +41,8 @@ const createGroupSettingSchema = new Schema(
   { timestamps: true }
 );
 
-const CreateGroupSetting = mongoose.model("CreateGroupSetting", createGroupSettingSchema);
+const CreateGroupSetting = mongoose.model(
+  "CreateGroupSetting",
+  createGroupSettingSchema
+);
 export default CreateGroupSetting;

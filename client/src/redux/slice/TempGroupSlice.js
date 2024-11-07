@@ -5,6 +5,7 @@ const tempGroupSlice = createSlice({
   initialState: {
     data: [],
     total: 0,
+    jointotal: 0,
     waituserlist: [],
     waittotal: 0,
     searchResults: null,
@@ -17,11 +18,14 @@ const tempGroupSlice = createSlice({
     setTotalTempGroups: (state, action) => {
       state.total = action.payload;
     },
+    setTotalJoinUser: (state, action) => {
+      state.jointotal = action.payload;
+    },
     setError: (state, action) => {
       state.error = action.payload;
     },
     setWaitUserList: (state, action) => {
-      state.waituserlist = action.payload;
+      state.waituserlist = action.payload || [];
     },
     setTotalWaitUsers: (state, action) => {
       state.waittotal = action.payload;
@@ -38,6 +42,7 @@ const tempGroupSlice = createSlice({
 export const {
   setTempGroups,
   setTotalTempGroups,
+  setTotalJoinUser,
   setError,
   setWaitUserList,
   setTotalWaitUsers,

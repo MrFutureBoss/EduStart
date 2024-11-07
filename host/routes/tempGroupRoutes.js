@@ -25,6 +25,12 @@ tempGroupRouters.post(
   verifyAccessToken,
   tempGroupController.createNewTempGroup
 );
+
+tempGroupRouters.post(
+  "/auto-fill",
+  tempGroupController.autoFillGroupsOnDeadline
+);
+
 tempGroupRouters.put(
   "/:id",
   verifyAccessToken,
