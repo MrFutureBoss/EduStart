@@ -114,11 +114,16 @@ const Navbar = () => {
           </Link>
         </Menu.Item>
         <Menu.Item key="5">
+          <Link style={{ textDecoration: "none" }} to="class">
+            Lớp của bạn
+          </Link>
+        </Menu.Item>
+        <Menu.Item key="6">
           <Link style={{ textDecoration: "none" }} to="group-detail">
             Nhóm
           </Link>
         </Menu.Item>
-        <Menu.Item key="6">
+        <Menu.Item key="7">
           <Link style={{ textDecoration: "none" }} to="/contact">
             Liên hệ
           </Link>
