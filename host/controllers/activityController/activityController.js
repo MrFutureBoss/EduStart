@@ -433,23 +433,17 @@ const assignOutcomeToAllGroups = async (req, res) => {
 
 const updateOutcomeDeadline = async (req, res) => {
   try {
-    const { activityId } = req.params; // Lấy activityId từ URL
-    const { newDeadline } = req.body;  // Lấy newDeadline từ request body
+    const { activityId } = req.params;
+    const { newDeadline } = req.body;
 
-    console.log("Received activityId:", activityId);
-    console.log("Received newDeadline:", newDeadline);
-
-    // Tìm Activity qua repository
     const activity = await activityDAO.findActivityByIdAndType(activityId, "outcome");
     if (!activity) {
       return res.status(404).json({ error: "Outcome activity not found." });
     }
 
-    // Cập nhật deadline
     activity.deadline = new Date(newDeadline);
     await activity.save();
 
-    // Trả về phản hồi thành công
     res.status(200).json({
       message: "Deadline updated successfully.",
       activity,
