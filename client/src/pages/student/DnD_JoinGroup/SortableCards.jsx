@@ -12,6 +12,8 @@ import {
   Col,
   Tooltip,
   Select,
+  Drawer,
+  Button,
 } from "antd";
 import {
   DndContext,
@@ -63,7 +65,9 @@ const SortableCards = () => {
   const [tempGroupSearchText, setTempGroupSearchText] = useState("");
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [maxStudentMap, setMaxStudentMap] = useState({});
-  const [noGroupUsers, setNoGroupUsers] = useState([]);
+  const [selectedGroupUsers, setSelectedGroupUsers] = useState([]);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [selectedGroupName, setSelectedGroupName] = useState("");
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor)
@@ -161,58 +165,94 @@ const SortableCards = () => {
   const tempGroups = useSelector((state) => state.tempGroup.data || []);
   const userProfile = useSelector((state) => state.user.userProfile || []);
 
-  const checkInGroup = (userId, tempGroups) => {
-    return tempGroups.some((group) => group.userIds.includes(userId));
-  };
+  const normalizedUserId = String(userProfile._id); // Chuyển userProfile._id thành chuỗi để chắc chắn
+  const isUserInAnyGroup = tempGroups.some((group) => {
+    // Map through `userIds` to extract `_id` from each user object
+    const normalizedUserIds = group.userIds
+      .filter(Boolean) // Remove any null or undefined values
+      .map((user) => String(user._id)); // Chuyển mỗi _id thành chuỗi cho so sánh chính xác
+
+    console.log("Checking group:", group.groupName);
+    console.log("Normalized User IDs:", normalizedUserIds);
+    console.log("Current user ID:", normalizedUserId);
+
+    // Check if `normalizedUserId` is in the list of `normalizedUserIds`
+    return normalizedUserIds.includes(normalizedUserId);
+  });
+
+  console.log("Is user in any group?", isUserInAnyGroup);
 
   const filteredGroupUsers = (group) => {
     return group.filter(
       (user) =>
-        user.username
-          .toLowerCase()
-          .includes(tempGroupSearchText.toLowerCase()) ||
-        user.email.toLowerCase().includes(tempGroupSearchText.toLowerCase()) ||
-        user.rollNumber
-          ?.toLowerCase()
-          .includes(tempGroupSearchText.toLowerCase())
+        (user.username &&
+          user.username
+            .toLowerCase()
+            .includes(tempGroupSearchText.toLowerCase())) ||
+        (user.email &&
+          user.email
+            .toLowerCase()
+            .includes(tempGroupSearchText.toLowerCase())) ||
+        (user.rollNumber &&
+          user.rollNumber
+            .toLowerCase()
+            .includes(tempGroupSearchText.toLowerCase()))
     );
   };
 
-  // Handle Confirm Changes
   const handleConfirm = async () => {
     try {
-      const groupRequests = Object.entries(data).map(([groupName, users]) => {
-        const groupId = tempGroups.find(
-          (group) => group.groupName === groupName
-        )?._id;
-        if (groupId) {
-          return axios.put(
+      if (dropTargetCard === "noGroup") {
+        // Removing user from group
+        const activeContainer = Object.keys(data).find((key) =>
+          data[key].some((user) => user._id === userId)
+        );
+
+        if (activeContainer) {
+          const groupId = tempGroups.find(
+            (group) => group.groupName === activeContainer
+          )?._id;
+
+          await axios.put(
             `${BASE_URL}/tempgroup/${groupId}`,
-            { userIds: users.map((user) => user._id) },
+            {
+              userIds: data[activeContainer]
+                .filter((user) => user._id !== userId)
+                .map((user) => user._id),
+            },
             config
           );
+
+          await fetchGroups(); // Refresh data
+          message.success("Bạn đã được loại bỏ khỏi nhóm.");
         }
-        return null;
-      });
+      } else {
+        // Regular group confirmation logic
+        const groupRequests = Object.entries(data).map(([groupName, users]) => {
+          const groupId = tempGroups.find(
+            (group) => group.groupName === groupName
+          )?._id;
+          if (groupId) {
+            return axios.put(
+              `${BASE_URL}/tempgroup/${groupId}`,
+              { userIds: users.map((user) => user._id) },
+              config
+            );
+          }
+          return null;
+        });
 
-      await Promise.all(groupRequests.filter(Boolean));
-      message.success("Cập nhật thành công!");
+        await Promise.all(groupRequests.filter(Boolean));
+        message.success("Cập nhật thành công!");
+      }
 
-      dispatch(
-        setTempGroups(
-          Object.entries(data).map(([groupName, users]) => ({
-            groupName,
-            userIds: users,
-            _id: tempGroups.find((group) => group.groupName === groupName)?._id,
-          }))
-        )
-      );
+      setIsConfirming(false);
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error.message || error);
-      setData(previousData);
       message.error("Hoàn tác thay đổi do lỗi cập nhật");
     } finally {
       setIsConfirming(false);
+      setDropTargetCard(null);
     }
   };
 
@@ -223,101 +263,151 @@ const SortableCards = () => {
     message.info("Thay đổi bị hủy bỏ.");
   };
 
+  const updatedTempGroups = useMemo(() => {
+    if (isUserInAnyGroup) {
+      return tempGroups;
+    }
+
+    return [
+      {
+        _id: "temp-noGroup",
+        groupName: "Bạn chưa vào nhóm",
+        userIds: [
+          {
+            _id: userProfile._id,
+            username: userProfile.username,
+            email: userProfile.email,
+            rollNumber: userProfile.rollNumber,
+          },
+        ],
+        maxStudent: 0,
+      },
+      ...tempGroups,
+    ];
+  }, [tempGroups, userProfile, isUserInAnyGroup]);
+
+  const sortedGroupKeys = useMemo(() => {
+    return updatedTempGroups
+      .map((group) => group.groupName)
+      .sort((a, b) => {
+        if (a === "Bạn chưa vào nhóm") return -1;
+        if (b === "Bạn chưa vào nhóm") return 1;
+
+        const aNum = parseInt(a.match(/\d+/)?.[0], 10);
+        const bNum = parseInt(b.match(/\d+/)?.[0], 10);
+        return aNum - bNum;
+      });
+  }, [updatedTempGroups]);
+
   const onDragStart = ({ active }) => {
     const activeId = active.id.split("-")[1];
-    const item = Object.values(data)
-      .flat()
-      .find((i) => i._id.toString() === activeId);
+    console.log("Dragging item:", activeId);
 
-    // Only allow drag if item matches the current userId
-    if (item && item._id === userId) {
-      setActiveItem(item);
-      message.info(`Đang giữ thẻ: ${item.username}`);
+    if (activeId === userId) {
+      setActiveItem(userProfile);
+      message.info(`Đang giữ thẻ: ${userProfile.username}`);
     } else {
-      // Prevent dragging by not setting the active item
-      message.warning("Chỉ có thể kéo thả chính bạn");
+      setActiveItem(null);
+      message.warning("Chỉ có thể kéo thả chính bạn.");
     }
   };
 
-  const onDragEnd = ({ active, over }) => {
+  const onDragEnd = async ({ active, over }) => {
     setActiveItem(null);
   
     if (!over) {
-      message.error("Drop thất bại: Không có vị trí thả hợp lệ.");
+      message.error("Thả thất bại: Không có vị trí thả hợp lệ.");
       return;
     }
   
     const [activeContainer, activeId] = active.id.split("-");
     const [overContainer] = over.id.split("-");
   
-    // Check if `activeContainer` exists in `data`
-    if (!data[activeContainer]) {
-      console.warn(`Group ${activeContainer} not found in data.`);
-      return;
+    // Get the item being dragged
+    const itemToMove = activeContainer === "Bạn chưa vào nhóm" 
+      ? userProfile 
+      : data[activeContainer]?.find((item) => item._id === activeId);
+  
+    if (!itemToMove || itemToMove._id !== userId) return;
+    const targetGroup = tempGroups.find(group => group.groupName === overContainer);
+    const targetGroupUsers = data[overContainer] || [];
+    const targetGroupMax = maxStudentMap[overContainer] || targetGroup?.maxStudent || 0;
+  
+    if (overContainer !== "Bạn chưa vào nhóm" && overContainer !== "noGroup" &&targetGroupUsers.length >= targetGroupMax) {
+      message.warning(`Không thể thêm sinh viên vào nhóm ${overContainer}. Đã đạt tối đa.`);
+      return; 
     }
   
-    const itemToMove = data[activeContainer]?.find(
-      (item) => item._id === activeId
-    );
+    try {
+      if (activeContainer === "Bạn chưa vào nhóm" && overContainer !== "Bạn chưa vào nhóm") {
+        // Adding user from "Bạn chưa vào nhóm" to another group
+        const overGroupId = tempGroups.find(group => group.groupName === overContainer)?._id;
   
-    if (!itemToMove) return;
+        if (overGroupId) {
+          await axios.put(
+            `${BASE_URL}/tempgroup/${overGroupId}`,
+            {
+              userIds: [...(data[overContainer] || []).map(user => user._id), userId],
+            },
+            config
+          );
   
-    // Prevent dropping if `overContainer` has reached max students
-    const overContainerCurrentCount = data[overContainer]?.length || 0;
-    const overContainerMaxStudent = maxStudentMap[overContainer] || 0;
+          await fetchGroups(); // Refresh data after updating
+          message.success(`Đã thêm ${itemToMove.username} vào nhóm ${overContainer}`);
+        }
+      } else if (activeContainer !== overContainer) {
+        // Moving user from one group to another or to "Bạn chưa vào nhóm"
+        const activeGroupId = tempGroups.find(group => group.groupName === activeContainer)?._id;
+        const overGroupId = tempGroups.find(group => group.groupName === overContainer)?._id;
   
-    if (overContainerCurrentCount >= overContainerMaxStudent) {
-      message.warning(`Không thể thêm vào ${overContainer} vì đã đạt tối đa số lượng.`);
-      return;
-    }
+        if (activeGroupId) {
+          // Update the old group to remove the user
+          await axios.put(
+            `${BASE_URL}/tempgroup/${activeGroupId}`,
+            {
+              userIds: data[activeContainer]
+                .filter(user => user._id !== userId)
+                .map(user => user._id),
+            },
+            config
+          );
+        }
   
-    if (overContainer === "noGroup") {
-      // Move to "noGroup" list
-      const updatedActiveGroup = data[activeContainer].filter(
-        (item) => item._id !== activeId
-      );
-      setData((prev) => ({
-        ...prev,
-        [activeContainer]: updatedActiveGroup || [],
-      }));
-      setNoGroupUsers((prev) => [...prev, itemToMove]);
-      message.success(`${itemToMove.username} đã được di chuyển ra khỏi nhóm.`);
-    } else if (activeContainer !== overContainer) {
-      const updatedActiveGroup = data[activeContainer].filter(
-        (item) => item._id !== activeId
-      );
-      const updatedOverGroup = [...(data[overContainer] || []), itemToMove];
+        if (overGroupId) {
+          // Add the user to the new group
+          await axios.put(
+            `${BASE_URL}/tempgroup/${overGroupId}`,
+            {
+              userIds: [...data[overContainer].map(user => user._id), userId],
+            },
+            config
+          );
+        }
   
-      setData((prev) => ({
-        ...prev,
-        [activeContainer]: updatedActiveGroup || [],
-        [overContainer]: updatedOverGroup || [],
-      }));
-  
-      setPopconfirmTitle(
-        `Bạn muốn chuyển ${itemToMove.username} sang ${overContainer}?`
-      );
-      setDropTargetCard(overContainer);
-      setIsConfirming(true);
+        await fetchGroups(); // Refresh data after updating
+        message.success(`Đã chuyển ${itemToMove.username} vào nhóm ${overContainer}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật:", error.message || error);
+      message.error("Hoàn tác thay đổi do lỗi cập nhật");
+    } finally {
+      setIsConfirming(false);
+      setDropTargetCard(null);
     }
   };
   
+  
+  
 
-  const sortedGroupKeys = Object.keys(data)
-  .sort((a, b) => {
-    const aNum = parseInt(a.match(/\d+/)?.[0], 10);
-    const bNum = parseInt(b.match(/\d+/)?.[0], 10);
-    return aNum - bNum;
-  })
-  .sort((groupKeyA, groupKeyB) => {
-    const isUserInGroupA = data[groupKeyA]?.some((user) => user._id === userId);
-    const isUserInGroupB = data[groupKeyB]?.some((user) => user._id === userId);
-    
-    // Place the user's group at the top
-    if (isUserInGroupA && !isUserInGroupB) return -1;
-    if (!isUserInGroupA && isUserInGroupB) return 1;
-    return 0; // Maintain existing order for groups without the user
-  });
+  const handleOpenDrawer = (groupKey) => {
+    setSelectedGroupUsers(data[groupKey] || []);
+    setSelectedGroupName(groupKey);
+    setDrawerVisible(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setDrawerVisible(false);
+  };
 
   return (
     <DndContext
@@ -341,9 +431,7 @@ const SortableCards = () => {
                 alignItems: "center",
               }}
             >
-              <h3>
-                Danh sách nhóm
-              </h3>
+              <h3>Danh sách nhóm</h3>
               <div
                 style={{
                   display: "flex",
@@ -377,6 +465,81 @@ const SortableCards = () => {
             gutter={[32, 16]}
             style={{ display: "flex", justifyContent: "center" }}
           >
+            <Col
+              xs={24}
+              sm={12}
+              md={12}
+              lg={6}
+              style={{ display: !isUserInAnyGroup ? "none" : "block" }}
+            >
+              <Card
+                title={
+                  <div
+                    className="card-groupname"
+                    style={{ height: "fit-content" }}
+                  >
+                    Hủy vào nhóm
+                  </div>
+                }
+                bodyStyle={{
+                  padding: "0px",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                }}
+                headStyle={{
+                  background:
+                    "linear-gradient(-45deg, #005241, #128066, #00524f, #008d87)",
+                  color: "white",
+                }}
+                style={{
+                  width: "18rem",
+                  height: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+                bordered
+                className="card-groupstudents"
+              >
+                <SortableContext
+                  items={
+                    !isUserInAnyGroup
+                      ? [`noGroup-${userProfile._id}`]
+                      : [`noGroup-empty`]
+                  }
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Tooltip title="Giữ và kéo để thao tác">
+                    <Popconfirm
+                      title={popconfirmTitle}
+                      onConfirm={handleConfirm}
+                      onCancel={() => setIsConfirming(false)}
+                      visible={isConfirming && dropTargetCard === "noGroup"}
+                      okText="Có"
+                      cancelText="Không"
+                    >
+                      {!isUserInAnyGroup ? (
+                        <SortableItem
+                          id={`noGroup-${userProfile._id}`}
+                          item={userProfile}
+                        />
+                      ) : (
+                        <SortableItem
+                          id="noGroup-empty"
+                          item={{
+                            isEmpty: true,
+                            description:
+                              "Thả vào đây để không tham gia nhóm nào",
+                          }}
+                        />
+                      )}
+                    </Popconfirm>
+                  </Tooltip>
+                </SortableContext>
+              </Card>
+            </Col>
+
             {sortedGroupKeys
               .filter(
                 (groupKey) =>
@@ -384,20 +547,18 @@ const SortableCards = () => {
                   selectedGroups.includes(groupKey)
               )
               .map((groupKey) => {
-                const users = data[groupKey] || [];
-                const maxStudent = maxStudentMap[groupKey] || 0;
+                const group = updatedTempGroups.find(
+                  (g) => g.groupName === groupKey
+                );
+                const users = data[groupKey] || group.userIds || [];
+                const maxStudent =
+                  maxStudentMap[groupKey] || group.maxStudent || 0;
                 const currentStudentCount = users.length;
+
                 return (
-                  <Col xs={24} sm={12} md={12} lg={4} key={groupKey}>
+                  <Col xs={24} sm={12} md={12} lg={6} key={group._id}>
                     <Card
-                      title={
-                        <div
-                          className="card-groupname"
-                          style={{ height: "fit-content" }}
-                        >
-                          {groupKey}
-                        </div>
-                      }
+                      title={<div className="card-groupname">{groupKey}</div>}
                       bodyStyle={{
                         padding: "0px",
                         display: "flex",
@@ -421,15 +582,13 @@ const SortableCards = () => {
                     >
                       <SortableContext
                         items={
-                          data[groupKey].length > 0
-                            ? data[groupKey].map(
-                                (item) => `${groupKey}-${item._id}`
-                              )
+                          users.length > 0
+                            ? users.map((user) => `${groupKey}-${user._id}`)
                             : [`${groupKey}-empty`]
                         }
                         strategy={verticalListSortingStrategy}
                       >
-                        {data[groupKey].length > 0 ? (
+                        {users.length > 0 ? (
                           <Tooltip title="Giữ và kéo để thao tác">
                             <Popconfirm
                               title={popconfirmTitle}
@@ -441,84 +600,76 @@ const SortableCards = () => {
                               okText="Có"
                               cancelText="Không"
                             >
-                              <List
-                                bordered
-                                dataSource={filteredGroupUsers(data[groupKey])}
-                                renderItem={(item) => (
-                                  <SortableItem
-                                    key={item._id}
-                                    id={`${groupKey}-${item._id}`}
-                                    item={item}
-                                    userId={userId}
-                                  >
-                                    <Highlighter
-                                      highlightClassName="highlight-text"
-                                      searchWords={
-                                        tempGroupSearchText
-                                          ? [tempGroupSearchText]
-                                          : []
-                                      }
-                                      autoEscape={true}
-                                      textToHighlight={`${item.username} (${item.email}) (${item.rollNumber})`}
-                                    />
-                                  </SortableItem>
-                                )}
-                              />
-
-                              <List
-                                style={{
-                                  display:
-                                    currentStudentCount === maxStudent
-                                      ? "none"
-                                      : "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  textAlign: "center",
-                                  padding: "10px 0px",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                <p className="remove-default-style-p">
-                                  + Tham gia vào nhóm
-                                </p>
-                              </List>
+                              {/* <List>
+                                <Button
+                                  onClick={() => handleOpenDrawer(groupKey)}
+                                >
+                                  Bấm vào đây xem
+                                </Button>
+                              </List> */}
+                                <List
+                                  bordered
+                                  dataSource={filteredGroupUsers(users)}
+                                  renderItem={(item) => (
+                                    <SortableItem
+                                      key={item._id}
+                                      id={`${groupKey}-${item._id}`}
+                                      item={item}
+                                      userId={userId}
+                                    >
+                                      <Highlighter
+                                        highlightClassName="highlight-text"
+                                        searchWords={
+                                          tempGroupSearchText
+                                            ? [tempGroupSearchText]
+                                            : []
+                                        }
+                                        autoEscape={true}
+                                        textToHighlight={`${item.username} (${item.email}) (${item.rollNumber})`}
+                                      />
+                                    </SortableItem>
+                                  )}
+                                />
                             </Popconfirm>
                           </Tooltip>
                         ) : (
                           <SortableItem
                             id={`${groupKey}-empty`}
                             item={
-                              <Empty
-                                description="Chưa có ai trong nhóm này"
-                                style={{ padding: "20px" }}
-                              />
+                              groupKey === "Bạn chưa vào nhóm" ? (
+                                <Empty description="Bạn chưa vào nhóm nào. Thả vào đây để không tham gia nhóm." />
+                              ) : (
+                                <Empty description="Chưa có ai trong nhóm này" />
+                              )
                             }
                           />
                         )}
                       </SortableContext>
 
-                      <div
-                        className="cardbody-numberstudent"
-                        style={{
-                          textAlign: "center",
-                          fontWeight: "bold",
-                          padding: "10px 0", // Adjust padding as needed
-                          marginTop: "auto", // Pushes footer to the bottom
-                        }}
-                      >
-                        <span>Số lượng sinh viên trong nhóm: </span>
-                        <span
+                      {groupKey !== "Bạn chưa vào nhóm" && (
+                        <div
+                          className="cardbody-numberstudent"
                           style={{
-                            color:
-                              currentStudentCount < maxStudent
-                                ? "red"
-                                : "green",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            padding: "10px 0",
+                            marginTop: "auto",
                           }}
                         >
-                          {currentStudentCount}
-                        </span>
-                        /<span>{maxStudent}</span>
-                      </div>
+                          <span>Số lượng sinh viên trong nhóm: </span>
+                          <span
+                            style={{
+                              color:
+                                currentStudentCount < maxStudent
+                                  ? "red"
+                                  : "green",
+                            }}
+                          >
+                            {currentStudentCount}
+                          </span>
+                          /<span>{maxStudent}</span>
+                        </div>
+                      )}
                     </Card>
                   </Col>
                 );
@@ -554,6 +705,7 @@ const SortableCards = () => {
           </div>
         ) : null}
       </DragOverlay>
+      <Drawer></Drawer>
     </DndContext>
   );
 };

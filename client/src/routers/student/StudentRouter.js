@@ -16,6 +16,8 @@ const StudentRouter = () => {
     >
       <Route path="class" element={<ClassDetail />} />
       <Route path="group-detail" element={<GroupMembers />} />
+      <Route path="class" element={<ClassDetail/>} />
+
     </Route>
   );
 };

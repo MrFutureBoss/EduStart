@@ -46,6 +46,18 @@ const UnGroupList = () => {
   );
 
   useEffect(() => {
+    return () => {
+      dispatch(setTempGroups([]));
+      dispatch(setTotalTempGroups(0)); 
+      dispatch(setTotalJoinUser(0));
+      dispatch(setWaitUserList([]));
+      dispatch(setTotalWaitUsers(0));
+      dispatch(setClassTaskData([]));
+      dispatch(setSettingCreateGroupData([]));
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(

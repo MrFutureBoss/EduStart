@@ -1,3 +1,5 @@
+// src/components/PostActivity.js
+
 import React, { useState, useEffect } from "react";
 import {
   Button,
@@ -5,27 +7,22 @@ import {
   Upload,
   message,
   Layout,
-  List,
-  Avatar,
   Dropdown,
   Menu,
-  Card,
+  Avatar,
   Tooltip,
-  Input,
   Steps,
 } from "antd";
 import {
   UploadOutlined,
   MoreOutlined,
-  SendOutlined,
-  FileOutlined,
+  DeleteOutlined,
   ExclamationCircleOutlined,
   EditOutlined,
-  DownOutlined,
+  InfoCircleOutlined,
   ProfileOutlined,
-  DeleteOutlined,
-  UserOutlined,
   FlagOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -38,36 +35,70 @@ import DOMPurify from "dompurify";
 import "../../style/Activity/postActivity.css";
 import MaterialList from "./MaterialList";
 import OutcomeList from "./OutcomeActivity";
+import { useNavigate, useParams } from "react-router-dom";
 
 const PostActivity = () => {
-  const [posts, setPosts] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [postContent, setPostContent] = useState("");
-  const [fileToUpload, setFileToUpload] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [selectedClassId, setSelectedClassId] = useState(null);
-  const [selectedClassName, setSelectedClassName] = useState("");
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState(null);
-  const [filteredClasses, setFilteredClasses] = useState([]);
-  const [searchValue, setSearchValue] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [suggestedText, setSuggestedText] = useState("");
-  const [noPosts, setNoPosts] = useState(false);
-  const [outcomes, setOutcomes] = useState([]);
-  const [currentStep, setCurrentStep] = useState(0);
+  const { className } = useParams(); // Lấy className từ URL
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const jwt = localStorage.getItem("jwt");
   const username = localStorage.getItem("username");
 
-  const dispatch = useDispatch();
-  const classList = useSelector((state) => state.class.classList);
+  const classList = useSelector((state) => state.class.classList); // Sửa selector đúng tên slice
 
   const config = {
     headers: {
       Authorization: `Bearer ${jwt}`,
     },
   };
+
+  const [posts, setPosts] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [postContent, setPostContent] = useState("");
+  const [fileToUpload, setFileToUpload] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [noPosts, setNoPosts] = useState(false);
+  const [outcomes, setOutcomes] = useState([]);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const [classId, setClassId] = useState(null);
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/class/${localStorage.getItem("userId")}/user`,
+          {
+            headers: { Authorization: `Bearer ${jwt}` },
+          }
+        );
+        dispatch(setClassList(response.data));
+      } catch (error) {
+        message.error("Error fetching class list");
+      }
+    };
+    if (classList?.length === 0) { // Sử dụng optional chaining
+      fetchClasses();
+    }
+  }, [classList?.length, dispatch, jwt]); // Sửa dependency
+
+  useEffect(() => {
+    if (className && classList?.length > 0) { // Kiểm tra classList có tồn tại
+      const selectedClass = classList.find(
+        (cls) => cls.className.toLowerCase() === className.toLowerCase()
+      );
+      if (selectedClass) {
+        setClassId(selectedClass._id);
+        fetchPosts(selectedClass._id);
+        fetchOutcomes(selectedClass._id);
+      } else {
+        message.error("Class not found");
+      }
+    }
+  }, [className, classList]);
 
   const fetchPosts = async (classId) => {
     try {
@@ -87,38 +118,66 @@ const PostActivity = () => {
       }
     } catch (error) {
       setNoPosts(true);
+      message.error("Error fetching posts");
     }
   };
 
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const response = await axios.get(
-          `${BASE_URL}/class/${localStorage.getItem("userId")}/user`,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-          }
-        );
-        dispatch(setClassList(response.data));
-      } catch (error) {
-        message.error("Error fetching class list");
-      }
-    };
-    if (classList.length === 0) {
-      fetchClasses();
-    }
-  }, [classList.length, dispatch]);
+  const fetchOutcomes = async (classId) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/activity?activityType=outcome&classId=${classId}`,
+        config
+      );
 
-  const handleClassSelect = (classItem) => {
-    setSelectedClassId(classItem._id);
-    setSelectedClassName(classItem.className);
-    fetchPosts(classItem._id);
-    fetchOutcomes(classItem._id);
+      const filteredOutcomes = response.data.filter(
+        (activity) => activity.activityType === "outcome"
+      );
+
+      setOutcomes(filteredOutcomes || []);
+      determineCurrentStep(filteredOutcomes);
+    } catch (error) {
+      message.error("Error fetching outcomes. Please try again.");
+      setOutcomes([]);
+      setCurrentStep(0);
+    }
+  };
+
+  const determineCurrentStep = (outcomesList) => {
+    let step = 1; // Start từ Outcome 1
+
+    while (step <= 3) {
+      const outcome = outcomesList.find(
+        (outcome) =>
+          outcome.assignmentType.toLowerCase() === `outcome ${step}`
+      );
+
+      if (!outcome) {
+        setCurrentStep(step);
+        return;
+      }
+
+      const deadline = moment(outcome.deadline);
+      const now = moment();
+
+      if (now.isBefore(deadline)) {
+        setCurrentStep(step);
+        return;
+      }
+
+      if (outcome.status !== "Hoàn thành") {
+        setCurrentStep(step);
+        return;
+      }
+
+      step += 1;
+    }
+
+    setCurrentStep(3);
   };
 
   const handlePost = async () => {
-    if (!postContent || !selectedClassId) {
-      message.error("Please enter content and select a class before posting.");
+    if (!postContent || !classId) {
+      message.error("Please enter content before posting.");
       return;
     }
 
@@ -127,7 +186,7 @@ const PostActivity = () => {
     const formData = new FormData();
     formData.append("description", cleanContent);
     formData.append("activityType", "post");
-    formData.append("classId", selectedClassId);
+    formData.append("classId", classId);
 
     if (fileToUpload) {
       formData.append("materialFile", fileToUpload);
@@ -140,7 +199,7 @@ const PostActivity = () => {
       setIsModalVisible(false);
       setPostContent("");
       setFileToUpload(null);
-      await fetchPosts(selectedClassId);
+      await fetchPosts(classId);
     } catch (error) {
       message.error("Failed to create post");
     } finally {
@@ -149,8 +208,8 @@ const PostActivity = () => {
   };
 
   const showModal = () => {
-    if (!selectedClassId) {
-      message.error("Please select a class before creating a post.");
+    if (!classId) {
+      message.error("Class not found. Cannot create post.");
       return;
     }
     setIsModalVisible(true);
@@ -170,7 +229,18 @@ const PostActivity = () => {
     onRemove: () => {
       setFileToUpload(null);
     },
-    fileList: fileToUpload ? [fileToUpload] : [],
+    fileList: fileToUpload
+      ? fileToUpload instanceof File
+        ? [fileToUpload]
+        : [
+            {
+              uid: "-1",
+              name: fileToUpload.name,
+              status: "done",
+              url: fileToUpload.url,
+            },
+          ]
+      : [],
   };
 
   const postActionsMenu = (postId) => (
@@ -193,6 +263,16 @@ const PostActivity = () => {
       const post = response.data;
       setSelectedPostId(postId);
       setPostContent(post.description);
+      setFileToUpload(
+        post.materialUrl
+          ? {
+              uid: "-1",
+              name: post.materialUrl.split("/").pop(),
+              status: "done",
+              url: post.materialUrl,
+            }
+          : null
+      );
       setEditModalVisible(true);
     } catch (error) {
       message.error("Failed to load post data for editing");
@@ -208,7 +288,7 @@ const PostActivity = () => {
     const formData = new FormData();
     formData.append("description", DOMPurify.sanitize(postContent));
 
-    if (fileToUpload) {
+    if (fileToUpload && fileToUpload instanceof File) {
       formData.append("materialFile", fileToUpload);
     }
 
@@ -222,7 +302,8 @@ const PostActivity = () => {
       message.success("Post updated successfully");
       setEditModalVisible(false);
       setPostContent("");
-      fetchPosts(selectedClassId);
+      setFileToUpload(null);
+      await fetchPosts(classId);
     } catch (error) {
       message.error("Failed to update post");
     } finally {
@@ -293,160 +374,17 @@ const PostActivity = () => {
     setPostContent("");
     setFileToUpload(null);
   };
-  const handleInputChange = (e) => {
-    setSearchValue(e.target.value);
-  };
-  const handleDropdownClick = () => {
-    setIsSearching(true);
-    setSearchValue("");
-  };
-  const classDropdown = (
-    <div style={{ padding: "8px" }}>
-      {isSearching ? (
-        <div style={{ position: "relative" }}>
-          <Input
-            placeholder="Tìm kiếm lớp học"
-            value={searchValue}
-            onChange={handleInputChange}
-            style={{ marginBottom: "8px", paddingRight: "8px" }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: `${searchValue.length * 8.5 + 12}px`,
-              transform: "translateY(-50%)",
-              color: "#bfbfbf",
-              pointerEvents: "none",
-            }}
-          >
-            {suggestedText}
-          </span>
-        </div>
-      ) : null}
-      <Menu>
-        {filteredClasses.length > 0 ? (
-          filteredClasses.map((classItem) => (
-            <Menu.Item
-              key={classItem._id}
-              onClick={() => handleClassSelect(classItem)}
-            >
-              {classItem.className}
-            </Menu.Item>
-          ))
-        ) : (
-          <Menu.Item disabled>Không tìm thấy lớp</Menu.Item>
-        )}
-      </Menu>
-    </div>
-  );
-  useEffect(() => {
-    if (searchValue) {
-      const filtered = classList.filter((classItem) =>
-        classItem.className.toLowerCase().includes(searchValue.toLowerCase())
-      );
-      setFilteredClasses(filtered);
-
-      const suggestion = filtered.length > 0 ? filtered[0].className : "";
-      setSuggestedText(
-        suggestion.startsWith(searchValue)
-          ? suggestion.slice(searchValue.length)
-          : ""
-      );
-    } else {
-      setFilteredClasses(classList);
-      setSuggestedText("");
-    }
-  }, [searchValue, classList]);
-  const refreshPosts = () => {
-    if (selectedClassId) {
-      fetchPosts(selectedClassId);
-    }
-  };
-  useEffect(() => {
-    if (selectedClassId) {
-      fetchOutcomes(selectedClassId);
-    } else {
-      setOutcomes([]);
-      setCurrentStep(0);
-    }
-  }, [selectedClassId]);
-  const determineCurrentStep = (outcomesList) => {
-    let step = 0;
-
-    while (step <= 3) {
-      const outcome = outcomesList.find(
-        (outcome) => outcome.assignmentType.toLowerCase() === `outcome ${step}`
-      );
-
-      if (!outcome) {
-        setCurrentStep(step);
-        return;
-      }
-
-      const deadline = moment(outcome.deadline);
-      const now = moment();
-
-      if (now.isBefore(deadline)) {
-        setCurrentStep(step);
-        return;
-      }
-
-      step += 1;
-    }
-
-    setCurrentStep(3);
-  };
-
-  const fetchOutcomes = async (classId) => {
-    try {
-      const response = await axios.get(
-        `${BASE_URL}/activity?activityType=outcome&classId=${classId}`,
-        config
-      );
-
-      const filteredOutcomes = response.data.filter(
-        (activity) => activity.activityType === "outcome"
-      );
-
-      setOutcomes(filteredOutcomes || []);
-      determineCurrentStep(filteredOutcomes);
-    } catch (error) {
-      message.error("Error fetching outcomes. Please try again.");
-      setOutcomes([]);
-      setCurrentStep(0);
-    }
-  };
-  const getProgressPercentage = (startDate, deadline) => {
-    const now = moment();
-    const start = moment(startDate);
-    const end = moment(deadline);
-
-    if (now.isBefore(start)) {
-      return 0;
-    } else if (now.isAfter(end)) {
-      return 100;
-    } else {
-      const totalDuration = end.diff(start);
-      const elapsed = now.diff(start);
-      return Math.round((elapsed / totalDuration) * 100);
-    }
-  };
 
   return (
     <Layout>
       <div style={{ padding: "24px", width: "100%", backgroundColor: "#fff" }}>
-        <Dropdown
-          overlay={classDropdown}
-          trigger={["click"]}
-          onOpenChange={handleDropdownClick}
-        >
-          <Button>
-            {selectedClassName ? `Lớp: ${selectedClassName}` : "Chọn lớp"}{" "}
-            <DownOutlined />
-          </Button>
-        </Dropdown>
-        {selectedClassId && (
+        {/* Hiển thị tên lớp */}
+        <div style={{ marginBottom: "16px" }}>
+          <h2>Class: {className}</h2>
+        </div>
+
+        {/* Hiển thị giai đoạn hiện tại */}
+        {classId && (
           <Steps
             current={currentStep}
             size="default"
@@ -480,30 +418,38 @@ const PostActivity = () => {
                             {moment(outcome.deadline).format("DD-MM-YYYY")}
                           </p>
                         </Tooltip>
-                        <Tooltip title="5/6 nhóm chưa nộp">
+                        <Tooltip
+                          title={`${
+                            outcome.totalGroups - outcome.assignedGroups
+                          }/${outcome.totalGroups} nhóm chưa nộp`}
+                        >
                           <FlagOutlined
                             style={{
                               position: "absolute",
                               top: "-38%",
-                              // left: `${progressPercentage}%`,
                               left: "110%",
                               transform: "translate(-50%, -50%)",
                               color:
-                                progressPercentage === 100 ? "#52c41a" : "red",
+                                outcome.status === "Quá hạn"
+                                  ? "red"
+                                  : outcome.status === "Hoàn thành"
+                                  ? "#52c41a"
+                                  : "orange",
                               fontSize: "16px",
                             }}
                           />
                         </Tooltip>
-                        <Tooltip title="1/6 nhóm đã nộp ">
+                        <Tooltip
+                          title={`${outcome.assignedGroups}/${outcome.totalGroups} nhóm đã nộp`}
+                        >
                           <FlagOutlined
                             style={{
                               position: "absolute",
                               top: "-38%",
-                              // left: `${progressPercentage}%`,
                               left: "405%",
                               transform: "translate(-50%, -50%)",
                               color:
-                                progressPercentage === 100
+                                outcome.status === "Hoàn thành"
                                   ? "#52c41a"
                                   : "green",
                               fontSize: "16px",
@@ -512,7 +458,7 @@ const PostActivity = () => {
                         </Tooltip>
                       </div>
                     ) : (
-                      "Chưa tạo Outcome " + stepNumber
+                      `Chưa tạo Outcome ${stepNumber}`
                     )
                   }
                 />
@@ -521,7 +467,7 @@ const PostActivity = () => {
           </Steps>
         )}
 
-        {selectedClassId ? (
+        {classId && (
           <div
             style={{
               padding: "16px",
@@ -530,12 +476,7 @@ const PostActivity = () => {
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
               border: "1px solid #d3e4f3",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#e6f7ff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#f0f8ff";
+              backgroundColor: "#f0f8ff",
             }}
             onClick={showModal}
           >
@@ -546,16 +487,15 @@ const PostActivity = () => {
               <ProfileOutlined
                 style={{ marginRight: "5px", fontSize: "16px" }}
               />
-              {posts ? (
+              {posts.length > 0 ? (
                 <b style={{ color: "#1890ff" }}>{posts.length} Bài viết</b>
               ) : (
-                ""
+                <b style={{ color: "#1890ff" }}>0 Bài viết</b>
               )}
             </p>
           </div>
-        ) : (
-          ""
         )}
+
         <div style={{ display: "flex" }}>
           <div style={{ flex: 8 }}>
             {noPosts ? (
@@ -593,12 +533,10 @@ const PostActivity = () => {
                               Tài liệu: {post.materialUrl.split("/").pop()}
                             </h6>
                           </Button>
-                        ) : (
-                          <h4></h4>
-                        )}
+                        ) : null}
 
                         <div className="user">
-                          <Avatar icon={<FileOutlined />} />
+                          <Avatar icon={<UserOutlined />} />
                           <div className="user-info">
                             <h5>{username}</h5>
                             <small>{moment(post.createdAt).fromNow()}</small>
@@ -673,16 +611,14 @@ const PostActivity = () => {
               <Button icon={<UploadOutlined />}>Cập nhật file đính kèm</Button>
             </Upload>
           </Modal>
-          <div style={{ width: "24%" }}>
-            {selectedClassId ? (
+
+          <div style={{ width: "24%", marginLeft: "16px" }}>
+            {classId ? (
               <>
-                <MaterialList
-                  style={{ flex: 2 }}
-                  selectedClassId={selectedClassId}
-                />
+                <MaterialList selectedClassId={classId} />
                 <OutcomeList
-                  selectedClassId={selectedClassId}
-                  refreshPosts={refreshPosts}
+                  selectedClassId={classId}
+                  refreshPosts={fetchPosts}
                 />
               </>
             ) : (
@@ -690,6 +626,7 @@ const PostActivity = () => {
             )}
           </div>
         </div>
+
         {posts.length > 0 ? (
           <Tooltip title="Kéo vào thùng rác để xóa">
             <Button
@@ -698,7 +635,7 @@ const PostActivity = () => {
               icon={<DeleteOutlined />}
               danger
               size="large"
-              onClick={{}}
+              // onClick={handleBulkDelete} // Implement bulk delete if needed
               style={{
                 position: "fixed",
                 bottom: 20,
@@ -708,12 +645,27 @@ const PostActivity = () => {
               }}
             />
           </Tooltip>
-        ) : (
-          ""
-        )}
+        ) : null}
       </div>
     </Layout>
   );
+};
+
+// Helper function to get progress percentage
+const getProgressPercentage = (startDate, deadline) => {
+  const now = moment();
+  const start = moment(startDate);
+  const end = moment(deadline);
+
+  if (now.isBefore(start)) {
+    return 0;
+  } else if (now.isAfter(end)) {
+    return 100;
+  } else {
+    const totalDuration = end.diff(start);
+    const elapsed = now.diff(start);
+    return Math.round((elapsed / totalDuration) * 100);
+  }
 };
 
 export default PostActivity;

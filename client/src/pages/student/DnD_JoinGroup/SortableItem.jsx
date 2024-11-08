@@ -16,7 +16,6 @@ export const SortableItem = ({ id, item, userId }) => {
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    padding: "8px",
     width: "100%",
     boxSizing: "border-box",
     backgroundColor: "#fff",
@@ -55,8 +54,15 @@ export const SortableItem = ({ id, item, userId }) => {
         {...listeners}
       >
         <Empty
-          description="Chưa có ai trong nhóm này"
-          style={{ width: "100%", textAlign: "center" }}
+          description="Kéo thả vào để hủy bỏ tham gia nhóm hiện tại"
+          style={{
+            width: "100%",
+            textAlign: "center",
+            borderStyle: "dashed",
+            margin: "0px",
+            padding: "5px",
+            border: "0.5px dashed #007F7A"
+          }}
         />
       </List.Item>
     );
@@ -73,13 +79,7 @@ export const SortableItem = ({ id, item, userId }) => {
       <Avatar src={avatarImage} style={{ marginRight: "8px" }} />
       <div style={contentStyle} key={item._id}>
         {item._id === userId ? (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div>
               <div style={usernameStyle}>{item.username}</div>
               <div style={detailsStyle}>
@@ -92,7 +92,7 @@ export const SortableItem = ({ id, item, userId }) => {
             </div>
             <StarOutlined
               className={item._id === userId ? "bounce" : ""}
-              style={{ fontSize: "1.3rem", color: "gold", marginRight: "8px" }}
+              style={{ fontSize: "1.2rem", color: "gold", marginRight: "8px" }}
             />
           </div>
         ) : (

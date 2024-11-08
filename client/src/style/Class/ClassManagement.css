@@ -25,8 +25,9 @@
   }
   
   .bounce {
-    animation: bounce 1s infinite;
+    animation: bounce 1s ease infinite;
   }
+  
   
 
 .class-management-card {
