@@ -70,7 +70,7 @@ const CreateGroup = ({ classId, show, close }) => {
 
       const deadline = values.deadline;
 
-      const ruleId = values.ruleJoin;
+      const ruleId = "6725c81105c6e73505972b32";
       const autoFinish = values.autoFinish || false;
       const groupCount = values.groupCount;
 
@@ -157,7 +157,7 @@ const CreateGroup = ({ classId, show, close }) => {
             groupCount: 5,
           }}
         >
-          <Form.Item
+          {/* <Form.Item
             name="ruleJoin"
             label={
               <p
@@ -183,7 +183,7 @@ const CreateGroup = ({ classId, show, close }) => {
                   </Select.Option>
                 ))}
             </Select>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item
             name="groupCount"
@@ -245,14 +245,14 @@ const CreateGroup = ({ classId, show, close }) => {
   );
 
   const modalFooter = (
-    <>
+    <div style={{ display: "flex", gap: "1rem", justifyContent: "end" }}>
       <Button color="primary" variant="solid" onClick={handleConfirmSubmit}>
         <PlusOutlined /> Tạo
       </Button>
       <Button color="danger" variant="solid" onClick={handleClose}>
         Thoát
       </Button>
-    </>
+    </div>
   );
 
   return (

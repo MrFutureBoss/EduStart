@@ -63,10 +63,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
     fetchUserData();
   }, [userId, config, dispatch]);
 
-  const handleLogout = () => {
-    navigate("/");
-    localStorage.removeItem("jwt");
-  };
+
 
   return (
     <Sider
@@ -86,7 +83,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         // defaultOpenKeys={["sub1"]}
         style={{ height: "100%", borderRight: 0, padding: 10 }}
       >
-        <SubMenu
+        {/* <SubMenu
           key="sub1"
           icon={
             <FaUserCircle
@@ -152,7 +149,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           >
             <span style={{ cursor: "pointer" }}>Đăng xuất</span>
           </Menu.Item>
-        </SubMenu>
+        </SubMenu> */}
         <Menu.Item key="4" icon={<DashboardOutlined />}>
           <Link style={{ textDecoration: "none" }} to="teacher-dashboard">
             Dashboard

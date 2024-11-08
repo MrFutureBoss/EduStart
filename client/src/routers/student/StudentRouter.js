@@ -3,6 +3,7 @@ import { Route } from "react-router-dom";
 import { ProtectRoute } from "../../utilities/auth";
 import StudentLayout from "../../layouts/student/Layout";
 import GroupMembers from "../../pages/group/GroupMembers";
+import ClassDetail from "../../pages/student/ClassDetail";
 const StudentRouter = () => {
   return (
     <Route
@@ -13,6 +14,7 @@ const StudentRouter = () => {
         </ProtectRoute>
       }
     >
+      <Route path="class" element={<ClassDetail />} />
       <Route path="group-detail" element={<GroupMembers />} />
     </Route>
   );

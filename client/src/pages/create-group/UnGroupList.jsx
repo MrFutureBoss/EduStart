@@ -23,6 +23,8 @@ import CreateGroup from "./CreateGroup";
 import Result from "./DnD_Group/Result";
 import { setSettingCreateGroupData } from "../../redux/slice/SettingCreateGroup";
 import moment from "moment";
+import "moment/locale/vi";
+
 const UnGroupList = () => {
   const { className } = useParams();
   const dispatch = useDispatch();
@@ -31,6 +33,7 @@ const UnGroupList = () => {
   const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
   const [isDndActive, setIsDndActive] = useState(false);
   const userId = localStorage.getItem("userId");
+  moment.locale("vi");
 
   const config = useMemo(
     () => ({
@@ -204,14 +207,26 @@ const UnGroupList = () => {
 
   const deadline = filteredSettingCreateGroup[0]?.deadline;
   const autoFinish = filteredSettingCreateGroup[0]?.autoFinish;
-  const ruleJoin = filteredSettingCreateGroup[0]?.ruleJoin || [];
+  // const ruleJoin = filteredSettingCreateGroup[0]?.ruleJoin || [];
 
   const remainingTime = useMemo(() => {
     if (!deadline) return null;
+    
     const now = moment();
     const deadlineTime = moment(deadline);
-    return deadlineTime.isAfter(now) ? deadlineTime.fromNow() : "Đã hết hạn";
+    const duration = moment.duration(deadlineTime.diff(now));
+    if (duration.asDays() >= 1) {
+      return `${Math.floor(duration.asDays())} ngày nữa`;
+    } else if (duration.asHours() >= 1) {
+      return `${Math.floor(duration.asHours())} tiếng nữa`;
+    } else if (duration.asMinutes() >= 1) {
+      return `${Math.floor(duration.asMinutes())} phút nữa`;
+    } else {
+      return "Đã hết hạn";
+    }
   }, [deadline]);
+  
+
   return (
     <div>
       <CreateGroup
@@ -270,7 +285,11 @@ const UnGroupList = () => {
               }}
               color="#D20336"
             >
-              {remainingTime}
+              {remainingTime !== null ? (
+                remainingTime
+              ) : (
+                <>Hãy thiết lập deadline</>
+              )}
             </Tag>
           </p>
         </Card.Grid>
@@ -284,11 +303,12 @@ const UnGroupList = () => {
               }}
               color="#108ee9"
             >
-              {ruleJoin.length > 0
+              {/* {ruleJoin.length > 0
                 ? ruleJoin.map((rule) => (
                     <span key={rule._id}>{rule.title}</span>
                   ))
-                : "Không có điều kiện"}
+                : "Không có điều kiện"} */}
+              Có ít nhất 1 sinh viên khác ngành
             </Tag>
           </p>
         </Card.Grid>

@@ -12,6 +12,23 @@
     }
 }
 
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .bounce {
+    animation: bounce 1s infinite;
+  }
+  
+
 .class-management-card {
     max-width: 20rem;
     border: 1px solid #e2e2e2;
