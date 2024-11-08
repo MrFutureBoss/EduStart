@@ -129,6 +129,43 @@ const ClassManagement = () => {
             bordered={true}
             title={
               <h5 style={{ padding: "0px", margin: "0px" }}>
+                Việc bạn cần giải quyết <FaPen />
+              </h5>
+            }
+            extra={
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
+            }
+            headStyle={{
+              background:
+                "linear-gradient(90deg, rgba(210,3,54,1) 67%, rgba(224,0,4,0.9097222222222222) 96%)",
+              color: "white",
+            }}
+            bodyStyle={{ padding: "20px" }}
+          >
+            <TeacherTask />
+          </Card>
+        </Col>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+          <Card
+            bordered={true}
+            title={
+              <h5 style={{ padding: "0px", margin: "0px" }}>
                 Thông tin{" "}
                 <MdInfoOutline style={{ color: "#FFF", fontSize: "1.5rem" }} />
               </h5>
@@ -282,44 +319,6 @@ const ClassManagement = () => {
                 <Tag color="#108ee9">{classInfo?.totalStudents}</Tag>
               </div>
             </Card.Grid>
-          </Card>
-        </Col>
-
-        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>
-                Việc bạn cần giải quyết <FaPen />
-              </h5>
-            }
-            extra={
-              <Dropdown
-                menu={{
-                  items,
-                }}
-                placement="bottom"
-                arrow
-              >
-                <Tooltip title="Tùy chỉnh thẻ">
-                  <MoreOutlined
-                    style={{
-                      fontSize: "1.2rem",
-                      cursor: "pointer",
-                      color: "#FFF",
-                    }}
-                  />
-                </Tooltip>
-              </Dropdown>
-            }
-            headStyle={{
-              background:
-                "linear-gradient(90deg, rgba(210,3,54,1) 67%, rgba(224,0,4,0.9097222222222222) 96%)",
-              color: "white",
-            }}
-            bodyStyle={{ padding: "20px" }}
-          >
-            <TeacherTask />
           </Card>
         </Col>
       </Row>

@@ -94,7 +94,7 @@ const SortableCards = ({ dndActive }) => {
     };
 
     fetchUserData();
-  }, [config]);
+  }, [config, className]);
 
   // /Danh sách nhóm chưa chốt xong và danh sách sinh trong nhóm đó
   useEffect(() => {

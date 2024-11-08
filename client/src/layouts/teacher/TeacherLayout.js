@@ -20,22 +20,17 @@ const TeacherLayout = () => {
         <TeacherSider collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <Layout
           style={{
-            padding: "0 24px 24px",
+            padding: "0px",
             backgroundColor: "#F5F5F5",
             overflow: "auto",
           }}
         >
           <TeacherDashBoardNotification></TeacherDashBoardNotification>
-
-          <Breadcrumb
-            items={[{ title: "Home" }, { title: "List" }, { title: "App" }]}
-            style={{ margin: "16px 0" }}
-          />
           <Content
             className="site-layout-background"
             style={{
               padding: 30,
-              margin: "24px 16px 0",
+              // margin: "24px 16px 0",
               overflow: "initial",
               minHeight: 280,
               background: "#FFF",

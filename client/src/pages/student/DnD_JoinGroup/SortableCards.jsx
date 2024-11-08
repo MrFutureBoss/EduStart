@@ -39,6 +39,7 @@ import Search from "antd/es/transfer/search";
 import avatarImage from "../../../assets/images/459233558_122150574488258176_5118808073589257292_n.jpg";
 import Highlighter from "react-highlight-words";
 import { setUserProfile } from "../../../redux/slice/UserSlice";
+import { StarOutlined } from "@ant-design/icons";
 
 const SortableCards = () => {
   const dispatch = useDispatch();
