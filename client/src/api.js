@@ -61,14 +61,14 @@ export const fetchClassSummaryData = (teacherId) => {
     getConfig()
   );
 };
-
+// api để lấy dự án trong lớp
 export const fetchProjectData = (teacherId, classId) => {
   return axios.get(
     `${BASE_URL}/class/projects/${teacherId}/${classId}`,
     getConfig()
   );
 };
-
+// api lấy danh sách gợi ý các mentor cho dự án trong lớp
 export const fetchMentorsTempMatching = (classId, teacherId) => {
   const config = {
     ...getConfig(),
@@ -81,7 +81,7 @@ export const fetchMentorsTempMatching = (classId, teacherId) => {
 
   return axios.post(`${BASE_URL}/tempMatching/recommend`, data, config);
 };
-
+// api để gán mentor được chọn cho nhóm
 export const assignMentorToProject = async (groupId, mentorId) => {
   const config = {
     ...getConfig(),
@@ -93,11 +93,11 @@ export const assignMentorToProject = async (groupId, mentorId) => {
   };
   return axios.post(`${BASE_URL}/matched/add-matched`, data, config);
 };
-
+// api để lấy thông tin dự án của nhóm
 export const getProjectGroupData = (groupId) => {
   return axios.get(`${BASE_URL}/group/project/${groupId}`, getConfig());
 };
-
+// api để lấy thông tin matches của nhóm
 export const getMatchedProject = (groupId) => {
   return axios.get(`${BASE_URL}/matched/infor-matched/${groupId}`, getConfig());
 };

@@ -16,8 +16,8 @@ import OutcomeActivity from "../../pages/activity/OutcomeActivity";
 import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
 import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTreeView";
 import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
-import ProjectCardMain from "../../pages/teacher/matchingMentor/ProjectCardMain";
-import DetailedSelection from "../../pages/teacher/matchingMentor/DetailedSelection";
+import ProjectCardMain from "../../pages/teacher/matchingMentor/matching/ProjectCardMain";
+import DetailedSelection from "../../pages/teacher/matchingMentor/matching/DetailedSelection";
 import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
 import GroupMembers from "../../pages/group/GroupMembers";
 

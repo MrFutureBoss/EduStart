@@ -10,8 +10,6 @@
 .project-tag-container {
   position: absolute;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
   justify-content: center;
 }
 .project-specialties {

@@ -39,7 +39,6 @@ const ProjectUpdateModal = ({
   const [selectedSpecialties, setSelectedSpecialties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  console.log("isUpdating", isUpdating);
 
   useEffect(() => {
     const fetchProfessions = async () => {
@@ -226,7 +225,7 @@ const ProjectUpdateModal = ({
               </Form.Item>
 
               <Divider orientation="left">
-                Ngành Nghề{" "}
+                Lĩnh Vực{" "}
                 <Badge
                   count={filteredProfessions.length}
                   style={{
@@ -240,7 +239,7 @@ const ProjectUpdateModal = ({
 
               <Form.Item>
                 <Input
-                  placeholder="Tìm kiếm ngành nghề..."
+                  placeholder="Tìm kiếm lĩnh vực..."
                   prefix={<SearchOutlined />}
                   value={searchTerm}
                   onChange={handleSearch}
