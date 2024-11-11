@@ -87,6 +87,24 @@ const getMentorsBySpecialty = async (req, res) => {
     res.status(500).json({ message: `Lỗi server ${error.message}`, error });
   }
 };
+const getMentorCategoryByUserId = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const mentorCategory = await mentorCategoryDAO.getMentorCategoryByUserId(userId);
+
+    if (!mentorCategory) {
+      return res
+        .status(404)
+        .json({ message: "Mentor category không tìm thấy" });
+    }
+
+    res.status(200).json(mentorCategory);
+  } catch (error) {
+    console.error("Error fetching mentor category by userId:", error);
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
 
 export default {
   getAllMentorCategories,
@@ -94,4 +112,5 @@ export default {
   createNewMentorCategory,
   getMentorsBySpecialty,
   fetchTeacherTreeData,
+  getMentorCategoryByUserId,
 };

@@ -4,6 +4,7 @@ import Profession from "../../models/professionModel.js";
 import ProjectCategory from "../../models/projectCategoryModel.js";
 import Specialty from "../../models/specialtyModel.js";
 import mongoose from "mongoose";
+const { ObjectId } = mongoose.Types;
 import User from "../../models/userModel.js";
 import TeacherSelection from "../../models/teacherSelection.js";
 
@@ -177,6 +178,17 @@ const getMentorsBySpecialty = async (professionId, specialtyId) => {
   return mentors;
 };
 
+const getMentorCategoryByUserId = async (userId) => {
+  try {
+    return await MentorCategory.findOne({ mentorId: new ObjectId(userId) })
+      .populate("mentorId", "username email") 
+      .populate("professionIds") 
+      .populate("specialties.specialtyId");
+  } catch (error) {
+    throw new Error(`Unable to find mentor category with userId ${userId}: ${error.message}`);
+  }
+};
+
 export default {
   getAvailableGroupsForMentor,
   getAllMentorCategories,
@@ -184,4 +196,5 @@ export default {
   createNewMentorCategory,
   getMentorsBySpecialty,
   fetchTreeData,
+  getMentorCategoryByUserId,
 };

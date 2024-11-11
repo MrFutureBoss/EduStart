@@ -9,6 +9,7 @@ import SignIn from "./pages/authen&author/SignIn.jsx";
 import { ProtectRoute } from "./utilities/auth.js";
 import TeacherRouter from "./routers/teacher/TeacherRouter.js";
 import AdminRouter from "./routers/admin/AdminRouter.js";
+import UserProfile from "./pages/UserProfile.jsx"
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         {AdminRouter()}
         {TeacherRouter()}
+        <Route path="/profile" element={<UserProfile />} />
         <Route
           path="/student-dashboard"
           element={

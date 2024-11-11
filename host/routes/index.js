@@ -10,6 +10,7 @@ import classRouter from "./classRouter.js";
 import mentorCategoryRouters from "./mentorCategory.js";
 import tempGroupRouters from "./tempGroupRoutes.js";
 import createGroupSettingRouter from "./createGroupSettingRoutes.js";
+import getMentorCategoryByUserId from "../routes/mentorCategory.js"
 
 const routes = {
   professionRouters,
@@ -24,6 +25,7 @@ const routes = {
   mentorCategoryRouters,
   tempGroupRouters,
   createGroupSettingRouter,
+
 };
 
 export default routes;
