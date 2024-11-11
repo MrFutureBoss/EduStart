@@ -436,7 +436,10 @@ const updateOutcomeDeadline = async (req, res) => {
     const { activityId } = req.params;
     const { newDeadline } = req.body;
 
-    const activity = await activityDAO.findActivityByIdAndType(activityId, "outcome");
+    const activity = await activityDAO.findActivityByIdAndType(
+      activityId,
+      "outcome"
+    );
     if (!activity) {
       return res.status(404).json({ error: "Outcome activity not found." });
     }
@@ -450,10 +453,125 @@ const updateOutcomeDeadline = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating deadline:", error);
-    res.status(500).json({ error: "An error occurred while updating the deadline." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the deadline." });
   }
 };
 
+const createOutcomeType = async (req, res) => {
+  try {
+    const { name, description, semesterId } = req.body;
+    const createdBy = req.user._id;
+
+    const existingOutcome = await activityDAO.isDuplicateOutcomeNameInSemester(
+      name,
+      semesterId
+    );
+    if (existingOutcome) {
+      return res.status(400).json({
+        message: "Outcome with this name already exists for this semester",
+      });
+    }
+
+    const outcomeData = { name, description, createdBy, semesterId };
+    const outcome = await activityDAO.createOutcomeType(outcomeData);
+    res.status(201).json(outcome);
+  } catch (error) {
+    console.error("Error creating outcome:", error);
+    res.status(500).json({ message: "Failed to create outcome" });
+  }
+};
+
+const getAllOutcomesType = async (req, res) => {
+  try {
+    const outcomes = await activityDAO.getAllOutcomesType(req.query.semesterId); // Optionally filter by semesterId
+    res.status(200).json(outcomes);
+  } catch (error) {
+    console.error("Error fetching outcomes:", error);
+    res.status(500).json({ message: "Failed to fetch outcomes" });
+  }
+};
+
+const getOutcomeTypeById = async (req, res) => {
+  try {
+    const outcome = await activityDAO.getOutcomeTypeById(req.params.id);
+    if (!outcome) {
+      return res.status(404).json({ message: "Outcome not found" });
+    }
+    res.status(200).json(outcome);
+  } catch (error) {
+    console.error("Error fetching outcome:", error);
+    res.status(500).json({ message: "Failed to fetch outcome" });
+  }
+};
+
+const updateOutcomeType = async (req, res) => {
+  try {
+    const { name, description, semesterId } = req.body;
+    const outcomeId = req.params.id;
+
+    const duplicateOutcome = await activityDAO.findOutcomeByNameAndSemester(
+      name,
+      semesterId,
+      outcomeId
+    );
+
+    if (duplicateOutcome) {
+      return res.status(400).json({
+        message: "An outcome with this name already exists for this semester",
+      });
+    }
+
+    const updateData = { name, description, semesterId };
+    const outcome = await activityDAO.updateOutcomeTypeById(
+      outcomeId,
+      updateData
+    );
+
+    if (!outcome) {
+      return res.status(404).json({ message: "Outcome not found" });
+    }
+
+    res.status(200).json(outcome);
+  } catch (error) {
+    console.error("Error updating outcome:", error);
+    res.status(500).json({ message: "Failed to update outcome" });
+  }
+};
+
+const deleteOutcomeType = async (req, res) => {
+  try {
+    const outcome = await activityDAO.deleteOutcomeTypeById(req.params.id);
+    if (!outcome) {
+      return res.status(404).json({ message: "Outcome not found" });
+    }
+    res.status(200).json({ message: "Outcome deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting outcome:", error);
+    res.status(500).json({ message: "Failed to delete outcome" });
+  }
+};
+
+const getOutcomesBySemester = async (req, res) => {
+  try {
+    const { semesterId } = req.params;
+    const outcomes = await activityDAO.getOutcomesBySemesterId(semesterId);
+
+    if (!outcomes || outcomes.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No outcomes found for this semester" });
+    }
+
+    res.status(200).json(outcomes);
+  } catch (error) {
+    console.error("Error fetching outcomes by semester:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch outcomes for the semester" });
+  }
+};
 export default {
   createActivity,
   getActivities,
@@ -466,4 +584,10 @@ export default {
   sendReminder,
   updateOutcomeDeadline,
   assignOutcomeToAllGroups,
+  createOutcomeType,
+  getAllOutcomesType,
+  getOutcomeTypeById,
+  updateOutcomeType,
+  deleteOutcomeType,
+  getOutcomesBySemester,
 };

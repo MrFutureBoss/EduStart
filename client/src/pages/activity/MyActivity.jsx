@@ -53,7 +53,7 @@ const MyActivity = () => {
         const [classResponse, outcomeResponse] = await Promise.all([
           axios.get(`${BASE_URL}/class/${userId}/user`, config),
           axios.get(
-            `${BASE_URL}/activity/${userId}?activityType=outcome`,
+            `${BASE_URL}/activity/user/${userId}?activityType=outcome`,
             config
           ),
         ]);

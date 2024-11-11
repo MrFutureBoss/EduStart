@@ -40,7 +40,7 @@ activityRouters.get("/checkFileExists", activityController.checkFileExists);
 activityRouters.get("/download/:filename", downloadFile);
 
 activityRouters.get(
-  "/:userId",
+  "/user/:userId",
   verifyAccessToken,
   verifyRole([2]),
   activityController.getActivitiesByTeacher
@@ -68,5 +68,42 @@ activityRouters.patch(
   verifyAccessToken,
   verifyRole([2]),
   activityController.updateOutcomeDeadline
+);
+
+//Outcome type
+activityRouters.get(
+  "/outcome-type",
+  verifyAccessToken,
+  activityController.getAllOutcomesType
+);
+activityRouters.post(
+  "/outcome-type",
+  verifyAccessToken,
+  verifyRole([1]),
+  activityController.createOutcomeType
+);
+activityRouters.patch(
+  "/outcome-type/:id",
+  verifyAccessToken,
+  verifyRole([1]),
+  activityController.updateOutcomeType
+);
+activityRouters.delete(
+  "/outcome-type/:outcomeTypeId",
+  verifyAccessToken,
+  verifyRole([1]),
+  activityController.deleteOutcomeType
+);
+activityRouters.get(
+  "/outcome-type/:id",
+  verifyAccessToken,
+  verifyRole([1, 2]),
+  activityController.getOutcomeTypeById
+);
+
+activityRouters.get(
+  "/outcome-type/semester/:semesterId",
+  verifyAccessToken,
+  activityController.getOutcomesBySemester
 );
 export default activityRouters;
