@@ -12,17 +12,20 @@ const MentorCard = ({
   onChangePosition,
   isSelected,
   index,
-  showMenu, // Thêm showMenu vào destructuring props
+  showMenu,
+  setHasChanges,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleMenuClick = ({ key }) => {
     if (key === "select") {
       onMoveToSelected(mentor);
+      setHasChanges(true);
     } else if (key === "view") {
       setExpanded(true);
     } else if (key === "changePosition") {
       onChangePosition(mentor);
+      setHasChanges(true);
     }
   };
 
@@ -151,14 +154,15 @@ MentorCard.propTypes = {
   onChangePosition: PropTypes.func.isRequired,
   isSelected: PropTypes.bool,
   index: PropTypes.number,
-  showMenu: PropTypes.bool, // Thêm showMenu vào propTypes
+  showMenu: PropTypes.bool,
+  setHasChanges: PropTypes.func.isRequired, // Thêm propType cho setHasChanges
 };
 
 MentorCard.defaultProps = {
   onChangePosition: () => {},
   isSelected: false,
   index: undefined,
-  showMenu: true, // Mặc định showMenu là true
+  showMenu: true,
 };
 
 export default MentorCard;

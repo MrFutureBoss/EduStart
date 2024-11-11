@@ -9,6 +9,7 @@ import SignIn from "./pages/authen&author/SignIn.jsx";
 import TeacherRouter from "./routers/teacher/TeacherRouter.js";
 import AdminRouter from "./routers/admin/AdminRouter.js";
 import StudentRouter from "./routers/student/StudentRouter.js";
+import MentorRouter from "./routers/mentor/MentorRouter.js";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         {AdminRouter()}
         {TeacherRouter()}
         {StudentRouter()}
+        {MentorRouter()}
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
