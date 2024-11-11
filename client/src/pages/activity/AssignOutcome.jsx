@@ -113,7 +113,7 @@ const AssignOutcome = ({ onAssigned }) => {
       try {
         const userId = localStorage.getItem("userId");
         const response = await axios.get(
-          `http://localhost:9999/activity/${userId}?activityType=outcome`,
+          `http://localhost:9999/activity/user/${userId}?activityType=outcome`,
           config
         );
 

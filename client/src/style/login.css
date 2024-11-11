@@ -10,19 +10,20 @@
 
 .sign-in-full-height {
   width: 100%;
-  height: 100vh;
+  height: 93.6vh;
   margin: 0 auto;
   position: relative;
   z-index: 2;
 }
 
-.card-title-login{
+.card-title-login {
   background-color: #1890ff;
-  border-radius: 8px;
+  border-radius: 15px;
   padding: 10px;
   text-align: center;
   color: white;
-  margin-bottom: 10%;
+  position: relative;
+  bottom: 30px;
 }
 
 .error-message-response {
@@ -53,4 +54,36 @@
 .lg_error_message {
   color: red;
   font-size: 0.875rem;
+}
+
+.forgot-password-p {
+  color: blue;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin: 10px 0;
+}
+
+.forgot-password-p:hover {
+  text-decoration: underline;
+  color: #40a9ff;
+}
+
+.card-login-body {
+  padding: 0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ant-card-body {
+  padding: 0 30px 30px 30px !important;
+}
+
+.logo-no-bg {
+  background-image: url("./../assets/images/logo-no-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 85px;
+  height: 48px;
 }

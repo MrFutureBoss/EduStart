@@ -1,6 +1,6 @@
 // src/components/layout/AppHeader.js
 import React, { useEffect, useMemo } from "react";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Tooltip } from "antd";
 import SubMenu from "antd/es/menu/SubMenu";
 import { FaUserCircle } from "react-icons/fa";
 import { setLoading } from "../../redux/slice/semesterSlide";
@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ImProfile } from "react-icons/im";
 import { IoSettingsOutline } from "react-icons/io5";
 import { CiLogout } from "react-icons/ci";
+import { BellFilled } from "@ant-design/icons";
 
 const { Header } = Layout;
 
@@ -59,7 +60,7 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
   return (
     <div className="navbar">
       <div className="logo">
-        <h2>Edu Start</h2>
+        <p className="logo-title">EduStart</p>
       </div>
       <Menu mode="horizontal" className="menu" style={{ height: "100%" }}>
         <SubMenu
@@ -116,7 +117,10 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
         </SubMenu>
         <Menu.Item key="4">
           <Link style={{ textDecoration: "none" }} to="/contact">
-            Thông báo
+              <BellFilled
+                style={{ fontSize: "1.5rem" }}
+                className="bell-icon"
+              />
           </Link>
         </Menu.Item>
       </Menu>
