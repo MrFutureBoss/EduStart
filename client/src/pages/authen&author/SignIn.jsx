@@ -71,6 +71,8 @@ function SignIn() {
           } else if (userRole === 3) {
           } else if (userRole === 4) {
             navigation("/student-dashboard"); // Nếu là học sinh
+          } else if (userRole === 3) {
+            navigation("/mentor-dashboard"); // Nếu là mentor
           } else {
             navigation("/"); // Nếu không xác định, chuyển về trang chủ
           }

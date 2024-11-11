@@ -11,13 +11,13 @@ import {
   Badge,
   Progress,
 } from "antd";
-import "../teacherCSS/ProjectCardMain.css";
+import "../../teacherCSS/ProjectCardMain.css";
 import {
   fetchClassSummaryData,
   fetchProjectData,
   assignMentorToProject,
   fetchMentorsTempMatching,
-} from "../../../api";
+} from "../../../../api";
 import {
   setClassesWithUnupdatedProjects,
   setClassSummaries,
@@ -27,8 +27,8 @@ import {
   setMatchedClasses,
   setNotMatchedClasses,
   setPendingGroups,
-} from "../../../redux/slice/ClassSlice";
-import ProjectCard from "./ProjectCard";
+} from "../../../../redux/slice/ClassSlice";
+import ProjectCard from "../ProjectCard";
 import {
   DndContext,
   useSensor,
@@ -51,7 +51,7 @@ import {
   setActiveId,
   updateAssignedMentorsMap,
   setMentorsData,
-} from "../../../redux/slice/MatchingSlice";
+} from "../../../../redux/slice/MatchingSlice";
 
 const { Option } = Select;
 

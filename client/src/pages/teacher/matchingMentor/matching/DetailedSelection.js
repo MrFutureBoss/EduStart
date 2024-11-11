@@ -16,13 +16,13 @@ import {
   Tabs,
 } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import ProjectCard from "./ProjectCard";
-import "../teacherCSS/DetailedSelection.css"; // Import CSS
+import ProjectCard from "../ProjectCard";
+import "../../teacherCSS/DetailedSelection.css";
 import {
   setAssignedMentorsMap,
   setProjectData,
-} from "../../../redux/slice/MatchingSlice";
-import { assignMentorToProject, fetchProjectData } from "../../../api"; // Import API
+} from "../../../../redux/slice/MatchingSlice";
+import { assignMentorToProject, fetchProjectData } from "../../../../api"; // Import API
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
