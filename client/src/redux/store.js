@@ -17,6 +17,7 @@ import settingCreateGroupSlice from "./slice/SettingCreateGroup.js";
 import suggestMatchingSlice from "./slice/MatchingSlice.js";
 import projectSlice from "./slice/ProjectSlice.js";
 import groupSlice from "./slice/GroupSlice";
+import adminDashboardSlice from "./slice/AdminDashboardSlice.js";
 
 const rootReducer = {
   profession: professionSlice,
@@ -34,6 +35,7 @@ const rootReducer = {
   matching: suggestMatchingSlice,
   project: projectSlice,
   group: groupSlice,
+  adminDashboard: adminDashboardSlice,
 };
 
 const store = configureStore(

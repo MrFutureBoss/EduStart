@@ -101,3 +101,70 @@ export const getProjectGroupData = (groupId) => {
 export const getMatchedProject = (groupId) => {
   return axios.get(`${BASE_URL}/matched/infor-matched/${groupId}`, getConfig());
 };
+// API để kiểm tra kỳ học hiện tại và kỳ học sắp tới
+export const checkSemesterStatus = () => {
+  return axios.get(`${BASE_URL}/semester/check-semester-status`, getConfig());
+};
+
+// API để kiểm tra giáo viên trong kỳ học
+export const checkTeachersInSemester = () => {
+  return axios.get(`${BASE_URL}/semester/check-teachers`, getConfig());
+};
+
+// API để kiểm tra mentor trong kỳ học
+export const checkMentorsInSemester = () => {
+  return axios.get(`${BASE_URL}/semester/check-mentors`, getConfig());
+};
+
+// API để kiểm tra học sinh trong kỳ học
+export const checkStudentsInSemester = () => {
+  return axios.get(`${BASE_URL}/semester/check-students`, getConfig());
+};
+
+// API để kiểm tra học sinh có trạng thái Pending trong kỳ học
+export const checkStudentsPendingStatus = () => {
+  return axios.get(`${BASE_URL}/semester/check-students-pending`, getConfig());
+};
+
+// API để kiểm lớp học đã đủ học sinh chưa
+export const checkClassStatus = () => {
+  return axios.get(`${BASE_URL}/semester/check-class-capacity`, getConfig());
+};
+
+// API để kiểm giáo viên đã có lớp chưa
+export const checkTeacherWithoutClassStatus = () => {
+  return axios.get(
+    `${BASE_URL}/semester/check-teachers-without-class`,
+    getConfig()
+  );
+};
+
+// API để lấy toàn bộ danh sách yêu cầu đổi lớp cho admin
+export const getAllRequetChangClassAdmin = () => {
+  return axios.get(
+    `${BASE_URL}/classTranfer/all-transfer-requests`,
+    getConfig()
+  );
+};
+
+// API để lấy toàn bộ danh sách yêu cầu đổi lớp cho admin
+export const updateTransferRequestStatus = (
+  requestId,
+  status,
+  rejectMessage
+) => {
+  const config = {
+    ...getConfig(),
+  };
+
+  const data = {
+    requestId,
+    status,
+    rejectMessage,
+  };
+  return axios.patch(
+    `${BASE_URL}/classTranfer/update-transfer-status`,
+    data,
+    config
+  );
+};

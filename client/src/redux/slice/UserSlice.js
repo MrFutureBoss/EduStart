@@ -37,6 +37,7 @@ const initialValue = {
     step: 1,
   },
   recentlyUpdatedUsers: [],
+  selectedRole: null,
 };
 const usersSlice = createSlice({
   name: "user",
@@ -99,6 +100,12 @@ const usersSlice = createSlice({
         ...action.payload,
       };
     },
+    setRoleSelect: (state, action) => {
+      state.selectedRole = action.payload;
+    },
+    clearRoleSelect: (state) => {
+      state.selectedRole = null;
+    },
   },
 });
 
@@ -122,5 +129,7 @@ export const {
   setGroupsMatched,
   setForgotPassword,
   setRecentlyUpdatedUsers,
+  setRoleSelect,
+  clearRoleSelect,
 } = actions;
 export default reducer;

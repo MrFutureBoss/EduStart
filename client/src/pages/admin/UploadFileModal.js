@@ -4,8 +4,11 @@ import { Modal, Button, Upload, Select, message, notification } from "antd";
 import { UploadOutlined, DownloadOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
-import { useDispatch } from "react-redux";
-import { setRecentlyUpdatedUsers } from "../../redux/slice/UserSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setRecentlyUpdatedUsers,
+  setRoleSelect,
+} from "../../redux/slice/UserSlice";
 import {
   setErrorMessages,
   setFailedEmails,
@@ -42,17 +45,10 @@ const roles = [
   },
 ];
 
-const UploadFileModal = ({
-  visible,
-  onCancel,
-  selectedRole,
-  setSelectedRole,
-  semesterId,
-  refreshData,
-}) => {
+const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
   const jwt = localStorage.getItem("jwt");
   const dispatch = useDispatch();
-
+  const { selectedRole } = useSelector((state) => state.user);
   const [selectedFile, setSelectedFile] = useState(null); // File đã chọn
   const [isUploading, setIsUploading] = useState(false); // Trạng thái đang upload
 
@@ -116,7 +112,7 @@ const UploadFileModal = ({
       dispatch(setErrorMessages(errorMessages));
       dispatch(setFullClassUsers(fullClassUsers));
       dispatch(setFailedEmails(failedEmails));
-
+      refreshData();
       if (successCount > 0) {
         notification.success({
           message: "Upload thành công",
@@ -325,29 +321,37 @@ const UploadFileModal = ({
         </Button>,
       ]}
       width={800}
-      style={{ maxHeight: "70vh" }} // Giới hạn chiều cao cho Modal
-      bodyStyle={{ overflowY: "auto" }} // Thêm thanh cuộn khi cần thiết
+      style={{ maxHeight: "70vh" }}
+      bodyStyle={{ overflowY: "auto" }}
     >
-      <div style={{ marginBottom: "15px" }}>
-        <Select
-          placeholder="Chọn vai trò người dùng"
-          style={{ width: "100%" }}
-          onChange={(value) => {
-            setSelectedRole(value);
-            setSelectedFile(null);
-            dispatch(setErrorFileUrl(null)); // Xóa errorFileUrl khi chọn vai trò mới
-            dispatch(clearGeneralError()); // Xóa generalError khi chọn vai trò mới
-            dispatch(clearErrorMessages()); // Xóa errorMessages khi chọn vai trò mới
-          }}
-          value={selectedRole}
-        >
-          {roles.map((role) => (
-            <Option key={role.id} value={role.id}>
-              {role.name}
-            </Option>
-          ))}
-        </Select>
-      </div>
+      {/* Kiểm tra nếu selectedRole đã tồn tại */}
+      {!selectedRole ? (
+        <div style={{ marginBottom: "15px" }}>
+          <Select
+            placeholder="Chọn vai trò người dùng"
+            style={{ width: "100%" }}
+            onChange={(value) => {
+              dispatch(setRoleSelect(value));
+              setSelectedFile(null);
+              dispatch(setErrorFileUrl(null));
+              dispatch(clearGeneralError());
+              dispatch(clearErrorMessages());
+            }}
+            value={selectedRole}
+          >
+            {roles.map((role) => (
+              <Option key={role.id} value={role.id}>
+                {role.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      ) : (
+        <div style={{ marginBottom: "15px" }}>
+          <p>Vai trò: {roles.find((r) => r.id === selectedRole)?.name}</p>
+        </div>
+      )}
+
       {selectedRole && (
         <div
           style={{

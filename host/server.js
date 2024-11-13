@@ -68,6 +68,7 @@ app.use("/matched", routes.matchedRouter);
 app.use("/group", routes.groupRouter);
 app.use("/project", routes.projectRouter);
 app.use("/mentor", routes.mentorRouter);
+app.use("/classTranfer", routes.classTransferRoutes);
 
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {
