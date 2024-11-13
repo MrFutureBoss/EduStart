@@ -11,7 +11,6 @@ import { BASE_URL } from "../../utilities/initalValue";
 import "./Navbar.css";
 import { setUserLogin } from "../../redux/slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
-
 const { SubMenu } = Menu;
 
 const Navbar = () => {
@@ -34,7 +33,7 @@ const Navbar = () => {
 
   // Fetch teacher data from API when Navbar is mounted
   useEffect(() => {
-    const fetchTeacherData = async () => {
+    const fetchUserData = async () => {
       try {
         const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
         dispatch(setUserLogin(userRes.data));
@@ -44,14 +43,12 @@ const Navbar = () => {
       }
     };
 
-    fetchTeacherData();
+    fetchUserData();
   }, []);
 
   return (
     <div className="navbar">
-      <div className="logo">
-        <h2>Edu Start</h2>
-      </div>
+      <div className="logo"></div>
       <Menu mode="horizontal" defaultSelectedKeys={["4"]} className="menu">
         <SubMenu
           key="sub1"

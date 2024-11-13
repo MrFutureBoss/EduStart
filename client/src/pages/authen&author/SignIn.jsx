@@ -60,19 +60,20 @@ function SignIn() {
           "Chào mừng bạn đã trở lại."
         );
 
-        // Chuyển hướng dựa trên role
         setTimeout(() => {
           console.log("Navigating to Dashboard");
           if (userRole === 1) {
-            navigation("/admin-dashboard", { replace: true });
+            navigation("/admin/dashboard", { replace: true });
           } else if (userRole === 2) {
-            navigation("/teacher-dashboard"); // Nếu là giáo viên
+            navigation("/teacher-dashboard");
             dispatch(triggerTeacherDashboardNotification());
           } else if (userRole === 3) {
           } else if (userRole === 4) {
             navigation("/student-dashboard"); // Nếu là học sinh
+          } else if (userRole === 3) {
+            navigation("/mentor-dashboard"); // Nếu là mentor
           } else {
-            navigation("/"); // Nếu không xác định, chuyển về trang chủ
+            navigation("/");
           }
         }, 2000);
       } else {
@@ -114,12 +115,20 @@ function SignIn() {
 
   return (
     <div className="sign-in-container">
+      <div className="logo-no-bg"></div>
       <div className="sign-in-full-height">
         <Row justify="center" align="middle" style={{ height: "100%" }}>
           <Col xs={22} sm={18} md={12} lg={8} xl={6}>
-            <Card>
+            <Card className="card-login-body">
               <div className="card-title-login">
-                <Title level={2} style={{ color: "white", marginTop: "4%" }}>
+                <Title
+                  level={2}
+                  style={{
+                    color: "white",
+                    marginTop: "4%",
+                    fontWeight: "bold",
+                  }}
+                >
                   Đăng nhập
                 </Title>
               </div>
@@ -155,7 +164,7 @@ function SignIn() {
                         className="lg_error_message"
                       />
                     </div>
-                    <div style={{ marginBottom: "1rem" }}>
+                    <div>
                       <label htmlFor="password">Mật khẩu</label>
                       <Field
                         as={Input.Password}
@@ -174,7 +183,7 @@ function SignIn() {
                     </div>
                     <p
                       onClick={showForgotPasswordModal}
-                      style={{ color: "blue", cursor: "pointer" }}
+                      className="forgot-password-p"
                     >
                       Quên mật khẩu? Bấm tại đây
                     </p>
@@ -183,7 +192,7 @@ function SignIn() {
                       block
                       htmlType="submit"
                       style={{
-                        marginTop: "16px",
+                        fontWeight: "bold",
                       }}
                     >
                       Đăng nhập

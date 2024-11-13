@@ -1,4 +1,3 @@
-// src/components/DetailedSelection.js
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,13 +15,13 @@ import {
   Tabs,
 } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import ProjectCard from "./ProjectCard";
-import "../teacherCSS/DetailedSelection.css"; // Import CSS
+import ProjectCard from "../ProjectCard";
+import "../../teacherCSS/DetailedSelection.css";
 import {
   setAssignedMentorsMap,
   setProjectData,
-} from "../../../redux/slice/MatchingSlice";
-import { assignMentorToProject, fetchProjectData } from "../../../api"; // Import API
+} from "../../../../redux/slice/MatchingSlice";
+import { assignMentorToProject, fetchProjectData } from "../../../../api";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -32,6 +31,7 @@ const DetailedSelection = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Lấy dữ liệu từ Redux
   const projectData = useSelector((state) => state.matching.projectData);
   const mentorsData = useSelector((state) => state.matching.mentorsData);
   const assignedMentorsMap = useSelector(
@@ -41,10 +41,36 @@ const DetailedSelection = () => {
   const selectedClassId = useSelector(
     (state) => state.matching.selectedClassId
   );
-  const project = projectData.find((p) => p._id === projectId);
-  const mentors = mentorsData[projectId];
 
-  // Lấy mentor từ assignedMentorsMap nếu có, hoặc từ danh sách ưu tiên
+  // Kiểm tra và tìm project và mentors trong Redux, nếu không có sẽ lấy từ localStorage
+  const storedProjectData = JSON.parse(
+    localStorage.getItem("selectedProjectData")
+  );
+  const storedMentorsData = JSON.parse(
+    localStorage.getItem("selectedMentorsData")
+  );
+
+  const project =
+    projectData?.find((p) => p._id === projectId) || storedProjectData;
+  const mentors = mentorsData?.[projectId] || storedMentorsData;
+
+  // Lưu project và mentors vào localStorage nếu chưa có
+  useEffect(() => {
+    if (project && mentors) {
+      localStorage.setItem("selectedProjectData", JSON.stringify(project));
+      localStorage.setItem("selectedMentorsData", JSON.stringify(mentors));
+    }
+  }, [project, mentors]);
+
+  // Nếu không có dữ liệu project hoặc mentors, điều hướng về trang trước
+  useEffect(() => {
+    if (!project || !mentors) {
+      message.warning("Dữ liệu không tồn tại. Quay lại trang trước.");
+      navigate(-1);
+    }
+  }, [project, mentors, navigate]);
+
+  // Lấy mentor từ assignedMentorsMap hoặc danh sách ưu tiên
   const initialAssignedMentor =
     (assignedMentorsMap[projectId] && assignedMentorsMap[projectId][0]) ||
     mentors?.mentorPreferred?.[0] ||
@@ -53,7 +79,7 @@ const DetailedSelection = () => {
     null;
 
   const [assignedMentor, setAssignedMentor] = useState(initialAssignedMentor);
-  const [isSaving, setIsSaving] = useState(false); // Thêm state này
+  const [isSaving, setIsSaving] = useState(false);
 
   const [filteredMentors, setFilteredMentors] = useState({
     mentorPreferred: [],
@@ -102,12 +128,11 @@ const DetailedSelection = () => {
   // Hàm xác định tab active dựa trên nguồn của assignedMentor
   const determineActiveTab = () => {
     if (!assignedMentor) {
-      // Nếu không có mentor được gán, mặc định vào tab đầu tiên
       if (mentors?.mentorPreferred?.length > 0) return "mentorPreferred";
       if (mentors?.teacherPreferredMentors?.length > 0)
         return "teacherPreferredMentors";
       if (mentors?.matchingMentors?.length > 0) return "matchingMentors";
-      return "mentorPreferred"; // Fallback mặc định
+      return "mentorPreferred";
     }
 
     if (
@@ -131,10 +156,9 @@ const DetailedSelection = () => {
     ) {
       return "matchingMentors";
     }
-    return "mentorPreferred"; // Fallback mặc định
+    return "mentorPreferred";
   };
 
-  // Khởi tạo activeTab dựa trên nguồn của assignedMentor
   const [activeTab, setActiveTab] = useState(determineActiveTab());
 
   // Cập nhật activeTab khi assignedMentor hoặc mentors thay đổi
@@ -193,7 +217,7 @@ const DetailedSelection = () => {
       return;
     }
 
-    setIsSaving(true); // Bắt đầu trạng thái lưu
+    setIsSaving(true);
 
     try {
       await assignMentorToProject(project.groupId, assignedMentor.mentorId);
@@ -204,13 +228,12 @@ const DetailedSelection = () => {
       );
       const projects = projectResponse.data.projects;
       dispatch(setProjectData(projects));
-      // Chuyển hướng trở về trang trước
       navigate(-1);
     } catch (error) {
       console.error("Lỗi khi lưu mentor:", error);
       message.error("Lưu mentor thất bại.");
     } finally {
-      setIsSaving(false); // Kết thúc trạng thái lưu
+      setIsSaving(false);
     }
   };
 
@@ -230,7 +253,6 @@ const DetailedSelection = () => {
         message.success("Đã tự động gán mentor cho dự án.");
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, initialAssignedMentor]);
 
   return (
@@ -246,12 +268,15 @@ const DetailedSelection = () => {
       <Row gutter={[16, 16]} className="main-row">
         <Col xs={24} md={24} className="left-column">
           <div className="left-content">
-            <ProjectCard
-              project={project}
-              style={{ width: "188%", height: "102%", marginLeft: "-10px" }}
-              className="always-hover"
-            />
-
+            {/* Kiểm tra xem project có tồn tại không */}
+            {project && (
+              <ProjectCard
+                project={project}
+                style={{ width: "178%", height: "102%", marginLeft: "-10px" }}
+                className="always-hover"
+              />
+            )}
+            {/* Kiểm tra assignedMentor */}
             {assignedMentor && (
               <div className="assigned-mentor-section">
                 <Title
@@ -269,11 +294,11 @@ const DetailedSelection = () => {
                     <AssignedMentorCard
                       mentor={assignedMentor}
                       onSave={handleSaveMentor}
-                      isSaving={isSaving} // Thêm prop này
-                      mentorPreferred={mentors.mentorPreferred}
-                      teacherPreferredMentors={mentors.teacherPreferredMentors}
+                      isSaving={isSaving}
+                      mentorPreferred={mentors?.mentorPreferred}
+                      teacherPreferredMentors={mentors?.teacherPreferredMentors}
                       projectSpecialties={
-                        project?.projectCategory?.specialtyIds
+                        project?.projectCategory?.specialtyIds || []
                       }
                     />
                   </Col>
@@ -294,12 +319,12 @@ const DetailedSelection = () => {
                         <MentorDetailCard
                           mentor={mentor}
                           onSelect={() => handleSelectMentor(mentor)}
-                          mentorPreferred={mentors.mentorPreferred}
+                          mentorPreferred={mentors?.mentorPreferred}
                           teacherPreferredMentors={
-                            mentors.teacherPreferredMentors
+                            mentors?.teacherPreferredMentors
                           }
                           projectSpecialties={
-                            project?.projectCategory?.specialtyIds
+                            project?.projectCategory?.specialtyIds || []
                           }
                         />
                       </Col>

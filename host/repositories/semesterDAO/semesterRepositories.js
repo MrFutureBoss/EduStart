@@ -278,6 +278,109 @@ const getCountsForSemester = async (semesterId) => {
   };
 };
 
+const findUpcomingSemesterWithinDays = async (days) => {
+  const today = moment().startOf("day").toDate();
+  const futureDate = moment().add(days, "days").endOf("day").toDate();
+  return Semester.findOne({
+    startDate: { $gte: today, $lte: futureDate },
+  }).sort({ startDate: 1 });
+};
+
+const findTeachersInSemester = async (semesterId) => {
+  return User.find({
+    role: 2,
+    semesterId: semesterId,
+  });
+};
+const findMentorsInSemester = async (semesterId) => {
+  return User.find({
+    role: 3,
+    semesterId: semesterId,
+  });
+};
+const findStudentsInSemester = async (semesterId) => {
+  return User.find({
+    role: 4,
+    semesterId: semesterId,
+  });
+};
+const findStudentsInSemesterStatus = async (semesterId) => {
+  return User.find({
+    role: 4,
+    status: "Pending",
+    semesterId: semesterId,
+  });
+};
+
+const getClassCapacityStatus = async () => {
+  try {
+    const currentSemester = await Semester.findOne({ status: "Ongoing" });
+
+    if (!currentSemester) {
+      throw new Error("Không tìm thấy kỳ học hiện tại.");
+    }
+    const classes = await Class.find({
+      semesterId: currentSemester._id,
+    }).lean();
+
+    const classesStatus = await Promise.all(
+      classes.map(async (classItem) => {
+        const studentCount = await User.countDocuments({
+          classId: classItem._id,
+        });
+
+        const status = studentCount < 20 ? "chưa đủ" : "đã đủ";
+
+        return {
+          ...classItem,
+          studentCount,
+          status,
+        };
+      })
+    );
+
+    return classesStatus;
+  } catch (error) {
+    console.error("Lỗi khi kiểm tra tình trạng lớp học:", error);
+    throw error;
+  }
+};
+
+const findTeachersWithoutClass = async () => {
+  try {
+    const currentSemester = await Semester.findOne({ status: "Ongoing" });
+
+    if (!currentSemester) {
+      throw new Error("Không tìm thấy kỳ học hiện tại.");
+    }
+
+    const teachersInCurrentSemester = await User.find({
+      role: "2",
+      semesterId: currentSemester._id,
+    })
+      .select("_id username")
+      .lean();
+
+    const teachersWithClasses = (
+      await Class.distinct("teacherId", {
+        semesterId: currentSemester._id,
+      })
+    ).map((id) => id.toString());
+
+    const teachersWithoutClass = teachersInCurrentSemester.filter(
+      (teacher) => !teachersWithClasses.includes(teacher._id.toString())
+    );
+
+    return teachersWithoutClass;
+  } catch (error) {
+    console.error(
+      "Lỗi khi tìm giáo viên chưa có lớp trong kỳ học hiện tại:",
+      error
+    );
+    throw error;
+  }
+};
+
 export default {
   createSemester,
   getAllSemesters,
@@ -290,4 +393,11 @@ export default {
   findSemesterFinished,
   getCurrentSemester,
   getCountsForSemester,
+  findUpcomingSemesterWithinDays,
+  findTeachersInSemester,
+  findMentorsInSemester,
+  findStudentsInSemester,
+  findStudentsInSemesterStatus,
+  getClassCapacityStatus,
+  findTeachersWithoutClass,
 };

@@ -25,7 +25,7 @@ const TableOutcome = () => {
         };
 
         const response = await axios.get(
-          `${BASE_URL}/activity/${userId}?activityType=outcome`,
+          `${BASE_URL}/activity/user/${userId}?activityType=outcome`,
           config
         );
 

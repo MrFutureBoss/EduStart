@@ -8,6 +8,7 @@ import {
   Row,
   Segmented,
   Space,
+  Tabs,
   Tag,
   Timeline,
   Tooltip,
@@ -455,9 +456,28 @@ const ClassManagement = () => {
               )}
             </Card.Grid>
           </Card>
-        </Col>
-
-        {/* <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+        </Tabs.TabPane>
+        <Tabs.TabPane tab="Quản lý Outcome" key="2">
+          <Card
+            bordered={true}
+            title={
+              <h5 style={{ padding: "0px", margin: "0px" }}>Quản lý Outcome</h5>
+            }
+            extra={
+              <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
+            }
+            headStyle={{
+              background: "green",
+              color: "white",
+            }}
+            bodyStyle={{ padding: "20px" }}
+          >
+            <h3>Danh sách các lớp đã giao outcome</h3>
+            <AssignOutcome />
+          </Card>
+        </Tabs.TabPane>
+      </Tabs>
+      {/* <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <Card
             bordered={true}
             title={
@@ -531,8 +551,7 @@ const ClassManagement = () => {
             />
           </Card>
         </Col> */}
-      </Row>
-      <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
+      {/* <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={24} xl={16}>
           <Card
             bordered={true}
@@ -553,7 +572,7 @@ const ClassManagement = () => {
             <AssignOutcome />
           </Card>
         </Col>
-      </Row>
+      </Row> */}
     </div>
   );
 };

@@ -34,5 +34,39 @@ semesterRouter.get(
   verifyRole([1, 2]),
   semesterController.getCurrentSemesterController
 );
-
+semesterRouter.get(
+  "/check-semester-status",
+  verifyAccessToken,
+  semesterController.checkSemesterStatus
+);
+semesterRouter.get(
+  "/check-teachers",
+  verifyAccessToken,
+  semesterController.checkTeachersInSemester
+);
+semesterRouter.get(
+  "/check-mentors",
+  verifyAccessToken,
+  semesterController.checkMentorsInSemester
+);
+semesterRouter.get(
+  "/check-students",
+  verifyAccessToken,
+  semesterController.checkStudentsInSemester
+);
+semesterRouter.get(
+  "/check-students-pending",
+  verifyAccessToken,
+  semesterController.checkStudentsInSemesterStatus
+);
+semesterRouter.get(
+  "/check-class-capacity",
+  verifyAccessToken,
+  semesterController.checkClassCapacity
+);
+semesterRouter.get(
+  "/check-teachers-without-class",
+  verifyAccessToken,
+  semesterController.getTeachersWithoutClass
+);
 export default semesterRouter;

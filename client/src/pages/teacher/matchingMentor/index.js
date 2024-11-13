@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Layout, Row, Col, Statistic, Card, Button, Modal, List } from "antd";
 import { useSelector } from "react-redux";
 import ClassGroupTreeView from "./ClassGroupTreeView";
-import ViewMatching from "./ViewMatching";
+import ViewMatching from "./project-overview/ViewMatching";
 
 const { Sider, Content } = Layout;
 

@@ -620,178 +620,201 @@ const PendingUsers = () => {
 
   return (
     <div className="pending-users" style={{ padding: "20px" }}>
-      <Title style={{ marginBottom: 20 }} level={2}>
+      <h3 className="header-content-mentor-detail">
         Sinh Viên Chưa Được Thêm Vào Lớp - {currentSemester?.name}
-      </Title>
-
-      <Modal
-        title="Tăng Giới Hạn hoặc Tạo Lớp Mới"
-        visible={isIncreaseLimitModalVisible}
-        onOk={handleUpdateMaxStudents}
-        onCancel={() => setIsIncreaseLimitModalVisible(false)}
-        okText="Lưu"
-        cancelText="Hủy"
+      </h3>
+      <div
+        style={{
+          minHeight: "600px",
+          padding: "20px 20px 0 20px",
+          backgroundColor: "rgb(245 245 245 / 31%)",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          borderRadius: "10px",
+        }}
       >
-        <Form.Item label="Giới hạn mới cho số học sinh tối đa mỗi lớp:">
-          <InputNumber
-            min={30}
-            max={40}
-            value={newMaxStudents}
-            onChange={setNewMaxStudents}
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
-      </Modal>
-      {/* Hiển thị số lượng học sinh đang chờ */}
-      <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
-        {/* Statistic Section */}
-        <Col xs={24} sm={24} md={10}>
-          <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
-            <Statistic
-              title="Tổng số học sinh đang chờ"
-              value={pendingUsers.length}
-              precision={0}
-              valueStyle={{ color: "#3f8600" }}
-              suffix="học sinh"
+        <Modal
+          title="Tăng Giới Hạn hoặc Tạo Lớp Mới"
+          visible={isIncreaseLimitModalVisible}
+          onOk={handleUpdateMaxStudents}
+          onCancel={() => setIsIncreaseLimitModalVisible(false)}
+          okText="Lưu"
+          cancelText="Hủy"
+        >
+          <Form.Item label="Giới hạn mới cho số học sinh tối đa mỗi lớp:">
+            <InputNumber
+              min={30}
+              max={40}
+              value={newMaxStudents}
+              onChange={setNewMaxStudents}
+              style={{ width: "100%" }}
             />
-            {unallocatedStudentsExist && (
-              <Button
-                style={{
-                  backgroundColor: "#4682B4",
-                  color: "#FFF",
-                  float: "right",
-                }}
-                onClick={handleOpenIncreaseLimitModal}
-              >
-                Tăng Giới Hạn Lớp
-              </Button>
-            )}
-          </Card>
-        </Col>
-
-        {/* Alert Section */}
-        <Col xs={24} sm={24} md={14}>
-          {shouldSuggestCreateClass && (
-            <Alert
-              message={`Có ${pendingUsers.length} học sinh đang chờ và không có lớp khả dụng. Vui lòng tạo lớp mới.`}
-              type="warning"
-              showIcon
-              action={
-                <Button
-                  style={{ backgroundColor: "#4682B4", color: "#FFF" }}
-                  onClick={handleSaveAll}
-                >
-                  Tạo Lớp Mới
-                </Button>
-              }
-              style={{ height: "100%", display: "flex", alignItems: "center" }}
-            />
-          )}
-        </Col>
-      </Row>
-
-      {loadingData ? (
-        <Spin
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "50vh",
-          }}
-          tip="Đang tải dữ liệu..."
-          size="large"
-        />
-      ) : (
-        <>
-          {/* Nếu không có học sinh đang chờ */}
-          {pendingUsers.length === 0 ? (
-            <div style={{ textAlign: "center", marginTop: "50px" }}>
-              <Empty
-                description={
-                  <span>Không có học sinh nào đang chờ được thêm vào lớp.</span>
-                }
-              ></Empty>
-            </div>
-          ) : (
-            <>
-              {/* Nút "Lưu Tất Cả" nếu có thể tạo lớp mới */}
-
-              <div
-                style={{
-                  textAlign: "right",
-                  marginBottom: "10px",
-                  marginTop: "40px",
-                }}
-              >
-                <Button
-                  style={{ backgroundColor: "#4682B4", color: "#FFF" }}
-                  onClick={handleSaveAll}
-                  loading={loading}
-                >
-                  Lưu Tất Cả
-                </Button>
-              </div>
-
-              <Table
-                dataSource={pendingUsers}
-                columns={columns}
-                rowKey="_id"
-                pagination={{ pageSize: 10 }}
+          </Form.Item>
+        </Modal>
+        {/* Hiển thị số lượng học sinh đang chờ */}
+        <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
+          {/* Statistic Section */}
+          <Col xs={24} sm={24} md={10}>
+            <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
+              <Statistic
+                title="Tổng số học sinh đang chờ"
+                value={pendingUsers.length}
+                precision={0}
+                valueStyle={{ color: "#3f8600" }}
+                suffix="học sinh"
               />
-            </>
-          )}
-        </>
-      )}
+              {unallocatedStudentsExist && (
+                <Button
+                  style={{
+                    backgroundColor: "#4682B4",
+                    color: "#FFF",
+                    float: "right",
+                  }}
+                  onClick={handleOpenIncreaseLimitModal}
+                >
+                  Tăng Giới Hạn Lớp
+                </Button>
+              )}
+            </Card>
+          </Col>
 
-      {/* Modal tạo lớp mới */}
-      <Modal
-        title={`Tạo ${classesToCreate} lớp mới`}
-        open={isModalVisible}
-        onOk={handleCreateClass}
-        onCancel={handleCancel}
-        okText="Tạo Lớp"
-        cancelText="Hủy"
-        width={700}
-        confirmLoading={loading}
-      >
-        <Form form={form} layout="vertical">
-          {newClassesData.map((cls, index) => (
-            <div
-              key={cls.key}
-              style={{
-                border: "1px solid #f0f0f0",
-                padding: "15px",
-                marginBottom: "15px",
-                borderRadius: "4px",
-              }}
-            >
-              <Title level={5}>Lớp thứ {index + 1}</Title>
-              <Form.Item
-                name={["newClasses", index, "className"]}
-                label="Tên lớp"
-                rules={[{ required: true, message: "Vui lòng nhập tên lớp." }]}
+          {/* Alert Section */}
+          <Col xs={24} sm={24} md={14}>
+            {shouldSuggestCreateClass && (
+              <Alert
+                message={`Có ${pendingUsers.length} học sinh đang chờ và không có lớp khả dụng. Vui lòng tạo lớp mới.`}
+                type="warning"
+                showIcon
+                action={
+                  <Button
+                    style={{ backgroundColor: "#4682B4", color: "#FFF" }}
+                    onClick={handleSaveAll}
+                  >
+                    Tạo Lớp Mới
+                  </Button>
+                }
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              />
+            )}
+          </Col>
+        </Row>
+
+        {loadingData ? (
+          <Spin
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50vh",
+            }}
+            tip="Đang tải dữ liệu..."
+            size="large"
+          />
+        ) : (
+          <>
+            {/* Nếu không có học sinh đang chờ */}
+            {pendingUsers.length === 0 ? (
+              <div style={{ textAlign: "center", marginTop: "50px" }}>
+                <Empty
+                  description={
+                    <span>
+                      Không có học sinh nào đang chờ được thêm vào lớp.
+                    </span>
+                  }
+                ></Empty>
+              </div>
+            ) : (
+              <>
+                {/* Nút "Lưu Tất Cả" nếu có thể tạo lớp mới */}
+
+                <div
+                  style={{
+                    textAlign: "right",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <Button
+                    style={{ backgroundColor: "#4682B4", color: "#FFF" }}
+                    onClick={handleSaveAll}
+                    loading={loading}
+                  >
+                    Lưu Tất Cả
+                  </Button>
+                </div>
+
+                <Table
+                  dataSource={pendingUsers}
+                  columns={columns}
+                  rowKey="_id"
+                  pagination={{ pageSize: 10 }}
+                  style={{
+                    marginTop: 20,
+                    border: "2px solid rgb(236 236 236)",
+                    minHeight: "330px",
+                    marginBottom: 20,
+                    borderRadius: "10px",
+                  }}
+                />
+              </>
+            )}
+          </>
+        )}
+
+        {/* Modal tạo lớp mới */}
+        <Modal
+          title={`Tạo ${classesToCreate} lớp mới`}
+          open={isModalVisible}
+          onOk={handleCreateClass}
+          onCancel={handleCancel}
+          okText="Tạo Lớp"
+          cancelText="Hủy"
+          width={700}
+          confirmLoading={loading}
+        >
+          <Form form={form} layout="vertical">
+            {newClassesData.map((cls, index) => (
+              <div
+                key={cls.key}
+                style={{
+                  border: "1px solid #f0f0f0",
+                  padding: "15px",
+                  marginBottom: "15px",
+                  borderRadius: "4px",
+                }}
               >
-                <Input placeholder="Nhập tên lớp" />
-              </Form.Item>
-              <Form.Item
-                name={["newClasses", index, "teacherId"]}
-                label="Giáo viên phụ trách"
-                rules={[
-                  { required: true, message: "Vui lòng chọn giáo viên." },
-                ]}
-              >
-                <Select placeholder="Chọn giáo viên">
-                  {teachersList.map((teacher) => (
-                    <Option key={teacher._id} value={teacher._id}>
-                      {teacher.username} - {teacher.email}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </div>
-          ))}
-        </Form>
-      </Modal>
+                <Title level={5}>Lớp thứ {index + 1}</Title>
+                <Form.Item
+                  name={["newClasses", index, "className"]}
+                  label="Tên lớp"
+                  rules={[
+                    { required: true, message: "Vui lòng nhập tên lớp." },
+                  ]}
+                >
+                  <Input placeholder="Nhập tên lớp" />
+                </Form.Item>
+                <Form.Item
+                  name={["newClasses", index, "teacherId"]}
+                  label="Giáo viên phụ trách"
+                  rules={[
+                    { required: true, message: "Vui lòng chọn giáo viên." },
+                  ]}
+                >
+                  <Select placeholder="Chọn giáo viên">
+                    {teachersList.map((teacher) => (
+                      <Option key={teacher._id} value={teacher._id}>
+                        {teacher.username} - {teacher.email}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </div>
+            ))}
+          </Form>
+        </Modal>
+      </div>
     </div>
   );
 };

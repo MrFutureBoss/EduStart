@@ -61,14 +61,14 @@ export const fetchClassSummaryData = (teacherId) => {
     getConfig()
   );
 };
-
+// api để lấy dự án trong lớp
 export const fetchProjectData = (teacherId, classId) => {
   return axios.get(
     `${BASE_URL}/class/projects/${teacherId}/${classId}`,
     getConfig()
   );
 };
-
+// api lấy danh sách gợi ý các mentor cho dự án trong lớp
 export const fetchMentorsTempMatching = (classId, teacherId) => {
   const config = {
     ...getConfig(),
@@ -81,7 +81,7 @@ export const fetchMentorsTempMatching = (classId, teacherId) => {
 
   return axios.post(`${BASE_URL}/tempMatching/recommend`, data, config);
 };
-
+// api để gán mentor được chọn cho nhóm
 export const assignMentorToProject = async (groupId, mentorId) => {
   const config = {
     ...getConfig(),
@@ -93,11 +93,78 @@ export const assignMentorToProject = async (groupId, mentorId) => {
   };
   return axios.post(`${BASE_URL}/matched/add-matched`, data, config);
 };
-
+// api để lấy thông tin dự án của nhóm
 export const getProjectGroupData = (groupId) => {
   return axios.get(`${BASE_URL}/group/project/${groupId}`, getConfig());
 };
-
+// api để lấy thông tin matches của nhóm
 export const getMatchedProject = (groupId) => {
   return axios.get(`${BASE_URL}/matched/infor-matched/${groupId}`, getConfig());
+};
+// API để kiểm tra kỳ học hiện tại và kỳ học sắp tới
+export const checkSemesterStatus = () => {
+  return axios.get(`${BASE_URL}/semester/check-semester-status`, getConfig());
+};
+
+// API để kiểm tra giáo viên trong kỳ học
+export const checkTeachersInSemester = () => {
+  return axios.get(`${BASE_URL}/semester/check-teachers`, getConfig());
+};
+
+// API để kiểm tra mentor trong kỳ học
+export const checkMentorsInSemester = () => {
+  return axios.get(`${BASE_URL}/semester/check-mentors`, getConfig());
+};
+
+// API để kiểm tra học sinh trong kỳ học
+export const checkStudentsInSemester = () => {
+  return axios.get(`${BASE_URL}/semester/check-students`, getConfig());
+};
+
+// API để kiểm tra học sinh có trạng thái Pending trong kỳ học
+export const checkStudentsPendingStatus = () => {
+  return axios.get(`${BASE_URL}/semester/check-students-pending`, getConfig());
+};
+
+// API để kiểm lớp học đã đủ học sinh chưa
+export const checkClassStatus = () => {
+  return axios.get(`${BASE_URL}/semester/check-class-capacity`, getConfig());
+};
+
+// API để kiểm giáo viên đã có lớp chưa
+export const checkTeacherWithoutClassStatus = () => {
+  return axios.get(
+    `${BASE_URL}/semester/check-teachers-without-class`,
+    getConfig()
+  );
+};
+
+// API để lấy toàn bộ danh sách yêu cầu đổi lớp cho admin
+export const getAllRequetChangClassAdmin = () => {
+  return axios.get(
+    `${BASE_URL}/classTranfer/all-transfer-requests`,
+    getConfig()
+  );
+};
+
+// API để lấy toàn bộ danh sách yêu cầu đổi lớp cho admin
+export const updateTransferRequestStatus = (
+  requestId,
+  status,
+  rejectMessage
+) => {
+  const config = {
+    ...getConfig(),
+  };
+
+  const data = {
+    requestId,
+    status,
+    rejectMessage,
+  };
+  return axios.patch(
+    `${BASE_URL}/classTranfer/update-transfer-status`,
+    data,
+    config
+  );
 };

@@ -1,17 +1,19 @@
 // ProjectCard.js
 import React from "react";
-import { Card, Tag, Space } from "antd";
+import { Card, Tag, Space, Tooltip } from "antd";
 import "../teacherCSS/ProjectCard.css";
 
-const ProjectCard = ({ project, style, className }) => {
+const ProjectCard = ({ project, style, className, onSelect }) => {
   return (
     <div className={`project-outer-container ${className}`}>
       {/* Thẻ Tag cho professions nằm ở bên ngoài viền của Card */}
       <div className="project-tag-container">
         {project.projectCategory?.professionId?.map((profession) => (
-          <Tag key={profession._id} className="tag-overlay">
-            {profession.name}
-          </Tag>
+          <Tooltip title="Lĩnh vực">
+            <Tag key={profession._id} className="tag-overlay">
+              {profession.name}
+            </Tag>
+          </Tooltip>
         ))}
       </div>
 
@@ -21,6 +23,7 @@ const ProjectCard = ({ project, style, className }) => {
         bordered={false}
         hoverable
         style={style}
+        onClick={() => onSelect(project._id)}
       >
         <div className="go-corner">
           <div className="go-arrow"></div>
@@ -36,12 +39,14 @@ const ProjectCard = ({ project, style, className }) => {
         <div className="project-specialties">
           <Space size={[0, 8]} wrap>
             {project.projectCategory?.specialtyIds?.map((specialty) => (
-              <Tag
-                className={`project-specialties-tag ${className}`}
-                key={specialty._id}
-              >
-                {specialty.name}
-              </Tag>
+              <Tooltip title="Chuyên môn">
+                <Tag
+                  className={`project-specialties-tag ${className}`}
+                  key={specialty._id}
+                >
+                  {specialty.name}
+                </Tag>
+              </Tooltip>
             ))}
           </Space>
         </div>

@@ -8,6 +8,7 @@ import {
   Spin,
   Steps,
   DatePicker,
+  Tooltip,
 } from "antd";
 import axios from "axios";
 import calculateStartdateAndEnddateOfOutcomes from "./calculateStartdateAndEnddateOfOutcomes";
@@ -17,6 +18,7 @@ import { setClassList } from "../../redux/slice/ClassSlice";
 import { BASE_URL } from "../../utilities/initalValue";
 import PropTypes from "prop-types";
 import TableOutcome from "../class/TableOutcome";
+import { SendOutlined } from "@ant-design/icons";
 
 const { Step } = Steps;
 
@@ -29,6 +31,8 @@ const AssignOutcome = ({ onAssigned }) => {
   const [outcomes, setOutcomes] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [activityExists, setActivityExists] = useState(false);
+  const [hover, setHover] = useState(false);
+
   const dispatch = useDispatch();
   const classList = useSelector((state) => state.class.classList);
 
@@ -109,7 +113,7 @@ const AssignOutcome = ({ onAssigned }) => {
       try {
         const userId = localStorage.getItem("userId");
         const response = await axios.get(
-          `http://localhost:9999/activity/${userId}?activityType=outcome`,
+          `http://localhost:9999/activity/user/${userId}?activityType=outcome`,
           config
         );
 
@@ -252,9 +256,28 @@ const AssignOutcome = ({ onAssigned }) => {
   return (
     <>
       {!activityExists ? (
-        <Button type="primary" onClick={showModal}>
-          Chưa có lớp nào được giao Outcome. Giao ngay!
-        </Button>
+        <Tooltip title="Giao Outcome cho các lớp">
+          <Button
+            type="primary"
+            onClick={showModal}
+            icon={<SendOutlined />}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              backgroundColor: hover ? "#45A049" : "#4CAF50",
+              borderColor: hover ? "#45A049" : "#4CAF50",
+              color: "#FFF",
+              borderRadius: "8px",
+              padding: "0 20px",
+              cursor: "pointer",
+            }}
+          >
+            Giao Outcome
+          </Button>
+        </Tooltip>
       ) : (
         <TableOutcome classList={classList} />
       )}

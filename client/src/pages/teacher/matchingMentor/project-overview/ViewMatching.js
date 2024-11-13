@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, message } from "antd";
 import { useSelector } from "react-redux";
-import { getProjectGroupData, getMatchedProject } from "../../../api";
+import { getProjectGroupData, getMatchedProject } from "../../../../api";
 import MatchedProjectDetails from "./MatchedProjectDetails";
 
 const ViewMatching = () => {
