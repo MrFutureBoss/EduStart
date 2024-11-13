@@ -64,7 +64,7 @@ function SignIn() {
         setTimeout(() => {
           console.log("Navigating to Dashboard");
           if (userRole === 1) {
-            navigation("/admin-dashboard", { replace: true });
+            navigation("/admin/dashboard", { replace: true });
           } else if (userRole === 2) {
             navigation("/teacher-dashboard"); // Nếu là giáo viên
             dispatch(triggerTeacherDashboardNotification());

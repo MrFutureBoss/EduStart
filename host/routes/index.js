@@ -15,6 +15,7 @@ import matchedRouter from "./matchedRouter.js";
 import groupRouter from "./groupRouter.js";
 import projectRouter from "./projectRouter.js";
 import mentorRouter from "./mentorRouter.js";
+import classTransferRoutes from "./clasTransferRouter.js";
 
 const routes = {
   professionRouters,
@@ -34,6 +35,7 @@ const routes = {
   groupRouter,
   projectRouter,
   mentorRouter,
+  classTransferRoutes,
 };
 
 export default routes;

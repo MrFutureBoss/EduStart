@@ -10,9 +10,10 @@ import {
 } from "antd";
 import axios from "axios";
 import { BASE_URL } from "../../../utilities/initalValue";
-import "./TransferClassModal.css"; // Import CSS file for styling
+import "./TransferClassModal.css";
 import { useDispatch } from "react-redux";
 import { setRecentlyUpdatedUsers } from "../../../redux/slice/UserSlice";
+import { updateTransferRequestStatus } from "../../../api";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -23,14 +24,17 @@ const TransferClassModal = ({
   student,
   refreshData,
   currentSemester,
+  targetClassId,
+  requestId,
 }) => {
   const dispatch = useDispatch();
   const [availableClasses, setAvailableClasses] = useState([]);
   const [filteredClasses, setFilteredClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false); // State cho animation
+  const [isAnimating, setIsAnimating] = useState(false);
   const jwt = localStorage.getItem("jwt");
+  console.log("requestId", requestId);
 
   const config = {
     headers: {
@@ -39,24 +43,12 @@ const TransferClassModal = ({
     },
   };
 
-  // Lấy danh sách lớp còn slot
+  // Lấy danh sách lớp còn slot khi mở modal
   useEffect(() => {
     if (currentSemester?._id && visible) {
       fetchAvailableClasses();
     }
   }, [currentSemester?._id, visible]);
-
-  useEffect(() => {
-    // Sau khi có availableClasses, lọc ra những lớp không phải lớp hiện tại
-    if (availableClasses.length > 0 && student?.classId?._id) {
-      const filtered = availableClasses.filter(
-        (cls) => cls._id !== student.classId._id
-      );
-      setFilteredClasses(filtered);
-    } else {
-      setFilteredClasses(availableClasses);
-    }
-  }, [availableClasses, student]);
 
   const fetchAvailableClasses = async () => {
     setLoading(true);
@@ -73,6 +65,33 @@ const TransferClassModal = ({
     }
   };
 
+  // Cập nhật `filteredClasses` và xử lý `targetClassId` khi có `availableClasses`
+  useEffect(() => {
+    if (availableClasses.length > 0 && student?.classId?._id) {
+      // Lọc các lớp khả dụng để loại bỏ lớp hiện tại của học sinh
+      const filtered = availableClasses.filter(
+        (cls) => cls._id !== student.classId._id
+      );
+      setFilteredClasses(filtered);
+
+      // Nếu `targetClassId` có giá trị và nằm trong `filteredClasses`, tự động chọn lớp đó
+      if (targetClassId) {
+        const targetClassExists = filtered.some(
+          (cls) => cls._id === targetClassId
+        );
+
+        if (targetClassExists) {
+          setSelectedClass(targetClassId); // Đặt `selectedClass` nếu `targetClassId` có trong `filteredClasses`
+        } else {
+          message.error("Lớp yêu cầu chuyển đến không có chỗ trống.");
+          onCancel(); // Đóng modal và từ chối yêu cầu nếu lớp không hợp lệ
+        }
+      }
+    } else {
+      setFilteredClasses(availableClasses);
+    }
+  }, [availableClasses, targetClassId, student]);
+
   const handleTransfer = async () => {
     if (!selectedClass) {
       message.error("Vui lòng chọn lớp mới.");
@@ -80,23 +99,21 @@ const TransferClassModal = ({
     }
 
     try {
-      // Thực hiện chuyển lớp
       await axios.post(
         `${BASE_URL}/admins/transfer`,
         { studentId: student._id, toClassId: selectedClass },
         config
       );
       message.success("Chuyển lớp thành công!");
-
+      await updateTransferRequestStatus(requestId, "approved");
       // Bắt đầu animation
       setIsAnimating(true);
       dispatch(setRecentlyUpdatedUsers([student._id]));
-      // Chờ animation hoàn tất trước khi đóng modal và refresh dữ liệu
       setTimeout(() => {
         setIsAnimating(false);
         onCancel();
         refreshData();
-      }, 1000); // Thời gian phải khớp với CSS animation
+      }, 1000);
     } catch (error) {
       message.error("Lỗi khi chuyển lớp. Vui lòng thử lại sau.");
     }
@@ -107,7 +124,7 @@ const TransferClassModal = ({
       title={`Chuyển lớp cho học sinh: ${student?.username}`}
       visible={visible}
       onCancel={onCancel}
-      width={1100} // Tăng width để giao diện rộng hơn
+      width={1100}
       footer={[
         <Button key="cancel" onClick={onCancel} disabled={isAnimating}>
           Hủy bỏ
@@ -121,7 +138,7 @@ const TransferClassModal = ({
           Chuyển lớp
         </Button>,
       ]}
-      destroyOnClose={true} // Đảm bảo modal được reset khi đóng
+      destroyOnClose={true}
     >
       <div className={`transfer-container ${isAnimating ? "active" : ""}`}>
         {/* Bên trái: Thông tin học sinh */}
@@ -161,6 +178,7 @@ const TransferClassModal = ({
             loading={loading}
             size="large"
             disabled={isAnimating}
+            value={selectedClass}
           >
             {filteredClasses.map((cls) => (
               <Option key={cls._id} value={cls._id}>
@@ -196,11 +214,6 @@ const TransferClassModal = ({
           )}
         </div>
       </div>
-
-      {/* Hiển thị Checkmark thành công nếu cần */}
-      {/* <div className="success-checkmark">
-        <div className="checkmark"></div>
-      </div> */}
     </Modal>
   );
 };

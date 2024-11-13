@@ -1,0 +1,21 @@
+.warning-alert-admin-dashboard {
+  color: #ff6666; /* Red color */
+  font-size: 24px; /* Adjust as needed */
+  animation: blink 1s infinite;
+}
+
+/* Add a subtle pulsing animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
