@@ -5,7 +5,7 @@ import { List, Avatar, Empty } from "antd";
 import { CiMail } from "react-icons/ci";
 import avatarImage from "../../../assets/images/459233558_122150574488258176_5118808073589257292_n.jpg";
 
-export const SortableItem = ({ id, item, cursor }) => {
+export const SortableItem2 = ({ id, item, cursor }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
@@ -65,7 +65,6 @@ export const SortableItem = ({ id, item, cursor }) => {
 
   return (
     <List.Item
-      ref={setNodeRef}
       style={itemStyle}
       {...attributes}
       {...listeners}
