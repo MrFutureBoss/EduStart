@@ -1,0 +1,107 @@
+[{
+  "_id": {
+    "$oid": "671e0743f00e69b600bbfbcd"
+  },
+  "name": "Group 1",
+  "description": "This group is focused on data science tasks.",
+  "status": "Active",
+  "projectId": {
+    "$oid": "671e0743f00e69b600bbfbcb"
+  },
+  "classId": {
+    "$oid": "671e0743f00e69b600bbfbca"
+  }
+},
+{
+  "_id": {
+    "$oid": "671e0743f00e69b600bbfbce"
+  },
+  "name": "Group 2",
+  "description": "This group is working on web development.",
+  "status": "Active",
+  "projectId": {
+    "$oid": "671e0743f00e69b600bbfbcc"
+  },
+  "classId": {
+    "$oid": "671e0743f00e69b600bbfbca"
+  }
+},
+{
+  "_id": {
+    "$oid": "671fb8f4a6993a98abdc597f"
+  },
+  "name": "Group 2",
+  "description": "This group is working on web development.",
+  "status": "Active",
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "projectId": {
+    "$oid": "67317c7a94d7bf6366070f89"
+  },
+  "updatedAt": {
+    "$date": "2024-11-11T03:39:38.814Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "671e0743f00e69b600bbfbc1"
+  },
+  "name": "Group 3",
+  "description": "This group is focused on data science tasks.",
+  "status": "Active",
+  "projectId": {
+    "$oid": "671e0743f00e69b600bbfbc0"
+  },
+  "classId": {
+    "$oid": "671e0743f00e69b600bbfbca"
+  }
+},
+{
+  "_id": {
+    "$oid": "6729f2d8661eab2247cbbe02"
+  },
+  "name": "Group 1",
+  "description": "nhóm khoa học.",
+  "status": "Active",
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "projectId": {
+    "$oid": "6729f80f661eab2247cbbe14"
+  }
+},
+{
+  "_id": {
+    "$oid": "6729f2f0661eab2247cbbe03"
+  },
+  "name": "Group 2",
+  "description": "nhóm khoa học 1.",
+  "status": "Active",
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "projectId": {
+    "$oid": "672b3e9564b5433eec4f26b9"
+  },
+  "updatedAt": {
+    "$date": "2024-11-06T10:01:57.505Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6729f301661eab2247cbbe04"
+  },
+  "name": "Group 3",
+  "description": "nhóm khoa học 3.",
+  "status": "Active",
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "projectId": {
+    "$oid": "672ae205c0f39056de696238"
+  },
+  "updatedAt": {
+    "$date": "2024-11-06T03:27:01.448Z"
+  }
+}]

@@ -1,0 +1,2370 @@
+[{
+  "_id": {
+    "$oid": "670bb3642eb65e19740ca599"
+  },
+  "username": "Admin",
+  "email": "admin@fpt.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
+  "role": 1,
+  "phoneNumber": "",
+  "semesterId": [],
+  "status": "Active",
+  "rollNumber": "",
+  "memberCode": "",
+  "createdAt": {
+    "$date": "2024-10-13T11:26:23.004Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-13T11:26:23.004Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "username": "HieuDT46",
+  "email": "hieudt46@fe.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
+  "role": 2,
+  "phoneNumber": "1212121212",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-13T14:55:05.944Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-13T14:55:05.944Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "670c8b30708d5c8e3c5a5d0f"
+  },
+  "username": "Lâm Đức",
+  "email": "duongl11@fe.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
+  "role": 2,
+  "phoneNumber": "0942492607",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-14T03:08:32.242Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-14T03:08:32.242Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "670c8b30708d5c8e3c5a5d10"
+  },
+  "username": "Nguyễn  Thuận",
+  "email": "thuann32@fe.edu.vn",
+  "password": "$2b$12$lguefBO0wfXJIDFUNxT1WOKQPpNxHB4SLPxZdjcyPiRGAJRRCkXJS",
+  "role": 2,
+  "phoneNumber": "0904881652",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-14T03:08:32.247Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-14T03:08:32.247Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "670c8b30708d5c8e3c5a5d11"
+  },
+  "username": "Lê Thành",
+  "email": "trungt37@fe.edu.vn",
+  "password": "$2b$12$etB.6dvvDxi2xGf9oxzI5edbzgM5dKXcrwjHbolglgt0LHJbogZRG",
+  "role": 2,
+  "phoneNumber": "0964319911",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-14T03:08:32.248Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-14T03:08:32.248Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "670c8b30708d5c8e3c5a5d12"
+  },
+  "username": "Hoàng Anh",
+  "email": "anhnh17@fe.edu.vn",
+  "password": "$2b$12$ekKTayvyrNNvSQ.19RpgIeeRRQ0cpsSvFMzwfev4YJM/2LdEoJvf2",
+  "role": 2,
+  "phoneNumber": "0904883688",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-14T03:08:32.249Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-14T03:08:32.249Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "670c8b30708d5c8e3c5a5d13"
+  },
+  "username": "Bá Quý",
+  "email": "quylb1@fe.edu.vn",
+  "password": "$2b$12$lQruRAnIf8AkfHJnl.rX6.f0njU80aWol4B/DdUhav3s3/TXbxtk.",
+  "role": 2,
+  "phoneNumber": "0972791896",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-14T03:08:32.250Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-14T03:08:32.250Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "671092b2044de73e11e58f02"
+  },
+  "username": "Nguyễn Hoàng Anh Tuấn",
+  "email": "tuanhuy@fe.edu.vn",
+  "password": "$2b$12$3nTKOoLmPCGjOY/1ojWJY.TFOKj/SLVU4uNGZdNsAeGClj9wvbrBi",
+  "role": 2,
+  "phoneNumber": "0966348981",
+  "semesterId": [
+    {
+      "$oid": "67109296044de73e11e58eee"
+    }
+  ],
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-17T04:29:38.638Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-17T04:29:38.638Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6711d2efb57c5ea586645c60"
+  },
+  "username": "Nguyễn Thị Minh Phương",
+  "email": "vidutuanto@gmail.com",
+  "password": "$2b$12$go704Yv2cA/WLVLHbdhbCOBWkdE2jXU8rnpupRZGbC24OfehQR9Vm",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE161452",
+  "memberCode": "phuongentmhe16192",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:15:59.426Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:15:59.426Z"
+  },
+  "groupId": {
+    "$oid": "6729f2d8661eab2247cbbe02"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d2efb57c5ea586645c61"
+  },
+  "username": "Trần Lê Phương Linh",
+  "email": "anhtuannguhoa2022@fpt.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE170801",
+  "memberCode": "linhtlpehe170801",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:15:59.426Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:46:17.260Z"
+  },
+  "groupId": {
+    "$oid": "6729f2d8661eab2247cbbe02"
+  },
+  "isLeader": true
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca2"
+  },
+  "username": "Nguyễn Thị Minh Phương",
+  "email": "phuongntmhe116145@fpt.edu.vn",
+  "password": "$2b$12$/n7nxBEbnACTRRS7EZa6zuuxrvpUCf8VlNLo.pjU8ULUO2sfAOwBq",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1614",
+  "memberCode": "phuongntmhe1614",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "groupId": {
+    "$oid": "6729f2d8661eab2247cbbe02"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca3"
+  },
+  "username": "Trần Lê Phương Linh",
+  "email": "linhtlphe117080@fpt.edu.vn",
+  "password": "$2b$12$iA0Bjlo4PgwvKmpd6bsjGeOSrQGAQXaDqYmq8/4rIZtM534GS7jiq",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1702",
+  "memberCode": "linhtlphe1708",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-25T15:06:01.437Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca4"
+  },
+  "username": "Vũ Kim Chi",
+  "email": "chivkhe170183@fpt.edu.vn",
+  "password": "$2b$12$H4j4gGGNZUk3FvRcXHTD8Oa70WNpoYPWVd3G8gg/ECef7moXECW7y",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1702",
+  "memberCode": "chivkhe1708",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "groupId": {
+    "$oid": "6729f2d8661eab2247cbbe02"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca5"
+  },
+  "username": "Nguyễn Bảo Châu",
+  "email": "chaunb1he17094@fpt.edu.vn",
+  "password": "$2b$12$jPBiXa.pQzm13T0XRyu2AeS4nhB8GAm/m3loIlO5epPeozG.rPlrC",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1709",
+  "memberCode": "chaunbhe1708",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "groupId": {
+    "$oid": "6729f2d8661eab2247cbbe02"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca6"
+  },
+  "username": "Vũ Tiến Thịnh",
+  "email": "thinhvthe170188@fpt.edu.vn",
+  "password": "$2b$12$mjPs1zXrRCqSwF9MZW43Hu3OuHsibH0LWbCI7Gs31SX2d40XMMjNi",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1709",
+  "memberCode": "thinhvthe1708",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "groupId": {
+    "$oid": "6729f2d8661eab2247cbbe02"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca7"
+  },
+  "username": "Nguyễn Phương Thảo",
+  "email": "thaonphe170976@fpt.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
+  "role": 4,
+  "classId": {
+    "$oid": "670ce9200c2c13c3100804cd"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1709",
+  "memberCode": "thaonphe1709",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-13T01:56:20.000Z"
+  },
+  "groupId": {
+    "$oid": "6729f2f0661eab2247cbbe03"
+  },
+  "isLeader": true
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca8"
+  },
+  "username": "Lê Thị Hạnh Mai",
+  "email": "mailthhe171159@fpt.edu.vn",
+  "password": "$2b$12$yskl2uvm3K08nVnk0OsUSeZfJI8M800HGhENCesjqWH6/y30fGrPW",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1715",
+  "memberCode": "mailthhe1710",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645ca9"
+  },
+  "username": "Dương Việt Anh",
+  "email": "anhdvhe117137@fpt.edu.vn",
+  "password": "$2b$12$FngMdrDsatl0vM/rKYKG.unmX036/.fd49RwjQ3T.khOcp5PAETsG",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1713",
+  "memberCode": "anhdvhe1713",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.512Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645caa"
+  },
+  "username": "Mai Tú Nhi",
+  "email": "nhimthe171315@fpt.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1713",
+  "memberCode": "nhimthe1713",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "groupId": {
+    "$oid": "671fb8f4a6993a98abdc597f"
+  },
+  "isLeader": true
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645cab"
+  },
+  "username": "Nguyễn Viết Dũng",
+  "email": "dungnvhe171362@fpt.edu.vn",
+  "password": "$2b$12$TYgefwIG0OO3rrNhmOAKgeSb5.ZDU1qUt1U.BZ6.AHm1m/09BDFYm",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1716",
+  "memberCode": "dungnvhe1713",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645cac"
+  },
+  "username": "Nguyễn Hoàng Quân",
+  "email": "quannhhe117148@fpt.edu.vn",
+  "password": "$2b$12$7bPgX9/67Q5UyzEMsYPYGeBXlJv7bD0Aggu4b0dFjYx3lteKVb/PW",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1748",
+  "memberCode": "quannhhe1714",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645cad"
+  },
+  "username": "Lê Thu Huyền",
+  "email": "huyenlthe171666@fpt.edu.vn",
+  "password": "$2b$12$ltKK57xv.qEl5RRPcP2Sw.uLGaytc8XlGEk7gipInEFEJUwd2GFk.",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1766",
+  "memberCode": "huyenlthe1716",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645cae"
+  },
+  "username": "Vũ Hà Phương",
+  "email": "phuongvhhe173675@fpt.edu.vn",
+  "password": "$2b$12$Lm46Sqkqib2u4YsMHEONE.JPOuq3BhmD/0iJuuXb2bRnFJhSpX2SS",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1767",
+  "memberCode": "phuongvhhe1716",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645caf"
+  },
+  "username": "Phạm Anh Tuấn",
+  "email": "tuanpahe171740@fpt.edu.vn",
+  "password": "$2b$12$/G1IP3wwPRFnjyZMlXBbTuggi66Sji/QlIZ.C.aQAfUToLWvGxq1C",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1714",
+  "memberCode": "tuanpahe1717",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645cb0"
+  },
+  "username": "Nguyễn Xuân Hiếu",
+  "email": "hieunxhe173171@fpt.edu.vn",
+  "password": "$2b$12$3sJd0XN0MtimxmjUV/lY4eo8qwX1k7v4l9BL8yHwoq2XyMgKdU41O",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1716",
+  "memberCode": "hieunxhe1717",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645cb1"
+  },
+  "username": "Trần Đức Thiện",
+  "email": "thientdhe171730@fpt.edu.vn",
+  "password": "$2b$12$GKiVt/GGr/Z2dxHpUIw1V.WlnjvAb5o/1oGccpfhy1qSojemzmNNO",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1717",
+  "memberCode": "thientdhe1717",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.513Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d3f1b57c5ea586645cb2"
+  },
+  "username": "Phạm Khắc Tuấn Anh",
+  "email": "anhpkthe173109@fpt.edu.vn",
+  "password": "$2b$12$Ad6cfX/2nQQI7D8ANnqCgO/J0QNDaEJoGUkzQslCMIMebNolRoulu",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE1710",
+  "memberCode": "anhpkthe1719",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T03:20:17.514Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:20:17.514Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d476b57c5ea586645cc0"
+  },
+  "username": "Nguyễn Hoàng Anh Tuấn",
+  "email": "dasdasda12@fpt.edu.vn",
+  "password": "$2b$12$qij3WPLVpqVmHJ47BUsYXeDirGTqVXNdF93.eo.9noL6MUsO83cAe",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE161681",
+  "memberCode": "dasdasda12",
+  "createdAt": {
+    "$date": "2024-10-18T03:22:30.126Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:30:18.014Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670ce9200c2c13c3100804cd"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d54ae27c899c6c297dad"
+  },
+  "username": "Nguyễn Hoàng Anh Tuấn",
+  "email": "tuanhr17171711@fpt.edu.vn",
+  "password": "$2b$12$pdvsWkNcxtmth84lAolbt.Tji1QJ.fG30euEISAHECaG/lK/dhFni",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE161680",
+  "memberCode": "tuanhr17171711",
+  "createdAt": {
+    "$date": "2024-10-18T03:26:02.888Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:30:18.025Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670ce9200c2c13c3100804cd"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d5c858cefb7e7067f820"
+  },
+  "username": "Tuannhahe161682",
+  "email": "anhtuan2aaasd@fpt.edu.vn",
+  "password": "$2b$12$FQ6eZfznbSNe1tp.OAf2IuP0Kagc3w9oGPM8aoxb4Y4FLaXWroNkK",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE181818",
+  "memberCode": "anhtuan2aaasd",
+  "createdAt": {
+    "$date": "2024-10-18T03:28:08.482Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:30:18.028Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670ce9200c2c13c3100804cd"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d5eb58cefb7e7067f83c"
+  },
+  "username": "HieuDT41",
+  "email": "hieudt@fe.edu.vn",
+  "password": "$2b$12$d6cYgqCbW30DwwOS4vBcZOjcZnYpiYlOl7YWREHITz01n3ba/5bY.",
+  "role": 2,
+  "phoneNumber": "0966666666",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-18T03:28:43.827Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:28:43.827Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6711d7e558cefb7e7067f903"
+  },
+  "username": "Tuandz10m",
+  "email": "tuanhr1717171p@fpt.edu.vn",
+  "password": "$2b$12$1k76C/wu23HfIQZH8kwA2.X4zwtinWv9ZXVTQsNlQAsHgdID7lp12",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE181811",
+  "memberCode": "tuanhr1717171p",
+  "createdAt": {
+    "$date": "2024-10-18T03:37:09.473Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:40:32.645Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670ce9290c2c13c3100804d3"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711d98e58cefb7e706841e5"
+  },
+  "username": "Hieu",
+  "email": "tuanhr1717171o@fpt.edu.vn",
+  "password": "$2b$12$kleQK963F.FGbh5VewyEcujUp1fnifPZ4f/7s2SSJOAIIo/s//Rty",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE161622",
+  "memberCode": "tuanhr1717171o",
+  "createdAt": {
+    "$date": "2024-10-18T03:44:14.971Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:44:20.581Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711da0058cefb7e7068426e"
+  },
+  "username": "Admin",
+  "email": "rtuns22@fpt.edu.vn",
+  "password": "$2b$12$/YJFdfAh7H9QgTlRjywI7eXztz70VyS9jrJWW5qOk70pUnKHDrwyu",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE161685",
+  "memberCode": "rtuns22",
+  "createdAt": {
+    "$date": "2024-10-18T03:46:08.930Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:48:28.266Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670fe0bf0d28f15a9a31df63"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711db4858cefb7e7068432d"
+  },
+  "username": "Nguyễn Hoàng Anh Tuấn",
+  "email": "rtunsmm@fpt.edu.vn",
+  "password": "$2b$12$cOL/Xp27G5nOFljuLHZPheAKkN0wTomkzlPkZW4GEj8rdasuzx9sG",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE161686",
+  "memberCode": "rtunsmm",
+  "createdAt": {
+    "$date": "2024-10-18T03:51:36.788Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:52:03.569Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670ce9290c2c13c3100804d3"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711dbf358cefb7e706843da"
+  },
+  "username": "Nguyễn Hoàng Anh Tuấn",
+  "email": "tuanhr17171711a@fpt.edu.vn",
+  "password": "$2b$12$nnTVFZUEsuk4qOzvg3a9ZeQftI8dTlZnZDJKSHQigS13vn08YJRju",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE162682",
+  "memberCode": "tuanhr17171711a",
+  "createdAt": {
+    "$date": "2024-10-18T03:54:27.617Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T03:54:34.015Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711dd5f58cefb7e70684451"
+  },
+  "username": "Nguyễn Hoàng Anh Tuấn",
+  "email": "1@fpt.edu.vn",
+  "password": "$2b$12$SN60Jk5Hv9qsNuecR.utUe29A2csoUIiiXuSbneL/ABFhGnegaXKq",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE111682",
+  "memberCode": "1",
+  "createdAt": {
+    "$date": "2024-10-18T04:00:31.036Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:00:40.894Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670fe0bf0d28f15a9a31df63"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711dea658cefb7e706844fe"
+  },
+  "username": "Tuandz10m",
+  "email": "2@fpt.edu.vn",
+  "password": "$2b$12$nG2ZmwouHd1x1iKHlKF0w.U5st5.Tv2oFNKnjX.XEApCDcaOkyj6S",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE160682",
+  "memberCode": "2",
+  "createdAt": {
+    "$date": "2024-10-18T04:05:58.361Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:06:13.780Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670ce9290c2c13c3100804d3"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684643"
+  },
+  "username": "Nguyễn Thị Minh Phương",
+  "email": "phuongntmhe1161450@fpt.edu.vn",
+  "password": "$2b$12$HLPmDhxm5rwG3dgDiCh1H.65MbkDLyfRNjp39WOVfWuHIXG1HpW.C",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE16140",
+  "memberCode": "phuongntmhe16145",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684644"
+  },
+  "username": "Trần Lê Phương Linh",
+  "email": "linhtlphe1170820@fpt.edu.vn",
+  "password": "$2b$12$fZG5yi549eyG7MAmYxw7gOg90qBkzVbRXd4bDPjBEmxiLDYa32eDG",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17020",
+  "memberCode": "linhtlphe17082",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684645"
+  },
+  "username": "Vũ Kim Chi",
+  "email": "chivkhe1701823@fpt.edu.vn",
+  "password": "$2b$12$wL94.x3/209HjpHtajDAfOMaQUl/BXpbAiyAynitmepjIudycub9K",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17023",
+  "memberCode": "chivkhe17082",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684646"
+  },
+  "username": "Nguyễn Bảo Châu",
+  "email": "chaunb1he170894@fpt.edu.vn",
+  "password": "$2b$12$D5.0ETQKHw1C95TtYKjzfu1jhUON7e23gOoseIspeJRK7SgzUVVQC",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17094",
+  "memberCode": "chaunbhe17089",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684647"
+  },
+  "username": "Vũ Tiến Thịnh",
+  "email": "thinhvthe1701898@fpt.edu.vn",
+  "password": "$2b$12$CV0teh1Oc00/Gw//NmQkmuBIhLuh55vKiWkyDdd4KXiivrQ5IVZFG",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17098",
+  "memberCode": "thinhvthe17089",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684648"
+  },
+  "username": "Nguyễn Phương Thảo",
+  "email": "thaonphe1709176@fpt.edu.vn",
+  "password": "$2b$12$hcuearXoITyP/Lfd9ib5w.03WOfdEIH/A7BK9YNW9x8uhGY4z4PIm",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17096",
+  "memberCode": "thaonphe17097",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684649"
+  },
+  "username": "Lê Thị Hạnh Mai",
+  "email": "mailthhe1711059@fpt.edu.vn",
+  "password": "$2b$12$o7rmDz1Ea9T318c4trdWqOCvT5t7DRdlkA7ALkRIU/KdVvZaUehda",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17159",
+  "memberCode": "mailthhe17105",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068464a"
+  },
+  "username": "Dương Việt Anh",
+  "email": "anhdvhe1171307@fpt.edu.vn",
+  "password": "$2b$12$Yf8FLT4iLEQLbMSJdnZN3uqLYwaZcFkAYLimuZK1pib3NmNXevx96",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17137",
+  "memberCode": "anhdvhe17130",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068464b"
+  },
+  "username": "Mai Tú Nhi",
+  "email": "nhimthe1713154@fpt.edu.vn",
+  "password": "$2b$12$0DHCi9JyYWmFekbLiQsDMOb6aTwjJZdpNXcCLIF870SIQHujgM0jm",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17134",
+  "memberCode": "nhimthe17135",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068464c"
+  },
+  "username": "Nguyễn Viết Dũng",
+  "email": "dungnvhe1713162@fpt.edu.vn",
+  "password": "$2b$12$K5iNUX7.puPf2eALaTjThO.XQlqRLrfDEhE/1nTpnPYTofrYT7reS",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17162",
+  "memberCode": "dungnvhe17136",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.677Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068464d"
+  },
+  "username": "Nguyễn Hoàng Quân",
+  "email": "quannhhe1171480@fpt.edu.vn",
+  "password": "$2b$12$5MNyiSUN4YEzr0JzFwkRIun8L8jCgV8yPcHO2JXrKSsn6UWzsIu.a",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17480",
+  "memberCode": "quannhhe17148",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.678Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:07:31.678Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068464e"
+  },
+  "username": "Lê Thu Huyền",
+  "email": "huyenlthe1716166@fpt.edu.vn",
+  "password": "$2b$12$JEEkMfyq18ZD0WWdvWamkuau8LMRlROFoEa79CjjJr3RFg4YmQ2Du",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17666",
+  "memberCode": "huyenlthe17166",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.678Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.474Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068464f"
+  },
+  "username": "Vũ Hà Phương",
+  "email": "phuongvhhe1731675@fpt.edu.vn",
+  "password": "$2b$12$zcAyUyijCww79sVEmtFnE.RYBETJx5RQlZPfuLdB/CITPhK0rR4Ry",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17675",
+  "memberCode": "phuongvhhe17167",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.678Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.796Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684650"
+  },
+  "username": "Phạm Anh Tuấn",
+  "email": "tuanpahe1713740@fpt.edu.vn",
+  "password": "$2b$12$JGMMuL7lpw3Kusz9vhrKW.C7it2zWTzPscjsl/nZ4OVUT47BboDfK",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17140",
+  "memberCode": "tuanpahe17174",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.678Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.798Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684651"
+  },
+  "username": "Nguyễn Xuân Hiếu",
+  "email": "hieunxhe1731761@fpt.edu.vn",
+  "password": "$2b$12$hldkUhFDl3xyeVbmopTtROc9l9GfPHHFMSQga1LHpk6NKfzVM0wBG",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17161",
+  "memberCode": "hieunxhe17176",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.678Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.799Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684652"
+  },
+  "username": "Trần Đức Thiện",
+  "email": "thientdhe1717730@fpt.edu.vn",
+  "password": "$2b$12$1Q6S3vtwTHaB5raJuJRU1umc7k7D2J1H4g7Okv9tg5Im6/3vcMbSa",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17170",
+  "memberCode": "thientdhe17177",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.845Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684653"
+  },
+  "username": "Phạm Khắc Tuấn Anh",
+  "email": "anhpkthe1731909@fpt.edu.vn",
+  "password": "$2b$12$B5NIkEGwtAj7QyFruSE47O4bzeuqq11YTnWkZM5tWVeaWrAjGtnIi",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17109",
+  "memberCode": "anhpkthe17190",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.849Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684654"
+  },
+  "username": "Phan Khánh Hà",
+  "email": "hapkhe1731950@fpt.edu.vn",
+  "password": "$2b$12$Xp6BeZTe6t3LwuNu26H1g.vTawUwVCimCXdowFadxheg5EaB2AQMC",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17190",
+  "memberCode": "hapkhe17195",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.851Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684655"
+  },
+  "username": "Trần Bình Minh",
+  "email": "minhtbhe1723066@fpt.edu.vn",
+  "password": "$2b$12$7LDmBrUsDFGhexQv4rP3lOaZH4AY2VHXp71olIv2BH9IQifSvHmU.",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17266",
+  "memberCode": "minhtbhe17206",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.801Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684656"
+  },
+  "username": "Nguyễn Hoàng Mạnh",
+  "email": "manhnhhe1723630@fpt.edu.vn",
+  "password": "$2b$12$Tl786YDDZaOtpiIIYDZJy.kUZI/167BpDuflmgGe1Kyp/w5UPApo.",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17630",
+  "memberCode": "manhnhhe17263",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.852Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684657"
+  },
+  "username": "Nguyễn Hương Giang",
+  "email": "giangnhhe1376662@fpt.edu.vn",
+  "password": "$2b$12$6gb5WX/Fb3WF2HxuOSBQPe8MJGmYMQrwfjq1OvBQJONKBCJtHBq6a",
+  "role": 4,
+  "classId": {
+    "$oid": "670be1be3fb05896393d5a3e"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE17662",
+  "memberCode": "giangnhhe17666",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-25T15:06:01.403Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684658"
+  },
+  "username": "Nguyễn Thành Đạt",
+  "email": "datnths1350295@fpt.edu.vn",
+  "password": "$2b$12$uL3owqM00cgTEA6suLEQbO.P1kHFlt/UEAgWWniV5zxZGCY7533fO",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS15095",
+  "memberCode": "datnths15029",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.855Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684659"
+  },
+  "username": "Phạm Vũ Đức Minh",
+  "email": "minh1pvdhs160573@fpt.edu.vn",
+  "password": "$2b$12$8cx4Eo1Cn2EsYWTat7qH.e7uRFEnUMMYDTcc1Iet8KXHKzOSPyRoS",
+  "role": 4,
+  "classId": {
+    "$oid": "670fe0bf0d28f15a9a31df63"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16073",
+  "memberCode": "minhpvdhs16057",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T08:57:11.885Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068465a"
+  },
+  "username": "Nguyễn Thùy Dung",
+  "email": "dungnth1s160676@fpt.edu.vn",
+  "password": "$2b$12$pFdAg1hdYhQPcOuqrh9PUOESQL20hJSsdyT98eIirMo70WlLzj6me",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16066",
+  "memberCode": "dungnths16067",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.504Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068465b"
+  },
+  "username": "Bùi Đức Anh",
+  "email": "anhbd1hs160928@fpt.edu.vn",
+  "password": "$2b$12$3M2l7V1MPmCT1jw0VypLmefR.nVHsBmMXtL1GJUAa1zwmk7QQuI.6",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16028",
+  "memberCode": "anhbdhs16092",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.692Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068465c"
+  },
+  "username": "Lý Văn Mạnh",
+  "email": "manh1lvhs163145@fpt.edu.vn",
+  "password": "$2b$12$7ZnYw.JYfLl9WPsLfkozgu3x8fYUaadoN8WZtnWgzvoMMGOeh.ncS",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16345",
+  "memberCode": "manhlvhs16314",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.682Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068465d"
+  },
+  "username": "Phạm Quang Đạt",
+  "email": "dat1pqhs163190@fpt.edu.vn",
+  "password": "$2b$12$jCz3i4wESUPvXDUGi3HCwOQW/yWS9JzRc2876GjTMwLKTHdYkBe5G",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16310",
+  "memberCode": "datpqhs16319",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.554Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068465e"
+  },
+  "username": "Nguyễn Tuấn Anh",
+  "email": "anhnt1hs163450@fpt.edu.vn",
+  "password": "$2b$12$RjH4lFzHCImyLwUpxwcz4eS90S/AS.Rk/QXmssJ5RuCyjVp5pEacW",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16350",
+  "memberCode": "anhnths16345",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.650Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e7068465f"
+  },
+  "username": "Trần Thị Thuý Ngọc",
+  "email": "ngocttt1hs170282@fpt.edu.vn",
+  "password": "$2b$12$sKQFBWwgLBpj8.7kr5J9.emktGy3gsQXYFcO6mUyKDcvN7V/Rft/m",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16351",
+  "memberCode": "ngocttths17028",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.787Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6711df0358cefb7e70684660"
+  },
+  "username": "Nguyễn Tuấn Anh",
+  "email": "vidutaunto@gmail.com",
+  "password": "$2b$12$Qca12zACZViadfpZKlwBYeLNCK.9Vt5.FgQQwZIMSo/6Jja3b5Hou",
+  "role": 4,
+  "classId": {
+    "$oid": "670f2f13e5192ca69f68d594"
+  },
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HS16352",
+  "memberCode": "anhnths17113",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-18T04:07:31.679Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T04:08:03.794Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6712856b8d120c1c2faa4603"
+  },
+  "username": "Hieu",
+  "email": "12@fpt.edu.vn",
+  "password": "$2b$12$5973UUS0r0/pMjunxJO.YupxxsmJ7itga7BBcLmGMXnkRpcxYGneK",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Pending",
+  "rollNumber": "HE161611",
+  "memberCode": "12",
+  "createdAt": {
+    "$date": "2024-10-18T15:57:31.829Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-18T15:57:31.829Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "671285ac8d120c1c2faa464b"
+  },
+  "username": "Tuandz10m",
+  "email": "212@fpt.edu.vn",
+  "password": "$2b$12$gI6oN6sAhXU2tRRFpAcQd.Ro71jTGYhnVs8woYGgXK1kZMjDnRDdS",
+  "role": 4,
+  "phoneNumber": "",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "rollNumber": "HE181111",
+  "memberCode": "212",
+  "createdAt": {
+    "$date": "2024-10-18T15:58:36.237Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-19T11:53:36.003Z"
+  },
+  "__v": 0,
+  "classId": {
+    "$oid": "670ce9290c2c13c3100804d3"
+  }
+},
+{
+  "_id": {
+    "$oid": "67134fbd1db45bc2f73c013c"
+  },
+  "username": "Tuanhoa",
+  "email": "tuanhoa@fe.edu.vn",
+  "password": "$2b$12$zFms9XJ8tfeGCndhX8EhOecN36Fm.fBmsbToKxMwmMjkT1UX5.YuW",
+  "role": 3,
+  "phoneNumber": "0966348981",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-19T06:20:45.139Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-19T06:20:45.139Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da57"
+  },
+  "username": "teacher1",
+  "email": "teacher1@example.com",
+  "password": "hashedpassword1",
+  "role": 2,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da58"
+  },
+  "username": "teacher2",
+  "email": "teacher2@example.com",
+  "password": "hashedpassword2",
+  "role": 2,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da59"
+  },
+  "username": "teacher3",
+  "email": "teacher3@example.com",
+  "password": "hashedpassword3",
+  "role": 2,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da5a"
+  },
+  "username": "johndoe",
+  "email": "johndoe@example.com",
+  "password": "hashedpassword4",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da5b"
+  },
+  "username": "janesmith",
+  "email": "mentor@fe.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da5c"
+  },
+  "username": "alicejohnson",
+  "email": "alicejohnson@example.com",
+  "password": "hashedpassword6",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da5d"
+  },
+  "username": "bobbrown",
+  "email": "bobbrown@example.com",
+  "password": "hashedpassword7",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da5e"
+  },
+  "username": "charliedavis",
+  "email": "charliedavis@example.com",
+  "password": "hashedpassword8",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da5f"
+  },
+  "username": "davidwilson",
+  "email": "davidwilson@example.com",
+  "password": "hashedpassword9",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.288Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da66"
+  },
+  "username": "emilyclark",
+  "email": "emilyclark@example.com",
+  "password": "hashedpassword10",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da67"
+  },
+  "username": "frankthomas",
+  "email": "frankthomas@example.com",
+  "password": "hashedpassword11",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da68"
+  },
+  "username": "gracelee",
+  "email": "gracelee@example.com",
+  "password": "hashedpassword12",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da69"
+  },
+  "username": "hannahmartin",
+  "email": "hannahmartin@example.com",
+  "password": "hashedpassword13",
+  "role": 3,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.395Z"
+  },
+  "phoneNumber": "0966348981"
+},
+{
+  "_id": {
+    "$oid": "6732c3ec06a94a92edfd546c"
+  },
+  "username": "Nguyễn Hoàng Anh Tuấn",
+  "email": "a1@fe.edu.vn",
+  "password": "$2b$12$a9Rm0g/1bJC14sFrvNQ1De/OeRyy6hzwZ4Nd6y3usOGMoPeRfIftK",
+  "role": 3,
+  "phoneNumber": "0966666666",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-11-12T02:56:44.765Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T02:56:44.765Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67332871f971f4f5220dd360"
+  },
+  "username": "HieuDT46",
+  "email": "hoamy@fe.edu.vn",
+  "password": "$2b$12$z4d229feWPQ5ftxUsssZr.hyDcAT.XgWrczjLAkYv4Lnx8djMchV6",
+  "role": 3,
+  "phoneNumber": "0966348981",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-11-12T10:05:37.085Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:05:37.085Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6733292bf971f4f5220dd3c4"
+  },
+  "username": "Lâm Đức Dương",
+  "email": "duongld11@fe.edu.vn",
+  "password": "$2b$12$f7vDi8vOn13q/h2rD2yhbuLRzPgLANqVS/7THwRoXJvcG/mCsxg2i",
+  "role": 3,
+  "phoneNumber": "0942492607",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-12T10:08:43.463Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:08:43.463Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6733292bf971f4f5220dd3c5"
+  },
+  "username": "Nguyễn Văn Thuận",
+  "email": "thuannv32@fe.edu.vn",
+  "password": "$2b$12$Vd7H0YxofN.7GHKBJYyHlO5YdeOcV8BZic4lBLvCT7QbdONQUaS/e",
+  "role": 3,
+  "phoneNumber": "0904881652",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-12T10:08:43.464Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:08:43.464Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6733292bf971f4f5220dd3c6"
+  },
+  "username": "Lê Thành Trung",
+  "email": "trunglt37@fe.edu.vn",
+  "password": "$2b$12$IWe2jErGiahBrFKP0u1x3.ZWKTr3wOno5TjNeRO.8BOcaDR23KTk.",
+  "role": 3,
+  "phoneNumber": "0964319911",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-12T10:08:43.464Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:08:43.464Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6733292bf971f4f5220dd3c7"
+  },
+  "username": "Nguyễn Hoàng Anh",
+  "email": "anhnh177@fe.edu.vn",
+  "password": "$2b$12$eUGwPUh6a/66wmThIzc.rew3Nk1MHnyoXG/eFdVHh0tvjyMHVdZdG",
+  "role": 3,
+  "phoneNumber": "0904883688",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-12T10:08:43.464Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:08:43.464Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6733292bf971f4f5220dd3c8"
+  },
+  "username": "Lê Bá Quý",
+  "email": "quylb@fe.edu.vn",
+  "password": "$2b$12$ynYLDN/NWUjs.TxRUC0rK.CQnlkvNtsF1Q4nIF9lr6mthPNEafql.",
+  "role": 3,
+  "phoneNumber": "0972791896",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-12T10:08:43.465Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:08:43.465Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67332956f971f4f5220dd3e6"
+  },
+  "username": "Tuannhahe161682",
+  "email": "ddaaaa@fe.edu.vn",
+  "password": "$2b$12$27Rga2.vE6kl6va.Ur/58.FGyIPH777Sfz0knhMGKIcRAyKqZ3ZdC",
+  "role": 3,
+  "phoneNumber": "1212121212",
+  "semesterId": [
+    {
+      "$oid": "670bacd404ec36ddb74918e9"
+    }
+  ],
+  "isLeader": false,
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-11-12T10:09:26.269Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-12T10:09:26.269Z"
+  },
+  "__v": 0
+}]
