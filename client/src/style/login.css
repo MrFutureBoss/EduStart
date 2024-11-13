@@ -75,9 +75,9 @@
   box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.1);
 }
 
-.ant-card-body {
+/* .ant-card-body {
   padding: 0 30px 30px 30px !important;
-}
+} */
 
 .logo-no-bg {
   background-image: url("./../assets/images/logo-no-bg.png");
