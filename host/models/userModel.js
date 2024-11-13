@@ -42,6 +42,7 @@ const userSchema = new Schema(
     },
     rollNumber: { type: String },
     memberCode: { type: String },
+    major: { type: String },
   },
   {
     timestamps: true,

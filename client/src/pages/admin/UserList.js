@@ -465,10 +465,12 @@ const UserListSemester = () => {
                 padding: 13,
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                 backgroundColor: "#09636e94",
+                borderRadius: "12px",
               }}
             >
               {roles.map((role) => (
                 <Card
+                  className="card-choose-user"
                   key={role.id}
                   hoverable
                   style={{
@@ -484,7 +486,7 @@ const UserListSemester = () => {
                     fontWeight: "bold",
                     borderRadius: "12px",
                   }}
-                  bodyStyle={{ padding: 10 }}
+                  bodyStyle={{ padding: "10px" }}
                   onClick={() => handleRoleSelect(role.id)}
                 >
                   {role.name}
