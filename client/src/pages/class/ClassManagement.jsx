@@ -128,7 +128,7 @@ const ClassManagement = () => {
             bordered={true}
             title={
               <h5 style={{ padding: "0px", margin: "0px" }}>
-                Việc bạn cần giải quyết <FaPen />
+                Việc cần giải quyết <FaPen />
               </h5>
             }
             extra={
@@ -322,12 +322,12 @@ const ClassManagement = () => {
         </Col>
       </Row>
       <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
-        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
           <Card
             bordered={true}
             title={
               <h5 style={{ padding: "0px", margin: "0px" }}>
-                Danh sách lớp học của bạn
+                Danh sách lớp học đang quản lý
               </h5>
             }
             extra={
