@@ -50,6 +50,7 @@ import {
   selectProfessionName,
   selectSpecialtyName,
 } from "../../../redux/slice/Selectors";
+import { showAlert } from "../../../components/SweetAlert";
 const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
@@ -61,6 +62,7 @@ const SortableItem = ({
   index,
   onMoveToSelected,
   onChangePosition,
+  setHasChanges,
 }) => {
   const {
     attributes,
@@ -90,6 +92,7 @@ const SortableItem = ({
           onChangePosition={onChangePosition}
           isSelected={index !== undefined} // Chỉ khi mentor đã chọn thì hiển thị index
           index={index}
+          setHasChanges={setHasChanges}
         />
       </div>
     </div>
@@ -137,7 +140,9 @@ const MentorSelection = forwardRef(
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedMentor, setSelectedMentor] = useState(null);
     const [newPosition, setNewPosition] = useState(null);
+    const [hasChanges, setHasChanges] = useState(false);
     const teacherId = localStorage.getItem("userId");
+
     const sensors = useSensors(
       useSensor(PointerSensor, {
         activationConstraint: {
@@ -145,11 +150,11 @@ const MentorSelection = forwardRef(
         },
       })
     );
+    console.log(hasChanges);
 
     useEffect(() => {
       const getMentorsData = async () => {
         try {
-          // Lấy danh sách mentor đã chọn
           const selectedMentorsResponse = await fetchTeacherSelection(
             teacherId,
             professionId,
@@ -168,7 +173,6 @@ const MentorSelection = forwardRef(
               }));
           }
 
-          // Lưu mentor đã chọn vào Redux
           dispatch(
             setSelectedMentors({
               specialtyId,
@@ -176,7 +180,6 @@ const MentorSelection = forwardRef(
             })
           );
 
-          // Lấy danh sách mentor khả dụng
           const availableMentorsResponse = await fetchMentors(
             professionId,
             specialtyId
@@ -189,7 +192,6 @@ const MentorSelection = forwardRef(
               )
           );
 
-          // Lưu mentor khả dụng vào Redux
           dispatch(
             setAvailableMentors({
               specialtyId,
@@ -235,7 +237,6 @@ const MentorSelection = forwardRef(
       if (activeContainer !== overContainer) {
         // Di chuyển giữa các container
         if (activeContainer === "selectedMentors") {
-          // Moved from selected to available
           const mentor = selectedMentors.find((m) => m._id === active.id);
           if (mentor) {
             dispatch(
@@ -247,12 +248,11 @@ const MentorSelection = forwardRef(
             dispatch(
               setAvailableMentors({
                 specialtyId,
-                mentors: [...availableMentors, { ...mentor, priority: null }], // Reset priority khi di chuyển về bên chưa chọn
+                mentors: [...availableMentors, { ...mentor, priority: null }],
               })
             );
           }
         } else if (overContainer === "selectedMentors") {
-          // Moved from available to selected
           const mentor = availableMentors.find((m) => m._id === active.id);
           if (mentor) {
             dispatch(
@@ -272,6 +272,7 @@ const MentorSelection = forwardRef(
             );
           }
         }
+        setHasChanges(true);
       }
     };
 
@@ -300,7 +301,7 @@ const MentorSelection = forwardRef(
             newItems = arrayMove(items, activeIndex, overIndex).map(
               (mentor, index) => ({
                 ...mentor,
-                priority: index + 1, // Update priority
+                priority: index + 1,
               })
             );
             dispatch(
@@ -318,6 +319,7 @@ const MentorSelection = forwardRef(
               })
             );
           }
+          setHasChanges(true); // Cập nhật `hasChanges` khi sắp xếp lại
         }
       }
     };
@@ -428,47 +430,64 @@ const MentorSelection = forwardRef(
     };
 
     const handleSaveSelection = async () => {
-      const dataToSave = {
-        teacherId: localStorage.getItem("userId"),
-        professionId,
-        specialtyId,
-        selectedMentors: selectedMentors.map((mentor, index) => ({
-          mentorId: mentor?.mentorId?._id,
-          priority: index + 1,
-        })),
-      };
+      // Hiển thị xác nhận trước khi lưu
+      const result = await showAlert(
+        "Xác nhận",
+        "Bạn có chắc chắn muốn lưu các thay đổi?",
+        "question"
+      );
 
-      try {
-        await saveMentorSelection(dataToSave);
-        message.success("Lưu lựa chọn thành công!");
-        const response = await fetchTreeData(teacherId);
-        const {
-          professionCount,
-          specialtyCount,
-          updatedCount,
-          notUpdatedCount,
-        } = response.data;
-        dispatch(
-          setCountsUpdate({
+      if (result.isConfirmed) {
+        const dataToSave = {
+          teacherId: localStorage.getItem("userId"),
+          professionId,
+          specialtyId,
+          selectedMentors: selectedMentors.map((mentor, index) => ({
+            mentorId: mentor?.mentorId?._id,
+            priority: index + 1,
+          })),
+        };
+
+        try {
+          // Lưu lựa chọn mentor
+          await saveMentorSelection(dataToSave);
+          message.success("Lưu lựa chọn thành công!");
+
+          // Cập nhật dữ liệu và dispatch về Redux
+          const response = await fetchTreeData(teacherId);
+          const {
             professionCount,
             specialtyCount,
-            notUpdatedCount,
             updatedCount,
-          })
-        );
-        dispatch(setProfessions(response.data.treeData));
-        dispatch(setSpecialty([]));
-        const Selectresponse = await fetchTeacherSelection(
-          teacherId,
-          professionId,
-          specialtyId
-        );
-        dispatch(
-          setMentorsBySpecialty({ specialtyId, mentors: Selectresponse.data })
-        );
-      } catch (error) {
-        message.error("Lưu lựa chọn thất bại.");
-        console.error("Lỗi khi lưu lựa chọn:", error);
+            notUpdatedCount,
+          } = response.data;
+          dispatch(
+            setCountsUpdate({
+              professionCount,
+              specialtyCount,
+              notUpdatedCount,
+              updatedCount,
+            })
+          );
+          dispatch(setProfessions(response.data.treeData));
+          dispatch(setSpecialty([]));
+
+          // Lấy lại mentor đã chọn và dispatch về Redux
+          const Selectresponse = await fetchTeacherSelection(
+            teacherId,
+            professionId,
+            specialtyId
+          );
+          dispatch(
+            setMentorsBySpecialty({ specialtyId, mentors: Selectresponse.data })
+          );
+
+          // Sau khi lưu thành công, đặt `hasChanges` về `false`
+          setHasChanges(false);
+        } catch (error) {
+          message.error("Lưu lựa chọn thất bại.");
+          console.error("Lỗi khi lưu lựa chọn:", error);
+        }
       }
     };
 
@@ -592,7 +611,9 @@ const MentorSelection = forwardRef(
                           id={mentor._id}
                           mentor={mentor}
                           onMoveToSelected={handleMoveToSelected}
-                          onChangePosition={() => {}} // Không cần thay đổi vị trí cho mentor chưa chọn
+                          onChangePosition={() => {}}
+                          setHasChanges={setHasChanges}
+                          showMenu={true}
                         />
                       ))
                     )}
@@ -615,8 +636,13 @@ const MentorSelection = forwardRef(
           </DragOverlay>
         </DndContext>
         <Button
-          style={{ marginTop: 20, float: "right" }}
-          type="primary"
+          style={{
+            marginTop: 20,
+            float: "right",
+            backgroundColor: "#62b6cb",
+            color: "white",
+            display: hasChanges ? "inline-block" : "none",
+          }}
           onClick={handleSaveSelection}
           ref={saveButtonRef}
         >

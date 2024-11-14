@@ -17,9 +17,6 @@ const MainStep = () => {
   const selectedSpecialtyId = useSelector(
     (state) => state.selectMentor.selectedSpecialtyId
   );
-  console.log("selectedProfessionId", selectedProfessionId);
-  console.log("selectedSpecialtyId", selectedSpecialtyId);
-  console.log("stepCheck", stepCheck);
 
   useEffect(() => {
     if (

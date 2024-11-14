@@ -2,8 +2,8 @@
 import React from "react";
 import { Tag, Space, Card, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import ProjectCard from "./ProjectCard";
-import "../teacherCSS/MatchedProjectCard.css";
+import ProjectCard from "../ProjectCard";
+import "../../teacherCSS/MatchedProjectCard.css";
 import { useSelector } from "react-redux";
 
 const statusColors = {
