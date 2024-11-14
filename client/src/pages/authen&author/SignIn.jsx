@@ -113,7 +113,6 @@ function SignIn() {
 
   return (
     <div className="sign-in-container">
-      <div className="logo-no-bg"></div>
       <div className="sign-in-full-height">
         <Row justify="center" align="middle" style={{ height: "100%" }}>
           <Col xs={22} sm={18} md={12} lg={8} xl={6}>
@@ -125,9 +124,12 @@ function SignIn() {
                     color: "white",
                     marginTop: "4%",
                     fontWeight: "bold",
+                    textTransform: "uppercase",
+                    letterSpacing: "3px",
+                    fontSize: "1.8rem",
                   }}
                 >
-                  Đăng nhập
+                  EduStart
                 </Title>
               </div>
 
@@ -143,9 +145,11 @@ function SignIn() {
                 validationSchema={SignupSchema}
               >
                 {({ values, errors, touched }) => (
-                  <Form>
-                    <div style={{ marginBottom: "1rem" }}>
-                      <label htmlFor="email">Email</label>
+                  <Form className="form-login">
+                    <div>
+                      <label htmlFor="email" className="label-login">
+                        Email
+                      </label>
                       <Field
                         as={Input}
                         type="email"
@@ -163,7 +167,9 @@ function SignIn() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="password">Mật khẩu</label>
+                      <label htmlFor="password" className="label-login">
+                        Mật khẩu
+                      </label>
                       <Field
                         as={Input.Password}
                         name="password"
@@ -189,9 +195,7 @@ function SignIn() {
                       type="primary"
                       block
                       htmlType="submit"
-                      style={{
-                        fontWeight: "bold",
-                      }}
+                      className="login-button"
                     >
                       Đăng nhập
                     </Button>

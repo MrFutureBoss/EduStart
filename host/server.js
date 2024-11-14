@@ -67,7 +67,7 @@ app.use("/rulejoin", routes.ruleJoinRouter);
 app.use("/matched", routes.matchedRouter);
 app.use("/group", routes.groupRouter);
 app.use("/project", routes.projectRouter);
-
+app.use("/submission", routes.submissionRouter);
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {
   next(createError(404, "Resource not found"));

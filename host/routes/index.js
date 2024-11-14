@@ -14,7 +14,7 @@ import ruleJoinRouter from "./ruleJoinRoutes.js";
 import matchedRouter from "./matchedRouter.js";
 import groupRouter from "./groupRouter.js";
 import projectRouter from "./projectRouter.js";
-
+import submissionRouter from "./submissionRouter.js";
 const routes = {
   professionRouters,
   specialtyRouters,
@@ -32,6 +32,7 @@ const routes = {
   matchedRouter,
   groupRouter,
   projectRouter,
+  submissionRouter,
 };
 
 export default routes;

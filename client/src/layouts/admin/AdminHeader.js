@@ -17,7 +17,6 @@ const AppHeader = ({ collapsed, toggleCollapse }) => {
       }}
     >
       <div
-        className="logo"
         style={{
           color: "#fff",
           paddingLeft: "20px",
@@ -25,7 +24,7 @@ const AppHeader = ({ collapsed, toggleCollapse }) => {
           flex: 1,
         }}
       >
-        Hệ Thống Quản Lý
+        EduStart
       </div>
       <div
         onClick={toggleCollapse}
