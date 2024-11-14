@@ -89,7 +89,7 @@ activityRouters.patch(
   activityController.updateOutcomeType
 );
 activityRouters.delete(
-  "/outcome-type/:outcomeTypeId",
+  "/outcome-type/:id",
   verifyAccessToken,
   verifyRole([1]),
   activityController.deleteOutcomeType

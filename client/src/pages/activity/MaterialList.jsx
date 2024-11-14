@@ -238,6 +238,9 @@ const MaterialList = ({ selectedClassId }) => {
         <p>Không có tài liệu</p>
       ) : (
         <Tree
+          style={{
+            backgroundColor: "#f5f5f5",
+          }}
           showLine={{ showLeafIcon: true }}
           showIcon={false}
           defaultExpandedKeys={["Tài liệu", "Hình ảnh"]}

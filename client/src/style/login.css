@@ -10,7 +10,7 @@
 
 .sign-in-full-height {
   width: 100%;
-  height: 93.6vh;
+  height: 100vh;
   margin: 0 auto;
   position: relative;
   z-index: 2;
@@ -23,7 +23,9 @@
   text-align: center;
   color: white;
   position: relative;
-  bottom: 30px;
+  bottom: 45px;
+  background-image: linear-gradient(110deg, #86a4d4 0%, #0988c3 100%);
+  background-repeat: no-repeat;
 }
 
 .error-message-response {
@@ -34,11 +36,12 @@
 .input-password {
   border: none;
   border-bottom: 1px solid #1890ff;
-  border-radius: 0;
+  border-radius: 4px;
   outline: none;
   width: 100%;
   padding: 8px 0;
   transition: border-bottom 0.3s;
+  background-image: linear-gradient(120deg, #f9fafc 0%, #ffffff 10%);
 }
 
 .input-email.error,
@@ -60,7 +63,7 @@
   color: blue;
   cursor: pointer;
   font-size: 0.9rem;
-  margin: 10px 0;
+  margin: 17px 0;
 }
 
 .forgot-password-p:hover {
@@ -69,21 +72,23 @@
 }
 
 .card-login-body {
-  padding: 0;
   border-radius: 12px;
   background-color: #ffffff;
-  box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.4);
+  background-image: linear-gradient(120deg, #f9fafc 0%, #ffffff 10%);
+  padding: 0 10px 10px 10px;
 }
 
-/* .ant-card-body {
-  padding: 0 30px 30px 30px !important;
-} */
+.label-login {
+  color: #1890ff;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+}
 
-.logo-no-bg {
-  background-image: url("./../assets/images/logo-no-bg.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  width: 85px;
-  height: 48px;
+.login-button {
+  font-weight: bold;
+  padding: 11px 0;
 }

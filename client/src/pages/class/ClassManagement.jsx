@@ -457,11 +457,11 @@ const ClassManagement = () => {
             </Card.Grid>
           </Card>
         </Tabs.TabPane>
-        <Tabs.TabPane tab="Quản lý Outcome" key="2">
+        <Tabs.TabPane tab="Theo dõi tiến độ Outcome" key="2">
           <Card
             bordered={true}
             title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>Quản lý Outcome</h5>
+              <h5 style={{ padding: "0px", margin: "0px" }}>Theo dõi tiến độ Outcome</h5>
             }
             extra={
               <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
@@ -472,7 +472,6 @@ const ClassManagement = () => {
             }}
             bodyStyle={{ padding: "20px" }}
           >
-            <h3>Danh sách các lớp đã giao outcome</h3>
             <AssignOutcome />
           </Card>
         </Tabs.TabPane>

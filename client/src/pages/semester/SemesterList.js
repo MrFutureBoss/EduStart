@@ -142,17 +142,53 @@ const SemesterList = () => {
     }
   };
 
+  // const handleCreateModalOk = async (newSemester) => {
+  //   try {
+  //     await axios.post(`${BASE_URL}/semester/create`, newSemester, config);
+  //     message.success("Tạo kỳ học thành công!");
+  //     refreshSemesters();
+  //     setIsCreateModalVisible(false);
+  //     setCreateApiErrors(null);
+  //   } catch (error) {
+  //     handleError(error, setCreateApiErrors);
+  //   }
+  // };
   const handleCreateModalOk = async (newSemester) => {
     try {
-      await axios.post(`${BASE_URL}/semester/create`, newSemester, config);
-      message.success("Tạo kỳ học thành công!");
-      refreshSemesters();
-      setIsCreateModalVisible(false);
-      setCreateApiErrors(null);
+        // Step 1: Create the semester and retrieve the new semester ID
+        const semesterResponse = await axios.post(`${BASE_URL}/semester/create`, newSemester, config);
+        const semesterId = semesterResponse.data._id;  // Extract semester ID
+
+        // Step 2: Add default outcomes with the new semester ID
+        await createDefaultOutcomes(semesterId);
+        
+        message.success("Kỳ học và outcomes đã được tạo thành công!");
+        refreshSemesters();
+        setIsCreateModalVisible(false);
+        setCreateApiErrors(null);
     } catch (error) {
-      handleError(error, setCreateApiErrors);
+        handleError(error, setCreateApiErrors);
     }
-  };
+};
+
+const createDefaultOutcomes = async (semesterId) => {
+    const defaultOutcomes = [
+        { name: "Outcome 1", semesterId },
+        { name: "Outcome 2", semesterId },
+        { name: "Outcome 3", semesterId }
+    ];
+
+    try {
+        await Promise.all(
+            defaultOutcomes.map(outcome =>
+                axios.post(`${BASE_URL}/activity/outcome-type`, outcome, config)
+            )
+        );
+    } catch (error) {
+        console.error("Error creating default outcomes:", error);
+        message.error("Đã xảy ra lỗi khi thêm outcomes.");
+    }
+};
 
   const refreshSemesters = async () => {
     try {

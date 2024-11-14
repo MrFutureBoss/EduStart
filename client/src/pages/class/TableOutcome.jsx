@@ -1,48 +1,67 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Table, Space, Spin, message, Button, Input } from "antd";
+import { Table, Space, Spin, message, Button, Input, Tooltip } from "antd";
 import Highlighter from "react-highlight-words";
-import { SearchOutlined } from "@ant-design/icons";
+import { EyeOutlined, SearchOutlined } from "@ant-design/icons";
 import moment from "moment";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 
-const TableOutcome = () => {
+const TableOutcome = ({ classList, semesterId }) => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
   const navigate = useNavigate();
+  const [currentOutcomeType, setCurrentOutcomeType] = useState("");
 
   useEffect(() => {
     const fetchOutcomesData = async () => {
       try {
+        setLoading(true);
         const jwt = localStorage.getItem("jwt");
         const userId = localStorage.getItem("userId");
-        const config = {
-          headers: { Authorization: `Bearer ${jwt}` },
-        };
+        const config = { headers: { Authorization: `Bearer ${jwt}` } };
+
+        const outcomesResponse = await axios.get(
+          `${BASE_URL}/activity/outcome-type/semester/${semesterId}`,
+          config
+        );
+
+        const outcomesData = outcomesResponse.data;
+        const outcomeNameMap = {};
+
+        outcomesData.forEach((outcome) => {
+          outcomeNameMap[outcome._id] = outcome.name;
+        });
 
         const response = await axios.get(
           `${BASE_URL}/activity/user/${userId}?activityType=outcome`,
           config
         );
 
-        const outcomes = Array.isArray(response.data)
+        const activities = Array.isArray(response.data)
           ? response.data
           : response.data.activities || [];
 
+        const parsedActivities = activities.map((outcome) => ({
+          ...outcome,
+          startDate: moment(outcome.startDate),
+          deadline: moment(outcome.deadline),
+        }));
         const today = moment();
-        const currentOutcomes = outcomes.filter((outcome) =>
-          today.isBetween(
-            moment(outcome.startDate),
-            moment(outcome.deadline),
-            null,
-            "[]"
-          )
-        );
 
+        const currentOutcomes = parsedActivities.filter(
+          (outcome) =>
+            outcome.startDate.isSameOrBefore(today) &&
+            outcome.deadline.isSameOrAfter(today)
+        );
+        if (currentOutcomes.length > 0) {
+          setCurrentOutcomeType(
+            outcomeNameMap[currentOutcomes[0].outcomeId] || ""
+          );
+        }
         const seenClasses = new Set();
         const tableData = currentOutcomes
           .filter((outcome) => {
@@ -66,15 +85,14 @@ const TableOutcome = () => {
             return {
               key: outcome._id,
               className: outcome.classId?.className || "N/A",
-              title: outcome.assignmentType,
-              startDate: moment(outcome.startDate).format("YYYY-MM-DD"),
-              deadline: moment(outcome.deadline).format("YYYY-MM-DD"),
+              title: outcomeNameMap[outcome.outcomeId] || "N/A",
+              startDate: outcome.startDate.format("YYYY-MM-DD"),
+              deadline: outcome.deadline.format("YYYY-MM-DD"),
               assignedGroups: assignedGroupsCount,
               totalGroups: totalGroupsCount,
               notSubmittedCount,
             };
           });
-
         setFilteredData(tableData);
       } catch (error) {
         console.error("Error fetching or processing data:", error);
@@ -84,8 +102,10 @@ const TableOutcome = () => {
       }
     };
 
-    fetchOutcomesData();
-  }, []);
+    if (semesterId) {
+      fetchOutcomesData();
+    }
+  }, [semesterId]);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -218,6 +238,25 @@ const TableOutcome = () => {
         </span>
       ),
     },
+    {
+      title: "",
+      key: "details",
+      width: "5%",
+      render: (_, record) => (
+        <Tooltip title="Xem chi tiết lớp">
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(
+                `/teacher-dashboard/class/detail/${record.className}/outcomes`
+              );
+            }}
+          />
+        </Tooltip>
+      ),
+    },
   ];
 
   const handleRowClick = (record) => {
@@ -230,6 +269,7 @@ const TableOutcome = () => {
         <Spin size="large" tip="Loading data..." />
       ) : (
         <>
+          <h3>Tiến độ {currentOutcomeType}</h3>
           <Table
             columns={columns}
             dataSource={filteredData}

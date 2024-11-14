@@ -339,12 +339,18 @@ const sendReminder = async (req, res) => {
 };
 const assignOutcomeToAllGroups = async (req, res) => {
   try {
-    const { description, classIds, outcomes } = req.body;
+    const { description, classIds, semesterId, outcomes } = req.body;
 
     if (!Array.isArray(classIds) || classIds.length === 0) {
       return res
         .status(400)
         .json({ message: "Thiếu hoặc không hợp lệ classIds." });
+    }
+
+    if (!semesterId) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ semesterId." });
     }
 
     if (!Array.isArray(outcomes) || outcomes.length === 0) {
@@ -354,7 +360,6 @@ const assignOutcomeToAllGroups = async (req, res) => {
     }
 
     const allGroups = await groupDAO.getGroupsByClassIds(classIds);
-
     if (!allGroups || allGroups.length === 0) {
       return res.status(404).json({
         message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
@@ -369,38 +374,26 @@ const assignOutcomeToAllGroups = async (req, res) => {
       groupsByClassId[group.classId].push(group);
     });
 
-    const classIdsWithGroups = classIds.filter(
-      (classId) =>
-        groupsByClassId[classId] && groupsByClassId[classId].length > 0
-    );
-    const classIdsWithoutGroups = classIds.filter(
-      (classId) =>
-        !groupsByClassId[classId] || groupsByClassId[classId].length === 0
-    );
-
-    if (classIdsWithGroups.length === 0) {
-      return res.status(404).json({
-        message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
-      });
-    }
-
     const activities = [];
-    classIdsWithGroups.forEach((classId) => {
+    classIds.forEach((classId) => {
       const groups = groupsByClassId[classId];
-      groups.forEach((group) => {
-        outcomes.forEach((outcome) => {
-          activities.push({
-            teacherId: req.user._id,
-            activityType: "outcome",
-            description: description,
-            assignmentType: outcome.assignmentType,
-            startDate: outcome.startDate,
-            deadline: outcome.deadline,
-            classId: classId,
-            groupId: group._id,
+      if (groups) {
+        groups.forEach((group) => {
+          outcomes.forEach((outcome) => {
+            activities.push({
+              teacherId: req.user._id,
+              activityType: "outcome",
+              description: outcome.description || description,
+              outcomeId: outcome.outcomeId,
+              startDate: new Date(outcome.startDate),
+              deadline: new Date(outcome.deadline),
+              classId: classId,
+              groupId: group._id,
+              semesterId: semesterId,
+            });
           });
         });
-      });
+      }
     });
 
     if (activities.length === 0) {
@@ -411,20 +404,9 @@ const assignOutcomeToAllGroups = async (req, res) => {
 
     await activityDAO.createActivity(activities);
 
-    if (classIdsWithoutGroups.length > 0) {
-      return res.status(207).json({
-        message:
-          "Giao Outcome thành công tới các lớp có nhóm. Một số lớp không có nhóm để giao Outcome.",
-        details: {
-          successfulClasses: classIdsWithGroups,
-          failedClasses: classIdsWithoutGroups,
-        },
-      });
-    } else {
-      return res.status(201).json({
-        message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
-      });
-    }
+    return res.status(201).json({
+      message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
+    });
   } catch (error) {
     console.error("Error in assignOutcomeToAllGroups:", error);
     res.status(500).json({ message: "Đã xảy ra lỗi khi giao Outcome." });
@@ -444,6 +426,17 @@ const updateOutcomeDeadline = async (req, res) => {
       return res.status(404).json({ error: "Outcome activity not found." });
     }
 
+    const currentDeadline = moment(activity.deadline);
+    const minDeadline = currentDeadline.clone().subtract(7, "days");
+    const maxDeadline = currentDeadline.clone().add(7, "days");
+
+    if (!moment(newDeadline).isBetween(minDeadline, maxDeadline, "day", "[]")) {
+      return res.status(400).json({
+        error:
+          "Hạn nộp không được quá hoặc kém 7 ngày so với hạn nộp hiện tại.",
+      });
+    }
+
     activity.deadline = new Date(newDeadline);
     await activity.save();
 
@@ -458,7 +451,6 @@ const updateOutcomeDeadline = async (req, res) => {
       .json({ error: "An error occurred while updating the deadline." });
   }
 };
-
 const createOutcomeType = async (req, res) => {
   try {
     const { name, description, semesterId } = req.body;
@@ -511,6 +503,9 @@ const updateOutcomeType = async (req, res) => {
     const { name, description, semesterId } = req.body;
     const outcomeId = req.params.id;
 
+    if (!semesterId) {
+      return res.status(400).json({ message: "Semester ID is required." });
+    }
     const duplicateOutcome = await activityDAO.findOutcomeByNameAndSemester(
       name,
       semesterId,
