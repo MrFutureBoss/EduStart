@@ -639,10 +639,13 @@ const ProjectCardMain = () => {
   };
 
   useEffect(() => {
-    if (selectedGroup?.classId) {
-      handleClassChange(selectedGroup.classId);
+    const savedClassId = localStorage.getItem("selectedClassId");
+
+    if (savedClassId) {
+      dispatch(setSelectedClassId(savedClassId));
+      handleClassChange(savedClassId);
     }
-  }, [selectedGroup]);
+  }, [dispatch]);
 
   // Xử lý khi chọn lớp học
   const handleClassChange = async (classId) => {
@@ -772,13 +775,18 @@ const ProjectCardMain = () => {
 
   // Xử lý khi nhấp vào xem chi tiết lựa chọn
   const handleViewDetailSelection = (projectId) => {
-    navigate(`detailed-selection/${projectId}`, {
-      state: {
-        project: projectData.find((p) => p._id === projectId),
-        mentors: mentorsData[projectId],
-        assignedMentors: assignedMentorsMap[projectId],
-      },
-    });
+    const project = projectData.find((p) => p._id === projectId);
+    const mentors = mentorsData[projectId];
+    const assignedMentors = assignedMentorsMap[projectId];
+
+    // Save data to localStorage
+    localStorage.setItem(
+      "selectedProject",
+      JSON.stringify({ project, mentors, assignedMentors })
+    );
+
+    // Navigate to DetailedSelection page
+    navigate(`detailed-selection/${projectId}`);
   };
 
   const unmatchedProjects = projectData.filter((project) => !project.isMatched);

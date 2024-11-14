@@ -16,6 +16,8 @@ import groupRouter from "./groupRouter.js";
 import projectRouter from "./projectRouter.js";
 import mentorRouter from "./mentorRouter.js";
 import submissionRouter from "./submissionRouter.js";
+import classTransferRoutes from "./clasTransferRouter.js";
+
 const routes = {
   professionRouters,
   specialtyRouters,
@@ -35,6 +37,7 @@ const routes = {
   projectRouter,
   mentorRouter,
   submissionRouter,
+  classTransferRoutes,
 };
 
 export default routes;

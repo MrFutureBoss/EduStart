@@ -288,6 +288,226 @@ const getCurrentSemesterController = async (req, res) => {
   }
 };
 
+const checkSemesterStatus = async (req, res) => {
+  try {
+    // Kiểm tra kỳ học hiện tại
+    const currentSemester = await semesterDAO.getCurrentSemester();
+
+    if (currentSemester) {
+      return res.status(200).json({
+        message: "Có kỳ học hiện tại",
+        semester: currentSemester,
+        status: "Ongoing",
+      });
+    }
+
+    // Kiểm tra kỳ học sắp tới trong vòng 15 ngày
+    const upcomingSemester = await semesterDAO.findUpcomingSemesterWithinDays(
+      15
+    );
+
+    if (upcomingSemester) {
+      return res.status(200).json({
+        message: "Có kỳ học sắp tới trong vòng 15 ngày",
+        semester: upcomingSemester,
+        status: "Upcoming",
+      });
+    }
+
+    // Nếu không có kỳ học nào hiện tại hoặc trong vòng 15 ngày tới
+    return res.status(200).json({
+      message:
+        "Không có kỳ học nào hiện tại hoặc trong vòng 15 ngày tới. Cần tạo kỳ học mới.",
+      status: "No upcoming semester",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+const checkTeachersInSemester = async (req, res) => {
+  try {
+    // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
+    let { semesterId } = req.query;
+
+    if (!semesterId) {
+      const currentSemester = await semesterDAO.getCurrentSemester();
+      if (!currentSemester) {
+        return res.status(404).json({
+          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
+        });
+      }
+      semesterId = currentSemester._id;
+    }
+
+    // Kiểm tra giáo viên trong kỳ học
+    const teachers = await semesterDAO.findTeachersInSemester(semesterId);
+
+    if (teachers.length > 0) {
+      return res.status(200).json({
+        message: `Đã có ${teachers.length} giáo viên trong kỳ học.`,
+        status: "Teachers found",
+        teachers,
+      });
+    } else {
+      return res.status(200).json({
+        message: "Chưa có giáo viên nào trong kỳ học.",
+        status: "No teachers found",
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+const checkMentorsInSemester = async (req, res) => {
+  try {
+    // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
+    let { semesterId } = req.query;
+
+    if (!semesterId) {
+      const currentSemester = await semesterDAO.getCurrentSemester();
+      if (!currentSemester) {
+        return res.status(404).json({
+          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
+        });
+      }
+      semesterId = currentSemester._id;
+    }
+
+    // Kiểm tra giáo viên trong kỳ học
+    const mentors = await semesterDAO.findMentorsInSemester(semesterId);
+
+    if (mentors.length > 0) {
+      return res.status(200).json({
+        message: `Đã có ${mentors.length} mentor trong kỳ học.`,
+        status: "Mentors found",
+        mentors,
+      });
+    } else {
+      return res.status(200).json({
+        message: "Chưa có mentor nào trong kỳ học.",
+        status: "No mentors found",
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+const checkStudentsInSemester = async (req, res) => {
+  try {
+    // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
+    let { semesterId } = req.query;
+
+    if (!semesterId) {
+      const currentSemester = await semesterDAO.getCurrentSemester();
+      if (!currentSemester) {
+        return res.status(404).json({
+          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
+        });
+      }
+      semesterId = currentSemester._id;
+    }
+
+    // Kiểm tra giáo viên trong kỳ học
+    const students = await semesterDAO.findStudentsInSemester(semesterId);
+
+    if (students.length > 0) {
+      return res.status(200).json({
+        message: `Đã có ${students.length} sinh viên trong kỳ học.`,
+        status: "Student found",
+        students,
+      });
+    } else {
+      return res.status(200).json({
+        message: "Chưa có sinh viên nào trong kỳ học.",
+        status: "No students found",
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+const checkStudentsInSemesterStatus = async (req, res) => {
+  try {
+    // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
+    let { semesterId } = req.query;
+
+    if (!semesterId) {
+      const currentSemester = await semesterDAO.getCurrentSemester();
+      if (!currentSemester) {
+        return res.status(404).json({
+          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
+        });
+      }
+      semesterId = currentSemester._id;
+    }
+
+    // Kiểm tra giáo viên trong kỳ học
+    const pendingStudents = await semesterDAO.findStudentsInSemesterStatus(
+      semesterId
+    );
+
+    if (pendingStudents.length > 0) {
+      return res.status(200).json({
+        message: `Có ${pendingStudents.length} học sinh trong trạng thái Pending.`,
+        status: "Pending students found",
+        students: pendingStudents,
+      });
+    } else {
+      return res.status(200).json({
+        message: "Không có học sinh nào trong trạng thái Pending.",
+        status: "No pending students",
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+const checkClassCapacity = async (req, res) => {
+  try {
+    const classesStatus = await semesterDAO.getClassCapacityStatus();
+    res.status(200).json({
+      message: "Kiểm tra tình trạng các lớp học thành công.",
+      data: classesStatus,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Có lỗi xảy ra khi kiểm tra tình trạng các lớp học.",
+      error: error.message,
+    });
+  }
+};
+
+const getTeachersWithoutClass = async (req, res) => {
+  try {
+    const teachersWithoutClass = await semesterDAO.findTeachersWithoutClass();
+    res.status(200).json({
+      message: "Danh sách giáo viên chưa có lớp học.",
+      data: teachersWithoutClass,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Có lỗi xảy ra khi lấy danh sách giáo viên chưa có lớp.",
+      error: error.message,
+    });
+  }
+};
 export default {
   createSemester,
   updateSemester,
@@ -295,4 +515,11 @@ export default {
   getAllSemesters,
   getUsersBySemester,
   getCurrentSemesterController,
+  checkSemesterStatus,
+  checkTeachersInSemester,
+  checkMentorsInSemester,
+  checkStudentsInSemester,
+  checkStudentsInSemesterStatus,
+  checkClassCapacity,
+  getTeachersWithoutClass,
 };

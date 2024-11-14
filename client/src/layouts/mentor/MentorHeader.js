@@ -27,9 +27,7 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
           paddingLeft: "20px",
           fontSize: "20px",
         }}
-      >
-        Hệ Thống Quản Lý
-      </div>
+      ></div>
       {/* <div
         onClick={toggleCollapse}
         style={{ paddingRight: "20px", cursor: "pointer" }}

@@ -158,7 +158,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         {teacher?.classList?.length > 0 ? (
           <Menu.Item key="5" icon={<GrGroup className="custom-icon" />}>
             <Link style={{ textDecoration: "none" }} to="class">
-              Lớp học
+              Quản lý lớp học
             </Link>
           </Menu.Item>
         ) : (

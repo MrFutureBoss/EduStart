@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { IoPersonAddOutline } from "react-icons/io5";
 import { MdAutoFixHigh } from "react-icons/md";
 import { MdAutoFixOff } from "react-icons/md";
 
@@ -48,7 +47,7 @@ const UnGroupList = () => {
   useEffect(() => {
     return () => {
       dispatch(setTempGroups([]));
-      dispatch(setTotalTempGroups(0)); 
+      dispatch(setTotalTempGroups(0));
       dispatch(setTotalJoinUser(0));
       dispatch(setWaitUserList([]));
       dispatch(setTotalWaitUsers(0));
@@ -74,10 +73,6 @@ const UnGroupList = () => {
 
     fetchUserData();
   }, [userId, config, dispatch]);
-
-  const classTask = useSelector((state) => state.classManagement.classtask) || {
-    data: [],
-  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -165,9 +160,6 @@ const UnGroupList = () => {
 
   const tempGroups = useSelector((state) => state.tempGroup.data || []);
   const totalTempGroups = useSelector((state) => state.tempGroup.total || 0);
-  const waitUserList = useSelector(
-    (state) => state.tempGroup.waituserlist || []
-  );
   const totalWaitUsers = useSelector((state) => state.tempGroup.waittotal || 0);
   const totalJoinUsers = useSelector((state) => state.tempGroup.jointotal || 0);
   const settingCreateGroup = useSelector(
@@ -179,13 +171,6 @@ const UnGroupList = () => {
   };
   const handleCloseAddTypeModal = () => {
     setIsModalShowTypeAdd(false);
-  };
-
-  const handleOpenModifyStudentInGroup = () => {
-    setIsDndActive(true);
-  };
-  const handleCloseModifyStudentInGroup = () => {
-    setIsDndActive(false);
   };
 
   const handleAutoGroup = async () => {
@@ -223,7 +208,7 @@ const UnGroupList = () => {
 
   const remainingTime = useMemo(() => {
     if (!deadline) return null;
-    
+
     const now = moment();
     const deadlineTime = moment(deadline);
     const duration = moment.duration(deadlineTime.diff(now));
@@ -237,7 +222,6 @@ const UnGroupList = () => {
       return "Đã hết hạn";
     }
   }, [deadline]);
-  
 
   return (
     <div>
@@ -247,7 +231,7 @@ const UnGroupList = () => {
         close={handleCloseAddTypeModal}
       />
       <h1>Lớp {className}</h1>
-      <Card bordered={true}>
+      <Card bordered={true} style={{ width: "60%" }}>
         <Card.Grid style={{ width: "50%" }}>
           <p className="remove-default-style-p" style={{ fontWeight: "700" }}>
             Sĩ số lớp:{" "}
@@ -398,44 +382,6 @@ const UnGroupList = () => {
             >
               <MdAutoFixOff style={{ fontSize: "1.1rem" }} />
               &nbsp;Tự động ghép nhóm
-            </Button>
-          </Tooltip>
-        )}
-
-        {!isDndActive ? (
-          <Tooltip
-            title="Bật chế độ xếp sinh viên vào nhóm"
-            style={{ display: "flex", textAlign: "center" }}
-          >
-            <Button
-              color="primary"
-              variant="solid"
-              style={{
-                margin: "20px 0px",
-                display: totalTempGroups <= 0 ? "none" : "block",
-              }}
-              onClick={handleOpenModifyStudentInGroup}
-            >
-              <IoPersonAddOutline style={{ fontSize: "1.1rem" }} />
-              &nbsp;Xếp vào nhóm
-            </Button>
-          </Tooltip>
-        ) : (
-          <Tooltip
-            title="Tắt chế độ xếp sinh viên vào nhóm"
-            style={{ display: "flex", textAlign: "center" }}
-          >
-            <Button
-              color="danger"
-              variant="solid"
-              style={{
-                margin: "20px 0px",
-                display: totalTempGroups <= 0 ? "none" : "block",
-              }}
-              onClick={handleCloseModifyStudentInGroup}
-            >
-              <IoPersonAddOutline style={{ fontSize: "1.1rem" }} />
-              &nbsp;Dừng Xếp vào nhóm
             </Button>
           </Tooltip>
         )}

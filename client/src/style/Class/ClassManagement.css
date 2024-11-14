@@ -122,3 +122,18 @@
     margin-bottom: 0px;
     line-height: 1.8rem;
 }
+
+.list-drawer {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 8px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .list-drawer:hover {
+    background-color: #f0f0f0; 
+  }
+
+  .custom-checkbox input[type="checkbox"] {
+    transform: scale(1.4);
+  }

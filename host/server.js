@@ -69,6 +69,8 @@ app.use("/group", routes.groupRouter);
 app.use("/project", routes.projectRouter);
 app.use("/mentor", routes.mentorRouter);
 app.use("/submission", routes.submissionRouter);
+app.use("/classTranfer", routes.classTransferRoutes);
+
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {
   next(createError(404, "Resource not found"));

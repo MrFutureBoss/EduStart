@@ -13,34 +13,31 @@ import {
   Modal,
   message,
 } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import { UploadOutlined, UserAddOutlined } from "@ant-design/icons";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserAddModal from "../semester/semesterModel/UserAddModal";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import ErrorAlerts from "../semester/ErrorAlerts";
 import {
   setCounts,
-  setCurrentSemester,
   setDetailSemester,
   setLoading,
   setSemesterName,
   setSid,
   setUsersInSmt,
 } from "../../redux/slice/semesterSlide";
-import EditSemesterModal from "../semester/semesterModel/EditSemesterModel";
-import {
-  setErrorMessages,
-  setFailedEmails,
-} from "../../redux/slice/ErrorSlice";
 import TransferClassModal from "../semester/userModel/TransferClassModal";
 import SwapClassModal from "../semester/userModel/SwapClassModal";
-import { setRecentlyUpdatedUsers } from "../../redux/slice/UserSlice";
+import {
+  clearRoleSelect,
+  setRecentlyUpdatedUsers,
+  setRoleSelect,
+} from "../../redux/slice/UserSlice";
 import "./UserListSemester.css";
 import SemesterDetailsCard from "../semester/SemesterDetailsCard";
 import UploadFileModal from "./UploadFileModal";
 import "../../pages/teacher/teacherCSS/MentorSelectionOverview.css";
-
+import SelectRoleModal from "./SelectRoleModal";
 const { Option } = Select;
 const { Search } = Input;
 
@@ -50,8 +47,12 @@ const UserListSemester = () => {
   const { sid, usersInSmt, currentSemester, semester } = useSelector(
     (state) => state.semester
   );
-  const { recentlyUpdatedUsers } = useSelector((state) => state.user);
-  const [selectedRole, setSelectedRole] = useState(null);
+  const location = useLocation();
+  const fromAdmin = location.state?.fromAdmin || false;
+  const { selectedRole, recentlyUpdatedUsers } = useSelector(
+    (state) => state.user
+  );
+
   const [selectedClass, setSelectedClass] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [pagination, setPagination] = useState({
@@ -60,21 +61,21 @@ const UserListSemester = () => {
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
-  const [isManualEntry, setIsManualEntry] = useState(false);
   const [isRoleSelectModalVisible, setIsRoleSelectModalVisible] =
     useState(false);
   const [selectedUploadRole, setSelectedUploadRole] = useState(null);
-  const [successCount, setSuccessCount] = useState(0);
   const { errorMessages, fullClassUsers, failedEmails } = useSelector(
     (state) => state.error
   );
-  const [editApiErrors, setEditApiErrors] = useState(null);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
   const [isSwapModalVisible, setIsSwapModalVisible] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [isUploadFileModalVisible, setIsUploadFileModalVisible] =
-    useState(false); // Thêm state cho UploadFileModal
+  useState(false);
+  const [isSelectRoleModalVisible, setIsSelectRoleModalVisible] =
+    useState(false);
+  const isSemesterListUserSemester = location.pathname.includes(
+    "semester-list/user-semester"
+  );
 
   const jwt = localStorage.getItem("jwt");
 
@@ -94,10 +95,20 @@ const UserListSemester = () => {
     { id: 3, name: "Mentor" },
     { id: 5, name: "Người dùng khác" },
   ];
+  useEffect(() => {
+    if (fromAdmin && selectedRole) {
+      setIsSelectRoleModalVisible(true);
+    }
+  }, [fromAdmin, selectedRole]);
 
-  const showRoleSelectModal = (isManual) => {
-    setIsManualEntry(isManual);
-    setIsRoleSelectModalVisible(true);
+  const handleAddUserClick = () => {
+    if (selectedRole) {
+      // Nếu đã có selectedRole, mở ngay modal chọn phương thức thêm người dùng
+      setIsSelectRoleModalVisible(true);
+    } else {
+      // Nếu chưa có selectedRole, yêu cầu chọn vai trò trước
+      setIsRoleSelectModalVisible(true);
+    }
   };
 
   const handleRoleSelectOk = () => {
@@ -105,12 +116,9 @@ const UserListSemester = () => {
       message.error("Vui lòng chọn vai trò người dùng trước khi tiếp tục.");
       return;
     }
+    dispatch(setRoleSelect(selectedUploadRole));
     setIsRoleSelectModalVisible(false);
-    if (isManualEntry) {
-      setIsModalVisible(true);
-    } else {
-      setIsUploadFileModalVisible(true); // Mở UploadFileModal thay vì UploadModal cũ
-    }
+    setIsSelectRoleModalVisible(true); // Mở modal chọn phương thức thêm người dùng
   };
 
   const handleTransferModal = (student) => {
@@ -136,29 +144,6 @@ const UserListSemester = () => {
     setIsRoleSelectModalVisible(false);
     setSelectedUploadRole(null);
   };
-
-  const handleModalCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleUploadModalCancel = () => {
-    setIsUploadModalVisible(false);
-    setSelectedUploadRole(null);
-    setSuccessCount(0);
-    setErrorMessages([]);
-    setFailedEmails([]);
-  };
-
-  const menu = (
-    <Menu>
-      <Menu.Item key="1" onClick={() => showRoleSelectModal(true)}>
-        <UserAddOutlined /> Thêm người dùng thủ công
-      </Menu.Item>
-      <Menu.Item key="2" onClick={() => showRoleSelectModal(false)}>
-        <UploadOutlined /> Tải file
-      </Menu.Item>
-    </Menu>
-  );
 
   const filteredUsers = usersInSmt
     .filter((user) => {
@@ -188,8 +173,7 @@ const UserListSemester = () => {
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)); // Sắp xếp theo updatedAt
 
   const handleRoleSelect = (roleId) => {
-    setSelectedRole(roleId);
-    setSelectedUploadRole(roleId);
+    dispatch(setRoleSelect(roleId));
     setSelectedClass(null);
   };
 
@@ -378,276 +362,285 @@ const UserListSemester = () => {
     }
   }, [sid, dispatch, navigate]);
 
-  const handleError = (err, setApiErrors) => {
-    if (err.response && err.response.status === 400) {
-      const errorFields = err.response.data.fields;
-      if (errorFields) {
-        setApiErrors(errorFields);
-      } else {
-        message.error(err.response.data.message || "Có lỗi xảy ra.");
-      }
-    } else {
-      message.error("Có lỗi không mong đợi xảy ra.");
-    }
-  };
-  const handleEditSemester = () => {
-    setIsEditModalVisible(true);
-  };
-
-  const handleEditModalOk = async (updatedSemester) => {
-    try {
-      await axios.put(
-        `${BASE_URL}/semester/update/${updatedSemester._id}`,
-        updatedSemester,
-        config
-      );
-      fetchCurrentSemester();
-      message.success("Cập nhật thành công!");
-      setIsEditModalVisible(false);
-      dispatch(setCurrentSemester(updatedSemester));
-      setEditApiErrors(null);
-    } catch (err) {
-      handleError(err, setEditApiErrors);
-    }
-  };
-
   return (
     <div className="user-details">
-      <SemesterDetailsCard handleEditSemester={handleEditSemester} />
+      <h3 className="header-content-mentor-detail">Quản lý người dùng</h3>
+      <div
+        style={{
+          minHeight: "600px",
+          padding: "0 20px 5px  20px",
+          backgroundColor: "rgb(245 245 245 / 31%)",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          borderRadius: "10px",
+        }}
+      >
+        {isSemesterListUserSemester && <SemesterDetailsCard />}
+        <ErrorAlerts
+          fullClassUsers={fullClassUsers}
+          errorMessages={errorMessages}
+          failedEmails={failedEmails}
+          selectedRole={selectedUploadRole}
+        />
 
-      <ErrorAlerts
-        fullClassUsers={fullClassUsers}
-        errorMessages={errorMessages}
-        failedEmails={failedEmails}
-        selectedRole={selectedUploadRole}
-      />
-
-      {usersInSmt.length === 0 ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "50vh",
-          }}
-        >
-          <div
-            style={{
-              marginTop: "15px",
-            }}
-          >
-            <p>Kỳ học chưa có dữ liệu!</p>
-            <Space>
-              <Dropdown overlay={menu} trigger={["click"]}>
-                <Button>
-                  <Space>Thêm người dùng</Space>
-                </Button>
-              </Dropdown>
-              {fullClassUsers.length > 0 && (
-                <Button
-                  type="primary"
-                  onClick={() => navigate("pending-users")}
-                >
-                  Xem Học Sinh Chưa Thêm Vào Lớp
-                </Button>
-              )}
-            </Space>
-          </div>
-          <Modal
-            title="Chọn loại người dùng"
-            open={isRoleSelectModalVisible}
-            onOk={handleRoleSelectOk}
-            onCancel={() => setIsRoleSelectModalVisible(false)}
-            okText="Tiếp tục"
-            cancelText="Hủy"
-          >
-            <Select
-              placeholder="Chọn vai trò người dùng"
-              style={{ width: "100%", marginTop: 10 }}
-              onChange={(value) => setSelectedUploadRole(value)}
-              value={selectedUploadRole}
-            >
-              {roles.map((role) => (
-                <Option key={role.id} value={role.id}>
-                  {role.name}
-                </Option>
-              ))}
-            </Select>
-          </Modal>
-          <UserAddModal
-            visible={isModalVisible}
-            role={selectedUploadRole}
-            semesterId={semester._id}
-            onOk={handleModalCancel}
-            onCancel={handleModalCancel}
-          />
-          {/* Thêm UploadFileModal */}
-          <UploadFileModal
-            visible={isUploadFileModalVisible}
-            onCancel={() => setIsUploadFileModalVisible(false)}
-            selectedRole={selectedUploadRole}
-            setSelectedRole={setSelectedUploadRole}
-            semesterId={semester._id}
-            refreshData={fetchCurrentSemester}
-          />
-        </div>
-      ) : (
-        <div>
+        {usersInSmt.length === 0 ? (
           <div
             style={{
               display: "flex",
-              gap: "80px",
-              marginBottom: "25px",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50vh",
             }}
           >
-            {roles.map((role) => (
-              <Card
-                key={role.id}
-                hoverable
-                style={{
-                  width: "150px",
-                  marginTop: 10,
-                  textAlign: "center",
-                  borderColor: selectedRole === role.id ? "blue" : "#f0f0f0",
-                }}
-                bodyStyle={{ padding: 20 }}
-                onClick={() => handleRoleSelect(role.id)}
-              >
-                {role.name}
-              </Card>
-            ))}
-          </div>
-          <div>
             <div
               style={{
-                float: "left",
-                marginBottom: "-5px",
                 marginTop: "15px",
               }}
             >
-              <Search
-                placeholder="Tìm theo tên, email, số điện thoại"
-                onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: "260px", marginBottom: "20px" }}
-                allowClear
-              />
-
-              {selectedRole === 4 && (
-                <Select
-                  placeholder="Chọn lớp học"
-                  style={{
-                    width: "150px",
-                    marginBottom: "20px",
-                    marginLeft: 10,
-                  }}
-                  onChange={(value) => setSelectedClass(value)}
-                  allowClear
-                >
-                  {classOptions.map((className) => (
-                    <Option key={className} value={className}>
-                      {className}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            </div>
-            <div
-              style={{
-                float: "right",
-                marginBottom: "-5px",
-                marginTop: "15px",
-              }}
-            >
+              <p>Kỳ học chưa có dữ liệu!</p>
               <Space>
-                <Dropdown overlay={menu} trigger={["click"]}>
-                  <Button>
-                    <Space>Thêm người dùng</Space>
+                <Button onClick={handleAddUserClick}>Thêm người dùng</Button>
+
+                {fullClassUsers.length > 0 && (
+                  <Button
+                    type="primary"
+                    onClick={() => navigate("pending-users")}
+                  >
+                    Xem Học Sinh Chưa Thêm Vào Lớp
                   </Button>
-                </Dropdown>
+                )}
               </Space>
             </div>
-          </div>
-          <UserAddModal
-            visible={isModalVisible}
-            role={selectedUploadRole}
-            semesterId={semester._id}
-            onOk={handleModalCancel}
-            onCancel={handleModalCancel}
-          />
-          <TransferClassModal
-            visible={isTransferModalVisible}
-            onCancel={closeTransferModal}
-            student={selectedStudent}
-            refreshData={fetchCurrentSemester}
-            currentSemester={currentSemester}
-          />
-          <SwapClassModal
-            visible={isSwapModalVisible}
-            onCancel={closeSwapModal}
-            student={selectedStudent}
-            refreshData={fetchCurrentSemester}
-          />
-          <Modal
-            title="Chọn loại người dùng"
-            open={isRoleSelectModalVisible}
-            onOk={handleRoleSelectOk}
-            onCancel={handleRoleSelectCancel}
-            okText="Tiếp tục"
-            cancelText="Hủy"
-          >
-            <Select
-              placeholder="Chọn vai trò người dùng"
-              style={{ width: "100%", marginTop: 10 }}
-              onChange={(value) => setSelectedUploadRole(value)}
-              value={selectedUploadRole}
+            <Modal
+              title="Chọn loại người dùng"
+              open={isRoleSelectModalVisible}
+              onOk={handleRoleSelectOk}
+              onCancel={() => setIsRoleSelectModalVisible(false)}
+              okText="Tiếp tục"
+              cancelText="Hủy"
             >
-              {roles
-                .filter((role) => [2, 3, 4].includes(role.id))
-                .map((role) => (
+              <Select
+                placeholder="Chọn vai trò người dùng"
+                style={{ width: "100%", marginTop: 10 }}
+                onChange={(value) => setSelectedUploadRole(value)}
+                value={selectedUploadRole}
+              >
+                {roles.map((role) => (
                   <Option key={role.id} value={role.id}>
                     {role.name}
                   </Option>
                 ))}
-            </Select>
-          </Modal>
-          {/* Loại bỏ Modal Upload cũ */}
-          {/* Thêm UploadFileModal */}
-          <UploadFileModal
-            visible={isUploadFileModalVisible}
-            onCancel={() => setIsUploadFileModalVisible(false)}
-            selectedRole={selectedUploadRole}
-            setSelectedRole={setSelectedUploadRole}
-            semesterId={semester._id}
-            refreshData={fetchCurrentSemester}
-          />
-          <EditSemesterModal
-            visible={isEditModalVisible}
-            onOk={handleEditModalOk}
-            onCancel={() => setIsEditModalVisible(false)}
-            semester={semester}
-            apiErrors={editApiErrors}
-          />
-          <Table
-            className="mentor-table"
-            dataSource={filteredUsers}
-            columns={columns}
-            rowKey={(record) => record._id}
-            rowClassName={(record) =>
-              recentlyUpdatedUsers.includes(record._id) ? "highlight-row" : ""
-            }
-            pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              showSizeChanger: true,
-              pageSizeOptions: ["5", "9", "20", "50"],
-              onChange: (page, pageSize) => {
-                setPagination({ current: page, pageSize });
-              },
-            }}
-            onChange={handleTableChange}
-          />
-        </div>
-      )}
+              </Select>
+            </Modal>
+            <UserAddModal
+              visible={isModalVisible}
+              onOk={() => {
+                setIsModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+              onCancel={() => {
+                setIsModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+              semesterId={semester._id}
+            />
+            {/* Thêm UploadFileModal */}
+            <UploadFileModal
+              visible={isUploadModalVisible}
+              onCancel={() => {
+                setIsUploadModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+              semesterId={semester._id}
+              refreshData={fetchCurrentSemester}
+            />
+          </div>
+        ) : (
+          <div>
+            <div
+              style={{
+                display: "flex",
+                gap: "150px",
+                marginBottom: "25px",
+                marginTop: -12,
+                padding: 13,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                backgroundColor: "#09636e94",
+                borderRadius: "12px",
+              }}
+            >
+              {roles.map((role) => (
+                <Card
+                  className="card-choose-user"
+                  key={role.id}
+                  hoverable
+                  style={{
+                    width: "150px",
+                    marginTop: 10,
+                    marginLeft: 10,
+                    textAlign: "center",
+                    border: "none",
+                    backgroundColor:
+                      selectedRole === role.id
+                        ? "#ffbfa0"
+                        : "rgb(248, 235, 222)",
+                    fontWeight: "bold",
+                    borderRadius: "12px",
+                  }}
+                  bodyStyle={{ padding: "10px" }}
+                  onClick={() => handleRoleSelect(role.id)}
+                >
+                  {role.name}
+                </Card>
+              ))}
+            </div>
+            <div>
+              <div
+                style={{
+                  float: "left",
+                  marginBottom: "-5px",
+                  marginTop: "15px",
+                }}
+              >
+                <Search
+                  placeholder="Tìm theo tên, email, số điện thoại"
+                  onChange={(e) => setSearchText(e.target.value)}
+                  style={{ width: "381px", marginBottom: "20px" }}
+                  allowClear
+                />
+
+                {selectedRole === 4 && (
+                  <Select
+                    placeholder="Chọn lớp học"
+                    style={{
+                      width: "150px",
+                      marginBottom: "20px",
+                      marginLeft: 10,
+                    }}
+                    onChange={(value) => setSelectedClass(value)}
+                    allowClear
+                  >
+                    {classOptions.map((className) => (
+                      <Option key={className} value={className}>
+                        {className}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              </div>
+              <div
+                style={{
+                  float: "right",
+                  marginBottom: "-5px",
+                  marginTop: "15px",
+                }}
+              >
+                <Space>
+                  <Button onClick={handleAddUserClick}>Thêm người dùng</Button>
+                </Space>
+              </div>
+            </div>
+            <UserAddModal
+              visible={isModalVisible}
+              onOk={() => {
+                setIsModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+              onCancel={() => {
+                setIsModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+              semesterId={semester._id}
+            />
+            <TransferClassModal
+              visible={isTransferModalVisible}
+              onCancel={closeTransferModal}
+              student={selectedStudent}
+              refreshData={fetchCurrentSemester}
+              currentSemester={currentSemester}
+            />
+            <SwapClassModal
+              visible={isSwapModalVisible}
+              onCancel={closeSwapModal}
+              student={selectedStudent}
+              refreshData={fetchCurrentSemester}
+            />
+            <Modal
+              title="Chọn loại người dùng"
+              open={isRoleSelectModalVisible}
+              onOk={handleRoleSelectOk}
+              onCancel={handleRoleSelectCancel}
+              okText="Tiếp tục"
+              cancelText="Hủy"
+            >
+              <Select
+                placeholder="Chọn vai trò người dùng"
+                style={{ width: "100%", marginTop: 10 }}
+                onChange={(value) => setSelectedUploadRole(value)}
+                value={selectedUploadRole}
+              >
+                {roles
+                  .filter((role) => [2, 3, 4].includes(role.id))
+                  .map((role) => (
+                    <Option key={role.id} value={role.id}>
+                      {role.name}
+                    </Option>
+                  ))}
+              </Select>
+            </Modal>
+            <SelectRoleModal
+              visible={isSelectRoleModalVisible}
+              onManualAdd={() => {
+                setIsModalVisible(true);
+                setIsSelectRoleModalVisible(false);
+              }}
+              onFileUpload={() => {
+                setIsUploadModalVisible(true);
+                setIsSelectRoleModalVisible(false);
+              }}
+              onCancel={() => {
+                setIsSelectRoleModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+            />
+            {/* Thêm UploadFileModal */}
+            <UploadFileModal
+              visible={isUploadModalVisible}
+              onCancel={() => {
+                setIsUploadModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+              semesterId={semester._id}
+              refreshData={fetchCurrentSemester}
+            />
+            <Table
+              className="mentor-table"
+              dataSource={filteredUsers}
+              columns={columns}
+              rowKey={(record) => record._id}
+              rowClassName={(record) =>
+                recentlyUpdatedUsers.includes(record._id) ? "highlight-row" : ""
+              }
+              pagination={{
+                current: pagination.current,
+                pageSize: pagination.pageSize,
+                showSizeChanger: true,
+                pageSizeOptions: ["5", "9", "20", "50"],
+                onChange: (page, pageSize) => {
+                  setPagination({ current: page, pageSize });
+                },
+              }}
+              onChange={handleTableChange}
+              style={{
+                marginTop: 20,
+                border: "2px solid rgb(236 236 236)",
+                minHeight: "330px",
+                marginBottom: 20,
+                borderRadius: "10px",
+              }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
