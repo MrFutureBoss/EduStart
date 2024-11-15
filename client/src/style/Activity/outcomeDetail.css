@@ -1,0 +1,23 @@
+.outcome-list-container {
+  padding: 16px;
+}
+
+.outcome-list-item {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.outcome-avatar {
+  background-color: #1890ff;
+}
+.outcome-card {
+  font-size: 12px;
+  padding: 8px;
+  line-height: 1.4;
+}
+
+.outcome-title {
+  font-size: 13px;
+  font-weight: bold;
+}

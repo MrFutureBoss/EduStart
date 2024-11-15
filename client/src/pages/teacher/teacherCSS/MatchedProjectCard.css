@@ -1,0 +1,77 @@
+.elevated-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.elevated-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.elevated-card::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 140%;
+  height: 140%;
+  z-index: -1;
+  transition: transform 0.5s ease;
+  transform: scale(1);
+}
+
+.elevated-card:hover::before {
+  transform: scale(1.1);
+}
+
+.elevated-card .card-content {
+  padding: 20px;
+  color: #333;
+}
+.project-specialties-tag.always-hover {
+  margin-top: 20px;
+}
+.button-select-mentor-not-matched {
+  position: relative;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #5baccf;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  animation: pulse 1.5s infinite;
+  float: right;
+}
+
+.button-select-mentor-not-matched::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s ease-out;
+}
+
+.button-select-mentor-not-matched:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

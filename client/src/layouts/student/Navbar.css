@@ -1,0 +1,72 @@
+/* src/components/Navbar.css */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 0 24px;
+}
+
+.logo {
+  background-image: url("../../assets/images/logo-no-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 105px;
+  height: 48px;
+}
+
+.logo-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-left: 20px;
+  color: #1890ff;
+  margin: 5px 0 0 85px;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  white-space: nowrap;
+  border: none;
+  margin-right: 20px;
+}
+
+.notification-link {
+  text-decoration: none;
+}
+
+.bell-icon {
+  color: #ffd700;
+  animation: ring 1s ease infinite;
+}
+
+@keyframes ring {
+  0% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-15deg);
+  }
+  40% {
+    transform: rotate(10deg);
+  }
+  60% {
+    transform: rotate(-10deg);
+  }
+  80% {
+    transform: rotate(5deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}

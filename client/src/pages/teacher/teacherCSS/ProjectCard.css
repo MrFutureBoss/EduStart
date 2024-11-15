@@ -3,15 +3,13 @@
   position: relative;
   display: inline-block;
   margin: 20px;
-  padding-top: 30px; /* Adjust padding to ensure tags are above the card */
+  width: 100%;
 }
 
 /* Container for profession tags positioned above the card */
 .project-tag-container {
   position: absolute;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
   justify-content: center;
 }
 .project-specialties {

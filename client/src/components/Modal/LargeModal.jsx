@@ -1,6 +1,6 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
-import './CustomModal.css'
+import "./CustomModal.css";
 const CustomModal = ({ show, onHide, title, content, footer }) => {
   return (
     <Modal

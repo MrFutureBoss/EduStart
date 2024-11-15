@@ -7,10 +7,10 @@ const mentorPreferenceSchema = new Schema(
       ref: "User",
       required: true,
     },
-    groupIds: [
+    projectIds: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
+        ref: "Project",
       },
     ],
   },

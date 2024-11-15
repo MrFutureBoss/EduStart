@@ -7,62 +7,111 @@ import mongoose from "mongoose";
 const { ObjectId } = mongoose.Types;
 import User from "../../models/userModel.js";
 import TeacherSelection from "../../models/teacherSelection.js";
+import MentorPreference from "../../models/mentorPreference.js";
+import Project from "../../models/projectModel.js";
 
-// hàm này để lọc danh sách các nhóm có cung lĩnh vực với mentor để mentor lựa chọn
-const getAvailableGroupsForMentor = async (req, res) => {
+// Hàm lấy các dự án phù hợp cho mentor dựa trên profession và specialty
+const getMatchingProjectsForMentor = async (mentorId) => {
   try {
-    const { mentorId } = req.params;
+    // Tìm thông tin của mentor từ MentorCategory
+    const mentorCategory = await MentorCategory.findOne({ mentorId })
+      .populate("professionIds")
+      .populate("specialties.specialtyId");
 
-    // Lấy thông tin chuyên môn của mentor
-    const mentorCategories = await MentorCategory.find({ mentorId })
-      .populate("professionId")
-      .populate("specialtyIds");
+    if (!mentorCategory) return { projects: [] };
 
-    const mentorProfessionIds = mentorCategories.map((mc) =>
-      mc.professionId._id.toString()
+    const mentorProfessionIds = mentorCategory.professionIds.map(
+      (prof) => prof._id
     );
-    const mentorSpecialtyIds = mentorCategories.flatMap((mc) =>
-      mc.specialtyIds.map((s) => s._id.toString())
+    const mentorSpecialtyIds = mentorCategory.specialties.map(
+      (spec) => spec.specialtyId
     );
 
-    // Lấy danh sách tất cả các nhóm chưa được ghép mentor
-    const groups = await Group.find({
-      /* Điều kiện để lấy các nhóm phù hợp */
-    }).populate("projectId");
-
-    const availableGroups = [];
-
-    for (let group of groups) {
-      // Lấy thông tin ProjectCategory của nhóm
-      const projectCategory = await ProjectCategory.findOne({
-        projectId: group.projectId._id,
+    // Lấy danh sách các ProjectCategory và project với trạng thái InProgress
+    const matchingProjects = await ProjectCategory.find({
+      professionId: { $in: mentorProfessionIds },
+      specialtyIds: { $in: mentorSpecialtyIds },
+    })
+      .populate({
+        path: "projectId",
+        match: { status: "InProgress" },
       })
-        .populate("professionId")
-        .populate("specialtyIds");
+      .populate("professionId specialtyIds");
 
-      if (!projectCategory) {
-        continue; // Bỏ qua nhóm chưa cập nhật lĩnh vực và chuyên ngành
-      }
+    // Lọc các dự án hợp lệ và định dạng dữ liệu theo yêu cầu
+    const projects = await Promise.all(
+      matchingProjects
+        .filter((pc) => pc.projectId)
+        .map(async (projectCategory) => {
+          const project = await Project.findById(
+            projectCategory.projectId._id
+          ).lean();
+          const professionDetails = await Profession.find({
+            _id: { $in: projectCategory.professionId },
+          })
+            .select("_id name")
+            .lean();
+          const specialtyDetails = await Specialty.find({
+            _id: { $in: projectCategory.specialtyIds },
+          })
+            .select("_id name")
+            .lean();
 
-      const groupProfessionId = projectCategory.professionId._id.toString();
-      const groupSpecialtyIds = projectCategory.specialtyIds.map((s) =>
-        s._id.toString()
-      );
+          const mentorPreference = await MentorPreference.findOne({
+            mentorId,
+          }).lean();
 
-      const hasMatchingProfession =
-        mentorProfessionIds.includes(groupProfessionId);
-      const hasMatchingSpecialty = mentorSpecialtyIds.some((specId) =>
-        groupSpecialtyIds.includes(specId)
-      );
+          const isPreference = mentorPreference?.projectIds.some(
+            (projectId) => projectId.toString() === project._id.toString()
+          );
 
-      if (hasMatchingProfession || hasMatchingSpecialty) {
-        availableGroups.push(group);
-      }
+          return {
+            ...project,
+            projectCategory: {
+              _id: projectCategory._id,
+              projectId: projectCategory.projectId._id,
+              professionId: professionDetails,
+              specialtyIds: specialtyDetails,
+            },
+            isPreference, // Trả về thông tin là dự án đã được chọn hay chưa
+          };
+        })
+    );
+
+    return { projects };
+  } catch (error) {
+    throw new Error("Lỗi khi lấy danh sách dự án: " + error.message);
+  }
+};
+
+// Hàm lưu các dự án yêu thích của mentor vào MentorPreference
+const saveMentorPreferences = async (mentorId, projectIds) => {
+  try {
+    const projectIdsArray = Array.isArray(projectIds)
+      ? projectIds
+      : [projectIds];
+
+    const objectIds = projectIdsArray.map(
+      (id) => new mongoose.Types.ObjectId(id)
+    );
+
+    let mentorPreference = await MentorPreference.findOne({ mentorId });
+
+    if (!mentorPreference) {
+      mentorPreference = new MentorPreference({
+        mentorId,
+        projectIds: objectIds,
+      });
+    } else {
+      mentorPreference.projectIds = [
+        ...new Set([...mentorPreference.projectIds, ...objectIds]),
+      ];
     }
 
-    res.json(availableGroups);
+    await mentorPreference.save();
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    throw new Error("Lỗi khi lưu dự án yêu thích: " + error.message);
   }
 };
 
@@ -178,23 +227,35 @@ const getMentorsBySpecialty = async (professionId, specialtyId) => {
   return mentors;
 };
 
-const getMentorCategoryByUserId = async (userId) => {
+const removeMentorPreference = async (mentorId, projectIds) => {
   try {
-    return await MentorCategory.findOne({ mentorId: new ObjectId(userId) })
-      .populate("mentorId", "username email") 
-      .populate("professionIds") 
-      .populate("specialties.specialtyId");
+    const projectIdsArray = Array.isArray(projectIds)
+      ? projectIds
+      : [projectIds];
+
+    const objectIds = projectIdsArray.map(
+      (id) => new mongoose.Types.ObjectId(id)
+    );
+    let mentorPreference = await MentorPreference.findOne({ mentorId });
+    mentorPreference.projectIds = mentorPreference.projectIds.filter(
+      (existingProjectId) =>
+        !objectIds.some((id) => id.toString() === existingProjectId.toString())
+    );
+
+    await mentorPreference.save();
   } catch (error) {
-    throw new Error(`Unable to find mentor category with userId ${userId}: ${error.message}`);
+    console.error(error);
+    throw new Error("Lỗi khi xóa lựa chọn dự án: " + error.message);
   }
 };
-
 export default {
-  getAvailableGroupsForMentor,
   getAllMentorCategories,
   getMentorCategoryById,
   createNewMentorCategory,
   getMentorsBySpecialty,
   fetchTreeData,
   getMentorCategoryByUserId,
+  getMatchingProjectsForMentor,
+  saveMentorPreferences,
+  removeMentorPreference,
 };

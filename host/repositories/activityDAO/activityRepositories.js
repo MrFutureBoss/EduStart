@@ -1,9 +1,14 @@
 import Activity from "../../models/activityModel.js";
-import Assignment from "../../models/assignmentModel.js";
+import mongoose from "mongoose";
+import OutcomeType from "../../models/outcomeTypeModal.js";
 
-const createActivity = async (activityData) => {
-  const activity = new Activity(activityData);
-  return await activity.save();
+const createActivity = async (activities, session) => {
+  try {
+    return await Activity.insertMany(activities, { session });
+  } catch (error) {
+    console.error("Error creating activities:", error);
+    throw error;
+  }
 };
 
 const findActivitiesByClassAndTeacher = async (classId, teacherId) => {
@@ -24,19 +29,6 @@ const findActivityById = async (activityId) => {
   return await Activity.findById(activityId);
 };
 
-const findSubmissionsByAssignmentId = async (assignmentId) => {
-  return await Assignment.find({ assignmentId });
-};
-
-const createSubmission = async (submissionData) => {
-  const submission = new Assignment(submissionData);
-  return await submission.save();
-};
-
-const findSubmittedGroups = async (assignmentId) => {
-  const submissions = await Assignment.find({ assignmentId });
-  return submissions.map((submission) => submission.groupId.toString());
-};
 const findExistingActivity = async (
   classId,
   teacherId,
@@ -118,19 +110,85 @@ const getSuggestedMaterials = async (teacherId, classId) => {
     throw new Error("Error fetching suggested materials");
   }
 };
+const findActivityByIdAndType = async (activityId, activityType) => {
+  if (!mongoose.Types.ObjectId.isValid(activityId)) {
+    throw new Error("Invalid activityId format");
+  }
+  return await Activity.findOne({ _id: activityId, activityType });
+};
+
+const createOutcomeType = async (outcomeData) => {
+  const outcome = new OutcomeType(outcomeData);
+  return await outcome.save();
+};
+
+const getAllOutcomesType = async (semesterId) => {
+  // If semesterId is provided, filter by it; otherwise, return all
+  const filter = semesterId ? { semesterId } : {};
+  return await OutcomeType.find(filter);
+};
+
+const getOutcomeTypeById = async (id) => {
+  return await OutcomeType.findById(id);
+};
+const updateOutcomeTypeById = async (id, updateData) => {
+  return await OutcomeType.findByIdAndUpdate(id, updateData, { new: true });
+};
+const deleteOutcomeTypeById = async (id) => {
+  return await OutcomeType.findByIdAndDelete(id);
+};
+const getOutcomesBySemesterId = async (semesterId) => {
+  return await OutcomeType.find({ semesterId });
+};
+const isDuplicateOutcomeNameInSemester = async (name, semesterId) => {
+  return await OutcomeType.findOne({ name, semesterId });
+};
+const findOutcomeByNameAndSemester = async (name, semesterId, excludeId) => {
+  const semesterObjectId = mongoose.Types.ObjectId.isValid(semesterId)
+    ? new mongoose.Types.ObjectId(semesterId)
+    : semesterId;
+
+  const exclusionId = mongoose.Types.ObjectId.isValid(excludeId)
+    ? new mongoose.Types.ObjectId(excludeId)
+    : excludeId;
+
+  const result = await OutcomeType.findOne({
+    name,
+    semesterId: semesterObjectId,
+    _id: { $ne: exclusionId },
+  });
+
+  console.log("Search result:", result);
+
+  return result;
+};
+const markActivityAsCompleted = async (activityId) => {
+  try {
+    return await Activity.findByIdAndUpdate(activityId, { completed: true });
+  } catch (error) {
+    throw new Error("Error updating activity status: " + error.message);
+  }
+};
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
   updateActivityById,
   deleteActivityById,
   findActivityById,
-  findSubmissionsByAssignmentId,
-  createSubmission,
-  findSubmittedGroups,
   findExistingActivity,
   updateExistingActivity,
   findActivityByMaterialUrl,
   findOutcomeByClassIdAndType,
   findActivitiesByTeacher,
   getSuggestedMaterials,
+  findActivityByIdAndType,
+  createOutcomeType,
+  getAllOutcomesType,
+  getOutcomeTypeById,
+  updateOutcomeTypeById,
+  deleteOutcomeTypeById,
+  getOutcomesBySemesterId,
+  isDuplicateOutcomeNameInSemester,
+  findOutcomeByNameAndSemester,
+  markActivityAsCompleted,
 };

@@ -120,45 +120,43 @@ const OutcomeSteps = ({
           title="Outcome 1"
           description={
             <>
-              <Tooltip
-                title={
-                  assignedClasses.length > 0
-                    ? assignedClasses.length === 1
-                      ? `${assignedClasses[0].className} đã được giao`
-                      : `${assignedClasses.map((cls) => cls.className).join(", ")} đã được giao`
-                    : "Chưa có lớp nào được giao"
-                }
-              >
-                <Text type="success">
-                  {assignedClassesCount}/{classList.length} lớp đã giao
-                </Text>
-              </Tooltip>
-              <br />
-              <Tooltip
-                title={
-                  unassignedClasses.length > 0
-                    ? unassignedClasses.map((cls) => cls.className).join(", ")
-                    : "Tất cả các lớp đã được giao"
-                }
-              >
-                <Text type="warning">
-                  {unassignedClasses.length}/{classList.length} chưa giao
-                </Text>
-                <BellOutlined
-                  style={{
-                    color: "#ff4d4f",
-                    marginLeft: "8px",
-                    cursor: "pointer",
-                    fontSize: "20px",
-                  }}
-                  onClick={showAssignModal}
-                />
-              </Tooltip>
+              <div>
+                <Text type="success">20/20 nhóm đã giao Outcome 1</Text>
+                <Tooltip title="Lớp A, Lớp B, Lớp C, ...">
+                  <BellOutlined
+                    style={{ color: "#52c41a", marginLeft: "8px" }}
+                  />
+                </Tooltip>
+              </div>
+              <div>
+                <Text type="secondary">Hạn nộp: 20/04/2024</Text>
+                <Button type="link" onClick={{}}>
+                  Chỉnh sửa Deadline
+                </Button>
+              </div>
             </>
           }
         />
-        <Step title="Outcome 2" description="" />
-        <Step title="Outcome 3" description="" />
+        <Step
+          title="Outcome 2"
+          description={
+            <>
+              <div>
+                <Text type="secondary">Chưa giao Outcome 2</Text>
+              </div>
+            </>
+          }
+        />
+        <Step
+          title="Outcome 3"
+          description={
+            <>
+              <div>
+                <Text type="secondary">Chưa giao Outcome 3</Text>
+              </div>
+            </>
+          }
+        />
       </Steps>
 
       <Modal

@@ -10,18 +10,15 @@ const activitySchema = new mongoose.Schema(
       type: String,
       enum: ["material", "post", "outcome"],
     },
-    title: {
-      type: String,
-    },
     description: {
       type: String,
     },
     materialUrl: {
       type: String,
     },
-    assignmentType: {
-      type: String,
-      enum: ["outcome 1", "outcome 2", "outcome 3"],
+    outcomeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "OutcomeType",
     },
     startDate: {
       type: Date,
@@ -40,6 +37,10 @@ const activitySchema = new mongoose.Schema(
     semesterId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Semester",
+    },
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
     },
   },
   {

@@ -97,7 +97,6 @@ const MainLayout = () => {
           config
         );
         dispatch(setUsersInSmt(userResponse.data));
-        navigate("current-semester");
       } catch (error) {
         if (error.response && error.response.status === 404) {
           message.info("Hiện không có kỳ học nào đang diễn ra.");

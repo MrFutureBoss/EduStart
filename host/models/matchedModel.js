@@ -4,7 +4,7 @@ const eventSchema = new Schema({
   title: String,
   allDay: { type: Boolean, default: false },
   start: { type: Date, required: true },
-  end: { type: Date, required: true }
+  end: { type: Date, required: true },
 });
 
 const MatchedSchema = new Schema(
@@ -17,7 +17,11 @@ const MatchedSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    status: { type: String },
+    status: {
+      type: String,
+      enum: ["Pending", "Accepted", "Rejected"],
+      default: "Pending",
+    },
     time: [eventSchema],
   },
   {

@@ -7,6 +7,7 @@ const SmallModal = ({
   isModalOpen,
   handleOk,
   handleCancel,
+  closeable
 }) => {
   return (
     <Modal
@@ -15,6 +16,7 @@ const SmallModal = ({
       onOk={handleOk}
       onCancel={handleCancel}
       footer={footer}
+      closable={closeable}
     >
       {content}
     </Modal>

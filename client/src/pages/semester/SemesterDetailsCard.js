@@ -65,8 +65,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
           marginBottom: 20,
           borderRadius: "8px",
           boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-          backgroundColor: "#f9f9f9",
-          margin: "auto",
+          margin: "23px",
         }}
       >
         {status === "Ongoing" && (
@@ -93,7 +92,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
           style={{ marginTop: -10 }}
           size="small"
           title={
-            <Title style={{ marginBottom: 2 }} level={3}>
+            <Title style={{ marginBottom: 2 }} level={4}>
               Thông tin chi tiết kỳ học
             </Title>
           }
@@ -101,7 +100,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
           column={4}
         >
           <Descriptions.Item label={<strong>Tên kỳ học</strong>} span={1}>
-            <Title level={3} style={{ margin: 0, color: "#1890ff" }}>
+            <Title level={4} style={{ margin: 0, color: "#1890ff" }}>
               {semesterName}
             </Title>
           </Descriptions.Item>

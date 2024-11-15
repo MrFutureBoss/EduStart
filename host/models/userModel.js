@@ -34,7 +34,7 @@ const userSchema = new Schema(
       ref: Group,
     },
     semesterId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Semester" }],
-
+    isLeader: { type: Boolean, default: "false" },
     status: {
       type: String,
       enum: ["Active", "InActive", "Disabled", "Pending"],
@@ -42,6 +42,7 @@ const userSchema = new Schema(
     },
     rollNumber: { type: String },
     memberCode: { type: String },
+    major: { type: String },
   },
   {
     timestamps: true,

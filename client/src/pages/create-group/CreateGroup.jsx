@@ -1,62 +1,243 @@
-import React, { useState } from "react";
-import CustomModal from "../../components/Modal/LargeModal.jsx";
+import React, { useEffect, useMemo, useState } from "react";
 import ConfirmModal from "../../components/Modal/ConfirmModal.jsx";
-import { Button } from "react-bootstrap";
-import { Col, DatePicker, Form, Row, Select, Slider } from "antd";
+import {
+  Button,
+  Col,
+  ConfigProvider,
+  DatePicker,
+  Form,
+  InputNumber,
+  message,
+  Row,
+  Select,
+  Switch,
+} from "antd";
+import SmallModal from "../../components/Modal/SmallModal.jsx";
+import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
+import moment from "moment";
+import locale from "antd/locale/vi_VN";
+import dayjs from "dayjs";
+import "dayjs/locale/vi";
+import { BASE_URL } from "../../utilities/initalValue.js";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { setRuleToJoin } from "../../redux/slice/SettingCreateGroup.js";
 
-const { RangePicker } = DatePicker;
+const CreateGroup = ({ classId, show, close }) => {
+  const dispatch = useDispatch();
+  const jwt = localStorage.getItem("jwt");
+  // const userId = localStorage.getItem("userId");
 
-const CreateGroup = ({ show, close }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [form] = Form.useForm();
+  dayjs.locale("vi");
 
-  const handleSubmit = async () => {};
-  const handleConfirmSubmit = async () => {};
+  const ruleJoin = useSelector((state) => state.settingCreateGroup.rulejoins);
+  const totalWaitUsers = useSelector((state) => state.tempGroup.waittotal || 0);
+
+  const config = useMemo(
+    () => ({
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${jwt}`,
+      },
+    }),
+    [jwt]
+  );
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/rulejoin`, config);
+        dispatch(setRuleToJoin(response.data));
+      } catch (error) {
+        console.log(
+          error.response ? error.response.data.message : error.message
+        );
+      }
+    };
+
+    fetchUserData();
+  }, [config, dispatch]);
+
+  const disabledDate = (current) => {
+    return current && current < moment().endOf("day");
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+
+      const deadline = values.deadline;
+
+      const ruleId = "6725c81105c6e73505972b32";
+      const autoFinish = values.autoFinish || false;
+      const groupCount = values.groupCount;
+
+      const baseMaxStudent = Math.floor(totalWaitUsers / groupCount);
+      const remainder = totalWaitUsers % groupCount;
+      const tempGroups = Array.from({ length: groupCount }, (_, index) => ({
+        classId,
+        groupName: `Nhóm ${index + 1}`,
+        status: false,
+        userIds: [],
+        maxStudent: index < remainder ? baseMaxStudent + 1 : baseMaxStudent,
+      }));
+
+      console.log("Data being sent:", {
+        createGroupSettingData: {
+          classId: classId,
+          deadline: deadline.toISOString(),
+          autoFinish: autoFinish,
+          status: false,
+          ruleJoin: [ruleId],
+        },
+        tempGroupsData: tempGroups,
+      });
+
+      await axios.post(
+        `${BASE_URL}/creategroupsetting`,
+        {
+          createGroupSettingData: {
+            classId: classId,
+            deadline: deadline,
+            autoFinish: autoFinish,
+            status: false,
+            ruleJoin: [ruleId],
+          },
+          tempGroupsData: tempGroups,
+        },
+        config
+      );
+
+      message.success("Bạn đã tạo nhóm thành công!");
+      setShowConfirmModal(false);
+      close();
+      window.location.reload();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      message.error(
+        error.response && error.response.data
+          ? `Submission failed: ${error.response.data.message}`
+          : `Submission failed: ${error.message || "Unknown error"}`
+      );
+    }
+  };
+
+  const handleConfirmSubmit = () => {
+    setShowConfirmModal(true);
+  };
+
   const handleCancelSubmit = () => {
     setShowConfirmModal(false);
   };
+
   const handleClose = () => {
     close();
   };
 
   const modalHeader = (
-    <>
-      <h3 style={{ color: "#FFF" }}>Tạo nhóm cho lớp</h3>
-    </>
+    <div className="modal-title-custom">
+      <h3 style={{ color: "#FFF" }}>Tạo nhóm lớp</h3>
+    </div>
   );
 
   const modalBody = (
     <Row>
-      <Col sm={10}>
-        <h6>Thông tin về lớp mà bạn cần biết</h6>
-        <p>Số lượng sinh viên trong lớp: </p>
-        <p>Thống kê về chuyên ngành trong lớp:</p>
-      </Col>
-      <Col sm={14} style={{ display: "flex", justifyContent: "center" }}>
+      <Col sm={24} style={{ display: "flex", justifyContent: "center" }}>
         <Form
           layout="horizontal"
-          // disabled={componentDisabled}
-          style={
-            {
-              // maxWidth: 800,
-            }
-          }
+          style={{
+            maxWidth: 800,
+          }}
+          form={form}
+          onFinish={handleSubmit} // Sử dụng onFinish để xử lý submit form
+          initialValues={{
+            autoFinish: false,
+            groupCount: 5,
+          }}
         >
-          <Form.Item label="Chọn quy luật tham gia nhóm">
-            <Select style={{ zIndex: 2 }}>
-              <Select.Option value="2-majors">
-                2 chuyên ngành khác nhau cùng 1 nhóm
-              </Select.Option>
-              <Select.Option value="demo">Demo</Select.Option>
+          {/* <Form.Item
+            name="ruleJoin"
+            label={
+              <p
+                className="remove-default-style-p"
+                style={{ fontWeight: "600" }}
+              >
+                Chọn điều kiện tham gia mỗi nhóm
+              </p>
+            }
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng chọn điều kiện tham gia nhóm",
+              },
+            ]}
+          >
+            <Select style={{ width: "11rem" }}>
+              <Select.Option value="">Không có</Select.Option>
+              {ruleJoin.length > 0 &&
+                ruleJoin.map((rj) => (
+                  <Select.Option key={rj?._id} value={rj?._id}>
+                    {rj?.title}
+                  </Select.Option>
+                ))}
             </Select>
-          </Form.Item>
-          <Form.Item label="Chọn thời gian kết thúc">
-            <DatePicker style={{ zIndex: 2 }} />
-          </Form.Item>
-          {/* <Form.Item label="Chọn thời gian bắt đầu và kết thúc">
-            <RangePicker />
           </Form.Item> */}
-          <Form.Item label="Số lượng nhóm">
-            <Slider min={5} max={10} defaultValue={5} />
+
+          <Form.Item
+            name="groupCount"
+            label={
+              <p
+                className="remove-default-style-p"
+                style={{ fontWeight: "600" }}
+              >
+                Chọn số lượng nhóm
+              </p>
+            }
+            rules={[{ required: true, message: "Vui lòng chọn số lượng nhóm" }]}
+          >
+            <InputNumber min={3} max={10} prefix={<TeamOutlined />} />
+          </Form.Item>
+
+          <Form.Item
+            name="deadline"
+            label="Chọn thời gian kết thúc"
+            rules={[{ required: true, message: "Vui lòng chọn ngày kết thúc" }]}
+          >
+            <ConfigProvider locale={locale}>
+              <DatePicker
+                placeholder="VD: 2024-08-23"
+                disabledDate={disabledDate}
+                showToday={false}
+                format="YYYY-MM-DD"
+                onChange={(date) => {
+                  if (date) {
+                    const dateAsJSDate = date.toDate();
+                    form.setFieldsValue({ deadline: dateAsJSDate });
+                    console.log("Selected date as JS Date:", dateAsJSDate);
+                  } else {
+                    console.log("No date selected");
+                    form.setFieldsValue({ deadline: null });
+                  }
+                }}
+              />
+            </ConfigProvider>
+          </Form.Item>
+
+          <Form.Item
+            name="autoFinish"
+            valuePropName="checked"
+            label={
+              <span
+                className="remove-default-style-p"
+                style={{ fontWeight: "600" }}
+              >
+                Tự động hoàn thành xếp nhóm khi hết thời gian
+              </span>
+            }
+          >
+            <Switch />
           </Form.Item>
         </Form>
       </Col>
@@ -64,28 +245,25 @@ const CreateGroup = ({ show, close }) => {
   );
 
   const modalFooter = (
-    <>
-      <Button
-        variant="success"
-        onClick={handleConfirmSubmit}
-        // disabled={!isFormValid}
-      >
-        Tạo
+    <div style={{ display: "flex", gap: "1rem", justifyContent: "end" }}>
+      <Button color="primary" variant="solid" onClick={handleConfirmSubmit}>
+        <PlusOutlined /> Tạo
       </Button>
-      <Button variant="danger" onClick={handleClose}>
+      <Button color="danger" variant="solid" onClick={handleClose}>
         Thoát
       </Button>
-    </>
+    </div>
   );
 
   return (
     <>
-      <CustomModal
-        show={show}
-        onHide={close}
+      <SmallModal
         title={modalHeader}
         content={modalBody}
         footer={modalFooter}
+        isModalOpen={show}
+        handleOk={showConfirmModal}
+        handleCancel={close}
       />
       <ConfirmModal
         show={showConfirmModal}

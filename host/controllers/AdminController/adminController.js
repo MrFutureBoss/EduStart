@@ -45,6 +45,7 @@ const normalizeUserData = (row, role, sourceType = "manual") => {
         : "";
       normalized.slotType = row.SlotType ? row.SlotType.trim() : "TS33";
       normalized.className = row.ClassName ? row.ClassName.trim() : "";
+      normalized.major = row["Chuyên ngành"] ? row["Chuyên ngành"].trim() : "";
 
       if (!normalized.teacherUsername) {
         throw new Error(
@@ -63,11 +64,19 @@ const normalizeUserData = (row, role, sourceType = "manual") => {
           `Thiếu mã thành viên cho học sinh: ${normalized.username}`
         );
       }
+
+      // Optional: Kiểm tra nếu chuyên ngành bị thiếu
+      if (!normalized.major) {
+        throw new Error(
+          `Thiếu chuyên ngành cho học sinh: ${normalized.username}`
+        );
+      }
     } else if (sourceType === "manual") {
       // Dữ liệu nhập tay cho học sinh
       normalized.username = row.username ? row.username.trim() : "Unknown";
       normalized.rollNumber = row.rollNumber ? row.rollNumber.trim() : "";
       normalized.memberCode = row.memberCode ? row.memberCode.trim() : "";
+      normalized.major = row.major ? row.major.trim() : "";
 
       if (!normalized.rollNumber) {
         throw new Error("Vui lòng nhập mã số sinh viên (RollNumber).");
@@ -75,6 +84,10 @@ const normalizeUserData = (row, role, sourceType = "manual") => {
 
       if (!normalized.memberCode) {
         throw new Error("Vui lòng nhập mã thành viên (MemberCode).");
+      }
+
+      if (!normalized.major) {
+        throw new Error("Vui lòng nhập chuyên ngành (Major).");
       }
     }
   }
@@ -159,6 +172,7 @@ const normalizeUserData = (row, role, sourceType = "manual") => {
 
   return normalized;
 };
+
 const validateExcelStructure = (data, role, rowNumber, errorMessages) => {
   const studentHeaders = [
     "ClassName",
@@ -169,6 +183,7 @@ const validateExcelStructure = (data, role, rowNumber, errorMessages) => {
     "FullName",
     "SlotType",
     "GV chính",
+    "Chuyên ngành", // Thêm cột "Chuyên ngành"
   ];
   const teacherHeaders = ["Họ và tên Giáo Viên", "Email", "Số điện thoại"];
   const mentorHeaders = ["Họ và tên Mentor", "Email", "Số điện thoại"];
@@ -262,11 +277,13 @@ const insertListUsers = async (req, res, next) => {
     const existingUserName = [];
     // Nhóm dữ liệu theo className (only role 4)
     const classUsersMap = {}; // { className: [user1, user2, ...] }
+
     try {
       validateExcelStructure(data, role, 1, errorMessages); // Kiểm tra dòng 1 (tiêu đề)
     } catch (validationError) {
       return res.status(400).json({ generalError: validationError.message }); // Trả về thông báo lỗi ngay lập tức nếu file sai định dạng
     }
+
     // Chuẩn hóa và kiểm tra dữ liệu từ file
     let rowNumber = 1; // Bắt đầu từ dòng 1 (tiêu đề)
     for (const row of data) {
@@ -278,7 +295,7 @@ const insertListUsers = async (req, res, next) => {
       } catch (error) {
         rowErrors.push(`Lỗi dữ liệu trong file: ${error.message}`);
         errorMessages.push({
-          email: row.email || "Unknown",
+          email: row.Email || "Unknown",
           rowNumber,
           message: `Lỗi dữ liệu trong file: ${error.message}`,
         });

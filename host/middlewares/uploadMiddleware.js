@@ -48,4 +48,7 @@ export const downloadFile = (req, res) => {
   });
 };
 
+export const singleUpload = upload.single('file');
+export const multipleUpload = upload.array('files', 10);
+
 export default upload;

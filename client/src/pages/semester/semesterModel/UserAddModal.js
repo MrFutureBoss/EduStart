@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Form, Input } from "antd";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import { BASE_URL } from "../../../utilities/initalValue";
 import {
   setCounts,
@@ -9,13 +10,13 @@ import {
   setSid,
   setUsersInSmt,
 } from "../../../redux/slice/semesterSlide";
-import axios from "axios";
 import {
   showSuccessAlert,
   showErrorAlert,
   showWarningAlert,
 } from "../../../components/SweetAlert";
 import { setRecentlyUpdatedUsers } from "../../../redux/slice/UserSlice";
+
 const jwt = localStorage.getItem("jwt");
 
 const config = {
@@ -24,9 +25,11 @@ const config = {
     authorization: `Bearer ${jwt}`,
   },
 };
-const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
+
+const UserAddModal = ({ visible, onOk, onCancel, semesterId }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const role = useSelector((state) => state.user.selectedRole); // Lấy role từ Redux
 
   // Auto-fill email when memberCode changes
   const handleMemberCodeChange = (e) => {
@@ -176,7 +179,6 @@ const UserAddModal = ({ visible, onOk, onCancel, role, semesterId }) => {
       );
     }
 
-    // Optionally, format the username to have capitalized words
     const formattedValue = value
       .split(" ")
       .map((word) =>

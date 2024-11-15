@@ -92,7 +92,7 @@ const MaterialList = ({ selectedClassId }) => {
           {
             title: (
               <span>
-                Tài liệu {" "}
+                Tài liệu{" "}
                 <span
                   style={{
                     backgroundColor: "#52c41a",
@@ -118,7 +118,7 @@ const MaterialList = ({ selectedClassId }) => {
           {
             title: (
               <span>
-                Hình ảnh {" "}
+                Hình ảnh{" "}
                 <span
                   style={{
                     backgroundColor: "#52c41a",
@@ -238,6 +238,9 @@ const MaterialList = ({ selectedClassId }) => {
         <p>Không có tài liệu</p>
       ) : (
         <Tree
+          style={{
+            backgroundColor: "#f5f5f5",
+          }}
           showLine={{ showLeafIcon: true }}
           showIcon={false}
           defaultExpandedKeys={["Tài liệu", "Hình ảnh"]}

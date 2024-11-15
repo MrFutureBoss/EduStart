@@ -3,8 +3,6 @@ import { Route } from "react-router-dom";
 import { ProtectRoute } from "../../utilities/auth";
 import TeacherLayout from "../../layouts/teacher/TeacherLayout";
 import MyActivity from "../../pages/activity/MyActivity";
-import Tasks from "../../pages/activity/Tasks";
-import MaterialList from "../../pages/activity/MaterialList";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
 // import UnGroupList from "../../pages/class/UnGroupList";
 import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
@@ -17,7 +15,11 @@ import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
 import TeacherProfile from "../../pages/teacher/TeacherProfile";
 import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTreeView";
 import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
-import ProjectCardMain from "../../pages/teacher/matchingMentor/ProjectCardMain";
+import ProjectCardMain from "../../pages/teacher/matchingMentor/matching/ProjectCardMain";
+import DetailedSelection from "../../pages/teacher/matchingMentor/matching/DetailedSelection";
+import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
+import GroupMembers from "../../pages/group/GroupMembers";
+import OutcomeDetail from "../../pages/activity/OutcomeDetail";
 
 const TeacherRouter = () => {
   return (
@@ -33,20 +35,28 @@ const TeacherRouter = () => {
       <Route path="class/detail/:className" element={<GroupProccess />} />
       <Route path="class" element={<ClassManagement />} />
       <Route path="teacher-activity" element={<MyActivity />} />
-      <Route path="tasks" element={<Tasks />} />
-      <Route path="materials" element={<MaterialList />} />
-
       <Route path="professionmanagement" element={<ProfessionManagement />} />
       <Route path="class/:className" element={<GroupProccess />} />
       <Route path="teacher-dashboard" element={<MyActivity />} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />
       <Route path="choose-mentor" element={<MainStep />} />
-      <Route path="posts" element={<PostActivity />} />
+      <Route path="class/detail/:className/outcomes" element={<OutcomeDetail/>} />
       <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
       <Route path="teacher" element={<TeacherProfile />} />
 
       <Route path="temp-matching" element={<ProjectCardMain />} />
+      <Route path="summary-class/temp-matching" element={<ProjectCardMain />} />
       <Route path="summary-class" element={<MatchingMentorIndex />} />
+      <Route
+        path="temp-matching/detailed-selection/:projectId"
+        element={<DetailedSelection />}
+      />
+      <Route
+        path="summary-class/temp-matching/detailed-selection/:projectId"
+        element={<DetailedSelection />}
+      />
+      <Route path="project-request" element={<ProjectRequest />} />
+      <Route path="group-detail" element={<GroupMembers />} />
     </Route>
   );
 };

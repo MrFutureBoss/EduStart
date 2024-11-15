@@ -3,10 +3,12 @@ import {
   Button,
   Card,
   Col,
+  Dropdown,
   Radio,
   Row,
   Segmented,
   Space,
+  Tabs,
   Tag,
   Timeline,
   Tooltip,
@@ -20,14 +22,14 @@ import TableClass from "./TableClass";
 import TeacherTask from "./TeacherTask";
 import {
   AppstoreOutlined,
+  ArrowsAltOutlined,
   BarsOutlined,
-  ClockCircleOutlined,
+  EyeInvisibleOutlined,
   FieldTimeOutlined,
-  FilterOutlined,
+  MoreOutlined,
   ProjectOutlined,
   SyncOutlined,
   TeamOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
@@ -36,6 +38,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setClassInfoData } from "../../redux/slice/ClassManagementSlice";
 import calculateWeekAndPhase from "./calculateWeekAndPhase";
 import CardClass from "./CardClass";
+import AssignOutcome from "../activity/AssignOutcome";
 
 const ClassManagement = () => {
   const dispatch = useDispatch();
@@ -45,7 +48,23 @@ const ClassManagement = () => {
   const [showUngropColumn, setShowUngropColumn] = useState(false);
   const [showEmptyColumn, setShowEmptygropColumn] = useState(false);
   const gridCard = "50%";
-
+  const items = [
+    {
+      key: "1",
+      label: <p style={{ padding: "0px", margin: "0px" }}>Ẩn đi</p>,
+      icon: <EyeInvisibleOutlined />,
+    },
+    {
+      key: "2",
+      label: <p style={{ padding: "0px", margin: "0px" }}>Mở rộng</p>,
+      icon: <ArrowsAltOutlined />,
+    },
+    {
+      key: "3",
+      label: <p style={{ padding: "0px", margin: "0px" }}>Di chuyển</p>,
+      icon: <IoIosMove />,
+    },
+  ];
   const config = useMemo(
     () => ({
       headers: {
@@ -91,97 +110,57 @@ const ClassManagement = () => {
     setShowEmptygropColumn(false);
   };
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#outcome-management") {
+      const outcomeSection = document.getElementById("outcome-management");
+      if (outcomeSection) {
+        outcomeSection.scrollIntoView({ behavior: "instant", block: "start" });
+      }
+    }
+  }, []);
+
   return (
     <div>
       <h1 style={{ marginBottom: "40px" }}>Quản lý lớp học</h1>
-      <Row>
-        <Col
-          span={24}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            margin: "1rem auto 2rem auto",
-          }}
-        >
-          {classInfo?.semesters.length > 0 &&
-          classInfo.semesters.some(
-            (semester) => semester.status === "Ongoing"
-          ) ? (
-            classInfo.semesters
-              .filter((semester) => semester.status === "Ongoing")
-              .map((semester) => {
-                const { phases, daysRemain } = calculateWeekAndPhase(
-                  semester.startDate
-                );
-                return (
-                  <Card
-                    bordered={true}
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      width: "80%",
-                      padding: "0.5rem 8rem",
-                      borderStyle: "dotted",
-                      backgroundColor: "#E6F4FF",
-                      border: "2px solid #1677FF",
-                    }}
-                  >
-                    <div>
-                      <div className="classinfo-content">
-                        <p
-                          style={{
-                            fontWeight: "700",
-                            fontSize: "1.5rem",
-                            marginBottom: "2rem",
-                          }}
-                        >
-                          {" "}
-                          Thông báo thời hạn còn lại cho tất cả giáo viên&nbsp;{" "}
-                          <Tag
-                            color="#FF5252"
-                            style={{
-                              fontSize: "1.2rem",
-                              padding: "0.2rem 0.5rem",
-                            }}
-                          >
-                            {phases.length}
-                          </Tag>
-                        </p>
-                      </div>
-                      <div
-                        className="classinfo-content"
-                        style={{
-                          justifyContent: "center",
-                          flexDirection: "column",
-                        }}
-                      >
-                        {phases.map((phase, index) => (
-                          <div key={index} style={{ marginBottom: "8px" }}>
-                            <p
-                              style={{
-                                height: "fit-content",
-                                marginBottom: "4px",
-                                fontWeight: "500",
-                              }}
-                            >
-                              Thời gian {phase.toLowerCase()}:{" "}
-                              <Tag color="#FF5252">
-                                <FieldTimeOutlined /> Còn {daysRemain} ngày
-                              </Tag>
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })
-          ) : (
-            <h5>Hiện tại chưa có deadline nào rành cho các lớp</h5>
-          )}
-        </Col>
-      </Row>
       <Row gutter={[32, 16]}>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+          <Card
+            bordered={true}
+            title={
+              <h5 style={{ padding: "0px", margin: "0px" }}>
+                Việc cần giải quyết <FaPen />
+              </h5>
+            }
+            extra={
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
+            }
+            headStyle={{
+              background:
+                "linear-gradient(90deg, rgba(210,3,54,1) 67%, rgba(224,0,4,0.9097222222222222) 96%)",
+              color: "white",
+            }}
+            bodyStyle={{ padding: "20px" }}
+          >
+            <TeacherTask />
+          </Card>
+        </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <Card
             bordered={true}
@@ -192,9 +171,23 @@ const ClassManagement = () => {
               </h5>
             }
             extra={
-              <IoIosMove
-                style={{ fontSize: "1.2rem", cursor: "pointer", color: "#FFF" }}
-              />
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
             }
             headStyle={{
               background:
@@ -328,154 +321,171 @@ const ClassManagement = () => {
             </Card.Grid>
           </Card>
         </Col>
-
-        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>
-                Việc bạn cần giải quyết <FaPen />
-              </h5>
-            }
-            extra={
-              <IoIosMove
-                style={{ fontSize: "1.2rem", cursor: "pointer", color: "#FFF" }}
-              />
-            }
-            headStyle={{
-              background:
-                "linear-gradient(90deg, rgba(210,3,54,1) 67%, rgba(224,0,4,0.9097222222222222) 96%)",
-              color: "white",
-            }}
-            bodyStyle={{ padding: "20px" }}
-          >
-            <TeacherTask />
-          </Card>
-        </Col>
       </Row>
       <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
-        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>
-                Danh sách lớp học của bạn
-              </h5>
-            }
-            extra={
-              <IoIosMove
-                style={{ fontSize: "1.2rem", cursor: "pointer", color: "#FFF" }}
-              />
-            }
-            headStyle={{
-              background: "linear-gradient(-45deg, #005241, #128066)",
-              color: "white",
-            }}
-          >
-            <Row style={{ width: "100%", marginBottom: "1rem" }}>
-              <Col lg={8}>
-                {/* Đổi cách list data */}
-                <Segmented
-                  style={{ margin: "10px 10px" }}
-                  options={[
-                    {
-                      label: (
-                        <Tooltip title="Danh sách">
-                          <BarsOutlined />
+        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+          <Tabs defaultActiveKey="1">
+          <Tabs.TabPane tab="Danh sách lớp học đang quản lý" key="1">
+            <Card
+              bordered={true}
+              title={
+                <h5 style={{ padding: "0px", margin: "0px" }}>
+                  Danh sách lớp học đang quản lý
+                </h5>
+              }
+              extra={
+                <Dropdown
+                  menu={{
+                    items,
+                  }}
+                  placement="bottom"
+                  arrow
+                >
+                  <Tooltip title="Tùy chỉnh thẻ">
+                    <MoreOutlined
+                      style={{
+                        fontSize: "1.2rem",
+                        cursor: "pointer",
+                        color: "#FFF",
+                      }}
+                    />
+                  </Tooltip>
+                </Dropdown>
+              }
+              headStyle={{
+                background: "linear-gradient(-45deg, #005241, #128066)",
+                color: "white",
+              }}
+            >
+              <Row style={{ width: "100%", marginBottom: "1rem" }}>
+                <Col lg={8}>
+                  {/* Đổi cách list data */}
+                  <Segmented
+                    style={{ margin: "10px 10px" }}
+                    options={[
+                      {
+                        label: (
+                          <Tooltip title="Danh sách">
+                            <BarsOutlined />
+                          </Tooltip>
+                        ),
+                        value: "List",
+                      },
+                      {
+                        label: (
+                          <Tooltip title="Thẻ">
+                            <AppstoreOutlined />
+                          </Tooltip>
+                        ),
+                        value: "Card",
+                      },
+                    ]}
+                    onChange={setView}
+                  />
+                </Col>
+                <Col
+                  lg={24}
+                  style={{
+                    display: view === "List" ? "flex" : "none",
+                    alignItems: "center",
+                    marginLeft: "0.7rem",
+                    gap: "1rem",
+                  }}
+                >
+                  {/* <h5><FilterOutlined />Lọc vấn đề</h5> */}
+                  <Tooltip title="Làm mới bảng">
+                    <Button
+                      onClick={() => handleResetFilterTable()}
+                      style={{
+                        padding: "8px",
+                      }}
+                    >
+                      <SyncOutlined />
+                    </Button>
+                  </Tooltip>
+                  <Space direction="vertical">
+                    <Radio.Group>
+                      <Radio.Button style={{ display: "none" }}>
+                        <Tooltip title="Vấn đề nhóm chưa chốt đề tài">
+                          <Space>
+                            <ProjectOutlined />
+                            <Badge count="1" />
+                          </Space>
                         </Tooltip>
-                      ),
-                      value: "List",
-                    },
-                    {
-                      label: (
-                        <Tooltip title="Thẻ">
-                          <AppstoreOutlined />
+                      </Radio.Button>
+                      <Radio.Button
+                        value={showEmptyColumn}
+                        onClick={() => handleFilterClassHaveEmptyGroup()}
+                      >
+                        <Tooltip title="Vấn đề lớp chưa có nhóm">
+                          <Space>
+                            <MdOutlineGroupOff />
+                            <Badge count="1" />
+                          </Space>
                         </Tooltip>
-                      ),
-                      value: "Card",
-                    },
-                  ]}
-                  onChange={setView}
-                />
-              </Col>
-              <Col
-                lg={24}
-                style={{
-                  display: view === "List" ? "flex" : "none",
-                  alignItems: "center",
-                  marginLeft: "0.7rem",
-                  gap: "1rem",
-                }}
+                      </Radio.Button>
+                      <Radio.Button
+                        value={showUngropColumn}
+                        onClick={() => handleFilterClassHaveUnGroup()}
+                      >
+                        <Tooltip title="Vấn đề nhóm chưa chốt đủ thành viên">
+                          <Space>
+                            <TeamOutlined />
+                            <Badge count="1" color="#FFBA57" />
+                          </Space>
+                        </Tooltip>
+                      </Radio.Button>
+                      <Radio.Button style={{ display: "none" }}>
+                        <Tooltip title="Vấn đề nhóm chưa nộp bài tập hoặc nộp muộn">
+                          <Space>
+                            <FieldTimeOutlined />
+                            <Badge count="1" />
+                          </Space>
+                        </Tooltip>
+                      </Radio.Button>
+                    </Radio.Group>
+                  </Space>
+                </Col>
+              </Row>
+              <Card.Grid
+                id="TaskTable"
+                style={{ width: "100%", padding: "0px" }}
               >
-                {/* <h5><FilterOutlined />Lọc vấn đề</h5> */}
-                <Tooltip title="Làm mới bảng">
-                  <Button
-                    onClick={() => handleResetFilterTable()}
-                    style={{
-                      padding: "8px",
-                    }}
-                  >
-                    <SyncOutlined />
-                  </Button>
-                </Tooltip>
-                <Space direction="vertical">
-                  <Radio.Group>
-                    <Radio.Button style={{ display: "none" }}>
-                      <Tooltip title="Vấn đề nhóm chưa chốt đề tài">
-                        <Space>
-                          <ProjectOutlined />
-                          <Badge count="1" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                    <Radio.Button
-                      value={showEmptyColumn}
-                      onClick={() => handleFilterClassHaveEmptyGroup()}
-                    >
-                      <Tooltip title="Vấn đề lớp chưa có nhóm">
-                        <Space>
-                          <MdOutlineGroupOff />
-                          <Badge count="1" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                    <Radio.Button
-                      value={showUngropColumn}
-                      onClick={() => handleFilterClassHaveUnGroup()}
-                    >
-                      <Tooltip title="Vấn đề nhóm chưa chốt đủ thành viên">
-                        <Space>
-                          <TeamOutlined />
-                          <Badge count="1" color="#FFBA57" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                    <Radio.Button style={{ display: "none" }}>
-                      <Tooltip title="Vấn đề nhóm chưa nộp bài tập hoặc nộp muộn">
-                        <Space>
-                          <FieldTimeOutlined />
-                          <Badge count="1" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                  </Radio.Group>
-                </Space>
-              </Col>
-            </Row>
-            <Card.Grid id="TaskTable" style={{ width: "100%", padding: "0px" }}>
-              {view === "List" ? (
-                <TableClass
-                  ungroup={showUngropColumn}
-                  emptygroup={showEmptyColumn}
-                />
-              ) : (
-                <CardClass />
-              )}
-            </Card.Grid>
-          </Card>
+                {view === "List" ? (
+                  <TableClass
+                    ungroup={showUngropColumn}
+                    emptygroup={showEmptyColumn}
+                  />
+                ) : (
+                  <CardClass />
+                )}
+              </Card.Grid>
+            </Card>
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Theo dõi tiến độ Outcome" key="2">
+            <Card
+              bordered={true}
+              title={
+                <h5 style={{ padding: "0px", margin: "0px" }}>
+                  Theo dõi tiến độ Outcome
+                </h5>
+              }
+              extra={
+                <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
+              }
+              headStyle={{
+                background: "green",
+                color: "white",
+              }}
+              bodyStyle={{ padding: "20px" }}
+            >
+              <AssignOutcome />
+            </Card>
+          </Tabs.TabPane>
+          </Tabs>
         </Col>
-
-        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+      </Row>
+      {/* <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <Card
             bordered={true}
             title={
@@ -484,7 +494,23 @@ const ClassManagement = () => {
               </h5>
             }
             extra={
-              <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Tooltip title="Tùy chỉnh thẻ">
+                  <MoreOutlined
+                    style={{
+                      fontSize: "1.2rem",
+                      cursor: "pointer",
+                      color: "#FFF",
+                    }}
+                  />
+                </Tooltip>
+              </Dropdown>
             }
             headStyle={{
               background: "#008d87",
@@ -492,7 +518,7 @@ const ClassManagement = () => {
             }}
             bodyStyle={{ padding: "20px" }}
           >
-            {/* <Timeline
+            <Timeline
               mode="alternate"
               items={[
                 {
@@ -530,10 +556,31 @@ const ClassManagement = () => {
                   children: "Technical testing 2015-09-01",
                 },
               ]}
-            /> */}
+            />
+          </Card>
+        </Col> */}
+      {/* <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
+        <Col xs={24} sm={24} md={24} lg={24} xl={16}>
+          <Card
+            bordered={true}
+            title={
+              <h5 style={{ padding: "0px", margin: "0px" }}>Quản lý Outcome</h5>
+            }
+            extra={
+              <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
+            }
+            headStyle={{
+              background: "green",
+              color: "white",
+            }}
+            bodyStyle={{ padding: "20px" }}
+            id="outcome-management"
+          >
+            <h3>Danh sách các lớp đã giao outcome</h3>
+            <AssignOutcome />
           </Card>
         </Col>
-      </Row>
+      </Row> */}
     </div>
   );
 };

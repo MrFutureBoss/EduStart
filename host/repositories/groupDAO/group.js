@@ -2,13 +2,19 @@ import Group from "../../models/groupModel.js";
 import User from "../../models/userModel.js";
 import Project from "../../models/projectModel.js";
 import mongoose from "mongoose";
+import ProjectCategory from "../../models/projectCategoryModel.js";
 
 const getGroupById = async (id) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return [];
+    }
+
     const group = await Group.aggregate([
-      {
-        $match: { _id: new mongoose.Types.ObjectId(id) },
-      },
+      // Tìm group theo ID
+      { $match: { _id: new mongoose.Types.ObjectId(id) } },
+
+      // Lấy thông tin dự án liên quan
       {
         $lookup: {
           from: "projects",
@@ -17,24 +23,39 @@ const getGroupById = async (id) => {
           as: "project",
         },
       },
+      { $unwind: { path: "$project", preserveNullAndEmptyArrays: true } },
+
+      // Lấy các category của dự án từ projectcategories
       {
         $lookup: {
           from: "projectcategories",
           localField: "project._id",
           foreignField: "projectId",
-          as: "projectcategories",
+          as: "projectCategories",
         },
       },
+
+      // Lookup vào professions để lấy tên profession
       {
         $lookup: {
-          from: "categories",
-          localField: "projectcategories.categoryId",
+          from: "professions",
+          localField: "projectCategories.professionId",
           foreignField: "_id",
-          as: "projectcategories",
+          as: "professionDetails",
         },
       },
-      { $unwind: "$project" },
-      { $project: { projectId: 0 } },
+
+      // Lookup vào specialties để lấy tên của specialty
+      {
+        $lookup: {
+          from: "specialties",
+          localField: "projectCategories.specialtyIds",
+          foreignField: "_id",
+          as: "specialtyDetails",
+        },
+      },
+
+      // Lấy danh sách thành viên trong nhóm từ bảng users
       {
         $lookup: {
           from: "users",
@@ -43,6 +64,8 @@ const getGroupById = async (id) => {
           as: "members",
         },
       },
+
+      // Lấy thông tin mentor từ bảng matched
       {
         $lookup: {
           from: "matcheds",
@@ -51,48 +74,72 @@ const getGroupById = async (id) => {
           as: "matched",
         },
       },
+
+      // Lấy chi tiết của mentor từ bảng users
       {
         $lookup: {
           from: "users",
           localField: "matched.mentorId",
           foreignField: "_id",
-          as: "mentor",
+          as: "mentors",
         },
       },
+
+      // Lấy thông tin về chuyên ngành của mentor từ bảng mentorcategories
       {
         $lookup: {
           from: "mentorcategories",
           localField: "matched.mentorId",
-          foreignField: "userId",
-          as: "mentorcategories",
+          foreignField: "mentorId",
+          as: "mentorCategories",
         },
       },
+
+      // Lấy chi tiết của category trong mentorCategories từ bảng categories
       {
         $lookup: {
           from: "categories",
-          localField: "mentorcategories.categoryId",
+          localField: "mentorCategories.categoryId",
           foreignField: "_id",
-          as: "mentorcategories",
+          as: "mentorCategoryDetails",
         },
       },
+
+      // Đếm số lượng thành viên trong nhóm
       {
         $addFields: {
           userCount: { $size: "$members" },
         },
       },
+
+      // Chọn các trường cần thiết
       {
         $project: {
-          projectId: 0,
-          // Bỏ dòng sau để giữ lại trường matched trong kết quả
-          // matched: 0
+          _id: 1,
+          name: 1,
+          description: 1,
+          status: 1,
+          classId: 1,
+          project: 1,
+          projectCategories: 1,
+          professionDetails: "$professionDetails.name",
+          specialtyDetails: "$specialtyDetails.name",
+          members: 1,
+          mentors: 1,
+          matched: 1,
+          mentorCategories: 1,
+          mentorCategoryDetails: 1,
+          userCount: 1,
         },
       },
     ]);
+
     return group;
   } catch (error) {
     throw new Error(error.message);
   }
 };
+
 const getGroupMembers = async (groupId) => {
   try {
     const members = await User.find({ groupId: groupId }).exec();
@@ -162,6 +209,49 @@ const getAllGroupsByTeacherId = async (teacherId) => {
     throw new Error(error.message);
   }
 };
+
+const getProjectByGroupId = async (groupId) => {
+  try {
+    // Tìm nhóm theo groupId để lấy projectId
+    const group = await Group.findById(groupId);
+    if (!group || !group.projectId) {
+      throw new Error("Không tìm thấy dự án liên quan đến nhóm này.");
+    }
+
+    // Tìm thông tin dự án bằng projectId từ nhóm
+    const project = await Project.findById(group.projectId);
+    if (!project) {
+      throw new Error("Dự án không tồn tại.");
+    }
+
+    // Tìm thêm thông tin ProjectCategory dựa vào projectId
+    const projectCategory = await ProjectCategory.findOne({
+      projectId: group.projectId,
+    })
+      .populate({ path: "professionId", model: "Profession", select: "name" })
+      .populate({ path: "specialtyIds", model: "Specialty", select: "name" });
+
+    // Kết hợp thông tin project và projectCategory
+    return {
+      ...project.toObject(),
+      projectCategory: projectCategory ? projectCategory.toObject() : null,
+    };
+  } catch (error) {
+    throw new Error("Lỗi khi lấy thông tin dự án từ database.");
+  }
+};
+
+const getGroupsByClassId = async (classId) => {
+  return await Group.find({ classId: mongoose.Types.ObjectId(classId) });
+};
+const getGroupsByClassIds = async (classIds) => {
+  try {
+    return await Group.find({ classId: { $in: classIds } });
+  } catch (error) {
+    console.error("Error fetching groups by classIds:", error);
+    throw error;
+  }
+};
 export default {
   checkGroupsExist,
   addUserToGroup,
@@ -171,4 +261,7 @@ export default {
   getAllGroupsByTeacherId,
   getGroupMembers,
   getGroupById,
+  getProjectByGroupId,
+  getGroupsByClassId,
+  getGroupsByClassIds,
 };

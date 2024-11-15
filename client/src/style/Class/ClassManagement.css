@@ -12,6 +12,24 @@
     }
 }
 
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .bounce {
+    animation: bounce 1s ease infinite;
+  }
+  
+  
+
 .class-management-card {
     max-width: 20rem;
     border: 1px solid #e2e2e2;
@@ -104,3 +122,18 @@
     margin-bottom: 0px;
     line-height: 1.8rem;
 }
+
+.list-drawer {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 8px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .list-drawer:hover {
+    background-color: #f0f0f0; 
+  }
+
+  .custom-checkbox input[type="checkbox"] {
+    transform: scale(1.4);
+  }

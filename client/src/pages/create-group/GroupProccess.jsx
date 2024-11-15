@@ -1,6 +1,8 @@
 import { Button, message, Steps, theme } from "antd";
 import React, { useState } from "react";
 import UnGroupList from "./UnGroupList";
+import { IoChevronBackOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const GroupProccess = () => {
   const [current, setCurrent] = useState(0);
@@ -33,18 +35,17 @@ const GroupProccess = () => {
     subTitle: item.subTitle,
     description: item.description,
   }));
+  const navigate = useNavigate();
+
+  const handleMoveBackToClassManagement = () => {
+    navigate("/teacher-dashboard/class");
+  };
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <Steps
-          percent={60}
-          current={current}
-          labelPlacement="vertical"
-          items={items}
-          style={{ width: "90%" }}
-        />
-      </div>
+      <Button onClick={() => handleMoveBackToClassManagement()}>
+        <IoChevronBackOutline /> Quay lại quản lí lớp
+      </Button>
       <div
         style={{
           margin: "40px 0px",
@@ -53,35 +54,6 @@ const GroupProccess = () => {
         <>
           <UnGroupList />
         </>
-      </div>
-      <div
-        style={{
-          marginTop: 24,
-        }}
-      >
-        {current < steps.length - 1 && (
-          <Button type="primary" onClick={() => next()}>
-            Next
-          </Button>
-        )}
-        {current === steps.length - 1 && (
-          <Button
-            type="primary"
-            onClick={() => message.success("Processing complete!")}
-          >
-            Done
-          </Button>
-        )}
-        {current > 0 && (
-          <Button
-            style={{
-              margin: "0 8px",
-            }}
-            onClick={() => prev()}
-          >
-            Previous
-          </Button>
-        )}
       </div>
     </div>
   );

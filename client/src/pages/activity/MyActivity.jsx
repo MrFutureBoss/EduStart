@@ -53,7 +53,7 @@ const MyActivity = () => {
         const [classResponse, outcomeResponse] = await Promise.all([
           axios.get(`${BASE_URL}/class/${userId}/user`, config),
           axios.get(
-            `${BASE_URL}/activity/${userId}?activityType=outcome`,
+            `${BASE_URL}/activity/user/${userId}?activityType=outcome`,
             config
           ),
         ]);
@@ -134,6 +134,9 @@ const MyActivity = () => {
   return (
     <Layout style={{ padding: "24px", backgroundColor: "#fff" }}>
       <Content>
+        <Typography.Title style={{ textAlign: "center" }} level={2}>
+          Dashboard Giáo Viên
+        </Typography.Title>
         <div style={{ marginBottom: "24px" }}>
           <OutcomeSteps
             userId={userId}

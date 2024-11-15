@@ -1,5 +1,8 @@
 import activityDAO from "../../repositories/activityDAO/index.js";
+import groupDAO from "../../repositories/groupDAO/index.js";
+import mongoose from "mongoose";
 import moment from "moment";
+import { ObjectId } from "mongodb";
 
 const createActivity = async (req, res) => {
   try {
@@ -12,7 +15,7 @@ const createActivity = async (req, res) => {
       deadline,
       startDate,
       semesterId,
-      content,
+      materialUrl,
     } = req.body;
     const teacherId = req.user._id;
 
@@ -110,6 +113,7 @@ const createActivity = async (req, res) => {
         deadline,
         startDate,
         semesterId,
+        materialUrl,
       };
 
       const savedOutcome = await activityDAO.createActivity(newOutcome);
@@ -237,7 +241,7 @@ const updateMaterial = async (req, res) => {
 const getActivitiesByTeacher = async (req, res) => {
   try {
     const teacherId = req.user._id;
-    const { activityType } = req.query; 
+    const { activityType } = req.query;
 
     const activities = await activityDAO.findActivitiesByTeacher(
       teacherId,
@@ -333,7 +337,236 @@ const sendReminder = async (req, res) => {
     });
   }
 };
+const assignOutcomeToAllGroups = async (req, res) => {
+  try {
+    const { description, classIds, semesterId, outcomes } = req.body;
 
+    if (!Array.isArray(classIds) || classIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ classIds." });
+    }
+
+    if (!semesterId) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ semesterId." });
+    }
+
+    if (!Array.isArray(outcomes) || outcomes.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ outcomes." });
+    }
+
+    const allGroups = await groupDAO.getGroupsByClassIds(classIds);
+    if (!allGroups || allGroups.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
+      });
+    }
+
+    const groupsByClassId = {};
+    allGroups.forEach((group) => {
+      if (!groupsByClassId[group.classId]) {
+        groupsByClassId[group.classId] = [];
+      }
+      groupsByClassId[group.classId].push(group);
+    });
+
+    const activities = [];
+    classIds.forEach((classId) => {
+      const groups = groupsByClassId[classId];
+      if (groups) {
+        groups.forEach((group) => {
+          outcomes.forEach((outcome) => {
+            activities.push({
+              teacherId: req.user._id,
+              activityType: "outcome",
+              description: outcome.description || description,
+              outcomeId: outcome.outcomeId,
+              startDate: new Date(outcome.startDate),
+              deadline: new Date(outcome.deadline),
+              classId: classId,
+              groupId: group._id,
+              semesterId: semesterId,
+            });
+          });
+        });
+      }
+    });
+
+    if (activities.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Không có hoạt động nào để giao." });
+    }
+
+    await activityDAO.createActivity(activities);
+
+    return res.status(201).json({
+      message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
+    });
+  } catch (error) {
+    console.error("Error in assignOutcomeToAllGroups:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi giao Outcome." });
+  }
+};
+
+const updateOutcomeDeadline = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const { newDeadline } = req.body;
+
+    const activity = await activityDAO.findActivityByIdAndType(
+      activityId,
+      "outcome"
+    );
+    if (!activity) {
+      return res.status(404).json({ error: "Outcome activity not found." });
+    }
+
+    const currentDeadline = moment(activity.deadline);
+    const minDeadline = currentDeadline.clone().subtract(7, "days");
+    const maxDeadline = currentDeadline.clone().add(7, "days");
+
+    if (!moment(newDeadline).isBetween(minDeadline, maxDeadline, "day", "[]")) {
+      return res.status(400).json({
+        error:
+          "Hạn nộp không được quá hoặc kém 7 ngày so với hạn nộp hiện tại.",
+      });
+    }
+
+    activity.deadline = new Date(newDeadline);
+    await activity.save();
+
+    res.status(200).json({
+      message: "Deadline updated successfully.",
+      activity,
+    });
+  } catch (error) {
+    console.error("Error updating deadline:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the deadline." });
+  }
+};
+const createOutcomeType = async (req, res) => {
+  try {
+    const { name, description, semesterId } = req.body;
+    const createdBy = req.user._id;
+
+    const existingOutcome = await activityDAO.isDuplicateOutcomeNameInSemester(
+      name,
+      semesterId
+    );
+    if (existingOutcome) {
+      return res.status(400).json({
+        message: "Outcome with this name already exists for this semester",
+      });
+    }
+
+    const outcomeData = { name, description, createdBy, semesterId };
+    const outcome = await activityDAO.createOutcomeType(outcomeData);
+    res.status(201).json(outcome);
+  } catch (error) {
+    console.error("Error creating outcome:", error);
+    res.status(500).json({ message: "Failed to create outcome" });
+  }
+};
+
+const getAllOutcomesType = async (req, res) => {
+  try {
+    const outcomes = await activityDAO.getAllOutcomesType(req.query.semesterId); // Optionally filter by semesterId
+    res.status(200).json(outcomes);
+  } catch (error) {
+    console.error("Error fetching outcomes:", error);
+    res.status(500).json({ message: "Failed to fetch outcomes" });
+  }
+};
+
+const getOutcomeTypeById = async (req, res) => {
+  try {
+    const outcome = await activityDAO.getOutcomeTypeById(req.params.id);
+    if (!outcome) {
+      return res.status(404).json({ message: "Outcome not found" });
+    }
+    res.status(200).json(outcome);
+  } catch (error) {
+    console.error("Error fetching outcome:", error);
+    res.status(500).json({ message: "Failed to fetch outcome" });
+  }
+};
+
+const updateOutcomeType = async (req, res) => {
+  try {
+    const { name, description, semesterId } = req.body;
+    const outcomeId = req.params.id;
+
+    if (!semesterId) {
+      return res.status(400).json({ message: "Semester ID is required." });
+    }
+    const duplicateOutcome = await activityDAO.findOutcomeByNameAndSemester(
+      name,
+      semesterId,
+      outcomeId
+    );
+
+    if (duplicateOutcome) {
+      return res.status(400).json({
+        message: "An outcome with this name already exists for this semester",
+      });
+    }
+
+    const updateData = { name, description, semesterId };
+    const outcome = await activityDAO.updateOutcomeTypeById(
+      outcomeId,
+      updateData
+    );
+
+    if (!outcome) {
+      return res.status(404).json({ message: "Outcome not found" });
+    }
+
+    res.status(200).json(outcome);
+  } catch (error) {
+    console.error("Error updating outcome:", error);
+    res.status(500).json({ message: "Failed to update outcome" });
+  }
+};
+
+const deleteOutcomeType = async (req, res) => {
+  try {
+    const outcome = await activityDAO.deleteOutcomeTypeById(req.params.id);
+    if (!outcome) {
+      return res.status(404).json({ message: "Outcome not found" });
+    }
+    res.status(200).json({ message: "Outcome deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting outcome:", error);
+    res.status(500).json({ message: "Failed to delete outcome" });
+  }
+};
+
+const getOutcomesBySemester = async (req, res) => {
+  try {
+    const { semesterId } = req.params;
+    const outcomes = await activityDAO.getOutcomesBySemesterId(semesterId);
+
+    if (!outcomes || outcomes.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No outcomes found for this semester" });
+    }
+
+    res.status(200).json(outcomes);
+  } catch (error) {
+    console.error("Error fetching outcomes by semester:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch outcomes for the semester" });
+  }
+};
 export default {
   createActivity,
   getActivities,
@@ -344,4 +577,12 @@ export default {
   checkFileExists,
   getSuggestedMaterials,
   sendReminder,
+  updateOutcomeDeadline,
+  assignOutcomeToAllGroups,
+  createOutcomeType,
+  getAllOutcomesType,
+  getOutcomeTypeById,
+  updateOutcomeType,
+  deleteOutcomeType,
+  getOutcomesBySemester,
 };

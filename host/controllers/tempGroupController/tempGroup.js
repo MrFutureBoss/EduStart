@@ -93,6 +93,29 @@ const getTempGroupsByClassId = async (req, res, next) => {
   }
 };
 
+const autoFillGroupsOnDeadline = async (req, res, next) => {
+  try {
+    const result = await tempGroupDAO.checkAndFillExpiredGroups();
+
+    if (result.unassignedUsers.total > 0) {
+      return res.status(207).json({
+        message: result.message,
+        updatedGroups: result.updatedGroups,
+        unassignedUsers: result.unassignedUsers,
+      });
+    }
+
+    res.status(200).json({
+      message: result.message,
+      updatedGroups: result.updatedGroups,
+      unassignedUsers: result.unassignedUsers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 export default {
   getAllTempGroups,
   getTempGroupById,
@@ -100,4 +123,5 @@ export default {
   createNewTempGroup,
   updateTempGroup,
   deleteTempGroup,
+  autoFillGroupsOnDeadline,
 };
