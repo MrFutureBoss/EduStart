@@ -72,15 +72,26 @@ export const SortableItem = ({ id, item, cursor }) => {
     >
       <Avatar src={avatarImage} style={{ marginRight: "8px" }} />
       <div style={contentStyle} key={item._id}>
-        <div style={usernameStyle}>{item.username}</div>
+        <div style={usernameStyle}>
+          {item.username} - <span style={detailsStyle}>{item.rollNumber}</span>
+        </div>
         <div style={detailsStyle}>
-          <div style={{ display: "flex", textAlign: "center" }}>
-            <CiMail
-              style={{ fontSize: "1.1rem", padding: "0px", margin: "0px" }}
-            />
-            {item.email}
+          <div>
+            <span style={{ fontWeight: "500" }}>Chuyên ngành:</span>
+            <span
+              style={{
+                wordWrap: "break-word",
+                whiteSpace: "normal",
+                maxWidth: "200px",
+              }}
+            >
+              &nbsp;{item.major}
+            </span>
           </div>
-          <div>MSSV: {item.rollNumber}</div>
+          <div style={{ display: "flex", textAlign: "center" }}>
+            <span style={{ fontWeight: "500" }}>Email:</span>
+            &nbsp;{item.email}
+          </div>
         </div>
       </div>
     </List.Item>

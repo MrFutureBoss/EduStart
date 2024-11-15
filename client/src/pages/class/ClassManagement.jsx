@@ -8,7 +8,6 @@ import {
   Row,
   Segmented,
   Space,
-  Tabs,
   Tag,
   Timeline,
   Tooltip,
@@ -269,28 +268,6 @@ const ClassManagement = () => {
                           Tuần {week}
                         </Tag>
                       </div>
-                      <div className="classinfo-content">
-                        <p style={{ fontWeight: "700", whiteSpace: "nowrap" }}>
-                          Giai đoạn:&nbsp;
-                        </p>
-                      </div>
-                      <div
-                        className="classinfo-content"
-                        style={{ display: "flex", justifyContent: "start" }}
-                      >
-                        {phases.map((phase, index) => (
-                          <Tag
-                            key={index}
-                            style={{
-                              height: "fit-content",
-                              marginBottom: "4px",
-                            }}
-                            color="#f50"
-                          >
-                            {phase}
-                          </Tag>
-                        ))}
-                      </div>
                     </Card.Grid>
                   );
                 })
@@ -456,123 +433,8 @@ const ClassManagement = () => {
               )}
             </Card.Grid>
           </Card>
-        </Tabs.TabPane>
-        <Tabs.TabPane tab="Quản lý Outcome" key="2">
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>Quản lý Outcome</h5>
-            }
-            extra={
-              <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
-            }
-            headStyle={{
-              background: "green",
-              color: "white",
-            }}
-            bodyStyle={{ padding: "20px" }}
-          >
-            <h3>Danh sách các lớp đã giao outcome</h3>
-            <AssignOutcome />
-          </Card>
-        </Tabs.TabPane>
-      </Tabs>
-      {/* <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>
-                Theo dõi tình hình lớp học
-              </h5>
-            }
-            extra={
-              <Dropdown
-                menu={{
-                  items,
-                }}
-                placement="bottom"
-                arrow
-              >
-                <Tooltip title="Tùy chỉnh thẻ">
-                  <MoreOutlined
-                    style={{
-                      fontSize: "1.2rem",
-                      cursor: "pointer",
-                      color: "#FFF",
-                    }}
-                  />
-                </Tooltip>
-              </Dropdown>
-            }
-            headStyle={{
-              background: "#008d87",
-              color: "white",
-            }}
-            bodyStyle={{ padding: "20px" }}
-          >
-            <Timeline
-              mode="alternate"
-              items={[
-                {
-                  children: "Create a services site 2015-09-01",
-                },
-                {
-                  children: "Solve initial network problems 2015-09-01",
-                  color: "green",
-                },
-                {
-                  dot: (
-                    <ClockCircleOutlined
-                      style={{
-                        fontSize: "16px",
-                      }}
-                    />
-                  ),
-                  children: `Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.`,
-                },
-                {
-                  color: "red",
-                  children: "Network problems being solved 2015-09-01",
-                },
-                {
-                  children: "Create a services site 2015-09-01",
-                },
-                {
-                  dot: (
-                    <ClockCircleOutlined
-                      style={{
-                        fontSize: "16px",
-                      }}
-                    />
-                  ),
-                  children: "Technical testing 2015-09-01",
-                },
-              ]}
-            />
-          </Card>
-        </Col> */}
-      {/* <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
-        <Col xs={24} sm={24} md={24} lg={24} xl={16}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>Quản lý Outcome</h5>
-            }
-            extra={
-              <IoIosMove style={{ fontSize: "1.2rem", cursor: "pointer" }} />
-            }
-            headStyle={{
-              background: "green",
-              color: "white",
-            }}
-            bodyStyle={{ padding: "20px" }}
-            id="outcome-management"
-          >
-            <h3>Danh sách các lớp đã giao outcome</h3>
-            <AssignOutcome />
-          </Card>
         </Col>
-      </Row> */}
+      </Row>
     </div>
   );
 };

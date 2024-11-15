@@ -150,3 +150,20 @@
     margin: 0px;
     padding: 0px;
 }
+
+.list-studentInClass {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 8px;
+    background-color: #FFF;
+    transition: background-color 0.3s ease;
+}
+
+.list-studentInClass:hover {
+    background-color: #F0F0F0;
+}
+
+.manage-group-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

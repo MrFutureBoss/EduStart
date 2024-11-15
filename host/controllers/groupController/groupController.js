@@ -27,7 +27,73 @@ const getInforGroupById = async (req, res, next) => {
   }
 };
 
+const getGroupsByClassId = async (req, res, next) => {
+  try {
+    const { classId } = req.params;
+
+    const result = await groupDAO.getGroupsByClassId(classId);
+
+    if (result.groups.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No groups found for this classId" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching groups by classId:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getGroupsByClassIds = async (req, res, next) => {
+  try {
+    const { classIds } = req.body;
+
+    if (!Array.isArray(classIds) || !classIds.length) {
+      return res
+        .status(400)
+        .json({ message: "classIds should be a non-empty array" });
+    }
+
+    const groups = await groupDAO.getGroupsByClassIds(classIds);
+
+    if (!groups.length) {
+      return res
+        .status(404)
+        .json({ message: "No groups found for these classIds" });
+    }
+
+    res.status(200).json(groups);
+  } catch (error) {
+    console.error("Error fetching groups by classIds:", error);
+    next(error);
+  }
+};
+
+const getAllUserByClassId = async (req, res) => {
+  try {
+    const { classId } = req.params;
+
+    const result = await groupDAO.getAllUserByClassId(classId);
+
+    if (result.students.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No users found for this classId" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching users by classId:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export default {
   getProjectByGroupId,
   getInforGroupById,
+  getGroupsByClassId,
+  getGroupsByClassIds,
+  getAllUserByClassId,
 };
