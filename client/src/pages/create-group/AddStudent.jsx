@@ -11,6 +11,7 @@ import {
   Pagination,
   Popconfirm,
   Row,
+  Tag,
   Tooltip,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,12 +20,14 @@ import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue.js";
 import { useParams } from "react-router-dom";
 import {
+  setTempGroups,
+  setTotalTempGroups,
   setTotalWaitUsers,
   setWaitUserList,
 } from "../../redux/slice/TempGroupSlice.js";
 import avatarImage from "../../assets/images/459233558_122150574488258176_5118808073589257292_n.jpg";
 import { CiMail } from "react-icons/ci";
-import { UserOutlined } from "@ant-design/icons";
+import { PlusOutlined, StopOutlined, UserOutlined } from "@ant-design/icons";
 
 const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
   const dispatch = useDispatch();
@@ -35,11 +38,20 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(4);
   const [checkedItems, setCheckedItems] = useState({});
+  const [waitUserList, setWaitUserList2] = useState([]);
+  const [groupData, setGroupData] = useState(null);
+  const [majorCounts, setMajorCounts] = useState({});
+  const [allMajors, setAllMajors] = useState([]);
   const [remainingSlots, setRemainingSlots] = useState(
     maxStudent - currentStudents
-  ); 
+  );
+
+  useEffect(() => {
+    setRemainingSlots(maxStudent - currentStudents);
+    setCheckedItems({});
+  }, [groupKey, maxStudent, currentStudents]);
 
   const config = useMemo(
     () => ({
@@ -85,8 +97,7 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
             },
           }
         );
-        dispatch(setWaitUserList(response.data?.data));
-        dispatch(setTotalWaitUsers(response.data?.total));
+        setWaitUserList2(response.data?.data);
         setTotalItems(response.data?.total);
       } catch (error) {
         console.log(
@@ -96,11 +107,54 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
     };
 
     fetchUserData();
-  }, [classId, config, currentPage, pageSize, dispatch]);
+  }, [classId, config, currentPage, pageSize, dispatch, show]);
 
-  const waitUserList = useSelector(
-    (state) => state.tempGroup.waituserlist || []
-  );
+  useEffect(() => {
+    if (groupKey) {
+      const fetchGroupData = async () => {
+        try {
+          const response = await axios.get(
+            `${BASE_URL}/tempgroup/name/${groupKey}`,
+            config
+          );
+          setGroupData(response.data);
+          setRemainingSlots(
+            response.data.maxStudent - response.data.userIds.length
+          );
+          const majorCountData = response.data.userIds.reduce((acc, user) => {
+            const major = user.major; 
+
+            if (!acc[major]) {
+              acc[major] = { count: 0, originalMajor: major };
+            }
+            acc[major].count += 1;
+            return acc;
+          }, {});
+
+          setMajorCounts(majorCountData);
+        } catch (error) {
+          console.error("Error fetching group data:", error);
+        }
+      };
+      fetchGroupData();
+    }
+  }, [groupKey, config, show]);
+
+  const fetchGroups = async () => {
+    if (!classId) return;
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/tempgroup/class/${classId}`,
+        config
+      );
+      dispatch(setTempGroups(response.data?.data));
+      dispatch(setTotalTempGroups(response.data?.total));
+    } catch (error) {
+      console.error(
+        error.response ? error.response.data.message : error.message
+      );
+    }
+  };
 
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -125,18 +179,141 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
     return true;
   });
 
-  // Xử lý checkbox
-  const handleCheckboxChange = (userId) => {
+  useEffect(() => {
+    if (groupKey) {
+      const fetchGroupData = async () => {
+        try {
+          const response = await axios.get(
+            `${BASE_URL}/tempgroup/name/${groupKey}`,
+            config
+          );
+          setGroupData(response.data);
+          setRemainingSlots(
+            response.data.maxStudent - response.data.userIds.length
+          );
+
+          const majorCountData = response.data.userIds.reduce((acc, user) => {
+            const major = user.major;
+          
+            if (!acc[major]) {
+              acc[major] = { count: 0, originalMajor: major };
+            }
+            acc[major].count += 1;
+            return acc;
+          }, {});
+          
+          setMajorCounts(majorCountData);
+
+          // Combine all initial majors into an array
+          const initialMajorsArray = Object.keys(majorCountData).reduce(
+            (acc, major) => {
+              for (let i = 0; i < majorCountData[major].count; i++) {
+                acc.push(major);
+              }
+              return acc;
+            },
+            []
+          );
+          setAllMajors(initialMajorsArray);
+        } catch (error) {
+          console.error("Error fetching group data:", error);
+        }
+      };
+      fetchGroupData();
+    }
+  }, [groupKey, config]);
+
+  const handleCheckboxChange = (userId, major) => {
     setCheckedItems((prev) => {
       const isChecked = !prev[userId];
       const newCheckedItems = { ...prev, [userId]: isChecked };
-
-      // Cập nhật remainingSlots dựa trên trạng thái của checkbox
       setRemainingSlots((prevSlots) => prevSlots + (isChecked ? -1 : 1));
+
+      // Update allMajors array
+      setAllMajors((prevMajors) => {
+        const updatedMajors = [...prevMajors];
+        if (isChecked) {
+          updatedMajors.push(major);
+        } else {
+          const index = updatedMajors.indexOf(major);
+          if (index !== -1) updatedMajors.splice(index, 1);
+        }
+        return updatedMajors;
+      });
 
       return newCheckedItems;
     });
   };
+
+  useEffect(() => {
+    if (!show) {
+      setCheckedItems({});
+      setAllMajors([]);
+    }
+  }, [show]);
+
+  const handleAddMembers = async () => {
+    try {
+      const selectedUserIds = Object.keys(checkedItems).filter(
+        (id) => checkedItems[id]
+      );
+      const groupId = groupData?._id;
+  
+      // Xác định status dựa trên số lượng userIds và maxStudent
+      const updatedUserIds = [
+        ...groupData.userIds.map((user) => user._id),
+        ...selectedUserIds,
+      ];
+      const status = updatedUserIds.length >= maxStudent;
+  
+      // Gọi API để cập nhật members và status
+      await axios.put(
+        `${BASE_URL}/tempgroup/${groupId}`,
+        {
+          userIds: updatedUserIds,
+          status: status, // Truyền status vào cùng với userIds
+        },
+        config
+      );
+  
+      // Cập nhật danh sách sinh viên chờ trong Redux, loại bỏ các ID đã chọn
+      dispatch(
+        setWaitUserList(
+          waitUserList.filter((user) => !selectedUserIds.includes(user._id))
+        )
+      );
+  
+      // Cập nhật tổng số người dùng chờ
+      dispatch(setTotalWaitUsers(totalItems - selectedUserIds.length));
+  
+      // Lấy dữ liệu mới của nhóm sau khi thêm thành viên
+      await fetchGroups();
+  
+      // Đóng modal và reset các trạng thái cần thiết
+      close();
+      setCheckedItems({});
+      setSearchText("");
+      setCurrentPage(0);
+      setRemainingSlots(maxStudent - currentStudents);
+      setGroupData(null);
+      setMajorCounts({});
+  
+      console.log("Members added, modal closed, and data reset.");
+    } catch (error) {
+      console.error("Error updating group:", error);
+    }
+  };  
+  
+  const majorAlertMessages = Object.entries(majorCounts).map(
+    ([major, info]) => {
+      const majorTotalCount = allMajors.filter((m) => m === major).length;
+      return {
+        major: info.originalMajor,
+        message: `Chú ý: Bạn đang chọn tất cả thành viên cùng chuyên ngành ${info.originalMajor}. Điều này có thể không tối ưu cho nhóm.`,
+        display: majorTotalCount >= maxStudent,
+      };
+    }
+  );
 
   const itemStyle = {
     display: "flex",
@@ -185,6 +362,44 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
             </h6>
           </Col>
         </Row>
+        <Row>
+          <Col sm={24}>
+            <h6 style={{ fontWeight: "450", fontStyle: "italic" }}>
+              Chuyên ngành đã có:{" "}
+              <span style={{ fontWeight: "500" }}>
+                {Object.entries(majorCounts).map(([major, info]) => (
+                  <Tooltip
+                    key={major}
+                    title={
+                      <p>
+                        Có {info.count} thành viên chuyên ngành{" "}
+                        {info.originalMajor}
+                      </p>
+                    }
+                  >
+                    <Tag color="#108ee9" style={{ height: "fit-content" }}>
+                      <span
+                        style={{
+                          borderRight: "1px solid #FFF",
+                          paddingRight: "0.4rem",
+                        }}
+                      >
+                        {major}
+                      </span>
+                      <span
+                        style={{
+                          paddingLeft: "0.3rem",
+                        }}
+                      >
+                        {info.count} <UserOutlined />
+                      </span>
+                    </Tag>
+                  </Tooltip>
+                ))}
+              </span>{" "}
+            </h6>
+          </Col>
+        </Row>
         <h5 style={{ marginTop: "2rem" }}>Danh sách sinh viên chưa có nhóm</h5>
         <Row>
           <Col
@@ -216,23 +431,46 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
               style={{ width: "fit-content" }}
               message={
                 <div>
-                  Bạn có thể thêm tối đa{" "}
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      color: remainingSlots === 0 ? "red" : "green",
-                    }}
-                  >
-                    {remainingSlots}
-                  </span>{" "}
-                  thành viên mới
+                  <div>
+                    Bạn có thể thêm tối đa{" "}
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        color: remainingSlots === 0 ? "red" : "green",
+                      }}
+                    >
+                      {remainingSlots}
+                    </span>{" "}
+                    thành viên mới
+                  </div>
                 </div>
               }
-              type="warning"
+              type="info"
               showIcon
             />
           </Col>
         </Row>
+        {majorAlertMessages.map((alert) => {
+          // console.log(`Displaying alert for ${alert.major}:`, alert.display);
+          return (
+            <Row
+              key={alert.major}
+              style={{ fontStyle: "italic", margin: "10px auto" }}
+            >
+              <Col sm={24}>
+                {alert.display && (
+                  <Alert
+                    type="warning"
+                    message={alert.message}
+                    showIcon
+                    style={{ marginBottom: "10px" }}
+                  />
+                )}
+              </Col>
+            </Row>
+          );
+        })}
+
         {waitUserList.length > 0 ? (
           <List
             className="list-container-groupstudent"
@@ -243,7 +481,7 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
               <Checkbox
                 className="custom-checkbox"
                 checked={checkedItems[user._id] || false}
-                onChange={() => handleCheckboxChange(user._id)}
+                onChange={() => handleCheckboxChange(user._id, user.major)}
                 style={{ width: "100%", paddingLeft: "1.4rem" }}
                 disabled={
                   remainingSlots <= 0 && !checkedItems[user._id] // Vô hiệu hóa nếu đã chọn đủ
@@ -258,10 +496,13 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
                     </div>
                     <div style={detailsStyle}>
                       <div style={{ display: "flex", textAlign: "center" }}>
+                        <span style={{ fontWeight: "500" }}>Chuyên ngành:</span>
+                        &nbsp;{user.major}
+                      </div>
+                      <div style={{ display: "flex", textAlign: "center" }}>
                         <span style={{ fontWeight: "500" }}>Email:</span>
                         &nbsp;{user.email}
                       </div>
-                      {/* <div>MSSV: {user.rollNumber}</div> */}
                     </div>
                   </div>
                 </List.Item>
@@ -295,19 +536,28 @@ const AddStudent = ({ groupKey, maxStudent, currentStudents, show, close }) => {
 
   const modalFooter = (
     <div style={{ display: "flex", gap: "1rem", justifyContent: "end" }}>
-      <Tooltip title="Bạn phải chọn ít nhất 1 thành viên" d>
+      {remainingSlots < maxStudent - currentStudents ? (
         <Popconfirm
           title="Bạn có chắc chắn muốn thêm các sinh viên đã chọn vào nhóm không?"
-          onConfirm={() => {
-            console.log("Đã xác nhận thêm thành viên");
-          }}
+          onConfirm={handleAddMembers}
           okText="Có"
           cancelText="Không"
         >
-          <Button type="primary">Thêm vào</Button>
+          <Button color="success">
+            <PlusOutlined /> Thêm vào
+          </Button>
         </Popconfirm>
-      </Tooltip>
-      <Button onClick={close}>Hủy</Button>
+      ) : (
+        <Tooltip title="Bạn phải chọn ít nhất 1 thành viên">
+          <Button disabled={true} color="primary">
+            <StopOutlined />
+            Thêm vào
+          </Button>
+        </Tooltip>
+      )}
+      <Button onClick={close} color="danger" variant="solid">
+        Hủy
+      </Button>
     </div>
   );
 

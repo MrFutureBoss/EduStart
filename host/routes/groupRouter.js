@@ -17,4 +17,24 @@ groupRouter.get(
   groupController.getInforGroupById
 );
 
+groupRouter.get(
+  "/class/:classId",
+  verifyAccessToken,
+  groupController.getGroupsByClassId
+);
+
+groupRouter.get(
+  "/student/:classId",
+  verifyAccessToken,
+  groupController.getAllUserByClassId
+);
+
+// groupRouter.get(
+//   "/classes/:classId",
+//   verifyAccessToken,
+//   groupController.getGroupsByClassIds
+// );
+
+
+
 export default groupRouter;

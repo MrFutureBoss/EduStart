@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input, Space, Table, Tag, Spin } from "antd"; // Import Spin
@@ -253,13 +253,34 @@ const TableClass = ({ ungroup, emptygroup }) => {
                 {incompleteCount} nhóm chưa chốt đủ thành viên
               </Tag>
             ) : (
-              <Tag color="green">Hoàn thành</Tag>
+              <Tag color="green">Hiện tại chưa có</Tag>
             )}
           </div>
         );
       },
-      width: "30%",
+      width: "15%",
     },
+    {
+      title: "Hành động",
+      key: "action",
+      width: "15%",
+      render: (_, record) => (
+        <Link
+          to={`/teacher-dashboard/class/detail/${record.className}`}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "#1890ff",
+            color: "#fff",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "14px",
+            fontWeight: "500",
+          }}
+        >
+          Chi tiết lớp
+        </Link>
+      ),
+    }
   ];
 
   const handleRowClick = (record) => {

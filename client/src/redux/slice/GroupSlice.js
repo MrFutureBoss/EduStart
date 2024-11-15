@@ -4,6 +4,7 @@ const initialValue = {
   selectedGroupId: null,
   group: {},
   allGroups: [],
+  groupInClass: [],
 };
 const groupSlice = createSlice({
   name: "group",
@@ -29,6 +30,9 @@ const groupSlice = createSlice({
         });
       }
     },
+    setAllGroupInClass: (state, action) => {
+      state.groupInClass = action.payload;
+    },
   },
 });
 
@@ -39,5 +43,6 @@ export const {
   setGroup,
   setAllGroup,
   updateGroupLeader,
+  setAllGroupInClass,
 } = actions;
 export default reducer;

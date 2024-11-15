@@ -184,7 +184,7 @@ const getUsersByClassIdAndEmptyGroupId = async (
     const total = await User.countDocuments(query);
 
     const users = await User.find(query)
-      .select("username email rollNumber memberCode")
+      .select("username email rollNumber memberCode major")
       .skip(skip)
       .limit(limit)
       .lean();
@@ -543,7 +543,7 @@ const unGroupUser = async (classId) => {
 
     // Retrieve all ungrouped users without skip or limit
     const users = await User.find(query)
-      .select("username email rollNumber memberCode")
+      .select("username email rollNumber memberCode major")
       .lean();
 
     // Count the total number of users matching the query
