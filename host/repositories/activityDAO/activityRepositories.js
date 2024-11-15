@@ -144,13 +144,31 @@ const isDuplicateOutcomeNameInSemester = async (name, semesterId) => {
   return await OutcomeType.findOne({ name, semesterId });
 };
 const findOutcomeByNameAndSemester = async (name, semesterId, excludeId) => {
-  return await OutcomeType.findOne({
-    name,
-    semesterId,
-    _id: { $ne: excludeId },
-  });
-};
+  const semesterObjectId = mongoose.Types.ObjectId.isValid(semesterId)
+    ? new mongoose.Types.ObjectId(semesterId)
+    : semesterId;
 
+  const exclusionId = mongoose.Types.ObjectId.isValid(excludeId)
+    ? new mongoose.Types.ObjectId(excludeId)
+    : excludeId;
+
+  const result = await OutcomeType.findOne({
+    name,
+    semesterId: semesterObjectId,
+    _id: { $ne: exclusionId },
+  });
+
+  console.log("Search result:", result);
+
+  return result;
+};
+const markActivityAsCompleted = async (activityId) => {
+  try {
+    return await Activity.findByIdAndUpdate(activityId, { completed: true });
+  } catch (error) {
+    throw new Error("Error updating activity status: " + error.message);
+  }
+};
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -172,4 +190,5 @@ export default {
   getOutcomesBySemesterId,
   isDuplicateOutcomeNameInSemester,
   findOutcomeByNameAndSemester,
+  markActivityAsCompleted,
 };

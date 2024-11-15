@@ -9,6 +9,9 @@ import {
   Steps,
   DatePicker,
   Tooltip,
+  Divider,
+  List,
+  Typography,
 } from "antd";
 import axios from "axios";
 import calculateStartdateAndEnddateOfOutcomes from "./calculateStartdateAndEnddateOfOutcomes";
@@ -19,8 +22,9 @@ import { BASE_URL } from "../../utilities/initalValue";
 import PropTypes from "prop-types";
 import TableOutcome from "../class/TableOutcome";
 import { SendOutlined } from "@ant-design/icons";
-
+import Title from "antd/es/skeleton/Title";
 const { Step } = Steps;
+const { Text } = Typography;
 
 const AssignOutcome = ({ onAssigned }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -31,7 +35,7 @@ const AssignOutcome = ({ onAssigned }) => {
   const [outcomes, setOutcomes] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [activityExists, setActivityExists] = useState(false);
-  const [hover, setHover] = useState(false);
+  const [semesterId, setSemesterId] = useState(null);
 
   const dispatch = useDispatch();
   const classList = useSelector((state) => state.class.classList);
@@ -49,9 +53,7 @@ const AssignOutcome = ({ onAssigned }) => {
       try {
         const response = await axios.get(
           `${BASE_URL}/class/${localStorage.getItem("userId")}/user`,
-          {
-            headers: { Authorization: `Bearer ${jwt}` },
-          }
+          config
         );
         dispatch(setClassList(response.data));
       } catch (error) {
@@ -64,48 +66,58 @@ const AssignOutcome = ({ onAssigned }) => {
   }, [classList?.length, dispatch, jwt]);
 
   useEffect(() => {
-    const fetchSemester = async () => {
+    const fetchSemesterAndOutcomes = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
+        const semesterResponse = await axios.get(
           `${BASE_URL}/semester/current`,
           config
         );
-        setSemester(response.data);
-        const calculatedOutcomes = calculateStartdateAndEnddateOfOutcomes(
-          response.data.startDate,
-          response.data.endDate
+        console.log(semesterResponse.data);
+
+        const fetchedSemester = semesterResponse.data;
+        setSemester(fetchedSemester);
+        setSemesterId(fetchedSemester._id);
+        const outcomesResponse = await axios.get(
+          `${BASE_URL}/activity/outcome-type/semester/${fetchedSemester._id}`,
+          config
         );
 
-        const initializedOutcomes = [
-          {
-            ...calculatedOutcomes.outcome1,
-            assignmentType: "outcome 1",
-            deadline: calculatedOutcomes.outcome1.endDate,
-            description: "",
-          },
-          {
-            ...calculatedOutcomes.outcome2,
-            assignmentType: "outcome 2",
-            deadline: calculatedOutcomes.outcome2.endDate,
-            description: "",
-          },
-          {
-            ...calculatedOutcomes.outcome3,
-            assignmentType: "outcome 3",
-            deadline: calculatedOutcomes.outcome3.endDate,
-            description: "",
-          },
-        ];
-        setOutcomes(initializedOutcomes);
+        const sortedOutcomes = outcomesResponse.data.sort((a, b) => {
+          const numberA = parseInt(a.name.replace(/[^0-9]/g, ""), 10);
+          const numberB = parseInt(b.name.replace(/[^0-9]/g, ""), 10);
+          return numberA - numberB;
+        });
+
+        const calculatedOutcomes = calculateStartdateAndEnddateOfOutcomes(
+          fetchedSemester.startDate,
+          fetchedSemester.endDate,
+          sortedOutcomes.length
+        );
+
+        const updatedOutcomes = sortedOutcomes.map((outcome, index) => {
+          const calculatedOutcome =
+            calculatedOutcomes[`outcome${index + 1}`] || {};
+          return {
+            ...outcome,
+            startDate: moment(
+              calculatedOutcome.startDate || fetchedSemester.startDate
+            ),
+            endDate: moment(
+              calculatedOutcome.endDate || fetchedSemester.endDate
+            ),
+          };
+        });
+
+        setOutcomes(updatedOutcomes);
       } catch (error) {
-        message.error("Không thể lấy thông tin kỳ học hiện tại.");
+        message.error("Cannot fetch current semester or outcomes.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSemester();
+    fetchSemesterAndOutcomes();
   }, [config]);
 
   useEffect(() => {
@@ -113,20 +125,16 @@ const AssignOutcome = ({ onAssigned }) => {
       try {
         const userId = localStorage.getItem("userId");
         const response = await axios.get(
-          `http://localhost:9999/activity/user/${userId}?activityType=outcome`,
+          `${BASE_URL}/activity/user/${userId}?activityType=outcome`,
           config
         );
 
-        if (
+        setActivityExists(
           response.data &&
-          response.data.activities &&
-          Array.isArray(response.data.activities) &&
-          response.data.activities.length > 0
-        ) {
-          setActivityExists(true);
-        } else {
-          setActivityExists(false);
-        }
+            response.data.activities &&
+            Array.isArray(response.data.activities) &&
+            response.data.activities.length > 0
+        );
       } catch (error) {
         console.error("Error checking activity type:", error);
         setActivityExists(false);
@@ -138,7 +146,7 @@ const AssignOutcome = ({ onAssigned }) => {
 
   const showModal = () => {
     if (classList.length === 0) {
-      message.warning("Không có lớp nào để giao Outcome.");
+      message.warning("No class to assign Outcome.");
       return;
     }
     setIsModalVisible(true);
@@ -148,33 +156,6 @@ const AssignOutcome = ({ onAssigned }) => {
     setIsModalVisible(false);
     form.resetFields();
     setCurrentStep(0);
-    if (semester) {
-      const recalculatedOutcomes = calculateStartdateAndEnddateOfOutcomes(
-        semester.startDate,
-        semester.endDate
-      );
-      const resetOutcomes = [
-        {
-          ...recalculatedOutcomes.outcome1,
-          assignmentType: "outcome 1",
-          deadline: recalculatedOutcomes.outcome1.endDate,
-          description: "",
-        },
-        {
-          ...recalculatedOutcomes.outcome2,
-          assignmentType: "outcome 2",
-          deadline: recalculatedOutcomes.outcome2.endDate,
-          description: "",
-        },
-        {
-          ...recalculatedOutcomes.outcome3,
-          assignmentType: "outcome 3",
-          deadline: recalculatedOutcomes.outcome3.endDate,
-          description: "",
-        },
-      ];
-      setOutcomes(resetOutcomes);
-    }
   };
 
   const handleAssign = async () => {
@@ -183,32 +164,33 @@ const AssignOutcome = ({ onAssigned }) => {
 
       const classIds = classList.map((classItem) => classItem._id);
       if (classIds.length === 0) {
-        message.error("Không có lớp nào để giao Outcome.");
+        message.error("No class to assign Outcome.");
         return;
       }
 
       const payloadOutcomes = outcomes.map((outcome) => ({
-        assignmentType: outcome.assignmentType,
-        startDate: outcome.startDate,
-        deadline: outcome.deadline,
-        description: outcome.description,
+        outcomeId: outcome._id,
+        startDate: outcome.startDate
+          ? outcome.startDate.format("YYYY-MM-DD")
+          : null,
+        deadline: outcome.endDate ? outcome.endDate.format("YYYY-MM-DD") : null,
+        description: outcome.description || "",
       }));
 
       const payload = {
         outcomes: payloadOutcomes,
         classIds,
+        semesterId: semester._id,
       };
 
       const response = await axios.post(
-        `${BASE_URL}/Activity/assign-outcome`,
+        `${BASE_URL}/activity/assign-outcome`,
         payload,
         config
       );
 
       if (response.status === 201 || response.status === 207) {
         message.success(response.data.message);
-
-        // Set activityExists to true to trigger the display of TableOutcome
         setActivityExists(true);
 
         if (onAssigned && typeof onAssigned === "function") {
@@ -218,21 +200,25 @@ const AssignOutcome = ({ onAssigned }) => {
       }
     } catch (error) {
       console.error("Error assigning Outcome:", error);
-      if (error.response) {
-        if (error.response.data && error.response.data.message) {
-          message.error(`Đã xảy ra lỗi: ${error.response.data.message}`);
-        } else {
-          message.error("Đã xảy ra lỗi khi giao Outcome.");
-        }
-      } else if (error.request) {
-        message.error("Không nhận được phản hồi từ máy chủ.");
+      if (error.response && error.response.data) {
+        message.error(`Error: ${error.response.data.message}`);
       } else {
-        message.error("Đã xảy ra lỗi khi thiết lập yêu cầu.");
+        message.error("Error assigning Outcome.");
       }
     } finally {
       setAssignLoading(false);
     }
   };
+
+  useEffect(() => {
+    form.setFieldsValue(
+      outcomes.reduce((acc, outcome, index) => {
+        acc[`outcome-${index}-startDate`] = outcome.startDate;
+        acc[`outcome-${index}-endDate`] = outcome.endDate;
+        return acc;
+      }, {})
+    );
+  }, [outcomes, form]);
 
   const next = () => {
     form
@@ -250,50 +236,62 @@ const AssignOutcome = ({ onAssigned }) => {
   };
 
   if (loading) {
-    return <Spin size="large" tip="Đang tải thông tin kỳ học..." />;
+    return (
+      <Spin size="large" tip="Loading semester and outcome information..." />
+    );
   }
 
   return (
     <>
       {!activityExists ? (
-        <Tooltip title="Giao Outcome cho các lớp">
-          <Button
-            type="primary"
-            onClick={showModal}
-            icon={<SendOutlined />}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              backgroundColor: hover ? "#45A049" : "#4CAF50",
-              borderColor: hover ? "#45A049" : "#4CAF50",
-              color: "#FFF",
-              borderRadius: "8px",
-              padding: "0 20px",
-              cursor: "pointer",
-            }}
-          >
-            Giao Outcome
-          </Button>
-        </Tooltip>
+        <div style={{ marginBottom: 16 }}>
+          <Title level={4}>Thông tin kỳ học hiện tại</Title>
+          {semester && (
+            <>
+              <Text strong>Tên kỳ học:</Text> <Text>{semester.name}</Text>
+              <br />
+              <Text strong>Thời gian:</Text>{" "}
+              <Text>
+                {moment(semester.startDate).format("DD/MM/YYYY")} -{" "}
+                {moment(semester.endDate).format("DD/MM/YYYY")}
+              </Text>
+              <Divider />
+            </>
+          )}
+          <h5 style={{ fontWeight: 'bold' }}>Thời gian Outcome dự kiến</h5>
+          <List
+            bordered
+            dataSource={outcomes}
+            renderItem={(outcome) => (
+              <List.Item>
+                <Text strong>{outcome.name}</Text>:{" "}
+                {outcome.startDate.format("DD/MM/YYYY")} -{" "}
+                {outcome.endDate.format("DD/MM/YYYY")}
+              </List.Item>
+            )}
+          />
+          <Divider />
+          <Tooltip title="Giao Outcome cho các lớp học">
+            <Button type="primary" onClick={showModal} icon={<SendOutlined />}>
+              Giao Outcome ngay!
+            </Button>
+          </Tooltip>
+        </div>
       ) : (
-        <TableOutcome classList={classList} />
+        <TableOutcome classList={classList} semesterId={semesterId} />
       )}
 
       <Modal
-        title="Giao Outcome tới tất cả các lớp"
+        title="Giao outcome cho các lớp"
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
-        width={800}
       >
         <Form
           form={form}
           layout="vertical"
           initialValues={{}}
-          onValuesChange={(changedValues, allValues) => {
+          onValuesChange={(changedValues) => {
             const updatedOutcomes = [...outcomes];
 
             outcomes.forEach((outcome, index) => {
@@ -322,7 +320,7 @@ const AssignOutcome = ({ onAssigned }) => {
         >
           <Steps current={currentStep}>
             {outcomes.map((outcome, index) => (
-              <Step key={index} title={`Outcome ${index + 1}`} />
+              <Step key={index} title={`${outcome.name}`} />
             ))}
           </Steps>
 
@@ -333,82 +331,67 @@ const AssignOutcome = ({ onAssigned }) => {
                 style={{ display: currentStep === index ? "block" : "none" }}
               >
                 <p style={{ fontWeight: "bold", color: "#40a9ff" }}>
-                  Giai đoạn: {outcome.assignmentType}
+                  Loại: {outcome.name}
                 </p>
 
                 <Form.Item
                   name={`outcome-${index}-description`}
-                  label="Mô tả Outcome (Tùy chọn)"
-                  rules={[
-                    {
-                      max: 500,
-                      message: "Mô tả không được vượt quá 500 ký tự!",
-                    },
-                  ]}
+                  label="Mô tả outcome (Optional)"
                 >
                   <Input.TextArea
-                    placeholder={`Nhập mô tả cho Outcome ${index + 1}`}
+                    placeholder={`Thêm mô tả cho ${outcome.name}`}
+                    onChange={(e) => {
+                      const updatedOutcomes = [...outcomes];
+                      updatedOutcomes[index].description = e.target.value;
+                      setOutcomes(updatedOutcomes);
+                    }}
                     rows={4}
                   />
                 </Form.Item>
-                <div
-                  style={{ display: "flex", justifyContent: "space-around" }}
-                >
-                  <Form.Item
-                    name={`outcome-${index}-startDate`}
-                    label="Ngày bắt đầu (Mặc định)"
-                    initialValue={moment(outcome.startDate, "YYYY-MM-DD")}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn ngày bắt đầu!",
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      format="DD/MM/YYYY"
-                      style={{ width: "100%" }}
-                      disabledDate={(currentDate) =>
-                        currentDate && currentDate < moment().startOf("day")
-                      }
-                    />
-                  </Form.Item>
 
-                  <Form.Item
-                    name={`outcome-${index}-deadline`}
-                    label="Deadline (Mặc định)"
-                    initialValue={moment(outcome.deadline, "YYYY-MM-DD")}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn Deadline!",
-                      },
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          const startDate = getFieldValue(
-                            `outcome-${index}-startDate`
-                          );
-                          if (
-                            value &&
-                            startDate &&
-                            value.isAfter(startDate, "day")
-                          ) {
-                            return Promise.resolve();
-                          }
-                          return Promise.reject();
-                        },
-                      }),
-                    ]}
-                  >
-                    <DatePicker
-                      format="DD/MM/YYYY"
-                      style={{ width: "100%" }}
-                      disabledDate={(currentDate) =>
-                        currentDate && currentDate < moment().startOf("day")
-                      }
-                    />
-                  </Form.Item>
-                </div>
+                <Form.Item
+                  name={`outcome-${index}-startDate`}
+                  label="Ngày bắt đầu"
+                  initialValue={outcome.startDate}
+                >
+                  <DatePicker
+                    value={outcome.startDate}
+                    format="DD/MM/YYYY"
+                    onChange={(date) => {
+                      const updatedOutcomes = [...outcomes];
+                      updatedOutcomes[index].startDate = date;
+                      setOutcomes(updatedOutcomes);
+
+                      // Cập nhật giá trị trong form
+                      form.setFieldsValue({
+                        [`outcome-${index}-startDate`]: date,
+                      });
+                    }}
+                    style={{ width: "40%" }}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name={`outcome-${index}-endDate`}
+                  label="Ngày kết thúc"
+                  initialValue={outcome.endDate}
+                >
+                  <DatePicker
+                    value={outcome.endDate}
+                    format="DD/MM/YYYY"
+                    onChange={(date) => {
+                      const updatedOutcomes = [...outcomes];
+                      updatedOutcomes[index].endDate = date;
+                      setOutcomes(updatedOutcomes);
+
+                      // Cập nhật giá trị trong form
+                      form.setFieldsValue({
+                        [`outcome-${index}-endDate`]: date,
+                      });
+                    }}
+                    style={{ width: "40%" }}
+                  />
+                </Form.Item>
               </div>
             ))}
           </div>
@@ -421,38 +404,16 @@ const AssignOutcome = ({ onAssigned }) => {
                 marginTop: 24,
               }}
             >
-              {currentStep > 0 && (
-                <Button
-                  onClick={prev}
-                  style={{ backgroundColor: "#ffc53d", borderColor: "#ffc53d" }}
-                >
-                  Previous
-                </Button>
-              )}
-              {currentStep < outcomes.length - 1 && (
-                <Button
-                  type="primary"
-                  onClick={next}
-                  style={{ backgroundColor: "#40a9ff", borderColor: "#40a9ff" }}
-                >
+              {currentStep > 0 && <Button onClick={prev}>Previous</Button>}
+              {currentStep < outcomes.length - 1 ? (
+                <Button type="primary" onClick={next}>
                   Next
                 </Button>
-              )}
-              {currentStep === outcomes.length - 1 && (
+              ) : (
                 <Button
                   type="primary"
-                  onClick={() => {
-                    form
-                      .validateFields()
-                      .then(() => {
-                        handleAssign();
-                      })
-                      .catch((info) => {
-                        console.log("Validate Failed:", info);
-                      });
-                  }}
+                  onClick={handleAssign}
                   loading={assignLoading}
-                  style={{ backgroundColor: "#73d13d", borderColor: "#73d13d" }}
                 >
                   Submit
                 </Button>
