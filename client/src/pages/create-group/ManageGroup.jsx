@@ -5,7 +5,12 @@ import { BASE_URL } from "../../utilities/initalValue";
 import axios from "axios";
 import { setAllGroupInClass } from "../../redux/slice/GroupSlice";
 import { Col, Row, Card, Typography, Menu } from "antd";
-import { FileOutlined, PlusOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  FileOutlined,
+  PlusOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 
 const { Link, Text } = Typography;
 
@@ -171,7 +176,7 @@ const ManageGroup = () => {
                     style={{
                       fontSize: "16px",
                       fontWeight: "bold",
-                      color: "#1890ff",
+                      color:  group.status === "InActive" ? "#FFF" : "#1890ff",
                     }}
                   >
                     {group.name}
@@ -185,7 +190,8 @@ const ManageGroup = () => {
                   backgroundColor: "#fff",
                 }}
                 headStyle={{
-                  backgroundColor: "#e6f7ff",
+                  backgroundColor:
+                    group.status === "InActive" ? "grey" : "#e6f7ff",
                   textAlign: "center",
                 }}
                 className="manage-group-card"

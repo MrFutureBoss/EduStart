@@ -20,6 +20,8 @@ import {
   setDeclineMessage,
   removeProject,
 } from "../../../redux/slice/ProjectSlice";
+import ConfirmButton from "../../../components/Button/ConfirmButton";
+import CancelButton from "../../../components/Button/CancelButton";
 
 const { confirm } = Modal;
 const { Text } = Typography;
@@ -192,19 +194,28 @@ const ProjectRequest = () => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Button
+          <ConfirmButton
+            content="Duyệt"
+            onClick={() => handleApprove(record.projectId, record.projectName)}
+          />
+          {/* <Button
             type="primary"
             onClick={() => handleApprove(record.projectId, record.projectName)}
             style={{ backgroundColor: "#4caf50", borderColor: "#4caf50" }}
           >
             Duyệt
-          </Button>
-          <Button
+          </Button> */}
+          <CancelButton
+            content="Từ chối"
+            onClick={() => handleDecline(record.projectId, record.projectName)}
+          />
+
+          {/* <Button
             danger
             onClick={() => handleDecline(record.projectId, record.projectName)}
           >
             Từ chối
-          </Button>
+          </Button> */}
         </Space>
       ),
     },
