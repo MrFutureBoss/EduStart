@@ -1,0 +1,27 @@
+.cancel-button {
+    background-color: rgba(248, 83, 83, 0.91);
+    color: #FFF;
+    height: 2.2rem;
+    border-style: none;
+    border-radius: 6px;
+    padding: 0 1rem;
+    font-weight: 500;
+}
+
+.cancel-button:hover {
+    background-color: rgba(255, 139, 139, 0.91);
+}
+
+.confirm-button {
+    background-color: #4CAF50;
+    color: #FFF;
+    height: 2.2rem;
+    border-style: none;
+    border-radius: 6px;
+    padding: 0 1rem;
+    font-weight: 500;
+}
+
+.confirm-button:hover {
+    background-color:  #80c982;
+}

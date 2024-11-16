@@ -318,7 +318,7 @@ const UnGroupList = () => {
             <Tabs defaultActiveKey="1">
               {groupInClass.length === 0 ? (
                 <>
-                  <TabPane tab="Xếp nhóm" key="1">
+                  <TabPane tab="Tạo nhóm" key="1">
                     <Result dndActive={true} />
                   </TabPane>
                   <TabPane tab="Quản lý nhóm" key="2" disabled>

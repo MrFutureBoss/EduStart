@@ -662,13 +662,13 @@ const SortableCards = () => {
           )}
         </div>
         <div>
-          {allGroupsCompleted ? (
+          {totalTempGroups > 0 && allGroupsCompleted ? (
             <Button
               color="primary"
               variant="solid"
               style={{
                 margin: "20px 0px",
-                display: "none",
+                display: "block",
               }}
               onClick={handleOpenUnlockManageGroup}
             >
