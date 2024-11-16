@@ -16,6 +16,7 @@ import {
   ExclamationCircleOutlined,
   ArrowLeftOutlined,
   EditOutlined,
+  BellFilled,
 } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import MaterialList from "./MaterialList";
@@ -74,24 +75,58 @@ const OutcomeDetail = () => {
   const fetchOutcomes = async (classId) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/activity/${classId}?activityType=outcome`,
+        `${BASE_URL}/activity?activityType=outcome&classId=${classId}`,
         config
       );
+      const outcomesData = Array.isArray(response.data)
+        ? response.data
+        : response.data.activities || [];
 
-      const outcomesData = response.data.activities || [];
+      const outcomesWithNames = await Promise.all(
+        outcomesData.map(async (outcome) => {
+          try {
+            const outcomeNameResponse = await axios.get(
+              `http://localhost:9999/activity/outcome-type/${outcome.outcomeId}`,
+              config
+            );
+            return {
+              ...outcome,
+              name: outcomeNameResponse.data.name || "Unknown Outcome",
+            };
+          } catch (error) {
+            console.error("Error fetching outcome name:", error);
+            return { ...outcome, name: "Unknown Outcome" };
+          }
+        })
+      );
+
       const today = moment();
 
-      const filteredOutcomes = outcomesData.filter(
-        (outcome) =>
-          outcome.classId?.className.toLowerCase() ===
-            className.toLowerCase() &&
-          today.isBetween(
-            moment(outcome.startDate),
-            moment(outcome.deadline),
-            null,
-            "[]"
-          )
-      );
+      const classMap = classList.reduce((acc, cls) => {
+        acc[cls._id] = cls.className;
+        return acc;
+      }, {});
+
+      const outcomesWithClassNames = outcomesWithNames
+        .filter((outcome) => outcome.activityType === "outcome")
+        .map((outcome) => ({
+          ...outcome,
+          className: classMap[outcome.classId] || "Unknown Class",
+        }));
+
+      const filteredOutcomes = outcomesWithClassNames.filter((outcome) => {
+        const startDate = moment(outcome.startDate);
+        const deadline = moment(outcome.deadline);
+
+        const inDateRange =
+          today.isSameOrAfter(startDate, "day") &&
+          today.isSameOrBefore(deadline, "day");
+
+        return (
+          outcome.className.toLowerCase() === className.toLowerCase() &&
+          inDateRange
+        );
+      });
 
       const outcomesWithGroups = await Promise.all(
         filteredOutcomes.map(async (outcome) => {
@@ -101,16 +136,13 @@ const OutcomeDetail = () => {
                 `${BASE_URL}/group/group-infor/${outcome.groupId}`,
                 config
               );
-
               const groupName = groupResponse.data[0]?.name;
-
               return { ...outcome, groupName };
             } catch (error) {
               console.error("Error fetching group name:", error);
               return { ...outcome, groupName: "Unknown Group" };
             }
           } else {
-            console.warn("No groupId found for outcome:", outcome);
             return { ...outcome, groupName: "No Group Assigned" };
           }
         })
@@ -125,17 +157,7 @@ const OutcomeDetail = () => {
 
   const handleUpdateDeadline = async (outcomeId, newDeadline) => {
     try {
-      const currentDeadline = moment(editDeadline.deadline);
-      const maxDeadline = currentDeadline.clone().add(7, "days");
-
-      if (moment(newDeadline).isAfter(maxDeadline, "day")) {
-        message.error(
-          "Deadline must be within 7 days from the current deadline."
-        );
-        return;
-      }
-
-      await axios.patch(
+      const response = await axios.patch(
         `${BASE_URL}/activity/update-outcome/${outcomeId}`,
         { newDeadline },
         config
@@ -146,26 +168,22 @@ const OutcomeDetail = () => {
       setEditDeadline(null);
     } catch (error) {
       console.error("Error updating deadline:", error);
-      message.error("Failed to update deadline.");
+
+      if (error.response && error.response.data && error.response.data.error) {
+        message.error(error.response.data.error);
+      } else {
+        message.error("Failed to update deadline.");
+      }
     }
   };
 
   const renderOutcomes = (outcomesList, completedStatus) => {
-    if (outcomesList.length === 0) {
-      return (
-        <p style={{ padding: "10px", color: "#888" }}>
-          {completedStatus
-            ? "Chưa có nhóm nào nộp bài"
-            : "Tất cả các nhóm đã nộp"}
-        </p>
-      );
-    }
-
     return outcomesList.map((outcome, index) => {
       const deadline = moment(outcome.deadline, "YYYY-MM-DD");
       const now = moment();
+      const daysUntilDeadline = deadline.diff(now, "days");
       const isOverdue = deadline.isBefore(now, "day");
-      const isNearDeadline = deadline.diff(now, "days") <= 3 && !isOverdue;
+      const isNearDeadline = daysUntilDeadline <= 3 && daysUntilDeadline >= 0;
 
       let deadlineColor = "#1890ff";
       if (isOverdue) {
@@ -178,9 +196,10 @@ const OutcomeDetail = () => {
         <Card.Grid
           key={index}
           style={{
-            width: "50%",
+            width: "30%",
             padding: "20px",
-            marginBottom: "20px",
+            marginBottom: "10px",
+            marginRight: "10px",
             backgroundColor: completedStatus ? "#e6fffb" : "#fffbe6",
             borderLeft: completedStatus
               ? "4px solid #52c41a"
@@ -192,7 +211,7 @@ const OutcomeDetail = () => {
             column={1}
             size="small"
             title={
-              <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+              <span style={{ fontSize: "14px", fontWeight: "bold" }}>
                 {outcome.groupName || "Unnamed Group"}
               </span>
             }
@@ -208,9 +227,7 @@ const OutcomeDetail = () => {
             }
           >
             <Descriptions.Item label="Loại">
-              <span style={{ fontWeight: "500" }}>
-                {outcome.assignmentType}
-              </span>
+              <span style={{ fontWeight: "500" }}>{outcome.name}</span>
             </Descriptions.Item>
             <Descriptions.Item label="Hạn Nộp">
               <span style={{ color: deadlineColor, fontWeight: "bold" }}>
@@ -231,11 +248,23 @@ const OutcomeDetail = () => {
                 </Tooltip>
               )}
             </Descriptions.Item>
-            <Descriptions.Item label="Trạng thái">
-              <Tag color={completedStatus ? "green" : "orange"}>
-                {completedStatus ? "Đã nộp" : "Chưa nộp"}
-              </Tag>
-            </Descriptions.Item>
+            {/* Warning message in separate Descriptions.Item */}
+            {isNearDeadline && (
+              <Descriptions.Item>
+                <div
+                  style={{
+                    color: "red",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Tooltip title="Gửi lời nhắc">
+                    <BellFilled style={{ marginRight: "4px" }} />
+                  </Tooltip>
+                  <span>Chỉ còn {daysUntilDeadline} ngày tới hạn nộp!</span>
+                </div>
+              </Descriptions.Item>
+            )}
           </Descriptions>
         </Card.Grid>
       );
@@ -243,21 +272,88 @@ const OutcomeDetail = () => {
   };
 
   return (
-    <Layout style={{ backgroundColor: "white", padding: "24px" }}>
+    <Layout style={{ padding: "24px", minHeight: "83vh" }}>
       <Divider
         style={{ textAlign: "center", marginBottom: "20px", fontSize: "40px" }}
       >
-        Quản lý Outcome
+        Tiến độ nộp outcome của lớp
       </Divider>
-      <h4 style={{ textAlign: "center", marginBottom: "30px" }}>
-        Lớp {className}
-      </h4>
+      <div>
+        <h4 style={{ marginBottom: "20px" }}>Lớp {className}</h4>
+        <Tooltip
+          title={
+            outcomes
+              .filter((o) => o.completed)
+              .map((outcome) => outcome.groupName || "Unnamed Group")
+              .join(", ") || "Chưa có nhóm nào nộp"
+          }
+        >
+          <p style={{ fontSize: "15px" }}>
+            Các nhóm đã nộp ({outcomes.filter((o) => o.completed).length}):{" "}
+            {outcomes.filter((o) => o.completed).length > 0
+              ? outcomes
+                  .filter((o) => o.completed)
+                  .map((outcome, index) => (
+                    <Tag
+                      color="green"
+                      key={index}
+                      style={{ marginBottom: "5px" }}
+                    >
+                      {outcome.groupName || "Unnamed Group"}
+                    </Tag>
+                  ))
+              : ""}
+          </p>
+        </Tooltip>
+      </div>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={24} md={9} lg={9} xl={9}>
-          <Divider orientation="left" style={{ fontSize: "18px" }}>
-            Danh sách chưa nộp
+        <Col
+          xs={24}
+          sm={24}
+          md={18}
+          lg={18}
+          xl={18}
+          style={{
+            border: "1px solid #e0e0e0",
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <Divider
+            orientation="center"
+            style={{
+              fontSize: "18px",
+              backgroundColor: "#011936",
+              color: "#dad7cd",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              padding: "8px",
+              zIndex: "20",
+              position: "relative",
+              bottom: "1.8rem",
+              borderTopRightRadius: "8px",
+              borderTopLeftRadius: "8px",
+            }}
+          >
+            Các nhóm chưa nộp{" "}
+            <span
+              style={{
+                display: "inline-flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "24px",
+                height: "24px",
+                padding: "4px",
+                borderRadius: "50%",
+                backgroundColor: "red",
+                color: "white",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
+            >
+              {outcomes.filter((o) => !o.completed).length}
+            </span>
           </Divider>
-          <Card bordered={false}>
+          <Card bordered={false} style={{ backgroundColor: "#f5f5f5" }}>
             {renderOutcomes(
               outcomes.filter((o) => !o.completed),
               false
@@ -265,20 +361,8 @@ const OutcomeDetail = () => {
           </Card>
         </Col>
 
-        <Col xs={24} sm={24} md={9} lg={9} xl={9}>
-          <Divider orientation="left" style={{ fontSize: "18px" }}>
-            Danh sách đã nộp
-          </Divider>
-          <Card bordered={false}>
-            {renderOutcomes(
-              outcomes.filter((o) => o.completed),
-              true
-            )}
-          </Card>
-        </Col>
-
         <Col xs={24} sm={24} md={6} lg={6} xl={6}>
-          <Card bordered={false}>
+          <Card bordered={false} style={{ backgroundColor: "#f5f5f5" }}>
             <MaterialList selectedClassId={classId} />
           </Card>
         </Col>
@@ -287,7 +371,7 @@ const OutcomeDetail = () => {
         type="link"
         icon={<ArrowLeftOutlined />}
         onClick={() => navigate("/teacher-dashboard/class")}
-        style={{ fontSize: "16px", color: "#1890ff" }}
+        style={{ fontSize: "16px", color: "#1890ff", float: "left" }}
       >
         Quay trở lại lớp học
       </Button>

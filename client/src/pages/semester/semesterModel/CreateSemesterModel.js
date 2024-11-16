@@ -1,15 +1,31 @@
 // CreateSemesterModal.jsx
-import React, { useEffect } from "react";
-import { Modal, Form, Input, DatePicker, Button } from "antd";
+import React, { useEffect, useState } from "react";
+import { Modal, Form, Input, DatePicker, Button, Space } from "antd";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 const CreateSemesterModal = ({ visible, onOk, onCancel, apiErrors }) => {
   const [form] = Form.useForm();
+  const [outcomes, setOutcomes] = useState([
+    { name: "Outcome 1" },
+    { name: "Outcome 2" },
+    { name: "Outcome 3" },
+  ]);
+
+  const addOutcome = () => {
+    const newOutcome = { name: `Outcome ${outcomes.length + 1}` };
+    setOutcomes([...outcomes, newOutcome]);
+  };
+
+  const removeOutcome = (index) => {
+    const updatedOutcomes = outcomes.filter((_, i) => i !== index);
+    setOutcomes(updatedOutcomes);
+  };
 
   useEffect(() => {
     if (apiErrors) {
@@ -21,17 +37,33 @@ const CreateSemesterModal = ({ visible, onOk, onCancel, apiErrors }) => {
     }
   }, [apiErrors, form]);
 
+  // const handleOk = () => {
+  //   form
+  //     .validateFields()
+  //     .then((values) => {
+  //       onOk({
+  //         ...values,
+  //         startDate: values.startDate.toISOString(),
+  //         endDate: values.endDate.toISOString(),
+  //       });
+  //     })
+  //     .catch((info) => {});
+  // };
   const handleOk = () => {
     form
       .validateFields()
       .then((values) => {
-        onOk({
+        const newSemester = {
           ...values,
           startDate: values.startDate.toISOString(),
           endDate: values.endDate.toISOString(),
-        });
+          outcomes,
+        };
+        onOk(newSemester);
       })
-      .catch((info) => {});
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
   };
 
   return (
@@ -170,6 +202,80 @@ const CreateSemesterModal = ({ visible, onOk, onCancel, apiErrors }) => {
             style={{ width: "100%" }}
             placeholder="Chọn ngày kết thúc"
           />
+        </Form.Item>
+
+        <Form.Item label="Số lượng Outcome">
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              justifyContent: "flex-start",
+            }}
+          >
+            {outcomes.map((outcome, index) => (
+              <div
+                key={index}
+                style={{
+                  position: "relative",
+                  padding: "2px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: "8px",
+                  backgroundColor: "#fafafa",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  whiteSpace: "nowrap",
+                  width: "auto",
+                  minWidth: "60px",
+                }}
+              >
+                <Input
+                  value={outcome.name}
+                  onChange={(e) => {
+                    const updatedOutcomes = [...outcomes];
+                    updatedOutcomes[index].name = e.target.value;
+                    setOutcomes(updatedOutcomes);
+                  }}
+                  placeholder={`Outcome ${index + 1}`}
+                  style={{
+                    textAlign: "center",
+                    border: "none",
+                    width: "100%",
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
+                    padding: 0,
+                  }}
+                />
+                {outcomes.length > 1 && (
+                  <Button
+                    type="text"
+                    size="small"
+                    style={{
+                      position: "absolute",
+                      top: "2px",
+                      right: "2px",
+                      color: "red",
+                      fontWeight: "bold",
+                      padding: "0",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => removeOutcome(index)}
+                  >
+                    X
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+          <Button
+            type="dashed"
+            onClick={addOutcome}
+            style={{ marginTop: 16 }}
+            icon={<PlusOutlined />}
+          >
+            Thêm Outcome
+          </Button>
         </Form.Item>
       </Form>
     </Modal>
