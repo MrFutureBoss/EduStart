@@ -242,8 +242,25 @@ const getProjectByGroupId = async (groupId) => {
 };
 
 const getGroupsByClassId = async (classId) => {
-  return await Group.find({ classId: mongoose.Types.ObjectId(classId) });
+  try {
+    if (!mongoose.isValidObjectId(classId)) {
+      throw new Error("Invalid classId format");
+    }
+
+    const objectIdClassId = new mongoose.Types.ObjectId(classId);
+
+    const groups = await Group.find({ classId: objectIdClassId })
+      .populate("projectId")
+      .populate("classId")
+      .exec();
+
+    return { message: "Groups fetched successfully", groups };
+  } catch (error) {
+    console.error("Error fetching groups by classId:", error);
+    throw new Error(`Failed to fetch groups for classId: ${error.message}`);
+  }
 };
+
 const getGroupsByClassIds = async (classIds) => {
   try {
     return await Group.find({ classId: { $in: classIds } });
@@ -252,6 +269,36 @@ const getGroupsByClassIds = async (classIds) => {
     throw error;
   }
 };
+
+const getAllUserByClassId = async (classId) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(classId)) {
+      throw new Error("Invalid classId format");
+    }
+
+    // Find all users with the specified classId and include groupId details
+    const students = await User.find({
+      classId: new mongoose.Types.ObjectId(classId),
+    })
+      .populate({
+        path: "groupId", // Populate group details if needed
+        select: "name description status", // Choose the fields to include from the Group
+      })
+      .exec();
+
+    const total = students.length;
+
+    return {
+      message: "Users fetched successfully",
+      students,
+      total,
+    };
+  } catch (error) {
+    console.error("Error fetching users by classId:", error);
+    throw new Error(`Failed to fetch users for classId: ${error.message}`);
+  }
+};
+
 export default {
   checkGroupsExist,
   addUserToGroup,
@@ -264,4 +311,5 @@ export default {
   getProjectByGroupId,
   getGroupsByClassId,
   getGroupsByClassIds,
+  getAllUserByClassId,
 };

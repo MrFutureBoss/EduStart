@@ -3,6 +3,7 @@ import userController from "../controllers/userController/index.js";
 import { verifyAccessToken, authorize } from "../utilities/jwt.js";
 
 const userRouters = express.Router();
+userRouters.get("/class/:classId", verifyAccessToken, userController.getAllStudentByClassId);
 userRouters.get("/profile", verifyAccessToken, userController.userProfile);
 userRouters.get("/:id", verifyAccessToken, userController.findUserById);
 userRouters.post("/login", userController.getUserLogin);

@@ -17,20 +17,21 @@
 }
 
 .modal-title-custom {
-  background-color: #1677ff;
-  color: white;
-  font-size: 26px;
-  font-weight: bold;
-  text-align: center;
-  padding: 20px 40px;
-  border-radius: 25px;
-  width: 70%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  top: -60px;
+    background-color: #1677FF;
+    color: white;
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+    padding: 25px 40px;
+    border-radius: 15px;
+    width: fit-content;
+    height: 1rem;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: -45px;
 }
 
 .custom-modal .modal-header {

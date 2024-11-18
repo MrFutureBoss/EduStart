@@ -15,6 +15,7 @@ import matchedRouter from "./matchedRouter.js";
 import groupRouter from "./groupRouter.js";
 import projectRouter from "./projectRouter.js";
 import mentorRouter from "./mentorRouter.js";
+import submissionRouter from "./submissionRouter.js";
 import classTransferRoutes from "./clasTransferRouter.js";
 
 const routes = {
@@ -35,6 +36,7 @@ const routes = {
   groupRouter,
   projectRouter,
   mentorRouter,
+  submissionRouter,
   classTransferRoutes,
 };
 

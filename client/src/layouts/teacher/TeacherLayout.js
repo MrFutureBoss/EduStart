@@ -25,15 +25,14 @@ const TeacherLayout = () => {
             overflow: "auto",
           }}
         >
-          <TeacherDashBoardNotification></TeacherDashBoardNotification>
+          {/* <TeacherDashBoardNotification></TeacherDashBoardNotification> */}
           <Content
             className="site-layout-background"
             style={{
               padding: 30,
-              // margin: "24px 16px 0",
               overflow: "initial",
               minHeight: 280,
-              background: "#FFF",
+              background: "#F5F5F5",
             }}
           >
             <Outlet />

@@ -9,8 +9,6 @@ import {
   InputNumber,
   message,
   Row,
-  Select,
-  Switch,
 } from "antd";
 import SmallModal from "../../components/Modal/SmallModal.jsx";
 import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
@@ -22,17 +20,17 @@ import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setRuleToJoin } from "../../redux/slice/SettingCreateGroup.js";
+import AddButton from "../../components/Button/AddButton.jsx";
+import CancelButton from "../../components/Button/CancelButton.jsx";
 
 const CreateGroup = ({ classId, show, close }) => {
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   // const userId = localStorage.getItem("userId");
-
+  const [averageMembers, setAverageMembers] = useState(5);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [form] = Form.useForm();
   dayjs.locale("vi");
-
-  const ruleJoin = useSelector((state) => state.settingCreateGroup.rulejoins);
   const totalWaitUsers = useSelector((state) => state.tempGroup.waittotal || 0);
 
   const config = useMemo(
@@ -88,7 +86,7 @@ const CreateGroup = ({ classId, show, close }) => {
         createGroupSettingData: {
           classId: classId,
           deadline: deadline.toISOString(),
-          autoFinish: autoFinish,
+          autoFinish: true,
           status: false,
           ruleJoin: [ruleId],
         },
@@ -124,6 +122,14 @@ const CreateGroup = ({ classId, show, close }) => {
     }
   };
 
+  const handleGroupCountChange = (value) => {
+    if (!value || value <= 0) {
+      setAverageMembers(0); // Nếu không có giá trị hợp lệ, đặt lại 0
+    } else {
+      setAverageMembers(Math.floor(totalWaitUsers / value)); // Cập nhật trung bình
+    }
+  };
+
   const handleConfirmSubmit = () => {
     setShowConfirmModal(true);
   };
@@ -151,40 +157,12 @@ const CreateGroup = ({ classId, show, close }) => {
             maxWidth: 800,
           }}
           form={form}
-          onFinish={handleSubmit} // Sử dụng onFinish để xử lý submit form
+          onFinish={handleSubmit} 
           initialValues={{
             autoFinish: false,
             groupCount: 5,
           }}
         >
-          {/* <Form.Item
-            name="ruleJoin"
-            label={
-              <p
-                className="remove-default-style-p"
-                style={{ fontWeight: "600" }}
-              >
-                Chọn điều kiện tham gia mỗi nhóm
-              </p>
-            }
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng chọn điều kiện tham gia nhóm",
-              },
-            ]}
-          >
-            <Select style={{ width: "11rem" }}>
-              <Select.Option value="">Không có</Select.Option>
-              {ruleJoin.length > 0 &&
-                ruleJoin.map((rj) => (
-                  <Select.Option key={rj?._id} value={rj?._id}>
-                    {rj?.title}
-                  </Select.Option>
-                ))}
-            </Select>
-          </Form.Item> */}
-
           <Form.Item
             name="groupCount"
             label={
@@ -192,22 +170,48 @@ const CreateGroup = ({ classId, show, close }) => {
                 className="remove-default-style-p"
                 style={{ fontWeight: "600" }}
               >
-                Chọn số lượng nhóm
+                Chọn số nhóm
               </p>
             }
             rules={[{ required: true, message: "Vui lòng chọn số lượng nhóm" }]}
           >
-            <InputNumber min={3} max={10} prefix={<TeamOutlined />} />
+            <InputNumber
+              min={3}
+              max={10}
+              style={{ width: "4rem" }}
+              onChange={handleGroupCountChange}
+            />
           </Form.Item>
-
+          <div style={{marginBottom:'2rem'}}>
+            <small
+              style={{ fontSize: "12px", color: "#888", lineHeight: "1.4" }}
+            >
+              {/* Nếu bạn chọn{" "}
+              <span style={{ fontWeight: "600", color: "#1890ff" }}>
+                {form.getFieldValue("groupCount")}
+              </span>{" "} */}
+              Với sĩ số {totalWaitUsers} thì trung bình mỗi nhóm có{" "}
+              <span style={{ fontWeight: "600", color: "#1890ff" }}>
+                {averageMembers}
+              </span>{" "}
+              thành viên
+            </small>
+          </div>
           <Form.Item
             name="deadline"
-            label="Chọn thời gian kết thúc"
+            label={
+              <p
+                className="remove-default-style-p"
+                style={{ fontWeight: "600" }}
+              >
+                Chọn thời gian kết thúc
+              </p>
+            }
             rules={[{ required: true, message: "Vui lòng chọn ngày kết thúc" }]}
           >
             <ConfigProvider locale={locale}>
               <DatePicker
-                placeholder="VD: 2024-08-23"
+                placeholder="2024-08-23"
                 disabledDate={disabledDate}
                 showToday={false}
                 format="YYYY-MM-DD"
@@ -224,8 +228,7 @@ const CreateGroup = ({ classId, show, close }) => {
               />
             </ConfigProvider>
           </Form.Item>
-
-          <Form.Item
+          {/* <Form.Item
             name="autoFinish"
             valuePropName="checked"
             label={
@@ -238,7 +241,7 @@ const CreateGroup = ({ classId, show, close }) => {
             }
           >
             <Switch />
-          </Form.Item>
+          </Form.Item> */}
         </Form>
       </Col>
     </Row>
@@ -246,12 +249,8 @@ const CreateGroup = ({ classId, show, close }) => {
 
   const modalFooter = (
     <div style={{ display: "flex", gap: "1rem", justifyContent: "end" }}>
-      <Button color="primary" variant="solid" onClick={handleConfirmSubmit}>
-        <PlusOutlined /> Tạo
-      </Button>
-      <Button color="danger" variant="solid" onClick={handleClose}>
-        Thoát
-      </Button>
+      <AddButton content="Tạo"  onClick={handleConfirmSubmit}/>
+      <CancelButton content="Thoát" onClick={handleClose}/>
     </div>
   );
 

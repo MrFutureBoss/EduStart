@@ -178,6 +178,29 @@ const changePassword = async (email, oldPassword, newPassword) => {
   }
 };
 
+const getAllStudentByClassId = async (classId, limit, skip) => {
+  try {
+    const query = User.find({
+      role: 4,
+      classId: classId,
+    }).populate("classId", "className");
+
+    if (limit !== null) query.limit(limit);
+    if (skip !== null) query.skip(skip);
+
+    const students = await query;
+
+    const total = await User.countDocuments({
+      role: 4,
+      classId: classId,
+    });
+
+    return { students, total };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export default {
   loginUser,
   findUserByEmail,
@@ -185,4 +208,5 @@ export default {
   findUserById,
   updateUserPassword,
   changePassword,
+  getAllStudentByClassId,
 };

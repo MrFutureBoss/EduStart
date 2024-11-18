@@ -13,6 +13,11 @@ import {
   Pagination,
   Tooltip,
   Select,
+  Drawer,
+  Button,
+  Dropdown,
+  Menu,
+  Tag,
 } from "antd";
 import {
   DndContext,
@@ -22,6 +27,7 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -40,8 +46,24 @@ import Search from "antd/es/transfer/search";
 import { useParams } from "react-router-dom";
 import avatarImage from "../../../assets/images/459233558_122150574488258176_5118808073589257292_n.jpg";
 import Highlighter from "react-highlight-words";
+import { SortableItem2 } from "./SortableItem2";
+import {
+  DragOutlined,
+  EditOutlined,
+  FileSearchOutlined,
+  FilterOutlined,
+  FormOutlined,
+  PauseCircleOutlined,
+  PlusCircleOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import SmallModal from "../../../components/Modal/SmallModal";
+import AddStudent from "../AddStudent";
+import CreateGroup from "../CreateGroup";
+import { MdAutoFixHigh, MdAutoFixOff } from "react-icons/md";
+import LastConfirmGroup from "../LastConfirmGroup";
 
-const SortableCards = ({ dndActive }) => {
+const SortableCards = () => {
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const config = useMemo(
@@ -66,7 +88,17 @@ const SortableCards = ({ dndActive }) => {
   const [searchText, setSearchText] = useState("");
   const [tempGroupSearchText, setTempGroupSearchText] = useState("");
   const [selectedGroups, setSelectedGroups] = useState([]);
+  const [selectedMajors, setSelectedMajors] = useState([]);
   const [maxStudentMap, setMaxStudentMap] = useState({});
+  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
+  const [drawerGroupKey, setDrawerGroupKey] = useState(null);
+  const [maxStudentInGroup, setMaxStudentInGroup] = useState(0);
+  const [currentStudentsInGroup, setCurrentStudentsInGroup] = useState(0);
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
+  const [openManagementGroup, setOpenManagementGroup] = useState(false);
+  const [dndActive, setDndActive] = useState(false);
+
   //Phân trang
   const [currentPage, setCurrentPage] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
@@ -130,7 +162,7 @@ const SortableCards = ({ dndActive }) => {
     };
 
     fetchGroups();
-  }, [classId, config, dispatch]);
+  }, [classId, config, dispatch, isShowModal]);
 
   //Danh sách những sinh viên chưa join vào nhóm
   useEffect(() => {
@@ -158,16 +190,68 @@ const SortableCards = ({ dndActive }) => {
     };
 
     fetchUserData();
-  }, [classId, config, currentPage, pageSize, dispatch]);
+  }, [classId, config, currentPage, pageSize, dispatch, isShowModal]);
+
+  const fetchWaitUserList = async (limit = 6, skip = 0) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/class/ungroup/${classId}`, {
+        ...config,
+        params: { limit, skip },
+      });
+
+      if (response.data) {
+        // Confirm data structure is as expected
+        dispatch(setWaitUserList(response.data?.data));
+        dispatch(setTotalWaitUsers(response.data?.total));
+        console.log("Data successfully dispatched to store.");
+      } else {
+        console.warn(
+          "Warning: Response does not contain expected data structure."
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching wait user list:", error);
+    }
+  };
+
+  const fetchGroups = async () => {
+    if (!classId) return;
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/tempgroup/class/${classId}`,
+        config
+      );
+      dispatch(setTempGroups(response.data?.data));
+      dispatch(setTotalTempGroups(response.data?.total));
+
+      const maxStudentData = response.data?.data.reduce((acc, group) => {
+        acc[group.groupName] = group.maxStudent || 0;
+        return acc;
+      }, {});
+
+      setMaxStudentMap(maxStudentData);
+
+      const groupData = response.data?.data.reduce((acc, group) => {
+        acc[group.groupName] = group.userIds;
+        return acc;
+      }, {});
+
+      setData(groupData);
+      setPreviousData(groupData);
+    } catch (error) {
+      console.error(
+        error.response ? error.response.data.message : error.message
+      );
+    }
+  };
 
   const tempGroups = useSelector((state) => state.tempGroup.data || []);
+  const totalTempGroups = useSelector((state) => state.tempGroup.total || 0);
+
   const waitUserList = useSelector(
     (state) => state.tempGroup.waituserlist || []
   );
   const totalWaitUsers = useSelector((state) => state.tempGroup.waittotal || 0);
-
-  // console.log("group yet: " + JSON.stringify(tempGroups));
-  // console.log("Ungroup yet: " + JSON.stringify(waitUserList));
 
   const onPageChange = (pageNumber) => {
     console.log(`Changing to page: ${pageNumber}`);
@@ -207,99 +291,192 @@ const SortableCards = ({ dndActive }) => {
     );
   };
 
-  // Handle Confirm Changes
-  const handleConfirm = async () => {
+  const uniqueMajors = Array.from(
+    new Set(
+      tempGroups.flatMap((group) => group.userIds.map((user) => user.major)) // Lấy tất cả majors
+    )
+  );
+
+  const Dropzone = ({ id, onDrop, children }) => {
+    const { setNodeRef, isOver } = useDroppable({ id });
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={{
+          backgroundColor: isOver ? "#f0f0f0" : "transparent",
+          transition: "background-color 0.2s ease",
+        }}
+        onDrop={onDrop}
+      >
+        {children}
+      </div>
+    );
+  };
+
+  const handleDrop = (droppedItemId, groupKey) => {
+    const droppedUser = waitUserList.find((user) => user._id === droppedItemId);
+    if (droppedUser) {
+      setData((prevData) => ({
+        ...prevData,
+        [groupKey]: [...prevData[groupKey], droppedUser],
+      }));
+    }
+  };
+
+  const handleOpenModal = (groupKey, maxStudent, currentStudentCount) => {
+    setDrawerGroupKey(groupKey);
+    setMaxStudentInGroup(maxStudent);
+    setCurrentStudentsInGroup(currentStudentCount);
+    setIsShowModal(true);
+    setDndActive(false);
+  };
+
+  const handleCloseModal = () => {
+    setIsShowModal(false);
+  };
+
+  const handleOpenDrawer = (groupKey) => {
+    setDrawerGroupKey(groupKey);
+    setIsOpenDrawer(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsOpenDrawer(false);
+    setDrawerGroupKey(null);
+  };
+
+  const handleRemoveUser = async (userId) => {
+    const group = tempGroups.find((grp) => grp.groupName === drawerGroupKey);
+    if (!group) {
+      message.error("Không tìm thấy nhóm.");
+      return;
+    }
+
+    const groupId = group._id;
+
     try {
-      // Only update actual groups in the database, ignoring `waitUserList`
-      const groupRequests = Object.entries(data).map(([groupName, users]) => {
-        const groupId = tempGroups.find(
-          (group) => group.groupName === groupName
-        )?._id;
-        if (groupId) {
-          return axios.put(
-            `${BASE_URL}/tempgroup/${groupId}`,
-            { userIds: users.map((user) => user._id) },
-            config
-          );
-        }
-        return null;
-      });
+      const updatedUserIds = data[drawerGroupKey]
+        .filter((user) => user._id !== userId)
+        .map((user) => user._id);
 
-      await Promise.all(groupRequests.filter(Boolean));
-      message.success("Cập nhật thành công!");
-
-      // Update Redux with the latest groups data
-      dispatch(
-        setTempGroups(
-          Object.entries(data).map(([groupName, users]) => ({
-            groupName,
-            userIds: users,
-            _id: tempGroups.find((group) => group.groupName === groupName)?._id,
-          }))
-        )
+      console.log("Updating user IDs:", updatedUserIds);
+      const response = await axios.put(
+        `${BASE_URL}/tempgroup/${groupId}`,
+        { userIds: updatedUserIds, status: false },
+        config
       );
+
+      if (response.status === 200) {
+        setData((prevData) => ({
+          ...prevData,
+          [drawerGroupKey]: prevData[drawerGroupKey].filter(
+            (user) => user._id !== userId
+          ),
+        }));
+        message.success("Đã rời nhóm thành công!");
+        await fetchWaitUserList(6, 0);
+        await fetchGroups();
+      } else {
+        console.error("Unexpected response:", response);
+        message.error("Có lỗi xảy ra khi rời nhóm.");
+      }
     } catch (error) {
-      console.error("Lỗi khi cập nhật:", error.message || error);
-      setData(previousData);
-      message.error("Hoàn tác thay đổi do lỗi cập nhật");
-    } finally {
-      setIsConfirming(false); // Ensure Popconfirm is closed
-      setIsWaitListConfirming(false);
+      console.error(
+        "Lỗi khi rời nhóm:",
+        error.response || error.message || error
+      );
+      message.error(
+        `Có lỗi xảy ra khi rời nhóm: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  };
+  const handleOpenAddByDnD = () => {
+    setDndActive(true);
+    setIsShowModal(false);
+  };
+  const handleCloseAddByDnd = () => {
+    setDndActive(false);
+    message.info("Đã dừng chế độ kéo thả");
+  };
+  const handleOpenAddTypeModal = () => {
+    setIsModalShowTypeAdd(true);
+  };
+  const handleCloseAddTypeModal = () => {
+    setIsModalShowTypeAdd(false);
+  };
+
+  const handleOpenUnlockManageGroup = () => {
+    setOpenManagementGroup(true);
+  };
+
+  const handleCloseUnlockManageGroup = () => {
+    setOpenManagementGroup(false);
+  };
+
+  const handleAutoGroup = async () => {
+    try {
+      await axios.post(`${BASE_URL}/tempgroup/auto-fill/${classId}`, config);
+
+      dispatch(setWaitUserList([]));
+      dispatch(setTotalWaitUsers(0));
+      await fetchGroups();
+
+      message.success("Nhóm đã được ghép tự động!");
+    } catch (error) {
+      console.error("Error during auto-grouping:", error);
+      message.error("Đã xảy ra lỗi khi ghép nhóm tự động");
     }
   };
 
   const handleWaitListConfirm = async () => {
     setIsWaitListConfirming(false);
     try {
-      // Map over each group and perform an update request, allowing empty user arrays
       const groupRequests = Object.entries(data).map(
         async ([groupName, users]) => {
           const groupId = tempGroups.find(
             (group) => group.groupName === groupName
           )?._id;
+          const status = users.length === maxStudentMap[groupName];
+
           if (groupId !== undefined) {
             await axios.put(
               `${BASE_URL}/tempgroup/${groupId}`,
-              { userIds: users.map((user) => user._id) }, // Allows empty arrays to be passed
+              { userIds: users.map((user) => user._id), status },
               config
             );
           }
         }
       );
 
-      // Wait for all updates to complete
       await Promise.all(groupRequests);
 
-      // Fetch updated waitUserList data only
-      const waitListResponse = await axios.get(
-        `${BASE_URL}/class/ungroup/${classId}`,
-        config
-      );
+      // const waitListResponse = await axios.get(
+      //   `${BASE_URL}/class/ungroup/${classId}`,
+      //   config
+      // );
 
-      // Update Redux with the latest waitUserList
-      dispatch(setWaitUserList(waitListResponse.data.data));
-      dispatch(setTotalWaitUsers(waitListResponse.data.total));
+      // dispatch(setWaitUserList(waitListResponse.data.data));
+      // dispatch(setTotalWaitUsers(waitListResponse.data.total));
 
-      // Show success message regardless of empty or non-empty data
+      await fetchWaitUserList(6, 0);
+      await fetchGroups();
+
       message.success("Danh sách đã cập nhật lại");
     } catch (error) {
       console.error("Error updating waitUserList:", error.message || error);
       message.success("Danh sách đã cập nhật lại");
     } finally {
-      setIsWaitListConfirming(false); // Ensure Popconfirm is closed
+      setIsWaitListConfirming(false);
     }
   };
 
   const handleCancel = async () => {
-    // Fetch updated waitUserList data only
-    const waitListResponse = await axios.get(
-      `${BASE_URL}/class/ungroup/${classId}`,
-      config
-    );
-
-    // Update Redux with the latest waitUserList
-    dispatch(setWaitUserList(waitListResponse.data.data));
-    dispatch(setTotalWaitUsers(waitListResponse.data.total));
+    // Fetch data
+    await fetchWaitUserList();
+    await fetchGroups();
 
     setIsConfirming(false);
     setIsWaitListConfirming(false);
@@ -317,6 +494,7 @@ const SortableCards = ({ dndActive }) => {
     if (item) {
       setActiveItem(item);
       message.info(`Đang giữ thẻ: ${item.username}`);
+      message.info("Thả vào nhóm để thêm sinh viên vào nhóm đó");
     }
   };
 
@@ -337,6 +515,16 @@ const SortableCards = ({ dndActive }) => {
 
     if (!itemToMove) return;
 
+    // Kiểm tra nếu nhóm đã đầy thì không cho thả
+    const maxStudent = maxStudentMap[overContainer];
+    const currentStudentCount = data[overContainer]?.length || 0;
+
+    if (currentStudentCount >= maxStudent) {
+      message.warning("Nhóm đã đầy, không thể thêm thành viên.");
+      return;
+    }
+
+    // Thực hiện thao tác kéo thả nếu nhóm không đầy
     if (
       activeContainer === "waitUserList" &&
       overContainer !== "waitUserList"
@@ -354,12 +542,11 @@ const SortableCards = ({ dndActive }) => {
       dispatch(setWaitUserList(updatedWaitUserList));
       dispatch(setTotalWaitUsers(updatedWaitUserList.length));
 
-      // Make sure to trigger Popconfirm
       setPopconfirmTitle(
         `Bạn muốn chuyển ${itemToMove.username} sang nhóm ${overContainer}?`
       );
       setDropTargetCard(overContainer);
-      setIsWaitListConfirming(true); // Force Popconfirm even if waitUserList is empty
+      setIsWaitListConfirming(true);
     } else if (
       overContainer === "waitUserList" &&
       activeContainer !== "waitUserList"
@@ -408,6 +595,8 @@ const SortableCards = ({ dndActive }) => {
     return aNum - bNum;
   });
 
+  const allGroupsCompleted = tempGroups.every((group) => group.status === true);
+
   return (
     <DndContext
       sensors={sensors}
@@ -415,7 +604,81 @@ const SortableCards = ({ dndActive }) => {
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
     >
-      {" "}
+      <Row>
+        <Button
+          color="primary"
+          variant="solid"
+          style={{
+            margin: "20px 0px",
+            display: totalTempGroups > 0 ? "none" : "block",
+          }}
+          onClick={handleOpenAddTypeModal}
+        >
+          + Tạo nhóm lớp
+        </Button>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          {!dndActive ? (
+            <Tooltip
+              title="Tự động ghép nhóm luôn bỏ qua deadline"
+              style={{ display: "flex", textAlign: "center" }}
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                style={{
+                  margin: "20px 0px",
+                  display:
+                    totalTempGroups <= 0 || allGroupsCompleted
+                      ? "none"
+                      : "block",
+                }}
+                onClick={handleAutoGroup}
+              >
+                <MdAutoFixHigh style={{ fontSize: "1.1rem" }} />
+                &nbsp;Tự động xếp nhóm
+              </Button>
+            </Tooltip>
+          ) : (
+            <Tooltip
+              title="Tự động xếp nhóm luôn bỏ qua deadline"
+              style={{ display: "flex", textAlign: "center" }}
+            >
+              <Button
+                color="default"
+                variant="solid"
+                disabled={true}
+                style={{
+                  margin: "20px 0px",
+                  display:
+                    totalTempGroups <= 0 || allGroupsCompleted
+                      ? "none"
+                      : "block",
+                }}
+              >
+                <MdAutoFixOff style={{ fontSize: "1.1rem" }} />
+                &nbsp;Tự động xếp nhóm
+              </Button>
+            </Tooltip>
+          )}
+        </div>
+        <div>
+          {totalTempGroups > 0 && allGroupsCompleted ? (
+            <Button
+              color="primary"
+              variant="solid"
+              style={{
+                margin: "20px 0px",
+                display: "block",
+              }}
+              onClick={handleOpenUnlockManageGroup}
+            >
+              &nbsp;Xác nhận nhóm
+            </Button>
+          ) : (
+            <></>
+          )}
+        </div>
+      </Row>
       <Row gutter={[32, 16]}>
         <Col sm={24} md={24} lg={6}>
           <Row>
@@ -453,6 +716,30 @@ const SortableCards = ({ dndActive }) => {
           <Row style={{ margin: "10px auto" }}>
             <Col sm={24}>Số lượng sinh viên chưa nhóm: {totalWaitUsers}</Col>
           </Row>
+          <Row>
+            <Col sm={24}>
+              {dndActive ? (
+                <Tooltip
+                  title="Tắt chế độ kéo thả"
+                  style={{ display: "flex", textAlign: "center" }}
+                >
+                  <Button
+                    color="danger"
+                    variant="solid"
+                    style={{
+                      margin: "10px 0px",
+                    }}
+                    onClick={handleCloseAddByDnd}
+                  >
+                    <PauseCircleOutlined style={{ fontSize: "1.1rem" }} />
+                    &nbsp;Dừng chế độ kéo thả
+                  </Button>
+                </Tooltip>
+              ) : (
+                <></>
+              )}
+            </Col>
+          </Row>
           <SortableContext
             disabled={!dndActive || isConfirming || isWaitListConfirming}
             items={
@@ -463,7 +750,10 @@ const SortableCards = ({ dndActive }) => {
             strategy={verticalListSortingStrategy}
           >
             {totalWaitUsers > 0 ? (
-              <Tooltip title={dndActive ? "Giữ và kéo để thao tác" : ""}>
+              <Tooltip
+                title={dndActive ? "Giữ và kéo để thao tác" : ""}
+                disabled={!dndActive}
+              >
                 <Popconfirm
                   title={popconfirmTitle}
                   onConfirm={handleWaitListConfirm}
@@ -482,6 +772,7 @@ const SortableCards = ({ dndActive }) => {
                         key={user._id}
                         id={`waitUserList-${user._id}`}
                         item={user}
+                        cursor={!dndActive}
                       />
                     )}
                   />
@@ -526,6 +817,7 @@ const SortableCards = ({ dndActive }) => {
               onShowSizeChange={onPageSizeChange}
               itemRender={(page, type, originalElement) => {
                 if (type === "page") {
+                  // eslint-disable-next-line jsx-a11y/anchor-is-valid
                   return <a style={{ padding: "0 4px" }}>{page}</a>;
                 }
                 return originalElement;
@@ -533,7 +825,6 @@ const SortableCards = ({ dndActive }) => {
             />
           </Row>
         </Col>
-
         <Col sm={24} md={24} lg={18}>
           <Row>
             <Col
@@ -553,17 +844,15 @@ const SortableCards = ({ dndActive }) => {
             <Col
               sm={24}
               style={{
-                marginTop: "5px",
-                marginBottom: "15px",
                 display: "flex",
-                gap: "2rem",
+                // gap: "2rem",
                 justifyContent: "center",
               }}
             >
               <Select
                 mode="multiple"
                 maxCount={6}
-                placeholder="Chọn các nhóm để xem thông tin"
+                placeholder="Chọn lọc nhóm"
                 style={{ width: "16rem" }}
                 onChange={(value) => setSelectedGroups(value)} // Update selected groups
               >
@@ -573,12 +862,6 @@ const SortableCards = ({ dndActive }) => {
                   </Select.Option>
                 ))}
               </Select>
-              <div style={{ width: "25rem" }}>
-                <Search
-                  placeholder="Nhập tên, email hoặc MSSV"
-                  onChange={(e) => setTempGroupSearchText(e.target.value)}
-                />
-              </div>
             </Col>
           </Row>
           <Row
@@ -599,86 +882,225 @@ const SortableCards = ({ dndActive }) => {
                 const users = data[groupKey] || [];
                 const maxStudent = maxStudentMap[groupKey] || 0;
                 const currentStudentCount = users.length;
+                // Tính số lượng mỗi major
+                const majorCounts = users.reduce((acc, user) => {
+                  let majorShort = "";
+                  let originalMajor = user.major; // Lưu tên major gốc
+
+                  switch (user.major) {
+                    case "Kỹ thuật phần mềm":
+                      majorShort = "SE";
+                      break;
+                    case "Ngôn ngữ Nhật":
+                      majorShort = "JL";
+                      break;
+                    case "Kinh tế":
+                      majorShort = "IB";
+                      break;
+                    case "Truyền thông đa phương tiện":
+                      majorShort = "IMC";
+                      break;
+                    default:
+                      majorShort = "Chưa xác định";
+                      originalMajor = "Không xác định";
+                  }
+
+                  if (!acc[majorShort]) {
+                    acc[majorShort] = { count: 0, originalMajor };
+                  }
+                  acc[majorShort].count += 1;
+                  return acc;
+                }, {});
+
                 return (
-                  <Col xs={24} sm={24} md={18} lg={8} key={groupKey}>
+                  <Col
+                    xs={24}
+                    sm={24}
+                    md={18}
+                    lg={16}
+                    xl={12}
+                    xxl={8}
+                    key={groupKey}
+                    // style={{ display: "flex", justifyContent: "center" }}
+                  >
                     <Card
+                      extra={
+                        <Dropdown
+                          trigger={["click"]}
+                          overlay={
+                            <Menu>
+                              <Menu.Item
+                                key="1"
+                                icon={
+                                  <FileSearchOutlined
+                                    style={{ fontSize: "1rem" }}
+                                  />
+                                }
+                                onClick={() => handleOpenDrawer(groupKey)}
+                              >
+                                <p style={{ padding: "0px", margin: "0px" }}>
+                                  Xem chi tiết
+                                </p>
+                              </Menu.Item>
+                              <Menu.SubMenu
+                                key="2"
+                                icon={
+                                  <PlusCircleOutlined
+                                    style={{ fontSize: "1rem" }}
+                                  />
+                                }
+                                disabled={totalWaitUsers === 0}
+                                title={
+                                  <p style={{ padding: "0px", margin: "0px" }}>
+                                    Thêm thành viên
+                                  </p>
+                                }
+                              >
+                                <Menu.Item
+                                  onClick={handleOpenAddByDnD}
+                                  key="2-1"
+                                  icon={
+                                    <DragOutlined
+                                      style={{ fontSize: "1rem" }}
+                                    />
+                                  }
+                                  disabled={dndActive}
+                                >
+                                  Thêm bằng kéo thả
+                                </Menu.Item>
+                                <Menu.Item
+                                  onClick={() =>
+                                    handleOpenModal(
+                                      groupKey,
+                                      maxStudent,
+                                      currentStudentCount
+                                    )
+                                  }
+                                  key="2-2"
+                                  icon={
+                                    <EditOutlined
+                                      style={{ fontSize: "1rem" }}
+                                    />
+                                  }
+                                >
+                                  Thêm bằng chọn danh sách
+                                </Menu.Item>
+                              </Menu.SubMenu>
+                            </Menu>
+                          }
+                          placement="bottom"
+                          arrow
+                        >
+                          <Tooltip title="Tùy chỉnh thẻ">
+                            <FormOutlined
+                              style={{
+                                fontSize: "1.5rem",
+                                color: "#FFF",
+                                cursor: "pointer",
+                              }}
+                            />
+                          </Tooltip>
+                        </Dropdown>
+                      }
                       title={<div className="card-groupname">{groupKey}</div>}
                       bodyStyle={{ padding: "0px" }}
                       headStyle={{
                         background:
-                          "linear-gradient(-45deg, #005241, #128066, #00524f, #008d87)",
-                        color: "white",
+                          "rgb(43,144,214) linear-gradient(322deg, rgba(43,144,214,1) 44%, rgba(7,137,223,0.804359243697479) 70%, rgba(53,131,180,1) 85%, rgba(13,123,185,0.9097222222222222) 96%)",
                       }}
                       style={{ width: "18rem" }}
                       bordered
                       className="card-groupstudents"
                     >
-                      <SortableContext
-                        disabled={
-                          !dndActive || isConfirming || isWaitListConfirming
-                        }
-                        items={
-                          data[groupKey].length > 0
-                            ? data[groupKey].map(
-                                (item) => `${groupKey}-${item._id}`
-                              )
-                            : [`${groupKey}-empty`]
-                        }
-                        strategy={verticalListSortingStrategy}
+                      {/* Dropzone to accept drops */}
+                      <Dropzone
+                        id={`${groupKey}`}
+                        onDrop={(event) => {
+                          const droppedItemId =
+                            event.dataTransfer.getData("text/plain");
+                          // Process the dropped item
+                          handleDrop(droppedItemId, groupKey); // handleDrop function to manage the state update
+                        }}
                       >
-                        {data[groupKey].length > 0 ? (
-                          <Tooltip
-                            title={dndActive ? "Giữ và kéo để thao tác" : ""}
-                          >
-                            <Popconfirm
-                              title={popconfirmTitle}
-                              onConfirm={handleConfirm}
-                              onCancel={handleCancel}
-                              visible={
-                                isConfirming && dropTargetCard === groupKey
-                              }
-                              okText="Có"
-                              cancelText="Không"
-                            >
-                              <List
-                                bordered
-                                dataSource={filteredGroupUsers(data[groupKey])}
-                                renderItem={(item) => (
-                                  <SortableItem
-                                    key={item._id}
-                                    id={`${groupKey}-${item._id}`}
-                                    item={item}
-                                  >
-                                    {" "}
-                                    <Highlighter
-                                      highlightClassName="highlight-text"
-                                      searchWords={
-                                        tempGroupSearchText
-                                          ? [tempGroupSearchText]
-                                          : []
-                                      }
-                                      autoEscape={true}
-                                      textToHighlight={`${item.username} (${item.email}) (${item.rollNumber})`}
-                                    />
-                                  </SortableItem>
-                                )}
-                              />
-                            </Popconfirm>
-                          </Tooltip>
+                        {users.length > 0 ? (
+                          <List
+                            bordered
+                            dataSource={[users]}
+                            renderItem={(item) => (
+                              <div
+                                key={item._id}
+                                style={{
+                                  padding: "8px",
+                                }}
+                              >
+                                <span style={{ fontWeight: "600" }}>
+                                  {" "}
+                                  Thành viên:{" "}
+                                </span>
+                                <span
+                                  style={{
+                                    color:
+                                      currentStudentCount < maxStudent
+                                        ? "red"
+                                        : "green",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  {currentStudentCount}
+                                </span>
+                                /
+                                <span style={{ fontWeight: "500" }}>
+                                  {maxStudent}{" "}
+                                  <UserOutlined style={{ fontWeight: "500" }} />
+                                </span>
+                                <div style={{ fontWeight: "600" }}>
+                                  Chuyên ngành:{" "}
+                                  {Object.entries(majorCounts).map(
+                                    ([major, info]) => (
+                                      <Tooltip
+                                        key={major}
+                                        title={
+                                          <p>
+                                            Có {info.count} thành viên chuyên
+                                            ngành {info.originalMajor}
+                                          </p>
+                                        }
+                                      >
+                                        <Tag
+                                          color="#108ee9"
+                                          style={{ height: "fit-content" }}
+                                        >
+                                          <span
+                                            style={{
+                                              borderRight: "1px solid #FFF",
+                                              paddingRight: "0.4rem",
+                                            }}
+                                          >
+                                            {major}
+                                          </span>
+                                          <span
+                                            style={{
+                                              paddingLeft: "0.3rem",
+                                            }}
+                                          >
+                                            {info.count} <UserOutlined />
+                                          </span>
+                                        </Tag>
+                                      </Tooltip>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          />
                         ) : (
-                          <SortableItem
-                            id={`${groupKey}-empty`}
-                            item={
-                              <Empty
-                                description="Chưa có ai trong nhóm này"
-                                style={{ padding: "20px" }}
-                              />
-                            }
+                          <Empty
+                            description="Chưa có ai trong nhóm này"
+                            style={{ padding: "20px" }}
                           />
                         )}
-                      </SortableContext>
+                      </Dropzone>
 
-                      {/* Footer div for showing student count */}
                       <div
                         className="cardbody-numberstudent"
                         style={{
@@ -686,18 +1108,16 @@ const SortableCards = ({ dndActive }) => {
                           fontWeight: "bold",
                         }}
                       >
-                        <span>Số lượng sinh viên trong nhóm: </span>
-                        <span
-                          style={{
-                            color:
-                              currentStudentCount < maxStudent
-                                ? "red"
-                                : "green",
-                          }}
-                        >
-                          {currentStudentCount}
-                        </span>
-                        /<span>{maxStudent}</span>
+                        <span>Tình trạng nhóm: </span>
+                        {currentStudentCount < maxStudent ? (
+                          <span style={{ color: "red" }}>
+                            Chưa đủ thành viên
+                          </span>
+                        ) : (
+                          <span style={{ color: "green" }}>
+                            Đã đủ thành viên
+                          </span>
+                        )}
                       </div>
                     </Card>
                   </Col>
@@ -716,6 +1136,8 @@ const SortableCards = ({ dndActive }) => {
               background: "#fff",
               border: "1px solid #ddd",
               borderRadius: "4px",
+              // width: "fit-content",
+              cursor: "grab",
             }}
           >
             <Avatar
@@ -727,13 +1149,105 @@ const SortableCards = ({ dndActive }) => {
               <p style={{ padding: "0px", margin: "0px" }}>
                 {activeItem.username}
               </p>
-              <p style={{ padding: "0px", margin: "0px" }}>
-                {activeItem.email}
-              </p>
             </div>
           </div>
         ) : null}
       </DragOverlay>
+
+      <CreateGroup
+        classId={classId}
+        show={isModalShowTypeAdd}
+        close={handleCloseAddTypeModal}
+      />
+
+      <AddStudent
+        groupKey={drawerGroupKey}
+        maxStudent={maxStudentInGroup}
+        currentStudents={currentStudentsInGroup}
+        show={isShowModal}
+        close={handleCloseModal}
+      />
+
+      <LastConfirmGroup
+        show={openManagementGroup}
+        close={handleCloseUnlockManageGroup}
+      />
+
+      <Drawer
+        title={`Danh sách thành viên - ${drawerGroupKey}`}
+        onClose={handleCloseDrawer}
+        open={isOpenDrawer}
+        bodyStyle={{ padding: "0px" }}
+        width={450}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "5px",
+            marginBottom: "10px",
+          }}
+        >
+          <Select
+            mode="multiple"
+            maxCount={6}
+            placeholder="Chọn chuyên ngành"
+            onChange={(value) => setSelectedMajors(value)}
+            style={{ width: "10rem" }}
+          >
+            {uniqueMajors.map((major) => (
+              <Select.Option key={major} value={major}>
+                {major}
+              </Select.Option>
+            ))}
+          </Select>
+          <div style={{ width: "15rem" }}>
+            <Search
+              placeholder="Nhập tên, email hoặc MSSV"
+              onChange={(e) => setTempGroupSearchText(e.target.value)}
+            />
+          </div>
+        </div>
+        <List
+          bordered
+          dataSource={
+            drawerGroupKey ? filteredGroupUsers(data[drawerGroupKey]) : []
+          }
+          renderItem={(item) => (
+            <List.Item key={item._id} className="list-drawer">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  width: "17rem",
+                  alignItems: "center",
+                }}
+              >
+                <Avatar src={avatarImage} />
+                <div style={{ width: "13rem", lineHeight: "1rem" }}>
+                  <div style={{ fontWeight: "700" }}>
+                    {item.username} - {item.rollNumber}
+                  </div>
+                  <div style={{ fontSize: "0.7rem" }}>
+                    Chuyên ngành: {item.major}
+                  </div>
+                  <div style={{ fontSize: "0.7rem" }}>{item.email}</div>
+                </div>
+              </div>
+              <Popconfirm
+                title={`Bạn có chắc chắn cho ${item.username} rời nhóm không?`}
+                onConfirm={() => handleRemoveUser(item._id)}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button color="danger" variant="outlined">
+                  Rời nhóm
+                </Button>
+              </Popconfirm>
+            </List.Item>
+          )}
+        />
+      </Drawer>
     </DndContext>
   );
 };
