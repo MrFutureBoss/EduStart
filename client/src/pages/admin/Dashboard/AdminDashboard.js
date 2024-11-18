@@ -341,58 +341,71 @@ const AdminDashboard = () => {
 
         switch (record.key) {
           case "addStudents": {
-            const requiredClasses = Math.ceil(taskDetails.studentCount / 30);
-            const requiredTeachers = requiredClasses;
-
-            if (taskDetails.teacherCount > requiredClasses) {
-              const neededClasses = taskDetails.teacherCount;
-              const neededStudents =
-                neededClasses * 30 - taskDetails.studentCount;
-              requirementMessage += `Cần thêm ${neededStudents} học sinh để đủ 30 học sinh mỗi lớp cho ${taskDetails.teacherCount} giáo viên.`;
-            } else if (taskDetails.teacherCount < requiredClasses) {
+            if (taskDetails.studentCount === 0) {
               isBalanced = false;
-              requirementMessage += `Cần thêm ${
-                requiredClasses - taskDetails.teacherCount
-              } giáo viên để đủ cho ${requiredClasses} lớp hiện tại.`;
-            }
+              requirementMessage += `Chưa có sinh viên nào được thêm vào kỳ học.`;
+            } else {
+              // Existing logic
+              const requiredClasses = Math.ceil(taskDetails.studentCount / 30);
+              const requiredTeachers = requiredClasses;
 
-            if (taskDetails.studentsWithoutClass > 0) {
-              isBalanced = false;
-              requirementMessage += ` Có ${taskDetails.studentsWithoutClass} học sinh chưa có lớp.`;
+              if (taskDetails.teacherCount > requiredClasses) {
+                const neededClasses = taskDetails.teacherCount;
+                const neededStudents =
+                  neededClasses * 30 - taskDetails.studentCount;
+                requirementMessage += `Cần thêm ${neededStudents} học sinh để đủ 30 học sinh mỗi lớp cho ${taskDetails.teacherCount} giáo viên.`;
+              } else if (taskDetails.teacherCount < requiredClasses) {
+                isBalanced = false;
+                requirementMessage += `Cần thêm ${
+                  requiredClasses - taskDetails.teacherCount
+                } giáo viên để đủ cho ${requiredClasses} lớp hiện tại.`;
+              }
+
+              if (taskDetails.studentsWithoutClass > 0) {
+                isBalanced = false;
+                requirementMessage += ` Có ${taskDetails.studentsWithoutClass} học sinh chưa có lớp.`;
+              }
             }
             break;
           }
 
           case "addTeachers": {
-            const requiredClasses = Math.ceil(taskDetails.studentCount / 30);
-            if (taskDetails.teacherCount < requiredClasses) {
+            if (taskDetails.teacherCount === 0) {
               isBalanced = false;
-              requirementMessage += `Cần thêm ${
-                requiredClasses - taskDetails.teacherCount
-              } giáo viên để đủ cho ${requiredClasses} lớp.`;
+              requirementMessage += `Chưa có giáo viên nào được thêm vào kỳ học.`;
+            } else {
+              // Existing logic
+              const requiredClasses = Math.ceil(taskDetails.studentCount / 30);
+              if (taskDetails.teacherCount < requiredClasses) {
+                isBalanced = false;
+                requirementMessage += `Cần thêm ${
+                  requiredClasses - taskDetails.teacherCount
+                } giáo viên để đủ cho ${requiredClasses} lớp.`;
+              }
             }
             break;
           }
 
           case "addMentors": {
-            const totalRequiredGroups = Math.ceil(taskDetails.studentCount / 5);
-            const requiredMentors = Math.ceil(totalRequiredGroups / 2);
-
-            if (taskDetails.mentorCount < requiredMentors) {
+            if (taskDetails.mentorCount === 0) {
               isBalanced = false;
-              requirementMessage += `Cần thêm ${
-                requiredMentors - taskDetails.mentorCount
-              } mentor để hỗ trợ các nhóm.`;
+              requirementMessage += `Chưa có mentor nào được thêm vào kỳ học.`;
+            } else {
+              // Existing logic
+              const totalRequiredGroups = Math.ceil(
+                taskDetails.studentCount / 5
+              );
+              const requiredMentors = Math.ceil(totalRequiredGroups / 2);
+
+              if (taskDetails.mentorCount < requiredMentors) {
+                isBalanced = false;
+                requirementMessage += `Cần thêm ${
+                  requiredMentors - taskDetails.mentorCount
+                } mentor để hỗ trợ các nhóm.`;
+              }
             }
             break;
           }
-
-          case "studentsPending":
-            if (taskDetails.studentsWithoutClass > 0) {
-              isBalanced = false;
-              requirementMessage += `Có ${taskDetails.studentsWithoutClass} học sinh chưa có lớp cần phân bổ.`;
-            }
-            break;
 
           default:
             break;
@@ -510,6 +523,7 @@ const AdminDashboard = () => {
 
   return (
     <Layout>
+      <h3 className="header-content-mentor-detail">Admin Dashboard</h3>
       <Layout style={{ padding: "0 24px 24px" }}>
         <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
           {/* Thông báo và cảnh báo */}
