@@ -45,19 +45,15 @@ import "../../../style/Class/ClassDetail.css";
 import Search from "antd/es/transfer/search";
 import { useParams } from "react-router-dom";
 import avatarImage from "../../../assets/images/459233558_122150574488258176_5118808073589257292_n.jpg";
-import Highlighter from "react-highlight-words";
-import { SortableItem2 } from "./SortableItem2";
 import {
   DragOutlined,
   EditOutlined,
   FileSearchOutlined,
-  FilterOutlined,
   FormOutlined,
   PauseCircleOutlined,
   PlusCircleOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import SmallModal from "../../../components/Modal/SmallModal";
 import AddStudent from "../AddStudent";
 import CreateGroup from "../CreateGroup";
 import { MdAutoFixHigh, MdAutoFixOff } from "react-icons/md";
@@ -203,7 +199,6 @@ const SortableCards = () => {
         // Confirm data structure is as expected
         dispatch(setWaitUserList(response.data?.data));
         dispatch(setTotalWaitUsers(response.data?.total));
-        console.log("Data successfully dispatched to store.");
       } else {
         console.warn(
           "Warning: Response does not contain expected data structure."

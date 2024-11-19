@@ -243,6 +243,7 @@ const getProjectByGroupId = async (groupId) => {
 
 const getGroupsByClassId = async (classId) => {
   try {
+    // Validate the classId
     if (!mongoose.isValidObjectId(classId)) {
       throw new Error("Invalid classId format");
     }
@@ -250,14 +251,29 @@ const getGroupsByClassId = async (classId) => {
     const objectIdClassId = new mongoose.Types.ObjectId(classId);
 
     const groups = await Group.find({ classId: objectIdClassId })
-      .populate("projectId")
-      .populate("classId")
+      .populate({
+        path: "projectId",
+        model: "Project",
+        select: "name description status",
+      })
+      .populate({
+        path: "classId",
+        model: "Class",
+        select: "className status",
+      })
       .exec();
 
-    return { message: "Groups fetched successfully", groups };
+    if (!groups || groups.length === 0) {
+      throw new Error("No groups found for the provided classId");
+    }
+
+    return {
+      message: "Groups with project details fetched successfully",
+      groups,
+    };
   } catch (error) {
-    console.error("Error fetching groups by classId:", error);
-    throw new Error(`Failed to fetch groups for classId: ${error.message}`);
+    console.error("Error fetching detailed groups by classId:", error);
+    throw new Error(`Failed to fetch groups: ${error.message}`);
   }
 };
 
@@ -281,8 +297,8 @@ const getAllUserByClassId = async (classId) => {
       classId: new mongoose.Types.ObjectId(classId),
     })
       .populate({
-        path: "groupId", // Populate group details if needed
-        select: "name description status", // Choose the fields to include from the Group
+        path: "groupId",
+        select: "name description status",
       })
       .exec();
 
@@ -299,6 +315,29 @@ const getAllUserByClassId = async (classId) => {
   }
 };
 
+const updateGroupById = async (groupId, updateData) => {
+  try {
+    if (!mongoose.isValidObjectId(groupId)) {
+      throw new Error("Invalid group ID format");
+    }
+
+    const updatedGroup = await Group.findByIdAndUpdate(
+      groupId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedGroup) {
+      throw new Error("Group not found");
+    }
+
+    return updatedGroup;
+  } catch (error) {
+    console.error("Error updating group:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 export default {
   checkGroupsExist,
   addUserToGroup,
@@ -312,4 +351,5 @@ export default {
   getGroupsByClassId,
   getGroupsByClassIds,
   getAllUserByClassId,
+  updateGroupById,
 };

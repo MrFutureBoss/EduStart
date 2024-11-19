@@ -201,6 +201,29 @@ const getAllStudentByClassId = async (classId, limit, skip) => {
   }
 };
 
+const updateUserById = async (userId, updateData) => {
+  try {
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new Error("Invalid user ID format");
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    return updatedUser;
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 export default {
   loginUser,
   findUserByEmail,
@@ -209,4 +232,5 @@ export default {
   updateUserPassword,
   changePassword,
   getAllStudentByClassId,
+  updateUserById,
 };

@@ -1,7 +1,7 @@
-import { Card, Tag, message, Row, Col, Tabs } from "antd";
+import { Card, Tag, message, Row, Col, Tabs, Button } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 
@@ -15,22 +15,29 @@ import {
 
 import { setClassTaskData } from "../../redux/slice/ClassManagementSlice";
 import "../../style/Class/ClassDetail.css";
-import Result from "./DnD_Group/Result";
+import Result from "../managegroup/DnD_Group/Result";
 import { setSettingCreateGroupData } from "../../redux/slice/SettingCreateGroup";
 import moment from "moment";
 import "moment/locale/vi";
 import TabPane from "antd/es/tabs/TabPane";
-import StudentList from "./StudentList";
+import StudentList from "../managegroup/StudentList";
 import { setAllGroupInClass } from "../../redux/slice/GroupSlice";
-import ManageGroup from "./ManageGroup";
+import ManageGroup from "../managegroup/ManageGroup";
+import { IoChevronBackOutline } from "react-icons/io5";
 
-const UnGroupList = () => {
+const ClassDetail = () => {
   const { className } = useParams();
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const [classId, setClassId] = useState("");
   const userId = localStorage.getItem("userId");
   moment.locale("vi");
+
+  const navigate = useNavigate();
+
+  const handleMoveBackToClassManagement = () => {
+    navigate("/teacher-dashboard/class");
+  };
 
   const config = useMemo(
     () => ({
@@ -81,7 +88,6 @@ const UnGroupList = () => {
           config
         );
         setClassId(response.data?.classId);
-        console.log("classId: " + response.data?.classId);
       } catch (error) {
         console.log(
           error.response ? error.response.data.message : error.message
@@ -193,9 +199,47 @@ const UnGroupList = () => {
 
   return (
     <div>
+      <Button
+        style={{ marginBottom: "1rem" }}
+        onClick={() => handleMoveBackToClassManagement()}
+      >
+        <IoChevronBackOutline /> Quay lại quản lý lớp
+      </Button>
       <h1 style={{ marginBottom: "2rem" }}>Lớp {className}</h1>
       <Row gutter={[32, 16]}>
-        <Col span={4}>
+        <Col sm={24} md={24} lg={20} style={{ padding: "0px" }}>
+          <Card
+            style={{ height: "fit-content" }}
+            headStyle={{
+              display: "none",
+              height: "fit-content",
+            }}
+          >
+            {groupInClass.length === 0 ? (
+              <Tabs defaultActiveKey="1">
+                <TabPane tab="Tạo nhóm" key="1">
+                  <Result dndActive={true} />
+                </TabPane>
+                <TabPane tab="Quản lý nhóm" key="2" disabled>
+                  <ManageGroup />
+                </TabPane>
+                <TabPane tab="Danh sách sinh viên" key="3">
+                  <StudentList />
+                </TabPane>
+              </Tabs>
+            ) : (
+              <Tabs defaultActiveKey="1">
+                <TabPane tab="Quản lý nhóm" key="1">
+                  <ManageGroup />
+                </TabPane>
+                <TabPane tab="Danh sách sinh viên" key="2">
+                  <StudentList />
+                </TabPane>
+              </Tabs>
+            )}
+          </Card>
+        </Col>
+        <Col sm={24} md={24} lg={4}>
           <Card
             title={<h5 style={{ margin: "0px" }}>Tình hình lớp</h5>}
             // <MdInfoOutline style={{ color: "#000", fontSize: "1.5rem" }} />
@@ -307,38 +351,9 @@ const UnGroupList = () => {
             )}
           </Card>
         </Col>
-        <Col span={20}>
-          <Card
-            style={{ height: "fit-content", marginTop: "4rem" }}
-            headStyle={{
-              display: "none",
-              height: "fit-content",
-            }}
-          >
-            <Tabs defaultActiveKey="1">
-              {groupInClass.length === 0 ? (
-                <>
-                  <TabPane tab="Tạo nhóm" key="1">
-                    <Result dndActive={true} />
-                  </TabPane>
-                  <TabPane tab="Quản lý nhóm" key="2" disabled>
-                    
-                  </TabPane>
-                </>
-              ) : (
-                <>
-                  <TabPane tab="Quản lý nhóm" key="1"> <ManageGroup /></TabPane>
-                </>
-              )}
-              <TabPane tab="Danh sách sinh viên" key="3">
-                <StudentList />
-              </TabPane>
-            </Tabs>
-          </Card>
-        </Col>
       </Row>
     </div>
   );
 };
 
-export default UnGroupList;
+export default ClassDetail;
