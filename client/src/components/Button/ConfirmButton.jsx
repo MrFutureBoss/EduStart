@@ -1,9 +1,9 @@
 import React from "react";
 import "../../style/components/button/Button.css";
 
-const ConfirmButton = ({ content, onClick, disable }) => {
+const ConfirmButton = ({ key, content, onClick, disabled }) => {
   return (
-    <button className="confirm-button" onClick={onClick}>
+    <button className="confirm-button" key={key} disabled={disabled} onClick={onClick}>
       {content}
     </button>
   );

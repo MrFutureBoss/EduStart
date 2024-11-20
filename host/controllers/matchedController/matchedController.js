@@ -70,8 +70,62 @@ const updateMatchedStatus = async (req, res) => {
       .json({ message: "Error updating matched status", error });
   }
 };
+
+const getAllMatchingDetailByMentorId = async (req, res) => {
+  const { mentorId } = req.params;
+
+  try {
+    const result = await matchedDAO.getAllMatchingDetailByMentorId(mentorId);
+
+    if (!result.groups.length) {
+      return res.status(404).json({ message: "No matching groups found." });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching matching details:", error);
+    res.status(500).json({
+      message: "Error fetching matching details.",
+      error: error.message,
+    });
+  }
+};
+const patchMatched = async (req, res) => {
+  const { id } = req.params; // Extract the ID from URL parameters
+  const updateData = req.body; // Extract update data from the request body
+
+  try {
+    // Ensure updateData is not empty
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No update data provided" });
+    }
+
+    // Call the DAO to update the record
+    const updatedMatched = await matchedDAO.patchMatchedById(id, updateData);
+
+    res.status(200).json({
+      message: "Matched record updated successfully",
+      matched: updatedMatched,
+    });
+  } catch (error) {
+    console.error("Error in patchMatched:", error.message);
+
+    // Handle errors with appropriate status codes
+    if (error.message === "Invalid Matched ID format") {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.message === "Matched record not found") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
   updateMatchedStatus,
+  getAllMatchingDetailByMentorId,
+  patchMatched,
 };
