@@ -12,12 +12,11 @@ const MentorLayout = () => {
   };
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "#F5F5F5" }}>
-      <MentorHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
+      {/* <MentorHeader collapsed={collapsed} toggleCollapse={toggleCollapse} /> */}
       <Layout style={{ backgroundColor: "#F5F5F5" }}>
         <MentorSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <Layout
           style={{
-            padding: "0px",
             backgroundColor: "#F5F5F5",
             overflow: "auto",
           }}
@@ -26,8 +25,10 @@ const MentorLayout = () => {
             className="site-layout-background"
             style={{
               padding: 30,
+
               overflow: "initial",
               minHeight: 280,
+              background: "#F5F5F5",
               background: "#F5F5F5",
             }}
           >
