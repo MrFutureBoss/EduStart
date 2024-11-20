@@ -15,16 +15,13 @@
 }
 
 .header-content-mentor-detail {
-  position: relative;
-  /* padding: 0; */
-  background-color: #dedede;
-  z-index: 20;
   padding: 13px;
-  margin: 0px -12px -2px -12px;
+  margin: -26px -13px 2px -28px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 13px 13px 9px 9px;
   color: #dad7cd;
   background-color: #011936;
+  width: 104%;
+  text-align: center;
 }
 .filter-section-mentor-preference {
   display: flex;
@@ -34,4 +31,13 @@
   margin-right: -10px;
   border-radius: 11px;
   gap: 25px;
+}
+.ant-card .ant-card-head {
+  min-height: 45px;
+}
+.semester-infor-head .ant-card-head {
+  min-height: 40px;
+}
+.ant-card .ant-card-body {
+  padding: 15px;
 }
