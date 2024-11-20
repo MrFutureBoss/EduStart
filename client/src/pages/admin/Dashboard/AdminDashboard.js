@@ -129,32 +129,86 @@ const AdminDashboard = () => {
   const { tasksStatus, taskDetails, alerts, transferRequestsCount, isLoading } =
     useSelector((state) => state.adminDashboard);
 
-  const tasksList = [
-    {
-      key: "createSemester",
-      title: "Thiết lập kỳ học mới",
-      detail: taskDetails.semesterName,
-    },
-    {
-      key: "outCome",
-      title: "Cập nhật OutCome cho kỳ học",
-    },
-    {
-      key: "addTeachers",
-      title: "Thêm giáo viên vào kỳ học",
-      detail: `${taskDetails.teacherCount} giáo viên`,
-    },
-    {
-      key: "addMentors",
-      title: "Thêm mentor vào kỳ học",
-      detail: `${taskDetails.mentorCount} mentor`,
-    },
-    {
-      key: "addStudents",
-      title: "Thêm sinh viên vào kỳ học",
-      detail: `${taskDetails.studentCount} sinh viên`,
-    },
-  ];
+  const processTasks = () => {
+    return [
+      {
+        key: "createSemester",
+        title: "Thiết lập kỳ học mới",
+        detail: taskDetails.semesterName,
+        isBalanced: taskDetails.semesterName !== "Chưa có",
+        requirementMessage:
+          taskDetails.semesterName === "Chưa có" ? "Cần thiết lập kỳ học." : "",
+      },
+      {
+        key: "addTeachers",
+        title: "Thêm giáo viên vào kỳ học",
+        isBalanced:
+          taskDetails.teacherCount > 0 &&
+          taskDetails.teacherCount >= Math.ceil(taskDetails.studentCount / 30),
+        requirementMessage: (() => {
+          if (taskDetails.teacherCount === 0) {
+            return "Chưa có giáo viên nào được thêm.";
+          }
+          const requiredTeachers = Math.ceil(taskDetails.studentCount / 30);
+          if (taskDetails.teacherCount < requiredTeachers) {
+            return `Cần thêm ${
+              requiredTeachers - taskDetails.teacherCount
+            } giáo viên để đủ cho ${requiredTeachers} lớp.`;
+          }
+          return "";
+        })(),
+      },
+      {
+        key: "addMentors",
+        title: "Thêm mentor vào kỳ học",
+        isBalanced:
+          taskDetails.mentorCount > 0 &&
+          taskDetails.mentorCount >= Math.ceil(taskDetails.studentCount / 10),
+        requirementMessage: (() => {
+          if (taskDetails.mentorCount === 0) {
+            return "Chưa có mentor nào được thêm.";
+          }
+          const requiredMentors = Math.ceil(taskDetails.studentCount / 10);
+          if (taskDetails.mentorCount < requiredMentors) {
+            return `Cần thêm ${
+              requiredMentors - taskDetails.mentorCount
+            } mentor để hỗ trợ đầy đủ.`;
+          }
+          return "";
+        })(),
+      },
+      {
+        key: "addStudents",
+        title: "Thêm sinh viên vào kỳ học",
+        isBalanced: (() => {
+          const requiredClasses = Math.ceil(taskDetails.teacherCount);
+          const requiredStudents = requiredClasses * 30;
+          return (
+            taskDetails.studentCount >= requiredStudents &&
+            taskDetails.studentsWithoutClass === 0
+          );
+        })(),
+        requirementMessage: (() => {
+          if (taskDetails.studentCount === 0) {
+            return "Chưa có sinh viên nào được thêm.";
+          }
+          const requiredClasses = Math.ceil(taskDetails.teacherCount);
+          const requiredStudents = requiredClasses * 30;
+          if (taskDetails.studentCount < requiredStudents) {
+            return `Cần thêm ${
+              requiredStudents - taskDetails.studentCount
+            } sinh viên để đủ cho ${requiredClasses} lớp (mỗi lớp 30 học sinh).`;
+          }
+          if (taskDetails.studentsWithoutClass > 0) {
+            return `Có ${taskDetails.studentsWithoutClass} sinh viên chưa được phân lớp.`;
+          }
+          return "";
+        })(),
+      },
+    ];
+  };
+
+  const tasksList = processTasks();
 
   useEffect(() => {
     const fetchClassStatus = async () => {
@@ -335,149 +389,59 @@ const AdminDashboard = () => {
       title: "Công việc",
       dataIndex: "title",
       key: "title",
-      render: (text, record) => {
-        let isBalanced = true;
-        let requirementMessage = "";
-
-        switch (record.key) {
-          case "addStudents": {
-            if (taskDetails.studentCount === 0) {
-              isBalanced = false;
-              requirementMessage += `Chưa có sinh viên nào được thêm vào kỳ học.`;
-            } else {
-              // Existing logic
-              const requiredClasses = Math.ceil(taskDetails.studentCount / 30);
-              const requiredTeachers = requiredClasses;
-
-              if (taskDetails.teacherCount > requiredClasses) {
-                const neededClasses = taskDetails.teacherCount;
-                const neededStudents =
-                  neededClasses * 30 - taskDetails.studentCount;
-                requirementMessage += `Cần thêm ${neededStudents} học sinh để đủ 30 học sinh mỗi lớp cho ${taskDetails.teacherCount} giáo viên.`;
-              } else if (taskDetails.teacherCount < requiredClasses) {
-                isBalanced = false;
-                requirementMessage += `Cần thêm ${
-                  requiredClasses - taskDetails.teacherCount
-                } giáo viên để đủ cho ${requiredClasses} lớp hiện tại.`;
-              }
-
-              if (taskDetails.studentsWithoutClass > 0) {
-                isBalanced = false;
-                requirementMessage += ` Có ${taskDetails.studentsWithoutClass} học sinh chưa có lớp.`;
-              }
-            }
-            break;
-          }
-
-          case "addTeachers": {
-            if (taskDetails.teacherCount === 0) {
-              isBalanced = false;
-              requirementMessage += `Chưa có giáo viên nào được thêm vào kỳ học.`;
-            } else {
-              // Existing logic
-              const requiredClasses = Math.ceil(taskDetails.studentCount / 30);
-              if (taskDetails.teacherCount < requiredClasses) {
-                isBalanced = false;
-                requirementMessage += `Cần thêm ${
-                  requiredClasses - taskDetails.teacherCount
-                } giáo viên để đủ cho ${requiredClasses} lớp.`;
-              }
-            }
-            break;
-          }
-
-          case "addMentors": {
-            if (taskDetails.mentorCount === 0) {
-              isBalanced = false;
-              requirementMessage += `Chưa có mentor nào được thêm vào kỳ học.`;
-            } else {
-              // Existing logic
-              const totalRequiredGroups = Math.ceil(
-                taskDetails.studentCount / 5
-              );
-              const requiredMentors = Math.ceil(totalRequiredGroups / 2);
-
-              if (taskDetails.mentorCount < requiredMentors) {
-                isBalanced = false;
-                requirementMessage += `Cần thêm ${
-                  requiredMentors - taskDetails.mentorCount
-                } mentor để hỗ trợ các nhóm.`;
-              }
-            }
-            break;
-          }
-
-          default:
-            break;
-        }
-
-        return (
-          <span>
-            {isBalanced ? (
-              <CheckCircleOutlined
-                style={{ color: "green", fontSize: "16px", marginRight: 8 }}
-              />
-            ) : (
-              <WarningOutlined
-                style={{ color: "red", fontSize: "16px", marginRight: 8 }}
-              />
-            )}
-            {text}
-            {isBalanced ? (
-              <Tag style={{ marginLeft: 20 }} color="green">
-                Đã thêm
-              </Tag>
-            ) : (
-              <Tag color="red" style={{ marginLeft: 20 }}>
-                Cần điều chỉnh
-              </Tag>
-            )}
-            {!isBalanced && (
-              <div style={{ color: "red", marginTop: 8, fontSize: "12px" }}>
-                {requirementMessage}
-              </div>
-            )}
-          </span>
-        );
-      },
+      render: (text, record) => (
+        <span>
+          {record.isBalanced ? (
+            <CheckCircleOutlined style={{ color: "green", marginRight: 8 }} />
+          ) : (
+            <WarningOutlined style={{ color: "red", marginRight: 8 }} />
+          )}
+          {text}
+        </span>
+      ),
+      onCell: (record) => ({
+        onClick: () => handleTaskAction(record.key),
+        style: { cursor: "pointer" },
+      }),
     },
     {
-      title: "Chi tiết",
-      dataIndex: "detail",
-      key: "detail",
-      render: (detail) => <span style={{ marginLeft: 8 }}>{detail}</span>,
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (_, record) => {
-        const handleRoleAdjust = () => {
-          if (record.key === "createSemester") {
-            handleEditSemester();
-          } else {
-            let role;
-            if (record.key === "addTeachers") {
-              role = { id: 2, name: "Giáo viên" };
-            } else if (record.key === "addMentors") {
-              role = { id: 3, name: "Mentor" };
-            } else if (record.key === "addStudents") {
-              role = { id: 4, name: "Học sinh" };
-            }
-            if (role) {
-              handleAdjustClick(role);
-            }
-          }
-        };
-
-        return (
-          <Button type="primary" onClick={handleRoleAdjust}>
-            Điều chỉnh
-          </Button>
-        );
-      },
+      title: "Trạng thái",
+      key: "status",
+      render: (_, record) => (
+        <span>
+          {record.isBalanced ? (
+            <Tag color="green">Đã hoàn thành</Tag>
+          ) : (
+            <Tag color="red">Chưa hoàn thành</Tag>
+          )}
+          {!record.isBalanced && record.requirementMessage && (
+            <div style={{ color: "red", marginTop: 8, fontSize: "12px" }}>
+              {record.requirementMessage}
+            </div>
+          )}
+        </span>
+      ),
     },
   ];
 
+  const handleTaskAction = (key) => {
+    if (key === "createSemester") {
+      setIsEditModalVisible(true);
+    } else {
+      let role;
+      if (key === "addTeachers") {
+        role = { id: 2, name: "Giáo viên" };
+      } else if (key === "addMentors") {
+        role = { id: 3, name: "Mentor" };
+      } else if (key === "addStudents") {
+        role = { id: 4, name: "Học sinh" };
+      }
+      if (role) {
+        dispatch(setRoleSelect(role.id));
+        navigate("current-semester", { state: { fromAdmin: true } });
+      }
+    }
+  };
   const handleEditSemester = () => {
     setIsEditModalVisible(true);
   };
@@ -524,8 +488,8 @@ const AdminDashboard = () => {
   return (
     <Layout>
       <h3 className="header-content-mentor-detail">Admin Dashboard</h3>
-      <Layout style={{ padding: "0 24px 24px" }}>
-        <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
+      <div style={{ display: "flex" }}>
+        <Content style={{ margin: 0, minHeight: 280 }}>
           {/* Thông báo và cảnh báo */}
           <Row gutter={16} style={{ marginTop: "24px" }}>
             <Col span={12}>
@@ -549,7 +513,7 @@ const AdminDashboard = () => {
                         avatar={
                           <ExclamationCircleOutlined
                             className="warning-alert-admin-dashboard"
-                            style={{ fontSize: "24px", color: "#faad14" }}
+                            style={{ fontSize: "20px", color: "#faad14" }}
                           />
                         }
                         title={<strong>{alert.message}</strong>}
@@ -653,14 +617,14 @@ const AdminDashboard = () => {
           </Row>
         </Content>
         <SemesterDetailsCard handleEditSemester={handleEditSemester} />
-        <EditSemesterModal
-          visible={isEditModalVisible}
-          onOk={handleEditModalOk}
-          onCancel={() => setIsEditModalVisible(false)}
-          semester={semester}
-          apiErrors={editApiErrors}
-        />
-      </Layout>
+      </div>
+      <EditSemesterModal
+        visible={isEditModalVisible}
+        onOk={handleEditModalOk}
+        onCancel={() => setIsEditModalVisible(false)}
+        semester={semester}
+        apiErrors={editApiErrors}
+      />
     </Layout>
   );
 };
