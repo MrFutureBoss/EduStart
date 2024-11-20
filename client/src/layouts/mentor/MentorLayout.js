@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { Content } from "antd/es/layout/layout";
-import { Breadcrumb, Layout } from "antd";
-import { Link, Outlet } from "react-router-dom";
-import MentorHeader from "./MentorHeader";
+import { Outlet } from "react-router-dom";
+import { Layout } from "antd";
 import MentorSidebar from "./MentorSidebar";
+import MentorHeader from "./MentorHeader";
 
 const MentorLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [showNotification, setShowNotification] = useState(true);
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
   };
@@ -29,6 +28,7 @@ const MentorLayout = () => {
 
               overflow: "initial",
               minHeight: 280,
+              background: "#F5F5F5",
               background: "#F5F5F5",
             }}
           >

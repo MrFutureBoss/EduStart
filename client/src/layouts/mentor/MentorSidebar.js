@@ -155,6 +155,11 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
           </Link>
         </Menu.Item>
         <Menu.Item key="5" icon={<DashboardOutlined />}>
+          <Link style={{ textDecoration: "none" }} to="managegroup">
+            Quản lý nhóm
+          </Link>
+        </Menu.Item>
+        <Menu.Item key="6" icon={<DashboardOutlined />}>
           <Link style={{ textDecoration: "none" }} to="project-suggest">
             Lựa chọn dự án ưu tiên.
           </Link>

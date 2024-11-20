@@ -29,12 +29,12 @@ groupRouter.get(
   groupController.getAllUserByClassId
 );
 
+groupRouter.patch("/:id", verifyAccessToken, groupController.patchGroup);
+
 // groupRouter.get(
 //   "/classes/:classId",
 //   verifyAccessToken,
 //   groupController.getGroupsByClassIds
 // );
-
-
 
 export default groupRouter;

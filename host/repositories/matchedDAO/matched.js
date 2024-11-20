@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Group from "../../models/groupModel.js";
 import Matched from "../../models/matchedModel.js";
 import MentorCategory from "../../models/mentorCategoryModel.js";
@@ -6,6 +7,7 @@ import ProjectCategory from "../../models/projectCategoryModel.js";
 import Project from "../../models/projectModel.js";
 import Specialty from "../../models/specialtyModel.js";
 import TemporaryMatching from "../../models/temporaryMatchingModel.js";
+import User from "../../models/userModel.js";
 // hàm để tạo matched chờ xác nhận
 const createMatched = async (data) => {
   try {
@@ -192,9 +194,122 @@ const getMatchedInfoByGroupId = async (groupId) => {
   }
 };
 
+const getAllMatchingDetailByMentorId = async (mentorId) => {
+  try {
+    // Find all matched records for the mentor
+    const matchedRecords = await Matched.find({ mentorId }).populate("groupId");
+
+    if (!matchedRecords.length) {
+      return { message: "No groups found for this mentor.", groups: [] };
+    }
+
+    const groupDetails = await Promise.all(
+      matchedRecords.map(async (matched) => {
+        const group = await Group.findById(matched.groupId._id)
+          .populate("projectId") 
+          .populate("classId", "className"); 
+
+        if (!group) return null;
+
+        const groupMembers = await User.find({ groupId: group._id })
+          .select(
+            "username email phoneNumber rollNumber memberCode status isLeader major"
+          )
+          .lean();
+
+        const memberClassId = groupMembers[0].classId;
+
+        const teacher = await User.findOne({
+          role: 2,
+          classId: memberClassId,
+        })
+          .select("username email")
+          .lean();
+
+        const project = group.projectId
+          ? await Project.findById(group.projectId._id).lean()
+          : null;
+        const projectCategory = project
+          ? await ProjectCategory.findOne({ projectId: project._id }).lean()
+          : null;
+        let professionDetails = [];
+        let specialtyDetails = [];
+        if (projectCategory) {
+          professionDetails = await Profession.find({
+            _id: { $in: projectCategory.professionId },
+          })
+            .select("name status")
+            .lean();
+
+          specialtyDetails = await Specialty.find({
+            _id: { $in: projectCategory.specialtyIds },
+          })
+            .select("name status")
+            .lean();
+        }
+
+        return {
+          group: {
+            name: group.name,
+            description: group.description,
+            status: group.status,
+          },
+          class: {
+            className: group.classId?.className || null,
+          },
+          teacher: teacher || null,
+          members: groupMembers,
+          project: project || null,
+          projectCategory: {
+            profession: professionDetails,
+            specialties: specialtyDetails,
+          },
+          matchedDetails: {
+            _id: matched._id,
+            status: matched.status,
+            createdAt: matched.createdAt,
+            updatedAt: matched.updatedAt,
+            time: matched.time,
+          },
+        };
+      })
+    );
+
+    return { groups: groupDetails.filter((detail) => detail !== null) };
+  } catch (error) {
+    console.error("Error fetching matching details:", error);
+    throw new Error("Unable to retrieve matching details.");
+  }
+};
+
+const patchMatchedById = async (id, updateData) => {
+  try {
+    if (!mongoose.isValidObjectId(id)) {
+      throw new Error("Invalid Matched ID format");
+    }
+
+    const updatedMatched = await Matched.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMatched) {
+      throw new Error("Matched record not found");
+    }
+
+    return updatedMatched;
+  } catch (error) {
+    console.error("Error updating Matched record:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 export default {
   createMatched,
   updateMatchedById,
   deleteMatchedById,
   getMatchedInfoByGroupId,
+  getAllMatchingDetailByMentorId,
+  patchMatchedById,
 };
