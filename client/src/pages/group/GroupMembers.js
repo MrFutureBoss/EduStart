@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, List, Avatar, Typography, Button, Badge, message } from "antd";
+import {
+  Card,
+  List,
+  Avatar,
+  Typography,
+  Button,
+  Badge,
+  message,
+  Tag,
+} from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { StarOutlined, SettingOutlined } from "@ant-design/icons";
@@ -32,7 +41,21 @@ const GroupMembers = () => {
       Authorization: `Bearer ${jwt}`,
     },
   };
+  console.log(userLogin);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
+        dispatch(setUserLogin(userRes.data));
+      } catch (error) {
+        console.error("Error fetching teacher data:", error);
+        message.error("Lỗi khi tải thông tin người dùng.");
+      }
+    };
+
+    fetchUserData();
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -40,7 +63,7 @@ const GroupMembers = () => {
           `${BASE_URL}/group/group-infor/${groupId}`,
           config
         );
-        dispatch(setGroup(groupRes.data[0]));
+        dispatch(setGroup(groupRes.data?.[0]));
         const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
         dispatch(setUserLogin(userRes.data));
       } catch (err) {
@@ -57,7 +80,7 @@ const GroupMembers = () => {
         `${BASE_URL}/group/group-infor/${groupId}`,
         config
       );
-      dispatch(setGroup(groupRes.data[0]));
+      dispatch(setGroup(groupRes.data?.[0]));
       const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
       dispatch(setUserLogin(userRes.data));
     } catch (err) {
@@ -66,7 +89,7 @@ const GroupMembers = () => {
   };
 
   useEffect(() => {
-    socket.emit("joinProject", userLogin?.projectInfo[0]?._id);
+    socket.emit("joinProject", userLogin?.projectInfo?.[0]?._id);
     socket.on("projectUpdated", (data) => {
       fetchData();
     });
@@ -74,7 +97,7 @@ const GroupMembers = () => {
     return () => {
       socket.off("projectUpdated");
     };
-  }, [userLogin?.projectInfo[0]?._id]);
+  }, [userLogin]);
 
   const updateProjectStatus = async () => {
     try {
@@ -226,55 +249,57 @@ const GroupMembers = () => {
                 )
               }
             >
-              <p>
-                <Text strong>Mô tả dự án:</Text>{" "}
-                {groupDetails?.project?.description}
-              </p>
-              <p>
-                <Text strong>Lĩnh vực:</Text>{" "}
-                {groupDetails?.professionDetails
-                  ?.map((profession) => `${profession.name}`)
-                  .join(", ")}
-              </p>
-              <p>
-                <Text strong>Chuyên Môn:</Text>{" "}
-                {groupDetails?.specialtyDetails
-                  ?.map((specialty) => `${specialty.name}`)
-                  .join(", ")}
-              </p>
-              <p>
-                <Text strong>Tình trạng dự án:</Text>{" "}
-                <Badge
-                  status={
-                    groupDetails?.project?.status === "Decline"
-                      ? "error"
-                      : groupDetails?.project?.status === "Planning"
-                      ? "warning"
-                      : groupDetails?.project?.status === "Changing"
-                      ? "warning"
-                      : groupDetails?.project?.status === "InProgress"
-                      ? "processing"
-                      : "default"
-                  }
-                  text={
-                    groupDetails?.project?.status === "Decline"
-                      ? "Bị từ chối"
-                      : groupDetails?.project?.status === "Planning"
-                      ? "Đang chờ duyệt"
-                      : groupDetails?.project?.status === "Changing"
-                      ? "Đang chờ duyệt lại"
-                      : groupDetails?.project?.status === "InProgress"
-                      ? "Đang hoạt động"
-                      : ""
-                  }
-                />
-              </p>
-              {groupDetails?.project?.status === "Decline" && (
+              <div style={{ marginLeft: 9 }}>
                 <p>
-                  <Text strong>Lý do từ chối:</Text>{" "}
-                  {groupDetails?.project?.declineMessage}
+                  <Text strong>Mô tả dự án:</Text>{" "}
+                  {groupDetails?.project?.description}
                 </p>
-              )}
+                <p>
+                  <Text strong>Lĩnh vực:</Text>{" "}
+                  {groupDetails?.professionDetails
+                    ?.map((profession) => `${profession.name}`)
+                    .join(", ")}
+                </p>
+                <p>
+                  <Text strong>Chuyên Môn:</Text>{" "}
+                  {groupDetails?.specialtyDetails
+                    ?.map((specialty) => `${specialty.name}`)
+                    .join(", ")}
+                </p>
+                <p>
+                  <Text strong>Tình trạng dự án:</Text>{" "}
+                  <Badge
+                    status={
+                      groupDetails?.project?.status === "Decline"
+                        ? "error"
+                        : groupDetails?.project?.status === "Planning"
+                        ? "warning"
+                        : groupDetails?.project?.status === "Changing"
+                        ? "warning"
+                        : groupDetails?.project?.status === "InProgress"
+                        ? "processing"
+                        : "default"
+                    }
+                    text={
+                      groupDetails?.project?.status === "Decline"
+                        ? "Bị từ chối"
+                        : groupDetails?.project?.status === "Planning"
+                        ? "Đang chờ duyệt"
+                        : groupDetails?.project?.status === "Changing"
+                        ? "Đang chờ duyệt lại"
+                        : groupDetails?.project?.status === "InProgress"
+                        ? "Đang hoạt động"
+                        : ""
+                    }
+                  />
+                </p>
+                {groupDetails?.project?.status === "Decline" && (
+                  <p>
+                    <Text strong>Lý do từ chối:</Text>{" "}
+                    {groupDetails?.project?.declineMessage}
+                  </p>
+                )}
+              </div>
             </Card>
           )}
           {!groupDetails?.project && (
@@ -331,7 +356,13 @@ const GroupMembers = () => {
                         src={member.avatar}
                         style={{ backgroundColor: "#87d068" }}
                       >
-                        {member.avatar ? null : member.username.charAt(0)}
+                        {member?.username
+                          ? member.username
+                              .split(" ")
+                              .pop()
+                              .charAt(0)
+                              .toUpperCase()
+                          : "?"}
                       </Avatar>
                     }
                     title={<Text strong>{member.username}</Text>}
@@ -344,30 +375,54 @@ const GroupMembers = () => {
         </div>
         <div className="group-members-mentor-section">
           {groupDetails?.mentors?.length > 0 && (
-            <Card
-              title="Thông tin Mentor"
-              className="group-members-mentor-card"
-              hoverable
-              onClick={() => handleUserDetailClick(groupDetails.mentors[0]._id)}
+            <Badge.Ribbon
+              text={
+                groupDetails.matched[0].status === "Pending"
+                  ? "Đang chờ duyệt"
+                  : null
+              }
+              color="rgb(98, 182, 203)"
+              placement="end"
             >
-              <Avatar
-                src={groupDetails?.mentors[0].image}
-                size={80}
-                style={{ marginBottom: "8px" }}
-              />
-              <Title level={5}>{groupDetails?.mentors[0].username}</Title>
-              <p>
-                <Text type="secondary">{groupDetails?.mentors[0].email}</Text>
-              </p>
-              <p>{groupDetails?.mentors[0].phoneNumber}</p>
-              <p>
-                <Text type="secondary">
-                  {groupDetails?.mentorCategoryDetails
-                    .map((c) => c.name)
-                    .join(", ")}
-                </Text>
-              </p>
-            </Card>
+              <Card
+                title="Thông tin Mentor"
+                className="group-members-mentor-card"
+                hoverable
+                onClick={() =>
+                  handleUserDetailClick(groupDetails.mentors[0]._id)
+                }
+              >
+                <Avatar
+                  src={groupDetails?.mentors[0].image}
+                  size={80}
+                  style={{
+                    marginBottom: "8px",
+                    backgroundColor: "rgb(98, 182, 203)",
+                    fontSize: 30,
+                  }}
+                >
+                  {groupDetails?.mentors[0].username
+                    ? groupDetails?.mentors[0].username
+                        .split(" ")
+                        .pop()
+                        .charAt(0)
+                        .toUpperCase()
+                    : "?"}
+                </Avatar>
+                <Title level={5}>{groupDetails?.mentors[0].username}</Title>
+                <p>
+                  <Text type="secondary">{groupDetails?.mentors[0].email}</Text>
+                </p>
+                <p>{groupDetails?.mentors[0].phoneNumber}</p>
+                <p>
+                  <Text type="secondary">
+                    {groupDetails?.mentorCategoryDetails
+                      .map((c) => c.name)
+                      .join(", ")}
+                  </Text>
+                </p>
+              </Card>
+            </Badge.Ribbon>
           )}
         </div>
       </div>
