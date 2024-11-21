@@ -168,3 +168,13 @@ export const updateTransferRequestStatus = (
     config
   );
 };
+
+// API để lấy toàn bộ thông tin của mentor
+export const getMentorProfile = (mentorId) => {
+  return axios.get(`${BASE_URL}/mentor/mentor-infor/${mentorId}`, getConfig());
+};
+
+// API để lấy toàn bộ danh sách profession và speciatly
+export const getAllProfesionAndSpeciatly = () => {
+  return axios.get(`${BASE_URL}/profession/get-all`, getConfig());
+};

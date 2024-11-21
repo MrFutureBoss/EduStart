@@ -133,7 +133,7 @@ const MainLayout = () => {
   }, [currentSemester]);
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh", overflowX: "hidden" }}>
       {/* <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} /> */}
       <Layout style={{ backgroundColor: "#F7F7F7" }}>
         <AppSider

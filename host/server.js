@@ -40,11 +40,24 @@ const io = new SocketIOServer(server, {
   },
 });
 
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
   socket.on("message", (msg) => {
     console.log("Received message:", msg);
     io.emit("message", msg);
+  });
+  socket.on("joinRoom", (userId) => {
+    socket.join(`user:${userId}`);
+    console.log(`User ${userId} joined their personal room.`);
+  });
+  socket.on("joinProject", (projectId) => {
+    socket.join(`project:${projectId}`);
+    console.log(`User joined project room: project:${projectId}`);
   });
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
