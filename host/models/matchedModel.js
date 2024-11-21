@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const eventSchema = new Schema({
-  title: String,
+  title: {type: String, required: true},
   allDay: { type: Boolean, default: false },
   start: { type: Date, required: true },
   end: { type: Date, required: true },
