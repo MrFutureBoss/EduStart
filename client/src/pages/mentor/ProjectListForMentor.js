@@ -19,6 +19,7 @@ import { BASE_URL } from "../../utilities/initalValue";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserLogin } from "../../redux/slice/UserSlice";
+import AdminHeader from "../../layouts/admin/AdminHeader";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -46,6 +47,7 @@ const ProjectsList = () => {
   const jwt = localStorage.getItem("jwt");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9;
+  console.log("userLogin", userLogin);
 
   const config = useMemo(
     () => ({
@@ -241,7 +243,7 @@ const ProjectsList = () => {
 
   return (
     <div>
-      <h3 className="header-content-mentor-detail">Lựa chọn dự án ưu tiên</h3>
+      <AdminHeader content="Lựa chọn dự án ưu tiên" />
       <div className="projects-list-container">
         <div className="filter-section-mentor-preference">
           <Search

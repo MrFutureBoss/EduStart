@@ -13,6 +13,8 @@ import moment from "moment";
 import Search from "antd/es/transfer/search";
 import Swal from "sweetalert2";
 import { showAlert } from "../../../components/SweetAlert";
+import CancelButton from "../../../components/Button/CancelButton";
+import ConfirmButton from "../../../components/Button/ConfirmButton";
 
 const { TabPane } = Tabs;
 
@@ -217,24 +219,16 @@ const TransferRequestManagement = () => {
         key: "action",
         render: (_, request) =>
           request.status === "pending" && (
-            <div style={{ display: "flow", textAlign: "center" }}>
-              <Button
+            <div style={{ display: "flow" }}>
+              <ConfirmButton
                 onClick={() => handleProcessRequest(request)}
-                style={{
-                  marginBottom: 10,
-                  backgroundColor: "rgb(128 210 94)",
-                  color: "white",
-                  padding: "0 22px 0 22px",
-                }}
-              >
-                Xử lý
-              </Button>
-              <Button
-                style={{ backgroundColor: "#f85353e8", color: "white" }}
+                style={{ width: "5rem", marginBottom: 10 }}
+                content="Xử lý"
+              ></ConfirmButton>
+              <CancelButton
+                content="Từ chối"
                 onClick={() => handleRejectRequest(request._id)}
-              >
-                Từ chối
-              </Button>
+              ></CancelButton>
             </div>
           ),
       },
@@ -248,14 +242,13 @@ const TransferRequestManagement = () => {
   );
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div>
       <h3 className="header-content-mentor-detail">Danh sách yêu cầu hỗ trợ</h3>
       <div
         style={{
           minHeight: 500,
-          padding: "20px 20px 0 20px",
+          marginTop: 20,
           backgroundColor: "rgb(245 245 245 / 31%)",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
           borderRadius: "10px",
         }}
       >

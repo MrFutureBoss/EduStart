@@ -10,6 +10,11 @@ projectRouter.put(
   verifyAccessToken,
   projectController.updateGroupProject
 );
+projectRouter.put(
+  "/:groupId/update_project_stutus",
+  verifyAccessToken,
+  projectController.updateStatusProject
+);
 projectRouter.get(
   "/planning-projects/:teacherId",
   verifyAccessToken,

@@ -2,42 +2,11 @@
 import React from "react";
 import { Layout } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
-
+import "../../style/Admin/AdminHeader.css";
 const { Header } = Layout;
 
-const AppHeader = ({ collapsed, toggleCollapse }) => {
-  return (
-    <Header
-      className="header"
-      style={{
-        background: "#002140",
-        padding: 0,
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          color: "#fff",
-          paddingLeft: "20px",
-          fontSize: "20px",
-          flex: 1,
-        }}
-      >
-        EduStart
-      </div>
-      <div
-        onClick={toggleCollapse}
-        style={{ paddingRight: "20px", cursor: "pointer" }}
-      >
-        {collapsed ? (
-          <MenuUnfoldOutlined style={{ color: "#fff", fontSize: "20px" }} />
-        ) : (
-          <MenuFoldOutlined style={{ color: "#fff", fontSize: "20px" }} />
-        )}
-      </div>
-    </Header>
-  );
+const AdminHeader = ({ content, style }) => {
+  return <h3 className="admin-header">{content}</h3>;
 };
 
-export default AppHeader;
+export default AdminHeader;

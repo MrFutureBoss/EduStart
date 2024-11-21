@@ -30,6 +30,8 @@ const initialState = {
   },
 
   classtask: {},
+  studentsInClass: {},
+  totalStudentInClass: 0,
 
   loading: false,
   error: null,
@@ -54,9 +56,22 @@ const classManagementSlice = createSlice({
     setClassTaskData(state, action) {
       state.classtask = action.payload;
     },
+    setStudentInClass(state, action) {
+      state.studentsInClass = action.payload;
+    },
+    setTotalStudentInClass(state, action) {
+      state.totalStudentInClass = action.payload;
+    },
   },
 });
 
 const { reducer, actions } = classManagementSlice;
-export const { setLoading, setTeacherData, setClassInfoData, setClassTaskData } = actions;
+export const {
+  setLoading,
+  setTeacherData,
+  setClassInfoData,
+  setClassTaskData,
+  setStudentInClass,
+  setTotalStudentInClass,
+} = actions;
 export default reducer;

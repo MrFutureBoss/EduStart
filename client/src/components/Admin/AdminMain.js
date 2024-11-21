@@ -133,8 +133,8 @@ const MainLayout = () => {
   }, [currentSemester]);
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
+    <Layout style={{ minHeight: "100vh", overflowX: "hidden" }}>
+      {/* <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} /> */}
       <Layout style={{ backgroundColor: "#F7F7F7" }}>
         <AppSider
           collapsed={collapsed}
@@ -142,14 +142,14 @@ const MainLayout = () => {
           handleFetchCurrentSemesters={handleFetchCurrentSemesters}
           toggleCollapse={toggleCollapse}
         />
-        <Layout style={{ paddingRight: "23px", background: "#f0f2f5" }}>
+        <Layout>
           <Content
             className="site-layout-background"
             style={{
-              padding: 30,
+              padding: 20,
               margin: 0,
               minHeight: 280,
-              background: "#FFFF",
+              background: "#f5f5f5",
             }}
           >
             {loading ? (

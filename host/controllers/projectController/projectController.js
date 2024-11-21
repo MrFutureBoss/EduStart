@@ -1,12 +1,77 @@
 import projectDAO from "../../repositories/projectDAO/index.js";
 import mongoose from "mongoose";
 
-const updateGroupProject = async (req, res) => {
+const updateGroupProject = async (req, res, io) => {
   const { groupId } = req.params;
   const {
     name,
     description,
     status = "Planning",
+    declineMessage,
+    professionId,
+    specialtyIds,
+    teacherId,
+  } = req.body;
+
+  try {
+    const group = await projectDAO.findGroupById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    let projectId = group.projectId;
+
+    // Nếu nhóm chưa có dự án, tạo dự án mới
+    if (!projectId) {
+      const newProject = await projectDAO.createProject({
+        name,
+        description,
+        status,
+        declineMessage,
+      });
+      projectId = newProject._id;
+
+      await projectDAO.updateGroupWithProjectId(groupId, projectId);
+    } else {
+      // Cập nhật dự án nếu đã có projectId
+      await projectDAO.updateProjectById(projectId, {
+        name,
+        description,
+        status,
+        declineMessage,
+      });
+    }
+
+    // Cập nhật hoặc thêm mới ProjectCategory
+    const updatedProjectCategory = await projectDAO.upsertProjectCategory(
+      projectId,
+      professionId,
+      specialtyIds
+    );
+
+    const io = req.io; // Lấy `io` từ req
+    io.to(`user:${teacherId}`).emit("projectUpdated", {
+      message: "Project updated",
+      groupId,
+    });
+
+    return res.status(200).json({
+      message: "Project updated successfully",
+      projectId: projectId,
+      projectCategory: updatedProjectCategory,
+    });
+  } catch (error) {
+    console.error("Error updating project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const updateStatusProject = async (req, res) => {
+  const { groupId } = req.params;
+  const {
+    name,
+    description,
+    status,
     declineMessage,
     professionId,
     specialtyIds,
@@ -59,7 +124,7 @@ const updateGroupProject = async (req, res) => {
   }
 };
 
-const reviseProject = async (req, res) => {
+const reviseProject = async (req, res, io) => {
   try {
     const { groupId } = req.params;
     const {
@@ -68,6 +133,7 @@ const reviseProject = async (req, res) => {
       status = "Changing",
       professionId,
       specialtyIds,
+      teacherId,
     } = req.body;
 
     const group = await projectDAO.findGroupById(groupId);
@@ -100,7 +166,12 @@ const reviseProject = async (req, res) => {
       professionId,
       specialtyIds
     );
-
+    // kết nối socket.io
+    const io = req.io; // Lấy `io` từ req
+    io.to(`user:${teacherId}`).emit("projectUpdated", {
+      message: "Project updated",
+      groupId,
+    });
     return res.status(200).json({
       message: "Project revised successfully",
       project: updatedProject,
@@ -156,6 +227,15 @@ const approveProjectPlanning = async (req, res) => {
         error: "Không tìm thấy dự án có trạng thái Planning",
       });
     }
+
+    const io = req.io;
+    if (projectId) {
+      io.to(`project:${projectId}`).emit("projectUpdated", {
+        message: "Project approved",
+        projectId,
+      });
+    }
+
     res.json(updatedProject);
   } catch (error) {
     console.error("Error in approveProject:", error);
@@ -166,6 +246,7 @@ const approveProjectPlanning = async (req, res) => {
 const declineProjectPlanning = async (req, res) => {
   const { projectId } = req.params;
   const { declineMessage } = req.body; // Get decline message from request body
+
   try {
     // Update project status
     const updatedProjectStatus = await projectDAO.updateProjectStatusPlanning(
@@ -182,7 +263,13 @@ const declineProjectPlanning = async (req, res) => {
       projectId,
       declineMessage
     );
-
+    const io = req.io;
+    if (projectId) {
+      io.to(`project:${projectId}`).emit("projectUpdated", {
+        message: "Project Decline",
+        projectId,
+      });
+    }
     res.json(updatedProjectMessage);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -201,6 +288,13 @@ const approveProjectChanging = async (req, res) => {
         error: "Không tìm thấy dự án có trạng thái Changing",
       });
     }
+    const io = req.io;
+    if (projectId) {
+      io.to(`project:${projectId}`).emit("projectUpdated", {
+        message: "Project approve",
+        projectId,
+      });
+    }
     res.json(updatedProject);
   } catch (error) {
     console.error("Error in approveProject:", error);
@@ -208,7 +302,7 @@ const approveProjectChanging = async (req, res) => {
   }
 };
 
-const declineProjectChanging = async (req, res) => {
+const declineProjectChanging = async (req, res, io) => {
   const { projectId } = req.params;
   const { declineMessage } = req.body; // Get decline message from request body
   try {
@@ -227,7 +321,14 @@ const declineProjectChanging = async (req, res) => {
       projectId,
       declineMessage
     );
-
+    // Phát tín hiệu cập nhật đến học sinh và giáo viên
+    const io = req.io;
+    if (projectId) {
+      io.to(`project:${projectId}`).emit("projectUpdated", {
+        message: "Project Decline",
+        projectId,
+      });
+    }
     res.json(updatedProjectMessage);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -243,4 +344,5 @@ export default {
   approveProjectChanging,
   declineProjectChanging,
   reviseProject,
+  updateStatusProject,
 };

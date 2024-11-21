@@ -178,6 +178,52 @@ const changePassword = async (email, oldPassword, newPassword) => {
   }
 };
 
+const getAllStudentByClassId = async (classId, limit, skip) => {
+  try {
+    const query = User.find({
+      role: 4,
+      classId: classId,
+    }).populate("classId", "className");
+
+    if (limit !== null) query.limit(limit);
+    if (skip !== null) query.skip(skip);
+
+    const students = await query;
+
+    const total = await User.countDocuments({
+      role: 4,
+      classId: classId,
+    });
+
+    return { students, total };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const updateUserById = async (userId, updateData) => {
+  try {
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new Error("Invalid user ID format");
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    return updatedUser;
+  } catch (error) {
+    console.error("Error updating user:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 export default {
   loginUser,
   findUserByEmail,
@@ -185,4 +231,6 @@ export default {
   findUserById,
   updateUserPassword,
   changePassword,
+  getAllStudentByClassId,
+  updateUserById,
 };

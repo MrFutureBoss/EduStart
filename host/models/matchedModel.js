@@ -23,6 +23,7 @@ const MatchedSchema = new Schema(
       default: "Pending",
     },
     time: [eventSchema],
+    declineMessage: { type: String, default: "" },
   },
   {
     timestamps: true,

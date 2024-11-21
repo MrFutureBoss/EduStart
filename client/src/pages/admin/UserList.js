@@ -76,6 +76,7 @@ const UserListSemester = () => {
   const isSemesterListUserSemester = location.pathname.includes(
     "semester-list/user-semester"
   );
+  const [hasOpenedModalFromAdmin, setHasOpenedModalFromAdmin] = useState(false);
 
   const jwt = localStorage.getItem("jwt");
 
@@ -96,10 +97,11 @@ const UserListSemester = () => {
     { id: 5, name: "Người dùng khác" },
   ];
   useEffect(() => {
-    if (fromAdmin && selectedRole) {
+    if (fromAdmin && !hasOpenedModalFromAdmin) {
       setIsSelectRoleModalVisible(true);
+      setHasOpenedModalFromAdmin(true); // Set the flag to true
     }
-  }, [fromAdmin, selectedRole]);
+  }, [fromAdmin, hasOpenedModalFromAdmin]);
 
   const handleAddUserClick = () => {
     if (selectedRole) {
@@ -368,9 +370,7 @@ const UserListSemester = () => {
       <div
         style={{
           minHeight: "600px",
-          padding: "0 20px 5px  20px",
           backgroundColor: "rgb(245 245 245 / 31%)",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
           borderRadius: "10px",
         }}
       >
@@ -461,7 +461,7 @@ const UserListSemester = () => {
                 display: "flex",
                 gap: "150px",
                 marginBottom: "25px",
-                marginTop: -12,
+                marginTop: 17,
                 padding: 13,
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                 backgroundColor: "#09636e94",
@@ -475,7 +475,6 @@ const UserListSemester = () => {
                   hoverable
                   style={{
                     width: "150px",
-                    marginTop: 10,
                     marginLeft: 10,
                     textAlign: "center",
                     border: "none",
@@ -506,6 +505,7 @@ const UserListSemester = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                   style={{ width: "381px", marginBottom: "20px" }}
                   allowClear
+                  enterButton
                 />
 
                 {selectedRole === 4 && (

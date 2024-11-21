@@ -115,6 +115,68 @@ const autoFillGroupsOnDeadline = async (req, res, next) => {
   }
 };
 
+const getTempGroupDetailByGroupName = async (req, res, next) => {
+  try {
+    const { groupName } = req.params;
+    const group = await tempGroupDAO.getTempGroupDetailByGroupName(groupName);
+
+    if (group) {
+      res.status(200).send(group);
+    } else {
+      res.status(404).send({ message: "TempGroup not found" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fillGroupsByClassId = async (req, res, next) => {
+  try {
+    const { classId } = req.params;
+
+    const result = await tempGroupDAO.fillGroupsByClassId(classId);
+
+    if (result.unassignedUsers.total > 0) {
+      return res.status(207).json({
+        message: result.message,
+        updatedGroups: result.updatedGroups,
+        unassignedUsers: result.unassignedUsers,
+      });
+    }
+
+    res.status(200).json({
+      message: result.message,
+      updatedGroups: result.updatedGroups,
+      unassignedUsers: result.unassignedUsers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const makeOfficalGroupByClassId = async (req, res, next) => {
+  try {
+    const { classId } = req.params;
+    const result = await tempGroupDAO.makeOfficalGroupByClassId(classId);
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const allStudentInClassHasGroup = async (req, res, next) => {
+  try {
+    const { classId } = req.params;
+
+    const result = await tempGroupDAO.allStudentInClassHasGroup(classId);
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error in allStudentInClassHasGroupController:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 export default {
   getAllTempGroups,
@@ -124,4 +186,8 @@ export default {
   updateTempGroup,
   deleteTempGroup,
   autoFillGroupsOnDeadline,
+  getTempGroupDetailByGroupName,
+  fillGroupsByClassId,
+  makeOfficalGroupByClassId,
+  allStudentInClassHasGroup
 };

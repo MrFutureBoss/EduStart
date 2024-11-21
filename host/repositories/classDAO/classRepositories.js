@@ -124,15 +124,21 @@ const getFullClasses = async (semesterId) => {
 
 const getTeachersWithClassCount = async () => {
   try {
-    // Tìm tất cả giáo viên (role = 2)
-    const teachers = await User.find({ role: 2 }).select("username email");
+    const currentSemester = await Semester.findOne({ status: "Ongoing" });
 
-    // Đếm số lớp đã dạy cho mỗi giáo viên
+    if (!currentSemester) {
+      throw new Error("No ongoing semester found");
+    }
+
+    const teachers = await User.find({
+      role: 2,
+      semesterId: currentSemester._id,
+    }).select("username email");
+
     const teachersWithClassCount = await Promise.all(
       teachers.map(async (teacher) => {
         const classCount = await Class.countDocuments({
           teacherId: teacher._id,
-          status: "Active",
         });
         return {
           ...teacher.toObject(),
@@ -184,7 +190,7 @@ const getUsersByClassIdAndEmptyGroupId = async (
     const total = await User.countDocuments(query);
 
     const users = await User.find(query)
-      .select("username email rollNumber memberCode")
+      .select("username email rollNumber memberCode major")
       .skip(skip)
       .limit(limit)
       .lean();
@@ -543,7 +549,7 @@ const unGroupUser = async (classId) => {
 
     // Retrieve all ungrouped users without skip or limit
     const users = await User.find(query)
-      .select("username email rollNumber memberCode")
+      .select("username email rollNumber memberCode major")
       .lean();
 
     // Count the total number of users matching the query
