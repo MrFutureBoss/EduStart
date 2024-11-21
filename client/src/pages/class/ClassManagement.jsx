@@ -164,138 +164,191 @@ const ClassManagement = () => {
       </Row>
       <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>
-                Danh sách lớp học đang quản lý
-              </h5>
-            }
-            extra={
-              <Dropdown
-                menu={{
-                  items,
-                }}
-                placement="bottom"
-                arrow
-              >
-                <Tooltip title="Tùy chỉnh thẻ">
-                  <MoreOutlined
-                    style={{
-                      fontSize: "1.2rem",
-                      cursor: "pointer",
-                      color: "#FFF",
+          <Tabs defaultActiveKey="1">
+            <Tabs.TabPane
+              tab={
+                <span
+                  style={{
+                    fontSize: "22px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Danh sách lớp học đang quản lý
+                </span>
+              }
+              key="1"
+            >
+              <Card
+                bordered={true}
+                title={
+                  <h5 style={{ padding: "0px", margin: "0px" }}>
+                    Danh sách lớp học đang quản lý
+                  </h5>
+                }
+                extra={
+                  <Dropdown
+                    menu={{
+                      items,
                     }}
-                  />
-                </Tooltip>
-              </Dropdown>
-            }
-            headStyle={{
-              background: "linear-gradient(-45deg, #005241, #128066)",
-              color: "white",
-            }}
-          >
-            <Row style={{ width: "100%", marginBottom: "1rem" }}>
-              <Col lg={8}>
-                {/* Đổi cách list data */}
-                <Segmented
-                  style={{ margin: "10px 10px" }}
-                  options={[
-                    {
-                      label: (
-                        <Tooltip title="Danh sách">
-                          <BarsOutlined />
-                        </Tooltip>
-                      ),
-                      value: "List",
-                    },
-                    {
-                      label: (
-                        <Tooltip title="Thẻ">
-                          <AppstoreOutlined />
-                        </Tooltip>
-                      ),
-                      value: "Card",
-                    },
-                  ]}
-                  onChange={setView}
-                />
-              </Col>
-              <Col
-                lg={24}
-                style={{
-                  display: view === "List" ? "flex" : "none",
-                  alignItems: "center",
-                  marginLeft: "0.7rem",
-                  gap: "1rem",
+                    placement="bottom"
+                    arrow
+                  >
+                    <Tooltip title="Tùy chỉnh thẻ">
+                      <MoreOutlined
+                        style={{
+                          fontSize: "1.2rem",
+                          cursor: "pointer",
+                          color: "#FFF",
+                        }}
+                      />
+                    </Tooltip>
+                  </Dropdown>
+                }
+                headStyle={{
+                  background: "linear-gradient(-45deg, #005241, #128066)",
+                  color: "white",
                 }}
               >
-                {/* <h5><FilterOutlined />Lọc vấn đề</h5> */}
-                <Tooltip title="Làm mới bảng">
-                  <Button
-                    onClick={() => handleResetFilterTable()}
+                <Row style={{ width: "100%", marginBottom: "1rem" }}>
+                  <Col lg={8}>
+                    {/* Đổi cách list data */}
+                    <Segmented
+                      style={{ margin: "10px 10px" }}
+                      options={[
+                        {
+                          label: (
+                            <Tooltip title="Danh sách">
+                              <BarsOutlined />
+                            </Tooltip>
+                          ),
+                          value: "List",
+                        },
+                        {
+                          label: (
+                            <Tooltip title="Thẻ">
+                              <AppstoreOutlined />
+                            </Tooltip>
+                          ),
+                          value: "Card",
+                        },
+                      ]}
+                      onChange={setView}
+                    />
+                  </Col>
+                  <Col
+                    lg={24}
                     style={{
-                      padding: "8px",
+                      display: view === "List" ? "flex" : "none",
+                      alignItems: "center",
+                      marginLeft: "0.7rem",
+                      gap: "1rem",
                     }}
                   >
-                    <SyncOutlined />
-                  </Button>
-                </Tooltip>
-                <Space direction="vertical">
-                  <Radio.Group>
-                    <Radio.Button style={{ display: "none" }}>
-                      <Tooltip title="Vấn đề nhóm chưa chốt đề tài">
-                        <Space>
-                          <ProjectOutlined />
-                          <Badge count="1" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                    <Radio.Button
-                      value={showEmptyColumn}
-                      onClick={() => handleFilterClassHaveEmptyGroup()}
-                    >
-                      <Tooltip title="Vấn đề lớp chưa có nhóm">
-                        <Space>
-                          <MdOutlineGroupOff />
-                          <Badge count="1" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                    <Radio.Button
-                      value={showUngropColumn}
-                      onClick={() => handleFilterClassHaveUnGroup()}
-                    >
-                      <Tooltip title="Vấn đề nhóm chưa chốt đủ thành viên">
-                        <Space>
-                          <TeamOutlined />
-                          <Badge count="1" color="#FFBA57" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                    <Radio.Button style={{ display: "none" }}>
-                      <Tooltip title="Vấn đề nhóm chưa nộp bài tập hoặc nộp muộn">
-                        <Space>
-                          <FieldTimeOutlined />
-                          <Badge count="1" />
-                        </Space>
-                      </Tooltip>
-                    </Radio.Button>
-                  </Radio.Group>
-                </Space>
-              </Col>
-            </Row>
-            <Card.Grid id="TaskTable" style={{ width: "100%", padding: "0px" }}>
-              {view === "List" ? (
-                <TableClass
-                  ungroup={showUngropColumn}
-                  emptygroup={showEmptyColumn}
-                />
-              ) : (
-                <CardClass />
-              )}
-            </Card.Grid>
-          </Card>
+                    {/* <h5><FilterOutlined />Lọc vấn đề</h5> */}
+                    <Tooltip title="Làm mới bảng">
+                      <Button
+                        onClick={() => handleResetFilterTable()}
+                        style={{
+                          padding: "8px",
+                        }}
+                      >
+                        <SyncOutlined />
+                      </Button>
+                    </Tooltip>
+                    <Space direction="vertical">
+                      <Radio.Group>
+                        <Radio.Button style={{ display: "none" }}>
+                          <Tooltip title="Vấn đề nhóm chưa chốt đề tài">
+                            <Space>
+                              <ProjectOutlined />
+                              <Badge count="1" />
+                            </Space>
+                          </Tooltip>
+                        </Radio.Button>
+                        <Radio.Button
+                          value={showEmptyColumn}
+                          onClick={() => handleFilterClassHaveEmptyGroup()}
+                        >
+                          <Tooltip title="Vấn đề lớp chưa có nhóm">
+                            <Space>
+                              <MdOutlineGroupOff />
+                              <Badge count="1" />
+                            </Space>
+                          </Tooltip>
+                        </Radio.Button>
+                        <Radio.Button
+                          value={showUngropColumn}
+                          onClick={() => handleFilterClassHaveUnGroup()}
+                        >
+                          <Tooltip title="Vấn đề nhóm chưa chốt đủ thành viên">
+                            <Space>
+                              <TeamOutlined />
+                              <Badge count="1" color="#FFBA57" />
+                            </Space>
+                          </Tooltip>
+                        </Radio.Button>
+                        <Radio.Button style={{ display: "none" }}>
+                          <Tooltip title="Vấn đề nhóm chưa nộp bài tập hoặc nộp muộn">
+                            <Space>
+                              <FieldTimeOutlined />
+                              <Badge count="1" />
+                            </Space>
+                          </Tooltip>
+                        </Radio.Button>
+                      </Radio.Group>
+                    </Space>
+                  </Col>
+                </Row>
+                <Card.Grid
+                  id="TaskTable"
+                  style={{ width: "100%", padding: "0px" }}
+                >
+                  {view === "List" ? (
+                    <TableClass
+                      ungroup={showUngropColumn}
+                      emptygroup={showEmptyColumn}
+                    />
+                  ) : (
+                    <CardClass />
+                  )}
+                </Card.Grid>
+              </Card>
+            </Tabs.TabPane>
+            <Tabs.TabPane
+              tab={
+                <span
+                  style={{
+                    fontSize: "22px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Theo dõi tiến độ outcome
+                </span>
+              }
+              key="2"
+            >
+              <Card
+                bordered={true}
+                title={
+                  <h5 style={{ padding: "0px", margin: "0px" }}>
+                    Theo dõi tiến độ Outcome
+                  </h5>
+                }
+                extra={
+                  <IoIosMove
+                    style={{ fontSize: "1.2rem", cursor: "pointer" }}
+                  />
+                }
+                headStyle={{
+                  background: "green",
+                  color: "white",
+                }}
+                bodyStyle={{ padding: "20px" }}
+              >
+                <AssignOutcome />
+              </Card>
+            </Tabs.TabPane>
+          </Tabs>
         </Col>
       </Row>
 

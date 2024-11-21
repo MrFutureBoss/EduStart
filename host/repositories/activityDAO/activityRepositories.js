@@ -138,8 +138,14 @@ const deleteOutcomeTypeById = async (id) => {
   return await OutcomeType.findByIdAndDelete(id);
 };
 const getOutcomesBySemesterId = async (semesterId) => {
-  return await OutcomeType.find({ semesterId });
+  try {
+    return await OutcomeType.find({ semesterId });
+  } catch (error) {
+    console.error("Error fetching outcomes by semesterId:", error);
+    throw error;
+  }
 };
+
 const isDuplicateOutcomeNameInSemester = async (name, semesterId) => {
   return await OutcomeType.findOne({ name, semesterId });
 };
@@ -169,6 +175,23 @@ const markActivityAsCompleted = async (activityId) => {
     throw new Error("Error updating activity status: " + error.message);
   }
 };
+const countOutcomesType = async () => {
+  try {
+    return await OutcomeType.countDocuments();
+  } catch (error) {
+    console.error("Error counting outcomes:", error);
+    throw error;
+  }
+};
+const getActivitiesByClassId = async (classId) => {
+  try {
+    const activities = await Activity.find({ classId, activityType: "outcome" }).lean();
+    return activities;
+  } catch (error) {
+    console.error(`Error fetching activities for class ${classId}:`, error);
+    throw new Error("Error fetching activities by class ID.");
+  }
+};
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -191,4 +214,7 @@ export default {
   isDuplicateOutcomeNameInSemester,
   findOutcomeByNameAndSemester,
   markActivityAsCompleted,
+  countOutcomesType,
+  getActivitiesByClassId,
+  getOutcomesBySemesterId,
 };

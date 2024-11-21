@@ -35,7 +35,7 @@ const getGroupById = async (id) => {
         },
       },
 
-      // Lookup vào professions để lấy tên profession
+      // Lookup vào professions để lấy cả _id và name của profession
       {
         $lookup: {
           from: "professions",
@@ -45,7 +45,7 @@ const getGroupById = async (id) => {
         },
       },
 
-      // Lookup vào specialties để lấy tên của specialty
+      // Lookup vào specialties để lấy cả _id và name của specialty
       {
         $lookup: {
           from: "specialties",
@@ -122,8 +122,20 @@ const getGroupById = async (id) => {
           classId: 1,
           project: 1,
           projectCategories: 1,
-          professionDetails: "$professionDetails.name",
-          specialtyDetails: "$specialtyDetails.name",
+          professionDetails: {
+            $map: {
+              input: "$professionDetails",
+              as: "profession",
+              in: { id: "$$profession._id", name: "$$profession.name" }, // Lấy cả id và name
+            },
+          },
+          specialtyDetails: {
+            $map: {
+              input: "$specialtyDetails",
+              as: "specialty",
+              in: { id: "$$specialty._id", name: "$$specialty.name" }, // Lấy cả id và name
+            },
+          },
           members: 1,
           mentors: 1,
           matched: 1,

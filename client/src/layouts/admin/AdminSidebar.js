@@ -29,12 +29,11 @@ const AppSider = ({
     <Sider
       width={270}
       collapsible
-      collapsed={collapsed}
-      onCollapse={toggleCollapse}
+      // collapsed={collapsed}
+      // onCollapse={toggleCollapse}
       className="site-layout-background"
       style={{
         boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
-        overflowY: "auto",
       }}
     >
       <Menu

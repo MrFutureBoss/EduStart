@@ -9,6 +9,7 @@ import semesterController from "./controllers/semesterController/index.js";
 import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import { Server as SocketIOServer } from "socket.io";
+import activityController from "./controllers/activityController/activityController.js";
 
 dotenv.config();
 
@@ -40,11 +41,24 @@ const io = new SocketIOServer(server, {
   },
 });
 
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
   socket.on("message", (msg) => {
     console.log("Received message:", msg);
     io.emit("message", msg);
+  });
+  socket.on("joinRoom", (userId) => {
+    socket.join(`user:${userId}`);
+    console.log(`User ${userId} joined their personal room.`);
+  });
+  socket.on("joinProject", (projectId) => {
+    socket.join(`project:${projectId}`);
+    console.log(`User joined project room: project:${projectId}`);
   });
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
@@ -89,6 +103,15 @@ app.use((err, req, res, next) => {
 
 cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
+});
+
+cron.schedule("5 0 * * *", async () => {
+  try {
+    await activityController.autoAssignOutcomes();
+    console.log(`[${new Date().toISOString()}] Auto-assign job completed.`);
+  } catch (error) {
+    console.error("Error in scheduled auto-assign:", error);
+  }
 });
 
 server.listen(port, () => {

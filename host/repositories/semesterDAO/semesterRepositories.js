@@ -381,6 +381,17 @@ const findTeachersWithoutClass = async () => {
   }
 };
 
+const getTeachersInCurrentSemester = async (semesterId) => {
+  try {
+    const teachers = await User.find({ role: 2, semesterId })
+      .select("_id username email")
+      .lean();
+    return teachers;
+  } catch (error) {
+    console.error("Error fetching teachers in current semester:", error);
+    throw error;
+  }
+};
 export default {
   createSemester,
   getAllSemesters,
@@ -400,4 +411,5 @@ export default {
   findStudentsInSemesterStatus,
   getClassCapacityStatus,
   findTeachersWithoutClass,
+  getTeachersInCurrentSemester,
 };

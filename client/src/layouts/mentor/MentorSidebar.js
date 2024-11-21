@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from "react";
-import { Layout, Menu, message } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { Layout, Menu, message, Modal } from "antd";
 import {
   BookOutlined,
   DashboardOutlined,
@@ -34,6 +34,7 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
   const jwt = localStorage.getItem("jwt");
   const dispatch = useDispatch();
   const { userLogin } = useSelector((state) => state.user);
+  const [hasShownWarning, setHasShownWarning] = useState(false); // Trạng thái theo dõi modal
 
   const config = useMemo(
     () => ({
@@ -50,20 +51,36 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
       try {
         const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
         dispatch(setUserLogin(userRes.data));
+        const userStatus = await axios.get(
+          `${BASE_URL}/mentor/status/${userRes.data?._id}`,
+          config
+        );
+        if (userStatus.data?.hasUpdated === false && !hasShownWarning) {
+          setHasShownWarning(true);
+          Modal.warning({
+            title: "Cập nhật thông tin",
+            content:
+              "Bạn chưa cập nhật đầy đủ thông tin về lĩnh vực hoặc chuyên môn. Vui lòng cập nhật ngay để tiếp tục sử dụng hệ thống.",
+            onOk: () =>
+              navigate("mentor-profile", { state: { fromWarning: true } }),
+          });
+        }
       } catch (error) {
-        console.error("Error fetching teacher data:", error);
+        console.error("Error fetching user data:", error);
         message.error("Lỗi khi tải thông tin người dùng.");
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [config, dispatch, hasShownWarning, navigate]);
 
   const handleLogout = () => {
     navigate("/");
     localStorage.removeItem("jwt");
   };
-
+  const checkUpdate = () => {
+    setHasShownWarning(false);
+  };
   return (
     <Sider
       width={270}
@@ -124,7 +141,13 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
             key="1"
             icon={<ImProfile className={toggleCollapse ? "" : "custom-icon"} />}
           >
-            Thông tin của bạn
+            <Link
+              onClick={checkUpdate}
+              style={{ textDecoration: "none" }}
+              to="mentor-profile"
+            >
+              Thông tin của bạn
+            </Link>
           </Menu.Item>
           <Menu.Item
             key="2"
@@ -150,17 +173,29 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
           </Menu.Item>
         </SubMenu>
         <Menu.Item key="4" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="mentor-dashboard">
+          <Link
+            onClick={checkUpdate}
+            style={{ textDecoration: "none" }}
+            to="mentor-dashboard"
+          >
             Dashboard
           </Link>
         </Menu.Item>
         <Menu.Item key="5" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="managegroup">
+          <Link
+            onClick={checkUpdate}
+            style={{ textDecoration: "none" }}
+            to="managegroup"
+          >
             Quản lý nhóm
           </Link>
         </Menu.Item>
         <Menu.Item key="6" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="project-suggest">
+          <Link
+            onClick={checkUpdate}
+            style={{ textDecoration: "none" }}
+            to="project-suggest"
+          >
             Lựa chọn dự án ưu tiên.
           </Link>
         </Menu.Item>

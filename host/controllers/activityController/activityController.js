@@ -1,8 +1,9 @@
 import activityDAO from "../../repositories/activityDAO/index.js";
 import groupDAO from "../../repositories/groupDAO/index.js";
-import mongoose from "mongoose";
+import semesterDAO from "../../repositories/semesterDAO/index.js";
+import classDAO from "../../repositories/classDAO/index.js";
 import moment from "moment";
-import { ObjectId } from "mongodb";
+import { calculateStartdateAndEnddateOfOutcomes } from "../../utilities/calculateStartdateAndEnddateOfOutcomes.js";
 
 const createActivity = async (req, res) => {
   try {
@@ -337,81 +338,81 @@ const sendReminder = async (req, res) => {
     });
   }
 };
-const assignOutcomeToAllGroups = async (req, res) => {
-  try {
-    const { description, classIds, semesterId, outcomes } = req.body;
+// const assignOutcomeToAllGroups = async (req, res) => {
+//   try {
+//     const { description, classIds, semesterId, outcomes } = req.body;
 
-    if (!Array.isArray(classIds) || classIds.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Thiếu hoặc không hợp lệ classIds." });
-    }
+//     if (!Array.isArray(classIds) || classIds.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ message: "Thiếu hoặc không hợp lệ classIds." });
+//     }
 
-    if (!semesterId) {
-      return res
-        .status(400)
-        .json({ message: "Thiếu hoặc không hợp lệ semesterId." });
-    }
+//     if (!semesterId) {
+//       return res
+//         .status(400)
+//         .json({ message: "Thiếu hoặc không hợp lệ semesterId." });
+//     }
 
-    if (!Array.isArray(outcomes) || outcomes.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Thiếu hoặc không hợp lệ outcomes." });
-    }
+//     if (!Array.isArray(outcomes) || outcomes.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ message: "Thiếu hoặc không hợp lệ outcomes." });
+//     }
 
-    const allGroups = await groupDAO.getGroupsByClassIds(classIds);
-    if (!allGroups || allGroups.length === 0) {
-      return res.status(404).json({
-        message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
-      });
-    }
+//     const allGroups = await groupDAO.getGroupsByClassIds(classIds);
+//     if (!allGroups || allGroups.length === 0) {
+//       return res.status(404).json({
+//         message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
+//       });
+//     }
 
-    const groupsByClassId = {};
-    allGroups.forEach((group) => {
-      if (!groupsByClassId[group.classId]) {
-        groupsByClassId[group.classId] = [];
-      }
-      groupsByClassId[group.classId].push(group);
-    });
+//     const groupsByClassId = {};
+//     allGroups.forEach((group) => {
+//       if (!groupsByClassId[group.classId]) {
+//         groupsByClassId[group.classId] = [];
+//       }
+//       groupsByClassId[group.classId].push(group);
+//     });
 
-    const activities = [];
-    classIds.forEach((classId) => {
-      const groups = groupsByClassId[classId];
-      if (groups) {
-        groups.forEach((group) => {
-          outcomes.forEach((outcome) => {
-            activities.push({
-              teacherId: req.user._id,
-              activityType: "outcome",
-              description: outcome.description || description,
-              outcomeId: outcome.outcomeId,
-              startDate: new Date(outcome.startDate),
-              deadline: new Date(outcome.deadline),
-              classId: classId,
-              groupId: group._id,
-              semesterId: semesterId,
-            });
-          });
-        });
-      }
-    });
+//     const activities = [];
+//     classIds.forEach((classId) => {
+//       const groups = groupsByClassId[classId];
+//       if (groups) {
+//         groups.forEach((group) => {
+//           outcomes.forEach((outcome) => {
+//             activities.push({
+//               teacherId: req.user._id,
+//               activityType: "outcome",
+//               description: outcome.description || description,
+//               outcomeId: outcome.outcomeId,
+//               startDate: new Date(outcome.startDate),
+//               deadline: new Date(outcome.deadline),
+//               classId: classId,
+//               groupId: group._id,
+//               semesterId: semesterId,
+//             });
+//           });
+//         });
+//       }
+//     });
 
-    if (activities.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Không có hoạt động nào để giao." });
-    }
+//     if (activities.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ message: "Không có hoạt động nào để giao." });
+//     }
 
-    await activityDAO.createActivity(activities);
+//     await activityDAO.createActivity(activities);
 
-    return res.status(201).json({
-      message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
-    });
-  } catch (error) {
-    console.error("Error in assignOutcomeToAllGroups:", error);
-    res.status(500).json({ message: "Đã xảy ra lỗi khi giao Outcome." });
-  }
-};
+//     return res.status(201).json({
+//       message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
+//     });
+//   } catch (error) {
+//     console.error("Error in assignOutcomeToAllGroups:", error);
+//     res.status(500).json({ message: "Đã xảy ra lỗi khi giao Outcome." });
+//   }
+// };
 
 const updateOutcomeDeadline = async (req, res) => {
   try {
@@ -547,7 +548,6 @@ const deleteOutcomeType = async (req, res) => {
     res.status(500).json({ message: "Failed to delete outcome" });
   }
 };
-
 const getOutcomesBySemester = async (req, res) => {
   try {
     const { semesterId } = req.params;
@@ -567,6 +567,206 @@ const getOutcomesBySemester = async (req, res) => {
       .json({ message: "Failed to fetch outcomes for the semester" });
   }
 };
+
+//automation assign
+const assignOutcomeToAllGroups = async ({
+  description,
+  classIds,
+  semesterId,
+  outcomes,
+  teacherId,
+}) => {
+  const allGroups = await groupDAO.getGroupsByClassIds(classIds);
+
+  if (!allGroups || allGroups.length === 0) {
+    throw new Error("No groups found for the provided class IDs.");
+  }
+
+  const groupsByClassId = {};
+  allGroups.forEach((group) => {
+    if (!groupsByClassId[group.classId]) {
+      groupsByClassId[group.classId] = [];
+    }
+    groupsByClassId[group.classId].push(group);
+  });
+
+  const activities = [];
+  const skippedClasses = new Set(); // Lưu trữ các lớp đã được assign trước đó
+
+  for (const classId of classIds) {
+    const groups = groupsByClassId[classId];
+
+    if (!groups) continue;
+
+    const existingActivities = await activityDAO.getActivitiesByClassId(
+      classId
+    );
+
+    for (const group of groups) {
+      for (const outcome of outcomes) {
+        const isAlreadyAssigned = existingActivities.some(
+          (activity) =>
+            activity.outcomeId.toString() === outcome.outcomeId &&
+            activity.classId.toString() === classId.toString()
+        );
+
+        if (isAlreadyAssigned) {
+          skippedClasses.add(classId);
+          continue;
+        }
+
+        activities.push({
+          teacherId,
+          activityType: "outcome",
+          description: outcome.description || description,
+          outcomeId: outcome.outcomeId,
+          startDate: new Date(outcome.startDate),
+          deadline: new Date(outcome.deadline),
+          classId,
+          groupId: group._id,
+          semesterId,
+        });
+      }
+    }
+  }
+
+  if (activities.length === 0) {
+    console.log(
+      "[AUTO-ASSIGN OUTCOMES] No activities to assign. Skipped classes:",
+      Array.from(skippedClasses)
+    );
+    throw new Error("No activities to assign.");
+  }
+
+  console.log(
+    "[AUTO-ASSIGN OUTCOMES] Skipped classes (already assigned):",
+    Array.from(skippedClasses)
+  );
+
+  return await activityDAO.createActivity(activities);
+};
+
+const autoAssignOutcomes = async (req, res) => {
+  try {
+    const semester = await semesterDAO.getCurrentSemester();
+    if (!semester) {
+      if (res && res.status)
+        return res.status(404).json({ message: "No active semester found." });
+      return;
+    }
+
+    const outcomes = await activityDAO.getOutcomesBySemesterId(semester._id);
+    if (!outcomes || outcomes.length === 0) {
+      if (res && res.status)
+        return res
+          .status(404)
+          .json({ message: "No outcomes found for current semester." });
+      return;
+    }
+
+    const teachers = await semesterDAO.getTeachersInCurrentSemester(
+      semester._id
+    );
+    if (!teachers || teachers.length === 0) {
+      if (res && res.status)
+        return res
+          .status(404)
+          .json({ message: "No teachers found for current semester." });
+      return;
+    }
+
+    const teacherWithClasses = await Promise.all(
+      teachers.map(async (teacher) => {
+        const classes = await classDAO.getClassesByUserId(teacher._id);
+        if (classes && classes.length > 0) {
+          return { teacherId: teacher._id, classes };
+        }
+        return null;
+      })
+    );
+
+    const filteredTeachers = teacherWithClasses.filter(Boolean);
+
+    if (filteredTeachers.length === 0) {
+      if (res && res.status)
+        return res.status(404).json({
+          message: "No teachers with classes found for current semester.",
+        });
+      return;
+    }
+
+    const teacherData = req?.user?._id
+      ? filteredTeachers.find(
+          (t) => t.teacherId.toString() === req.user._id.toString()
+        )
+      : filteredTeachers[0];
+
+    if (!teacherData) {
+      if (res && res.status)
+        return res
+          .status(404)
+          .json({ message: "No teacher with classes available." });
+      return;
+    }
+
+    const { teacherId, classes } = teacherData;
+
+    const calculatedOutcomes = calculateStartdateAndEnddateOfOutcomes(
+      semester.startDate,
+      semester.endDate,
+      outcomes
+    );
+
+    const nowDate = new Date().toISOString().slice(0, 10);
+
+    const outcomesToAssign = Object.entries(calculatedOutcomes).filter(
+      ([, { startDate, endDate }]) =>
+        nowDate >= startDate.slice(0, 10) && nowDate <= endDate.slice(0, 10)
+    );
+
+    if (outcomesToAssign.length === 0) {
+      if (res && res.status)
+        return res
+          .status(200)
+          .json({ message: "No outcomes to assign today." });
+      return;
+    }
+
+    await Promise.all(
+      outcomesToAssign.map(([outcomeId, { startDate, endDate }]) =>
+        Promise.all(
+          classes.map((classInfo) =>
+            assignOutcomeToAllGroups({
+              description: `Auto-assigned Outcome ${outcomeId}`,
+              classIds: [classInfo._id],
+              semesterId: semester._id,
+              outcomes: [
+                {
+                  outcomeId,
+                  startDate,
+                  deadline: endDate,
+                },
+              ],
+              teacherId,
+            })
+          )
+        )
+      )
+    );
+
+    console.log("[AUTO-ASSIGN OUTCOMES] Outcomes assigned successfully.");
+    if (res && res.status)
+      res.status(200).json({ message: "Outcomes assigned automatically." });
+  } catch (error) {
+    console.error(
+      "[AUTO-ASSIGN OUTCOMES] Error auto-assigning outcomes:",
+      error.message
+    );
+    if (res && res.status)
+      res.status(500).json({ message: "Error auto-assigning outcomes." });
+  }
+};
+
 export default {
   createActivity,
   getActivities,
@@ -585,4 +785,5 @@ export default {
   updateOutcomeType,
   deleteOutcomeType,
   getOutcomesBySemester,
+  autoAssignOutcomes,
 };

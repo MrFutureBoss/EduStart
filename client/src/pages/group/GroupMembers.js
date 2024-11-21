@@ -10,7 +10,8 @@ import { setGroup, updateGroupLeader } from "../../redux/slice/GroupSlice";
 import { setUserLogin } from "../../redux/slice/UserSlice";
 import ProjectUpdateModal from "./ProjectUpdateModal";
 import "./GroupMembersStyles.css";
-
+import io from "socket.io-client";
+const socket = io(BASE_URL);
 const { Text, Title } = Typography;
 
 const GroupMembers = () => {
@@ -40,7 +41,6 @@ const GroupMembers = () => {
           config
         );
         dispatch(setGroup(groupRes.data[0]));
-
         const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
         dispatch(setUserLogin(userRes.data));
       } catch (err) {
@@ -51,14 +51,106 @@ const GroupMembers = () => {
     fetchData();
   }, [groupId, dispatch]);
 
+  const fetchData = async () => {
+    try {
+      const groupRes = await axios.get(
+        `${BASE_URL}/group/group-infor/${groupId}`,
+        config
+      );
+      dispatch(setGroup(groupRes.data[0]));
+      const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
+      dispatch(setUserLogin(userRes.data));
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
+  };
+
+  useEffect(() => {
+    socket.emit("joinProject", userLogin?.projectInfo[0]?._id);
+    socket.on("projectUpdated", (data) => {
+      fetchData();
+    });
+
+    return () => {
+      socket.off("projectUpdated");
+    };
+  }, [userLogin?.projectInfo[0]?._id]);
+
+  const updateProjectStatus = async () => {
+    try {
+      const previousProject = JSON.parse(
+        localStorage.getItem("previousProject")
+      );
+
+      if (!previousProject) {
+        message.warning("Không tìm thấy dự án trước đó.");
+        return;
+      }
+
+      const body = {
+        name: previousProject?.project?.name,
+        description: previousProject?.project?.description,
+        status: "InProgress",
+        declineMessage: "",
+        professionId: previousProject?.projectCategories[0]?.professionId || [],
+        specialtyIds: previousProject?.projectCategories[0]?.specialtyIds || [],
+      };
+
+      await axios.put(
+        `${BASE_URL}/project/${previousProject?._id}/update_project_stutus`,
+        body,
+        config
+      );
+      const groupRes = await axios.get(
+        `${BASE_URL}/group/group-infor/${groupId}`,
+        config
+      );
+      dispatch(setGroup(groupRes.data[0]));
+      localStorage.removeItem("previousProject");
+      message.success("Trạng thái dự án đã được cập nhật về ban đầu.");
+    } catch (error) {
+      console.error("Error updating project status:", error);
+      message.error("Có lỗi xảy ra khi cập nhật trạng thái dự án.");
+    }
+  };
+
   const handleOpenModal = () => {
     const isPlanning =
       groupDetails?.project?.status === "InProgress" ||
       groupDetails?.project?.status === "Changing";
+    localStorage.setItem("previousProject", JSON.stringify(groupDetails));
     setIsUpdating(isPlanning);
     setProjectData(groupDetails);
     setIsModalVisible(true);
   };
+
+  useEffect(() => {
+    if (groupDetails) {
+      if (groupDetails.project?.status === "Decline") {
+        Swal.fire({
+          title: "Dự án bị từ chối",
+          text: `Bạn bị từ chối với lý do: ${groupDetails.project?.declineMessage}`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Trở về dự án bán đầu",
+          cancelButtonText: "Cập nhật dự án mới",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const previousProject = JSON.parse(
+              localStorage.getItem("previousProject")
+            );
+            if (previousProject) {
+              updateProjectStatus();
+            } else {
+              message.warning("Không tìm thấy dự án trước đó.");
+            }
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            handleOpenModal(); // Xử lý logic cập nhật dự án mới
+          }
+        });
+      }
+    }
+  }, [groupDetails]);
 
   const handleModalClose = () => {
     setIsModalVisible(false);
@@ -140,11 +232,15 @@ const GroupMembers = () => {
               </p>
               <p>
                 <Text strong>Lĩnh vực:</Text>{" "}
-                {groupDetails?.professionDetails?.join(", ")}
+                {groupDetails?.professionDetails
+                  ?.map((profession) => `${profession.name}`)
+                  .join(", ")}
               </p>
               <p>
                 <Text strong>Chuyên Môn:</Text>{" "}
-                {groupDetails?.specialtyDetails?.join(", ")}
+                {groupDetails?.specialtyDetails
+                  ?.map((specialty) => `${specialty.name}`)
+                  .join(", ")}
               </p>
               <p>
                 <Text strong>Tình trạng dự án:</Text>{" "}

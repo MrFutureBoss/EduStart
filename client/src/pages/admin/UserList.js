@@ -505,6 +505,7 @@ const UserListSemester = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                   style={{ width: "381px", marginBottom: "20px" }}
                   allowClear
+                  enterButton
                 />
 
                 {selectedRole === 4 && (

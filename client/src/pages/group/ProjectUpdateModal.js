@@ -21,6 +21,7 @@ import {
 import CustomModal from "../../components/Modal/LargeModal";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
+import { useSelector } from "react-redux";
 
 const { CheckableTag } = Tag;
 
@@ -39,6 +40,8 @@ const ProjectUpdateModal = ({
   const [selectedSpecialties, setSelectedSpecialties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hasChanges, setHasChanges] = useState(false); // Thêm trạng thái để theo dõi sự thay đổi
+  const { userLogin } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchProfessions = async () => {
@@ -54,34 +57,23 @@ const ProjectUpdateModal = ({
         setProfessions(res.data);
         setFilteredProfessions(res.data);
 
-        const professionNameToIdMap = {};
         const specialtyMap = {};
 
         res.data.forEach((prof) => {
-          professionNameToIdMap[prof.name] = prof._id;
-          specialtyMap[prof._id] = prof.specialty;
+          specialtyMap[prof._id] = prof.specialty; // Map specialties theo professionId
         });
 
         setSpecialtiesMap(specialtyMap);
 
         if (projectData && projectData.professionDetails) {
-          const selectedProfIds = projectData.professionDetails
-            .map((profName) => professionNameToIdMap[profName])
-            .filter((id) => id);
-
+          const selectedProfIds =
+            projectData.professionDetails?.map((prof) => prof.id) || [];
           setSelectedProfessions(selectedProfIds);
         }
 
         if (projectData && projectData.specialtyDetails) {
-          const selectedSpecIds = projectData.specialtyDetails
-            .flatMap(
-              (specName) =>
-                Object.values(specialtyMap)
-                  .flat()
-                  .find((spec) => spec.name === specName)?._id
-            )
-            .filter((id) => id);
-
+          const selectedSpecIds =
+            projectData.specialtyDetails?.map((spec) => spec.id) || [];
           setSelectedSpecialties(selectedSpecIds);
         }
 
@@ -121,6 +113,11 @@ const ProjectUpdateModal = ({
       );
     }
     setSelectedProfessions(nextSelectedProfessions);
+    checkForChanges(
+      nextSelectedProfessions,
+      selectedSpecialties,
+      form.getFieldsValue()
+    );
   };
 
   const handleSpecialtyChange = (specId, checked) => {
@@ -133,6 +130,11 @@ const ProjectUpdateModal = ({
       );
     }
     setSelectedSpecialties(nextSelectedSpecialties);
+    checkForChanges(
+      selectedProfessions,
+      nextSelectedSpecialties,
+      form.getFieldsValue()
+    );
   };
 
   const handleSearch = (e) => {
@@ -141,6 +143,34 @@ const ProjectUpdateModal = ({
     setFilteredProfessions(
       professions.filter((prof) => prof.name.toLowerCase().includes(searchTerm))
     );
+  };
+
+  const checkForChanges = (newProfessions, newSpecialties, formValues) => {
+    const initialName = projectData.project?.name || "";
+    const initialDescription = projectData.project?.description || "";
+    const initialProfessions =
+      projectData.professionDetails?.map((prof) => prof.id) || [];
+    const initialSpecialties =
+      projectData.specialtyDetails?.map((spec) => spec.id) || [];
+
+    const hasNameChanged = formValues.name !== initialName;
+    const hasDescriptionChanged = formValues.description !== initialDescription;
+    const hasProfessionsChanged =
+      JSON.stringify(newProfessions) !== JSON.stringify(initialProfessions);
+    const hasSpecialtiesChanged =
+      JSON.stringify(newSpecialties) !== JSON.stringify(initialSpecialties);
+
+    setHasChanges(
+      hasNameChanged ||
+        hasDescriptionChanged ||
+        hasProfessionsChanged ||
+        hasSpecialtiesChanged
+    );
+  };
+
+  const handleValuesChange = () => {
+    const formValues = form.getFieldsValue();
+    checkForChanges(selectedProfessions, selectedSpecialties, formValues);
   };
 
   const handleSubmit = async () => {
@@ -165,6 +195,7 @@ const ProjectUpdateModal = ({
         description: values.description,
         professionId: professionId,
         specialtyIds: specialtyIds,
+        teacherId: userLogin?.classInfo[0]?.teacherId,
       };
 
       const apiUrl = isUpdating
@@ -203,7 +234,11 @@ const ProjectUpdateModal = ({
           {isLoading ? (
             <Spin tip="Đang tải dữ liệu..." />
           ) : (
-            <Form form={form} layout="vertical">
+            <Form
+              form={form}
+              layout="vertical"
+              onValuesChange={handleValuesChange}
+            >
               <Form.Item
                 label="Tên Dự Án"
                 name="name"
@@ -370,9 +405,11 @@ const ProjectUpdateModal = ({
         </div>
       }
       footer={
-        <Button type="primary" onClick={handleSubmit}>
-          Lưu Thay Đổi
-        </Button>
+        hasChanges && (
+          <Button type="primary" onClick={handleSubmit}>
+            Lưu Thay Đổi
+          </Button>
+        )
       }
     />
   );

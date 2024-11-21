@@ -1,0 +1,26 @@
+/* MentorProfile.css */
+.mentor-profile-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+  border-radius: 8px; /* Bo tròn góc */
+}
+
+.loading-container {
+  text-align: center;
+  padding: 50px;
+}
+
+.mentor-profile-container .ant-form-item {
+  margin-bottom: 15px;
+}
+
+.ant-tag {
+  margin-bottom: 5px;
+}
+
+.ant-modal .ant-form-item {
+  margin-bottom: 12px;
+}
