@@ -1,11 +1,18 @@
-import { Button } from "antd";
 import React from "react";
+import "../../style/components/button/Button.css";
 
-const CustomButton = ({ color, type, content, disable }) => {
+const CustomButton = ({ color, type, content, disable, style, onClick }) => {
   return (
-    <Button color={color} type={type} disable={disable}>
+    <button
+      style={style}
+      onClick={onClick}
+      className="custum-button"
+      color={color}
+      type={type}
+      disable={disable}
+    >
       {content}
-    </Button>
+    </button>
   );
 };
 export default CustomButton;

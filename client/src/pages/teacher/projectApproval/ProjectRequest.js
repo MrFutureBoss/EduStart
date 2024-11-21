@@ -22,6 +22,8 @@ import {
 } from "../../../redux/slice/ProjectSlice";
 import ConfirmButton from "../../../components/Button/ConfirmButton";
 import CancelButton from "../../../components/Button/CancelButton";
+import io from "socket.io-client";
+const socket = io(BASE_URL);
 
 const { confirm } = Modal;
 const { Text } = Typography;
@@ -47,6 +49,27 @@ const ProjectRequest = () => {
     }
   }, [dispatch, userId]);
 
+  useEffect(() => {
+    if (userId) {
+      fetchProjects();
+      fetchChangingProjects();
+    }
+  }, [dispatch, userId]);
+
+  useEffect(() => {
+    // Tham gia room dựa trên userId
+    socket.emit("joinRoom", userId);
+
+    // Lắng nghe sự kiện cập nhật dự án
+    socket.on("projectUpdated", (data) => {
+      fetchProjects();
+      fetchChangingProjects();
+    });
+
+    return () => {
+      socket.off("projectUpdated");
+    };
+  }, [userId]);
   const fetchProjects = async () => {
     try {
       const res = await axios.get(
@@ -128,7 +151,8 @@ const ProjectRequest = () => {
     const projectType = activeTab === "2" ? "changing" : "planning"; // Xác định loại dự án dựa trên tab đang chọn
     const apiUrl = `${BASE_URL}/project/${actionType}/${projectType}/${projectId}`;
 
-    const payload = actionType === "decline" ? { message: declineMessage } : {};
+    const payload =
+      actionType === "decline" ? { declineMessage: declineMessage } : {};
 
     axios
       .put(apiUrl, payload, {

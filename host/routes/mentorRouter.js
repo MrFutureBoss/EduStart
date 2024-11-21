@@ -18,4 +18,12 @@ mentorRouter.post(
   "/remove-preference",
   mentorController.removePreferenceController
 );
+mentorRouter.get("/mentor-infor/:mentorId", mentorController.fetchMentorById);
+mentorRouter.post("/update/:mentorId", mentorController.updateMentor);
+mentorRouter.get(
+  "/status/:mentorId",
+  verifyAccessToken,
+  mentorController.checkMentorUpdateStatus
+);
+
 export default mentorRouter;

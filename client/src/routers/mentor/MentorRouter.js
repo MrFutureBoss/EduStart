@@ -4,6 +4,7 @@ import { ProtectRoute } from "../../utilities/auth";
 import MentorLayout from "../../layouts/mentor/MentorLayout";
 import ProjectsList from "../../pages/mentor/ProjectListForMentor";
 import GroupList from "../../pages/mentorgroup/GroupList";
+import MentorProfile from "../../pages/mentor/MentorProfile";
 
 const MentorRouter = () => {
   return (
@@ -17,6 +18,7 @@ const MentorRouter = () => {
     >
       <Route path="managegroup" element={<GroupList />} />
       <Route path="project-suggest" element={<ProjectsList />} />
+      <Route path="mentor-profile" element={<MentorProfile />} />
     </Route>
   );
 };

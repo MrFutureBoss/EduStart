@@ -1,24 +1,28 @@
 import Swal from "sweetalert2";
 
 const baseConfig = {
-  confirmButtonText: "OK",
-  cancelButtonText: "Cancel",
+  confirmButtonText: "Xác nhận",
+  cancelButtonText: "Huỷ",
   showCancelButton: true,
   icon: "info",
   reverseButtons: true,
 };
 
-export const showAutoCloseAlert = (title, text, icon = 'success', timer = 1000) => {
-    Swal.fire({
-      title: title,
-      text: text,
-      icon: icon,
-      showConfirmButton: false,  
-      timer: timer,  
-      timerProgressBar: true,  
-    });
-  };
-  
+export const showAutoCloseAlert = (
+  title,
+  text,
+  icon = "success",
+  timer = 1000
+) => {
+  Swal.fire({
+    title: title,
+    text: text,
+    icon: icon,
+    showConfirmButton: false,
+    timer: timer,
+    timerProgressBar: true,
+  });
+};
 
 // Hàm hiển thị alert cơ bản
 export const showAlert = (title, text, icon = "info") => {
