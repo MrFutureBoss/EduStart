@@ -59,23 +59,23 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
   };
 
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div style={{ marginBottom: 10 }}>
       <Card
         style={{
-          marginBottom: 20,
           borderRadius: "8px",
-          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-          margin: "23px",
+          backgroundColor: "#f5f5f5",
+          marginTop: 8,
         }}
       >
-        {status === "Ongoing" && (
+        {/* {status === "Ongoing" && (
           <Button
             type="link"
             icon={<EditOutlined />}
             style={{
               position: "absolute",
-              top: "13px",
-              right: "23px",
+              zIndex: 50,
+              top: "10px",
+              right: "8px",
               backgroundColor: "#4682B4",
               color: "#FFF",
               borderRadius: "50%",
@@ -85,91 +85,189 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
               handleEditSemester();
             }}
           ></Button>
-        )}
+        )} */}
 
-        <Descriptions
-          bordered
-          style={{ marginTop: -10 }}
-          size="small"
+        {/* Nhóm 1: Thông tin chung */}
+        <Card
+          bordered={false}
+          className="semester-infor-head"
+          style={{ marginBottom: 10 }}
           title={
-            <Title style={{ marginBottom: 2 }} level={4}>
-              Thông tin chi tiết kỳ học
+            <Title style={{ marginBottom: 2, fontSize: 16 }} level={5}>
+              Thông tin chung
             </Title>
           }
-          layout="horizontal"
-          column={4}
         >
-          <Descriptions.Item label={<strong>Tên kỳ học</strong>} span={1}>
-            <Title level={4} style={{ margin: 0, color: "#1890ff" }}>
-              {semesterName}
+          <Descriptions bordered size="small" column={1}>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={<strong style={{ fontSize: 13 }}>Tên kỳ học</strong>}
+            >
+              <Title
+                level={5}
+                style={{ margin: 0, color: "#1890ff", fontSize: 16 }}
+              >
+                {semesterName}
+              </Title>
+            </Descriptions.Item>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={<strong style={{ fontSize: 13 }}>Trạng thái</strong>}
+            >
+              {status === "Ongoing" && (
+                <Badge
+                  status="processing"
+                  text={
+                    <span
+                      style={{
+                        fontWeight: 500,
+                        color: "#1890ff",
+                        fontSize: 13,
+                      }}
+                    >
+                      Đang diễn ra
+                    </span>
+                  }
+                />
+              )}
+              {status === "Finished" && (
+                <Badge
+                  status="default"
+                  text={
+                    <span
+                      style={{
+                        fontWeight: 500,
+                        color: "#8c8c8c",
+                        fontSize: 13,
+                      }}
+                    >
+                      Đã kết thúc
+                    </span>
+                  }
+                  icon={<CheckCircleOutlined />}
+                />
+              )}
+              {status === "Upcoming" && (
+                <Badge
+                  status="warning"
+                  text={
+                    <span
+                      style={{
+                        fontWeight: 500,
+                        color: "#faad13",
+                        fontSize: 13,
+                      }}
+                    >
+                      Sắp diễn ra
+                    </span>
+                  }
+                  icon={<ClockCircleOutlined />}
+                />
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={<strong style={{ fontSize: 13 }}>Ngày bắt đầu</strong>}
+            >
+              <span style={{ fontSize: 13 }}>
+                {new Date(startDate).toLocaleDateString("vi-VN")}
+              </span>
+            </Descriptions.Item>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={<strong style={{ fontSize: 13 }}>Ngày kết thúc</strong>}
+            >
+              <span style={{ fontSize: 13 }}>
+                {new Date(endDate).toLocaleDateString("vi-VN")}
+              </span>
+            </Descriptions.Item>
+          </Descriptions>
+        </Card>
+
+        {/* Nhóm 2: Thông tin số lượng */}
+        <Card
+          bordered={false}
+          style={{ marginBottom: 10 }}
+          className="semester-infor-head"
+          title={
+            <Title style={{ marginBottom: 2, fontSize: 16 }} level={5}>
+              Thông tin số lượng
             </Title>
-          </Descriptions.Item>
+          }
+        >
+          <Descriptions bordered size="small" column={1}>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={<strong style={{ fontSize: 13 }}>Số học sinh</strong>}
+            >
+              <span style={{ fontSize: 13 }}>{studentCount}</span>
+            </Descriptions.Item>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={<strong style={{ fontSize: 13 }}>Số giáo viên</strong>}
+            >
+              <span style={{ fontSize: 13 }}>{teacherCount}</span>
+            </Descriptions.Item>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={<strong style={{ fontSize: 13 }}>Số lớp học</strong>}
+            >
+              <span style={{ fontSize: 13 }}>{classCount}</span>
+            </Descriptions.Item>
+            <Descriptions.Item
+              style={{ padding: "4px 8px" }}
+              label={
+                <strong style={{ fontSize: 13 }}>Số người hướng dẫn</strong>
+              }
+            >
+              <span style={{ fontSize: 13 }}>{mentorCount}</span>
+            </Descriptions.Item>
+          </Descriptions>
+        </Card>
 
-          <Descriptions.Item label={<strong>Trạng thái</strong>}>
-            {status === "Ongoing" && (
-              <Badge
-                status="processing"
-                text={
-                  <span style={{ fontWeight: 500, color: "#1890ff" }}>
-                    Đang diễn ra
-                  </span>
+        {/* Nhóm 3: Thông tin chi tiết */}
+        {currentSemester?._id === sid && (
+          <Card
+            bordered={false}
+            className="semester-infor-head"
+            style={{ marginBottom: 10 }}
+            title={
+              <Title style={{ marginBottom: 2, fontSize: 16 }} level={5}>
+                Thông tin chi tiết
+              </Title>
+            }
+          >
+            <Descriptions bordered size="small" column={1}>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>Học sinh đã có lớp</strong>
                 }
-              />
-            )}
-            {status === "Finished" && (
-              <Badge
-                status="default"
-                text={
-                  <span style={{ fontWeight: 500, color: "#8c8c8c" }}>
-                    Đã kết thúc
-                  </span>
-                }
-                icon={<CheckCircleOutlined />}
-              />
-            )}
-            {status === "Upcoming" && (
-              <Badge
-                status="warning"
-                text={
-                  <span style={{ fontWeight: 500, color: "#faad14" }}>
-                    Sắp diễn ra
-                  </span>
-                }
-                icon={<ClockCircleOutlined />}
-              />
-            )}
-          </Descriptions.Item>
-
-          <Descriptions.Item label={<strong>Ngày bắt đầu</strong>}>
-            {new Date(startDate).toLocaleDateString("vi-VN")}
-          </Descriptions.Item>
-
-          <Descriptions.Item label={<strong>Ngày kết thúc</strong>}>
-            {new Date(endDate).toLocaleDateString("vi-VN")}
-          </Descriptions.Item>
-
-          <Descriptions.Item label={<strong>Số học sinh</strong>}>
-            {studentCount}
-          </Descriptions.Item>
-          <Descriptions.Item label={<strong>Số giáo viên</strong>}>
-            {teacherCount}
-          </Descriptions.Item>
-          <Descriptions.Item label={<strong>Số lớp học</strong>}>
-            {classCount}
-          </Descriptions.Item>
-          <Descriptions.Item label={<strong>Số người hướng dẫn </strong>}>
-            {mentorCount}
-          </Descriptions.Item>
-          {currentSemester?._id === sid && (
-            <>
-              <Descriptions.Item label={<strong>Học sinh đã có lớp</strong>}>
-                {studentsWithClass}
+              >
+                <span style={{ fontSize: 13 }}>{studentsWithClass}</span>
               </Descriptions.Item>
-
-              <Descriptions.Item label={<strong>Giáo viên có lớp</strong>}>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>Học sinh chưa có lớp</strong>
+                }
+              >
+                <Link
+                  style={{ textDecoration: "none", fontSize: 13 }}
+                  to="pending-users"
+                >
+                  {studentsWithoutClass}
+                </Link>
+              </Descriptions.Item>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>Giáo viên có lớp</strong>
+                }
+              >
                 <Button
                   type="link"
-                  style={{ padding: 0 }}
+                  style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
                       "Danh sách giáo viên có lớp",
@@ -180,47 +278,17 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   {teachersWithClassCount}
                 </Button>
               </Descriptions.Item>
-
-              <Descriptions.Item label={<strong>Lớp có học sinh</strong>}>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>
+                    Giáo viên chưa có lớp
+                  </strong>
+                }
+              >
                 <Button
                   type="link"
-                  style={{ padding: 0 }}
-                  onClick={() =>
-                    handleShowModal(
-                      "Danh sách các lớp có học sinh",
-                      classesWithStudentsList
-                    )
-                  }
-                >
-                  {classesWithStudentsCount}
-                </Button>
-              </Descriptions.Item>
-
-              <Descriptions.Item label={<strong>Mentor đã matched</strong>}>
-                <Button
-                  type="link"
-                  style={{ padding: 0 }}
-                  onClick={() =>
-                    handleShowModal(
-                      "Danh sách mentor đã matched",
-                      mentorsWithMatch
-                    )
-                  }
-                >
-                  {mentorsWithMatch.length}
-                </Button>
-              </Descriptions.Item>
-
-              <Descriptions.Item label={<strong>Học sinh chưa có lớp</strong>}>
-                <Link style={{ textDecoration: "none" }} to="pending-users">
-                  {studentsWithoutClass}
-                </Link>
-              </Descriptions.Item>
-
-              <Descriptions.Item label={<strong>Giáo viên chưa có lớp</strong>}>
-                <Button
-                  type="link"
-                  style={{ padding: 0 }}
+                  style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
                       "Danh sách giáo viên chưa có lớp",
@@ -231,11 +299,34 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   {teachersWithoutClassCount}
                 </Button>
               </Descriptions.Item>
-
-              <Descriptions.Item label={<strong>Lớp chưa có học sinh</strong>}>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>Lớp có học sinh</strong>
+                }
+              >
                 <Button
                   type="link"
-                  style={{ padding: 0 }}
+                  style={{ padding: 0, fontSize: 13 }}
+                  onClick={() =>
+                    handleShowModal(
+                      "Danh sách các lớp có học sinh",
+                      classesWithStudentsList
+                    )
+                  }
+                >
+                  {classesWithStudentsCount}
+                </Button>
+              </Descriptions.Item>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>Lớp chưa có học sinh</strong>
+                }
+              >
+                <Button
+                  type="link"
+                  style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
                       "Danh sách các lớp chưa có học sinh",
@@ -246,11 +337,38 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   {classesWithoutStudentsCount}
                 </Button>
               </Descriptions.Item>
-
-              <Descriptions.Item label={<strong>Mentor chưa matched</strong>}>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>
+                    Người hướng dẫn đã có nhóm
+                  </strong>
+                }
+              >
                 <Button
                   type="link"
-                  style={{ padding: 0 }}
+                  style={{ padding: 0, fontSize: 13 }}
+                  onClick={() =>
+                    handleShowModal(
+                      "Danh sách mentor đã matched",
+                      mentorsWithMatch
+                    )
+                  }
+                >
+                  {mentorsWithMatch.length}
+                </Button>
+              </Descriptions.Item>
+              <Descriptions.Item
+                style={{ padding: "4px 8px" }}
+                label={
+                  <strong style={{ fontSize: 13 }}>
+                    Người hướng dẫn chưa có nhóm
+                  </strong>
+                }
+              >
+                <Button
+                  type="link"
+                  style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
                       "Danh sách mentor chưa matched",
@@ -261,9 +379,9 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   {mentorsWithoutMatch.length}
                 </Button>
               </Descriptions.Item>
-            </>
-          )}
-        </Descriptions>
+            </Descriptions>
+          </Card>
+        )}
 
         {/* Modal hiển thị danh sách chi tiết */}
         <Modal
@@ -277,7 +395,11 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
             renderItem={(item) => (
               <List.Item>
                 <List.Item.Meta
-                  title={<span>{item.username || item.className}</span>}
+                  title={
+                    <span style={{ fontSize: 13 }}>
+                      {item.username || item.className}
+                    </span>
+                  }
                   description={
                     item.studentCount
                       ? `Số lượng học sinh: ${item.studentCount}`

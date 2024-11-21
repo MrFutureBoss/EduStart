@@ -16,6 +16,12 @@ tempGroupRouters.get(
 );
 
 tempGroupRouters.get(
+  "/name/:groupName",
+  verifyAccessToken,
+  tempGroupController.getTempGroupDetailByGroupName
+);
+
+tempGroupRouters.get(
   "/:id",
   verifyAccessToken,
   tempGroupController.getTempGroupById
@@ -29,6 +35,21 @@ tempGroupRouters.post(
 tempGroupRouters.post(
   "/auto-fill",
   tempGroupController.autoFillGroupsOnDeadline
+);
+
+tempGroupRouters.post(
+  "/auto-fill/:classId",
+  tempGroupController.fillGroupsByClassId
+);
+
+tempGroupRouters.post(
+  "/offical-group/:classId",
+  tempGroupController.makeOfficalGroupByClassId
+);
+
+tempGroupRouters.post(
+  "/students/:classId",
+  tempGroupController.allStudentInClassHasGroup
 );
 
 tempGroupRouters.put(

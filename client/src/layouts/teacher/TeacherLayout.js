@@ -25,7 +25,7 @@ const TeacherLayout = () => {
             overflow: "auto",
           }}
         >
-          <TeacherDashBoardNotification></TeacherDashBoardNotification>
+          {/* <TeacherDashBoardNotification></TeacherDashBoardNotification> */}
           <Content
             className="site-layout-background"
             style={{

@@ -35,7 +35,7 @@ const getGroupById = async (id) => {
         },
       },
 
-      // Lookup vào professions để lấy tên profession
+      // Lookup vào professions để lấy cả _id và name của profession
       {
         $lookup: {
           from: "professions",
@@ -45,7 +45,7 @@ const getGroupById = async (id) => {
         },
       },
 
-      // Lookup vào specialties để lấy tên của specialty
+      // Lookup vào specialties để lấy cả _id và name của specialty
       {
         $lookup: {
           from: "specialties",
@@ -122,8 +122,20 @@ const getGroupById = async (id) => {
           classId: 1,
           project: 1,
           projectCategories: 1,
-          professionDetails: "$professionDetails.name",
-          specialtyDetails: "$specialtyDetails.name",
+          professionDetails: {
+            $map: {
+              input: "$professionDetails",
+              as: "profession",
+              in: { id: "$$profession._id", name: "$$profession.name" }, // Lấy cả id và name
+            },
+          },
+          specialtyDetails: {
+            $map: {
+              input: "$specialtyDetails",
+              as: "specialty",
+              in: { id: "$$specialty._id", name: "$$specialty.name" }, // Lấy cả id và name
+            },
+          },
           members: 1,
           mentors: 1,
           matched: 1,
@@ -242,8 +254,41 @@ const getProjectByGroupId = async (groupId) => {
 };
 
 const getGroupsByClassId = async (classId) => {
-  return await Group.find({ classId: mongoose.Types.ObjectId(classId) });
+  try {
+    // Validate the classId
+    if (!mongoose.isValidObjectId(classId)) {
+      throw new Error("Invalid classId format");
+    }
+
+    const objectIdClassId = new mongoose.Types.ObjectId(classId);
+
+    const groups = await Group.find({ classId: objectIdClassId })
+      .populate({
+        path: "projectId",
+        model: "Project",
+        select: "name description status",
+      })
+      .populate({
+        path: "classId",
+        model: "Class",
+        select: "className status",
+      })
+      .exec();
+
+    if (!groups || groups.length === 0) {
+      throw new Error("No groups found for the provided classId");
+    }
+
+    return {
+      message: "Groups with project details fetched successfully",
+      groups,
+    };
+  } catch (error) {
+    console.error("Error fetching detailed groups by classId:", error);
+    throw new Error(`Failed to fetch groups: ${error.message}`);
+  }
 };
+
 const getGroupsByClassIds = async (classIds) => {
   try {
     return await Group.find({ classId: { $in: classIds } });
@@ -252,6 +297,59 @@ const getGroupsByClassIds = async (classIds) => {
     throw error;
   }
 };
+
+const getAllUserByClassId = async (classId) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(classId)) {
+      throw new Error("Invalid classId format");
+    }
+
+    // Find all users with the specified classId and include groupId details
+    const students = await User.find({
+      classId: new mongoose.Types.ObjectId(classId),
+    })
+      .populate({
+        path: "groupId",
+        select: "name description status",
+      })
+      .exec();
+
+    const total = students.length;
+
+    return {
+      message: "Users fetched successfully",
+      students,
+      total,
+    };
+  } catch (error) {
+    console.error("Error fetching users by classId:", error);
+    throw new Error(`Failed to fetch users for classId: ${error.message}`);
+  }
+};
+
+const updateGroupById = async (groupId, updateData) => {
+  try {
+    if (!mongoose.isValidObjectId(groupId)) {
+      throw new Error("Invalid group ID format");
+    }
+
+    const updatedGroup = await Group.findByIdAndUpdate(
+      groupId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedGroup) {
+      throw new Error("Group not found");
+    }
+
+    return updatedGroup;
+  } catch (error) {
+    console.error("Error updating group:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 export default {
   checkGroupsExist,
   addUserToGroup,
@@ -264,4 +362,6 @@ export default {
   getProjectByGroupId,
   getGroupsByClassId,
   getGroupsByClassIds,
+  getAllUserByClassId,
+  updateGroupById,
 };

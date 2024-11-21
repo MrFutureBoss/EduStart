@@ -45,8 +45,6 @@ import "../../../style/Class/ClassDetail.css";
 import Search from "antd/es/transfer/search";
 import { useParams } from "react-router-dom";
 import avatarImage from "../../../assets/images/459233558_122150574488258176_5118808073589257292_n.jpg";
-import Highlighter from "react-highlight-words";
-import { SortableItem2 } from "./SortableItem2";
 import {
   DragOutlined,
   EditOutlined,
@@ -56,8 +54,10 @@ import {
   PlusCircleOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import SmallModal from "../../../components/Modal/SmallModal";
 import AddStudent from "../AddStudent";
+import CreateGroup from "../CreateGroup";
+import { MdAutoFixHigh, MdAutoFixOff } from "react-icons/md";
+import LastConfirmGroup from "../LastConfirmGroup";
 
 const SortableCards = () => {
   const dispatch = useDispatch();
@@ -84,13 +84,17 @@ const SortableCards = () => {
   const [searchText, setSearchText] = useState("");
   const [tempGroupSearchText, setTempGroupSearchText] = useState("");
   const [selectedGroups, setSelectedGroups] = useState([]);
+  const [selectedMajors, setSelectedMajors] = useState([]);
   const [maxStudentMap, setMaxStudentMap] = useState({});
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [drawerGroupKey, setDrawerGroupKey] = useState(null);
   const [maxStudentInGroup, setMaxStudentInGroup] = useState(0);
   const [currentStudentsInGroup, setCurrentStudentsInGroup] = useState(0);
   const [isShowModal, setIsShowModal] = useState(false);
+  const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
+  const [openManagementGroup, setOpenManagementGroup] = useState(false);
   const [dndActive, setDndActive] = useState(false);
+
   //Phân trang
   const [currentPage, setCurrentPage] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
@@ -154,7 +158,7 @@ const SortableCards = () => {
     };
 
     fetchGroups();
-  }, [classId, config, dispatch]);
+  }, [classId, config, dispatch, isShowModal]);
 
   //Danh sách những sinh viên chưa join vào nhóm
   useEffect(() => {
@@ -182,26 +186,19 @@ const SortableCards = () => {
     };
 
     fetchUserData();
-  }, [classId, config, currentPage, pageSize, dispatch]);
+  }, [classId, config, currentPage, pageSize, dispatch, isShowModal]);
 
   const fetchWaitUserList = async (limit = 6, skip = 0) => {
     try {
-      console.log(
-        `Fetching wait user list with limit: ${limit}, skip: ${skip}`
-      );
-
       const response = await axios.get(`${BASE_URL}/class/ungroup/${classId}`, {
         ...config,
         params: { limit, skip },
       });
 
-      console.log("API response received:", response.data);
-
       if (response.data) {
         // Confirm data structure is as expected
         dispatch(setWaitUserList(response.data?.data));
         dispatch(setTotalWaitUsers(response.data?.total));
-        console.log("Data successfully dispatched to store.");
       } else {
         console.warn(
           "Warning: Response does not contain expected data structure."
@@ -244,6 +241,8 @@ const SortableCards = () => {
   };
 
   const tempGroups = useSelector((state) => state.tempGroup.data || []);
+  const totalTempGroups = useSelector((state) => state.tempGroup.total || 0);
+
   const waitUserList = useSelector(
     (state) => state.tempGroup.waituserlist || []
   );
@@ -287,6 +286,12 @@ const SortableCards = () => {
     );
   };
 
+  const uniqueMajors = Array.from(
+    new Set(
+      tempGroups.flatMap((group) => group.userIds.map((user) => user.major)) // Lấy tất cả majors
+    )
+  );
+
   const Dropzone = ({ id, onDrop, children }) => {
     const { setNodeRef, isOver } = useDroppable({ id });
 
@@ -315,11 +320,11 @@ const SortableCards = () => {
   };
 
   const handleOpenModal = (groupKey, maxStudent, currentStudentCount) => {
-    setIsShowModal(true);
-    setDndActive(false);
     setDrawerGroupKey(groupKey);
     setMaxStudentInGroup(maxStudent);
     setCurrentStudentsInGroup(currentStudentCount);
+    setIsShowModal(true);
+    setDndActive(false);
   };
 
   const handleCloseModal = () => {
@@ -353,7 +358,7 @@ const SortableCards = () => {
       console.log("Updating user IDs:", updatedUserIds);
       const response = await axios.put(
         `${BASE_URL}/tempgroup/${groupId}`,
-        { userIds: updatedUserIds },
+        { userIds: updatedUserIds, status: false },
         config
       );
 
@@ -366,6 +371,7 @@ const SortableCards = () => {
         }));
         message.success("Đã rời nhóm thành công!");
         await fetchWaitUserList(6, 0);
+        await fetchGroups();
       } else {
         console.error("Unexpected response:", response);
         message.error("Có lỗi xảy ra khi rời nhóm.");
@@ -390,84 +396,75 @@ const SortableCards = () => {
     setDndActive(false);
     message.info("Đã dừng chế độ kéo thả");
   };
-  // const handleConfirm = async () => {
-  //   try {
-  //     // Only update actual groups in the database, ignoring `waitUserList`
-  //     const groupRequests = Object.entries(data).map(([groupName, users]) => {
-  //       const groupId = tempGroups.find(
-  //         (group) => group.groupName === groupName
-  //       )?._id;
-  //       if (groupId) {
-  //         return axios.put(
-  //           `${BASE_URL}/tempgroup/${groupId}`,
-  //           { userIds: users.map((user) => user._id) },
-  //           config
-  //         );
-  //       }
-  //       return null;
-  //     });
+  const handleOpenAddTypeModal = () => {
+    setIsModalShowTypeAdd(true);
+  };
+  const handleCloseAddTypeModal = () => {
+    setIsModalShowTypeAdd(false);
+  };
 
-  //     await Promise.all(groupRequests.filter(Boolean));
-  //     message.success("Cập nhật thành công!");
+  const handleOpenUnlockManageGroup = () => {
+    setOpenManagementGroup(true);
+  };
 
-  //     // Update Redux with the latest groups data
-  //     dispatch(
-  //       setTempGroups(
-  //         Object.entries(data).map(([groupName, users]) => ({
-  //           groupName,
-  //           userIds: users,
-  //           _id: tempGroups.find((group) => group.groupName === groupName)?._id,
-  //         }))
-  //       )
-  //     );
-  //   } catch (error) {
-  //     console.error("Lỗi khi cập nhật:", error.message || error);
-  //     setData(previousData);
-  //     message.error("Hoàn tác thay đổi do lỗi cập nhật");
-  //   } finally {
-  //     setIsConfirming(false); // Ensure Popconfirm is closed
-  //     setIsWaitListConfirming(false);
-  //   }
-  // };
+  const handleCloseUnlockManageGroup = () => {
+    setOpenManagementGroup(false);
+  };
+
+  const handleAutoGroup = async () => {
+    try {
+      await axios.post(`${BASE_URL}/tempgroup/auto-fill/${classId}`, config);
+
+      dispatch(setWaitUserList([]));
+      dispatch(setTotalWaitUsers(0));
+      await fetchGroups();
+
+      message.success("Nhóm đã được ghép tự động!");
+    } catch (error) {
+      console.error("Error during auto-grouping:", error);
+      message.error("Đã xảy ra lỗi khi ghép nhóm tự động");
+    }
+  };
 
   const handleWaitListConfirm = async () => {
     setIsWaitListConfirming(false);
     try {
-      // Map over each group and perform an update request, allowing empty user arrays
       const groupRequests = Object.entries(data).map(
         async ([groupName, users]) => {
           const groupId = tempGroups.find(
             (group) => group.groupName === groupName
           )?._id;
+          const status = users.length === maxStudentMap[groupName];
+
           if (groupId !== undefined) {
             await axios.put(
               `${BASE_URL}/tempgroup/${groupId}`,
-              { userIds: users.map((user) => user._id) }, // Allows empty arrays to be passed
+              { userIds: users.map((user) => user._id), status },
               config
             );
           }
         }
       );
-      // Wait for all updates to complete
+
       await Promise.all(groupRequests);
 
-      // Fetch updated waitUserList data only
-      const waitListResponse = await axios.get(
-        `${BASE_URL}/class/ungroup/${classId}`,
-        config
-      );
+      // const waitListResponse = await axios.get(
+      //   `${BASE_URL}/class/ungroup/${classId}`,
+      //   config
+      // );
 
-      // Update Redux with the latest waitUserList
-      dispatch(setWaitUserList(waitListResponse.data.data));
-      dispatch(setTotalWaitUsers(waitListResponse.data.total));
+      // dispatch(setWaitUserList(waitListResponse.data.data));
+      // dispatch(setTotalWaitUsers(waitListResponse.data.total));
 
-      // Show success message regardless of empty or non-empty data
+      await fetchWaitUserList(6, 0);
+      await fetchGroups();
+
       message.success("Danh sách đã cập nhật lại");
     } catch (error) {
       console.error("Error updating waitUserList:", error.message || error);
       message.success("Danh sách đã cập nhật lại");
     } finally {
-      setIsWaitListConfirming(false); // Ensure Popconfirm is closed
+      setIsWaitListConfirming(false);
     }
   };
 
@@ -513,6 +510,16 @@ const SortableCards = () => {
 
     if (!itemToMove) return;
 
+    // Kiểm tra nếu nhóm đã đầy thì không cho thả
+    const maxStudent = maxStudentMap[overContainer];
+    const currentStudentCount = data[overContainer]?.length || 0;
+
+    if (currentStudentCount >= maxStudent) {
+      message.warning("Nhóm đã đầy, không thể thêm thành viên.");
+      return;
+    }
+
+    // Thực hiện thao tác kéo thả nếu nhóm không đầy
     if (
       activeContainer === "waitUserList" &&
       overContainer !== "waitUserList"
@@ -530,12 +537,11 @@ const SortableCards = () => {
       dispatch(setWaitUserList(updatedWaitUserList));
       dispatch(setTotalWaitUsers(updatedWaitUserList.length));
 
-      // Make sure to trigger Popconfirm
       setPopconfirmTitle(
         `Bạn muốn chuyển ${itemToMove.username} sang nhóm ${overContainer}?`
       );
       setDropTargetCard(overContainer);
-      setIsWaitListConfirming(true); // Force Popconfirm even if waitUserList is empty
+      setIsWaitListConfirming(true);
     } else if (
       overContainer === "waitUserList" &&
       activeContainer !== "waitUserList"
@@ -584,6 +590,8 @@ const SortableCards = () => {
     return aNum - bNum;
   });
 
+  const allGroupsCompleted = tempGroups.every((group) => group.status === true);
+
   return (
     <DndContext
       sensors={sensors}
@@ -591,6 +599,81 @@ const SortableCards = () => {
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
     >
+      <Row>
+        <Button
+          color="primary"
+          variant="solid"
+          style={{
+            margin: "20px 0px",
+            display: totalTempGroups > 0 ? "none" : "block",
+          }}
+          onClick={handleOpenAddTypeModal}
+        >
+          + Tạo nhóm lớp
+        </Button>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          {!dndActive ? (
+            <Tooltip
+              title="Tự động ghép nhóm luôn bỏ qua deadline"
+              style={{ display: "flex", textAlign: "center" }}
+            >
+              <Button
+                color="primary"
+                variant="solid"
+                style={{
+                  margin: "20px 0px",
+                  display:
+                    totalTempGroups <= 0 || allGroupsCompleted
+                      ? "none"
+                      : "block",
+                }}
+                onClick={handleAutoGroup}
+              >
+                <MdAutoFixHigh style={{ fontSize: "1.1rem" }} />
+                &nbsp;Tự động xếp nhóm
+              </Button>
+            </Tooltip>
+          ) : (
+            <Tooltip
+              title="Tự động xếp nhóm luôn bỏ qua deadline"
+              style={{ display: "flex", textAlign: "center" }}
+            >
+              <Button
+                color="default"
+                variant="solid"
+                disabled={true}
+                style={{
+                  margin: "20px 0px",
+                  display:
+                    totalTempGroups <= 0 || allGroupsCompleted
+                      ? "none"
+                      : "block",
+                }}
+              >
+                <MdAutoFixOff style={{ fontSize: "1.1rem" }} />
+                &nbsp;Tự động xếp nhóm
+              </Button>
+            </Tooltip>
+          )}
+        </div>
+        <div>
+          {totalTempGroups > 0 && allGroupsCompleted ? (
+            <Button
+              color="primary"
+              variant="solid"
+              style={{
+                margin: "20px 0px",
+                display: "block",
+              }}
+              onClick={handleOpenUnlockManageGroup}
+            >
+              &nbsp;Xác nhận nhóm
+            </Button>
+          ) : (
+            <></>
+          )}
+        </div>
+      </Row>
       <Row gutter={[32, 16]}>
         <Col sm={24} md={24} lg={6}>
           <Row>
@@ -737,7 +820,6 @@ const SortableCards = () => {
             />
           </Row>
         </Col>
-
         <Col sm={24} md={24} lg={18}>
           <Row>
             <Col
@@ -757,10 +839,8 @@ const SortableCards = () => {
             <Col
               sm={24}
               style={{
-                marginTop: "5px",
-                marginBottom: "15px",
                 display: "flex",
-                gap: "2rem",
+                // gap: "2rem",
                 justifyContent: "center",
               }}
             >
@@ -797,9 +877,47 @@ const SortableCards = () => {
                 const users = data[groupKey] || [];
                 const maxStudent = maxStudentMap[groupKey] || 0;
                 const currentStudentCount = users.length;
+                // Tính số lượng mỗi major
+                const majorCounts = users.reduce((acc, user) => {
+                  let majorShort = "";
+                  let originalMajor = user.major; // Lưu tên major gốc
+
+                  switch (user.major) {
+                    case "Kỹ thuật phần mềm":
+                      majorShort = "SE";
+                      break;
+                    case "Ngôn ngữ Nhật":
+                      majorShort = "JL";
+                      break;
+                    case "Kinh tế":
+                      majorShort = "IB";
+                      break;
+                    case "Truyền thông đa phương tiện":
+                      majorShort = "IMC";
+                      break;
+                    default:
+                      majorShort = "Chưa xác định";
+                      originalMajor = "Không xác định";
+                  }
+
+                  if (!acc[majorShort]) {
+                    acc[majorShort] = { count: 0, originalMajor };
+                  }
+                  acc[majorShort].count += 1;
+                  return acc;
+                }, {});
 
                 return (
-                  <Col xs={24} sm={24} md={18} lg={8} key={groupKey}>
+                  <Col
+                    xs={24}
+                    sm={24}
+                    md={18}
+                    lg={16}
+                    xl={12}
+                    xxl={8}
+                    key={groupKey}
+                    // style={{ display: "flex", justifyContent: "center" }}
+                  >
                     <Card
                       extra={
                         <Dropdown
@@ -826,6 +944,7 @@ const SortableCards = () => {
                                     style={{ fontSize: "1rem" }}
                                   />
                                 }
+                                disabled={totalWaitUsers === 0}
                                 title={
                                   <p style={{ padding: "0px", margin: "0px" }}>
                                     Thêm thành viên
@@ -901,7 +1020,7 @@ const SortableCards = () => {
                         {users.length > 0 ? (
                           <List
                             bordered
-                            dataSource={[users[0]]} // Only show the first item
+                            dataSource={[users]}
                             renderItem={(item) => (
                               <div
                                 key={item._id}
@@ -930,8 +1049,41 @@ const SortableCards = () => {
                                   <UserOutlined style={{ fontWeight: "500" }} />
                                 </span>
                                 <div style={{ fontWeight: "600" }}>
-                                  Chuyên ngành học: <Tag>SE</Tag>
-                                  <Tag>MKT</Tag>
+                                  Chuyên ngành:{" "}
+                                  {Object.entries(majorCounts).map(
+                                    ([major, info]) => (
+                                      <Tooltip
+                                        key={major}
+                                        title={
+                                          <p>
+                                            Có {info.count} thành viên chuyên
+                                            ngành {info.originalMajor}
+                                          </p>
+                                        }
+                                      >
+                                        <Tag
+                                          color="#108ee9"
+                                          style={{ height: "fit-content" }}
+                                        >
+                                          <span
+                                            style={{
+                                              borderRight: "1px solid #FFF",
+                                              paddingRight: "0.4rem",
+                                            }}
+                                          >
+                                            {major}
+                                          </span>
+                                          <span
+                                            style={{
+                                              paddingLeft: "0.3rem",
+                                            }}
+                                          >
+                                            {info.count} <UserOutlined />
+                                          </span>
+                                        </Tag>
+                                      </Tooltip>
+                                    )
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -996,6 +1148,13 @@ const SortableCards = () => {
           </div>
         ) : null}
       </DragOverlay>
+
+      <CreateGroup
+        classId={classId}
+        show={isModalShowTypeAdd}
+        close={handleCloseAddTypeModal}
+      />
+
       <AddStudent
         groupKey={drawerGroupKey}
         maxStudent={maxStudentInGroup}
@@ -1004,12 +1163,17 @@ const SortableCards = () => {
         close={handleCloseModal}
       />
 
+      <LastConfirmGroup
+        show={openManagementGroup}
+        close={handleCloseUnlockManageGroup}
+      />
+
       <Drawer
         title={`Danh sách thành viên - ${drawerGroupKey}`}
         onClose={handleCloseDrawer}
         open={isOpenDrawer}
         bodyStyle={{ padding: "0px" }}
-        width={420}
+        width={450}
       >
         <div
           style={{
@@ -1022,13 +1186,13 @@ const SortableCards = () => {
           <Select
             mode="multiple"
             maxCount={6}
-            placeholder="Chuyên ngành"
-            onChange={(value) => setSelectedGroups(value)}
-            style={{ width: "8rem" }}
+            placeholder="Chọn chuyên ngành"
+            onChange={(value) => setSelectedMajors(value)}
+            style={{ width: "10rem" }}
           >
-            {tempGroups.map((tp) => (
-              <Select.Option key={tp?._id} value={tp?.groupName}>
-                {tp?.groupName}
+            {uniqueMajors.map((major) => (
+              <Select.Option key={major} value={major}>
+                {major}
               </Select.Option>
             ))}
           </Select>
@@ -1050,15 +1214,19 @@ const SortableCards = () => {
                 style={{
                   display: "flex",
                   justifyContent: "space-evenly",
-                  width: "14rem",
+                  width: "17rem",
                   alignItems: "center",
                 }}
               >
                 <Avatar src={avatarImage} />
-                <div style={{ lineHeight: "1rem" }}>
-                  <div style={{ fontWeight: "700" }}>{item.username}</div>
-                  <div>{item.email}</div>
-                  <div>MSSV: {item.rollNumber}</div>
+                <div style={{ width: "13rem", lineHeight: "1rem" }}>
+                  <div style={{ fontWeight: "700" }}>
+                    {item.username} - {item.rollNumber}
+                  </div>
+                  <div style={{ fontSize: "0.7rem" }}>
+                    Chuyên ngành: {item.major}
+                  </div>
+                  <div style={{ fontSize: "0.7rem" }}>{item.email}</div>
                 </div>
               </div>
               <Popconfirm

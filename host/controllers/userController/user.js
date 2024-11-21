@@ -148,6 +148,55 @@ const updateUser = async (req, res) => {
 };
 
 
+const getAllStudentByClassId = async (req, res) => {
+  const { classId } = req.params;
+  const limit = req.query.limit ? parseInt(req.query.limit) : null;
+  const skip = req.query.skip ? parseInt(req.query.skip) : null;
+
+  try {
+    const { students, total } = await userDAO.getAllStudentByClassId(
+      classId,
+      limit,
+      skip
+    );
+
+    if (!students.length) {
+      return res
+        .status(404)
+        .json({ message: "No students found in this class." });
+    }
+
+    res.status(200).json({
+      students,
+      total,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const patchUser = async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+  try {
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No update data provided" });
+    }
+    const updatedUser = await userDAO.updateUserById(id, updateData);
+    res.status(200).json({
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error in patchUser:", error.message);
+    if (error.message === "User not found") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   getUserLogin,
   forgotPassword,
@@ -156,4 +205,7 @@ export default {
   changePassword,
   userProfile,
   updateUser,
+  getAllStudentByClassId,
+  patchUser,
+
 };

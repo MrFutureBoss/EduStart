@@ -6,11 +6,8 @@ import MyActivity from "../../pages/activity/MyActivity";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
 // import UnGroupList from "../../pages/class/UnGroupList";
 import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
-import GroupProccess from "../../pages/create-group/GroupProccess";
-import PostActivity from "../../pages/activity/PostActivity";
 import Result from "../../pages/Dnd_test/Result";
 import ClassManagement from "../../pages/class/ClassManagement";
-import OutcomeActivity from "../../pages/activity/OutcomeActivity";
 import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
 import TeacherProfile from "../../pages/teacher/TeacherProfile";
 import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTreeView";
@@ -18,8 +15,9 @@ import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
 import ProjectCardMain from "../../pages/teacher/matchingMentor/matching/ProjectCardMain";
 import DetailedSelection from "../../pages/teacher/matchingMentor/matching/DetailedSelection";
 import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
-import GroupMembers from "../../pages/group/GroupMembers";
 import OutcomeDetail from "../../pages/activity/OutcomeDetail";
+import ClassDetail from "../../pages/class/ClassDetail";
+import GroupDetail from "../../pages/managegroup/GroupDetail";
 
 const TeacherRouter = () => {
   return (
@@ -32,11 +30,10 @@ const TeacherRouter = () => {
       }
     >
       <Route path="professionmanagement" element={<Result />} />
-      <Route path="class/detail/:className" element={<GroupProccess />} />
+      <Route path="class/detail/:className" element={<ClassDetail/>} />
       <Route path="class" element={<ClassManagement />} />
       <Route path="teacher-activity" element={<MyActivity />} />
       <Route path="professionmanagement" element={<ProfessionManagement />} />
-      <Route path="class/:className" element={<GroupProccess />} />
       <Route path="teacher-dashboard" element={<MyActivity />} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />
       <Route path="choose-mentor" element={<MainStep />} />
@@ -56,7 +53,7 @@ const TeacherRouter = () => {
         element={<DetailedSelection />}
       />
       <Route path="project-request" element={<ProjectRequest />} />
-      <Route path="group-detail" element={<GroupMembers />} />
+      <Route path="group-detail/:groupId" element={<GroupDetail />} />
     </Route>
   );
 };

@@ -30,6 +30,7 @@ const Navbar = () => {
     navigate("/");
     localStorage.removeItem("jwt");
   };
+  console.log(userLogin);
 
   // Fetch teacher data from API when Navbar is mounted
   useEffect(() => {

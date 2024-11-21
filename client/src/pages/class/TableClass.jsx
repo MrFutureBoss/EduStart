@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Highlighter from "react-highlight-words";
-import { SearchOutlined } from "@ant-design/icons";
+import { EyeFilled, SearchOutlined } from "@ant-design/icons";
 import { Button, Input, Space, Table, Tag, Spin } from "antd"; // Import Spin
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -41,10 +41,9 @@ const TableClass = ({ ungroup, emptygroup }) => {
         dispatch(setClassTaskData(response.data));
 
         if (!ungroup && !emptygroup) {
-          setFilteredData(response.data.data); 
+          setFilteredData(response.data.data);
           return;
         }
-
 
         const filteredClasses = response.data.data.filter((item) => {
           const incompleteGroups = item.tempGroupId.filter(
@@ -53,10 +52,10 @@ const TableClass = ({ ungroup, emptygroup }) => {
           const hasNoGroups = item.tempGroupId.length === 0;
 
           if (ungroup && incompleteGroups > 0) {
-            return true; 
+            return true;
           }
           if (emptygroup && hasNoGroups) {
-            return true; 
+            return true;
           }
           return false;
         });
@@ -253,12 +252,31 @@ const TableClass = ({ ungroup, emptygroup }) => {
                 {incompleteCount} nhóm chưa chốt đủ thành viên
               </Tag>
             ) : (
-              <Tag color="green">Hoàn thành</Tag>
+              <Tag color="green">Hiện tại chưa có</Tag>
             )}
           </div>
         );
       },
-      width: "30%",
+      width: "15%",
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      width: "15%",
+      render: (_, record) => (
+        <Link
+          to={`/teacher-dashboard/class/detail/${record.className}`}
+          style={{
+            padding: "6px 12px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontSize: "14px",
+            fontWeight: "500",
+          }}
+        >
+          <EyeFilled style={{ fontSize: "" }}></EyeFilled>&nbsp; Chi tiết lớp
+        </Link>
+      ),
     },
   ];
 

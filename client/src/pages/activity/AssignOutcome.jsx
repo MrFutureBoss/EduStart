@@ -12,6 +12,8 @@ import {
   Divider,
   List,
   Typography,
+  Row,
+  Col,
 } from "antd";
 import axios from "axios";
 import calculateStartdateAndEnddateOfOutcomes from "./calculateStartdateAndEnddateOfOutcomes";
@@ -244,38 +246,126 @@ const AssignOutcome = ({ onAssigned }) => {
   return (
     <>
       {!activityExists ? (
-        <div style={{ marginBottom: 16 }}>
-          <Title level={4}>Thông tin kỳ học hiện tại</Title>
-          {semester && (
-            <>
-              <Text strong>Tên kỳ học:</Text> <Text>{semester.name}</Text>
-              <br />
-              <Text strong>Thời gian:</Text>{" "}
-              <Text>
-                {moment(semester.startDate).format("DD/MM/YYYY")} -{" "}
-                {moment(semester.endDate).format("DD/MM/YYYY")}
-              </Text>
-              <Divider />
-            </>
-          )}
-          <h5 style={{ fontWeight: 'bold' }}>Thời gian Outcome dự kiến</h5>
-          <List
-            bordered
-            dataSource={outcomes}
-            renderItem={(outcome) => (
-              <List.Item>
-                <Text strong>{outcome.name}</Text>:{" "}
-                {outcome.startDate.format("DD/MM/YYYY")} -{" "}
-                {outcome.endDate.format("DD/MM/YYYY")}
-              </List.Item>
-            )}
-          />
-          <Divider />
-          <Tooltip title="Giao Outcome cho các lớp học">
-            <Button type="primary" onClick={showModal} icon={<SendOutlined />}>
-              Giao Outcome ngay!
-            </Button>
-          </Tooltip>
+        <div
+          style={{
+            marginBottom: 24,
+            padding: "16px",
+            background: "#fafafa",
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <Row
+            gutter={0}
+            style={{
+              display: "flex",
+              alignItems: "stretch",
+              border: "1px solid #d9d9d9",
+              borderRadius: "8px",
+              overflow: "hidden",
+            }}
+          >
+            <Col
+              xs={24}
+              md={12}
+              style={{
+                borderRight: "1px solid #d9d9d9",
+                background: "#ffffff",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "box-shadow 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(0, 0, 0, 0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <div>
+                <Title level={4} style={{ marginBottom: 16, color: "#1890ff" }}>
+                  Thông tin kỳ học hiện tại
+                </Title>
+                <Row style={{ marginBottom: 16 }}>
+                  <Col>
+                    <Text strong>Tên kỳ học:</Text>
+                    <Text style={{ marginLeft: 8 }}>{semester.name}</Text>
+                    <br />
+                    <br />
+                    <Text strong>Thời gian:</Text>
+                    <Text style={{ marginLeft: 8 }}>
+                      {moment(semester.startDate).format("DD/MM/YYYY")} -{" "}
+                      {moment(semester.endDate).format("DD/MM/YYYY")}
+                    </Text>
+                    <br />
+                    <br />
+                    <Text strong>Số lớp chưa giao outcome:</Text>
+                    <Text
+                      style={{
+                        marginLeft: 8,
+                        color: "red",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      1
+                    </Text>
+                    <br />
+                  </Col>
+                </Row>
+                <Tooltip title="Giao Outcome cho các lớp học">
+                  <Button
+                    type="primary"
+                    onClick={showModal}
+                    icon={<SendOutlined />}
+                    style={{
+                      width: "40%",
+                      backgroundColor: "#1890ff",
+                      borderColor: "#1890ff",
+                      fontSize: "16px",
+                      height: "40px",
+                    }}
+                  >
+                    Giao Outcome ngay!
+                  </Button>
+                </Tooltip>
+              </div>
+            </Col>
+            <Col
+              xs={24}
+              md={12}
+              style={{
+                background: "#ffffff",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                transition: "box-shadow 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(0, 0, 0, 0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <h4 style={{ marginBottom: 16 }}>Thời gian Outcome dự kiến</h4>
+              <List
+                bordered
+                dataSource={outcomes}
+                renderItem={(outcome) => (
+                  <List.Item>
+                    <Text strong>{outcome.name}</Text>:{" "}
+                    {outcome.startDate.format("DD/MM/YYYY")} -{" "}
+                    {outcome.endDate.format("DD/MM/YYYY")}
+                  </List.Item>
+                )}
+              />
+            </Col>
+          </Row>
         </div>
       ) : (
         <TableOutcome classList={classList} semesterId={semesterId} />

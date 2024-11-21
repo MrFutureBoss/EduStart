@@ -259,6 +259,112 @@ const removeMentorPreference = async (mentorId, projectIds) => {
     throw new Error("Lỗi khi xóa lựa chọn dự án: " + error.message);
   }
 };
+
+const getMentorDetailsById = async (mentorId) => {
+  try {
+    const mentor = await User.findOne({ _id: mentorId, role: 3 }).select(
+      "username phoneNumber email"
+    );
+
+    if (!mentor) {
+      throw new Error("Không tìm thấy mentor với ID này");
+    }
+
+    const mentorCategory = await MentorCategory.findOne({ mentorId })
+      .populate({
+        path: "professionIds",
+        model: "Profession",
+        select: "name",
+      })
+      .populate({
+        path: "specialties.specialtyId",
+        model: "Specialty",
+        select: "name",
+      });
+
+    if (!mentorCategory) {
+      return {
+        ...mentor.toObject(),
+        maxLoad: 0,
+        currentLoad: 0,
+        professions: [],
+        specialties: [],
+      };
+    }
+
+    const { maxLoad, currentLoad, professionIds, specialties } = mentorCategory;
+
+    return {
+      ...mentor.toObject(),
+      maxLoad,
+      currentLoad,
+      professions: professionIds.map((p) => p.name),
+      specialties: specialties.map((s) => ({
+        name: s.specialtyId ? s.specialtyId.name : null,
+        proficiencyLevel: s.proficiencyLevel,
+      })),
+    };
+  } catch (error) {
+    throw new Error(`Lỗi khi lấy chi tiết mentor: ${error.message}`);
+  }
+};
+
+const updateMentorData = async (mentorId, updateData) => {
+  try {
+    const { maxLoad, professions, specialties } = updateData;
+
+    const updatedMentorCategory = await MentorCategory.findOneAndUpdate(
+      { mentorId },
+      {
+        maxLoad,
+        professionIds: professions,
+        specialties: specialties.map((spec) => ({
+          specialtyId: spec.specialtyId,
+        })),
+      },
+      { new: true, upsert: true }
+    );
+
+    return updatedMentorCategory;
+  } catch (error) {
+    throw new Error(`Lỗi cập nhật mentor: ${error.message}`);
+  }
+};
+
+const checkMentorInfoStatus = async (mentorId) => {
+  try {
+    const mentorCategory = await MentorCategory.findOne({ mentorId });
+
+    if (!mentorCategory) {
+      return { hasUpdated: false, message: "Chưa có thông tin cập nhật" };
+    }
+
+    const hasProfessions =
+      mentorCategory.professionIds && mentorCategory.professionIds.length > 0;
+    const hasSpecialties =
+      mentorCategory.specialties && mentorCategory.specialties.length > 0;
+    const hasMaxLoad = mentorCategory.maxLoad;
+
+    if (hasProfessions && hasSpecialties) {
+      return {
+        hasUpdated: true,
+        message: "Người dùng đã cập nhật đầy đủ thông tin",
+      };
+    } else if (!hasProfessions && !hasSpecialties) {
+      return {
+        hasUpdated: false,
+        message: "Chưa cập nhật profession và specialty",
+      };
+    } else if (!hasMaxLoad) {
+      return {
+        hasUpdated: false,
+        message: "Chưa cập nhật số nhóm đăng ký",
+      };
+    }
+  } catch (error) {
+    throw new Error(`Lỗi kiểm tra trạng thái thông tin: ${error.message}`);
+  }
+};
 export default {
   getAllMentorCategories,
   getMentorCategoryById,
@@ -269,4 +375,7 @@ export default {
   getMatchingProjectsForMentor,
   saveMentorPreferences,
   removeMentorPreference,
+  getMentorDetailsById,
+  updateMentorData,
+  checkMentorInfoStatus,
 };

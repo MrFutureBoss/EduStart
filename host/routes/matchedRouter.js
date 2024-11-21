@@ -24,4 +24,12 @@ matchedRouter.put(
   verifyRole([2]),
   matchedController.updateMatchedStatus
 );
+
+matchedRouter.patch("/:id", verifyAccessToken, matchedController.patchMatched);
+
+matchedRouter.get(
+  "/mentor/:mentorId",
+  verifyAccessToken,
+  matchedController.getAllMatchingDetailByMentorId
+);
 export default matchedRouter;

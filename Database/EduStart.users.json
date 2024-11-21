@@ -4814,7 +4814,7 @@
   "email": "giaovien@fpt.edu.vn",
   "password": "$2a$12$aiMWOVGsFuNWfo.J3EbCruQUEzuXi9D2aJNTRuaJc/OM/Ltfz4CjO",
   "role": 2,
-  "phoneNumber": "",
+  "phoneNumber": "1231231231",
   "semesterId": [
     {
       "$oid": "670bacd404ec36ddb74918e9"
@@ -4827,7 +4827,7 @@
     "$date": "2024-10-13T11:26:23.004Z"
   },
   "updatedAt": {
-    "$date": "2024-10-13T11:26:23.004Z"
+    "$date": "2024-11-04T15:36:46.373Z"
   },
   "__v": 0
 },
@@ -4851,32 +4851,6 @@
     "$date": "2024-10-13T11:26:23.004Z"
   },
   "__v": 0
-},
-{
-  "_id": {
-    "$oid": "671828fd3cdaefd84e901ece"
-  },
-  "username": "Mai Ngọc A",
-  "email": "mntA@fpt.edu.vn",
-  "password": "$2a$12$lm6ov773Gg70IsQ61YEfjejkA1Wdr2TaI5t90385L39j8w4HOgrvm",
-  "role": 4,
-  "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
-  },
-  "semesterId": {
-    "$oid": "66ffdc997dc84f7cb828acf6"
-  },
-  "status": "InActive",
-  "rollNumber": "HE161234",
-  "memberCode": "mntAhe161234",
-  "__v": 0,
-  "createdAt": {
-    "$date": "2024-10-04T12:20:59.718Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-04T15:42:01.002Z"
-  },
-  "isLeader": false
 },
 {
   "_id": {
@@ -6019,9 +5993,9 @@
   "_id": {
     "$oid": "6715dd20e3b96d4ba609da5b"
   },
-  "username": "janesmith",
-  "email": "janesmith@example.com",
-  "password": "hashedpassword5",
+  "username": "mentor",
+  "email": "mentor@fe.edu.vn",
+  "password": "$2b$12$PvJCGaPaHLwXJ5LiSbgZlu0qyakmBAPZ0g5PD9qumkl8.EEIoeu0K",
   "role": 3,
   "status": "Active",
   "createdAt": {
@@ -6158,4 +6132,30 @@
   "updatedAt": {
     "$date": "2024-10-21T04:48:32.395Z"
   }
+},
+{
+  "_id": {
+    "$oid": "671828fd3cdaefd84e901ece"
+  },
+  "username": "Mai Ngọc A",
+  "email": "mntA@fpt.edu.vn",
+  "password": "$2a$12$lm6ov773Gg70IsQ61YEfjejkA1Wdr2TaI5t90385L39j8w4HOgrvm",
+  "role": 4,
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "semesterId": {
+    "$oid": "66ffdc997dc84f7cb828acf6"
+  },
+  "status": "InActive",
+  "rollNumber": "HE161234",
+  "memberCode": "mntAhe161234",
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-10-04T12:20:59.718Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-04T15:42:01.002Z"
+  },
+  "isLeader": false
 }]
