@@ -227,6 +227,17 @@ const getMentorsBySpecialty = async (professionId, specialtyId) => {
   return mentors;
 };
 
+const getMentorCategoryByUserId = async (userId) => {
+  try {
+    return await MentorCategory.findOne({ mentorId: new ObjectId(userId) })
+      .populate("mentorId", "username email") 
+      .populate("professionIds") 
+      .populate("specialties.specialtyId");
+  } catch (error) {
+    throw new Error(`Unable to find mentor category with userId ${userId}: ${error.message}`);
+  }
+};
+
 const removeMentorPreference = async (mentorId, projectIds) => {
   try {
     const projectIdsArray = Array.isArray(projectIds)

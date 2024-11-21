@@ -42,6 +42,89 @@ const { Option } = Select;
 const { Search } = Input;
 
 const UserListSemester = () => {
+  // 2 state này để đóng mở modal
+  const [isUserModalVisible, setIsUserModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  // 2 state này để edit
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedUser, setEditedUser] = useState(null);
+
+  // click vào ( bật ắt modal )
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setEditedUser(null);
+    setIsEditMode(false);
+    setIsUserModalVisible(true);
+  };
+  // handle khi ấn edit
+  const toggleEditMode = () => {
+    if (isEditMode) {
+      setIsEditMode(false);
+      setEditedUser(null);
+    } else {
+      setIsEditMode(true);
+      setEditedUser({ ...selectedUser });
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      // So sánh dữ liệu đã thay đổi
+      const updatedFields = {};
+      for (const key in editedUser) {
+        if (editedUser[key] !== selectedUser[key]) {
+          updatedFields[key] = editedUser[key];
+        }
+      }
+
+      // Nếu không có dữ liệu nào thay đổi, không cần gửi request
+      if (Object.keys(updatedFields).length === 0) {
+        message.warning("Không có thay đổi nào để cập nhật!");
+        setIsEditMode(false);
+        return;
+      }
+
+      // Gửi request cập nhật chỉ với các trường thay đổi
+      const response = await axios.put(
+        `${BASE_URL}/user/update/${selectedUser._id}`,
+        updatedFields,
+        config
+      );
+
+      message.success("Cập nhật thành công!");
+
+      // Cập nhật danh sách người dùng trong state Redux
+      const updatedUser = {
+        ...selectedUser, // Giữ lại các trường cũ
+        ...response.data, // Ghi đè các trường được cập nhật
+      };
+  
+      // Cập nhật Redux state
+      const updatedUsers = usersInSmt.map((user) =>
+        user._id === selectedUser._id ? updatedUser : user
+      );
+      console.log("Updated Users:", updatedUsers); // Kiểm tra log
+  
+      dispatch(setUsersInSmt(updatedUsers));
+  
+      
+
+      // Cập nhật thông tin người dùng hiện tại
+      setSelectedUser(response.data);
+      setIsUserModalVisible(false); // Đóng modal
+      setIsEditMode(false); // Tắt chế độ chỉnh sửa
+    } catch (error) {
+      console.error("Lỗi khi cập nhật người dùng:", error);
+      message.error("Cập nhật thất bại!");
+    }
+  };
+
+  const closeUserModal = () => {
+    setIsEditMode(false);
+    setEditedUser(null);
+    setIsUserModalVisible(false);
+  };
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { sid, usersInSmt, currentSemester, semester } = useSelector(
@@ -200,7 +283,11 @@ const UserListSemester = () => {
       title: "Tên",
       dataIndex: "username",
       key: "username",
-      render: (text, record) => <Link to={`/user/${record._id}`}>{text}</Link>,
+      render: (text, record) => (
+        <Button type="link" onClick={() => handleUserClick(record)}>
+          {text}
+        </Button>
+      ),
     },
     {
       title: "Email",
@@ -364,7 +451,126 @@ const UserListSemester = () => {
 
   return (
     <div className="user-details">
-      <h3 className="header-content-mentor-detail">Quản lý người dùng</h3>
+      {/* đây là modal khi click vào sẽ hiển thị ra  */}
+      <Modal
+        title={`Thông tin ${
+          selectedUser?.role === 4 ? "Học sinh" : "Giáo viên"
+        }`}
+        open={isUserModalVisible}
+        onCancel={closeUserModal}
+        footer={[
+          isEditMode ? (
+            <>
+              <Button key="cancel" onClick={toggleEditMode}>
+                Hủy
+              </Button>
+              <Button key="save" type="primary" onClick={handleSaveChanges}>
+                Lưu
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button key="edit" type="primary" onClick={toggleEditMode}>
+                Chỉnh sửa
+              </Button>
+              <Button key="close" onClick={closeUserModal}>
+                Đóng
+              </Button>
+            </>
+          ),
+        ]}
+      >
+        {selectedUser && (
+          <div>
+            <p>
+              <b>Tên:</b>{" "}
+              {isEditMode ? (
+                <Input
+                  value={editedUser.username}
+                  onChange={(e) =>
+                    setEditedUser({ ...editedUser, username: e.target.value })
+                  }
+                />
+              ) : (
+                selectedUser.username
+              )}
+            </p>
+            <p>
+              <b>Email:</b>{" "}
+              {isEditMode ? (
+                <Input
+                  value={editedUser.email}
+                  onChange={(e) =>
+                    setEditedUser({ ...editedUser, email: e.target.value })
+                  }
+                />
+              ) : (
+                selectedUser.email
+              )}
+            </p>
+            {selectedUser.role === 4 && (
+              <>
+                <p>
+                  <b>MSSV:</b>{" "}
+                  {isEditMode ? (
+                    <Input
+                      value={editedUser.rollNumber || ""}
+                      onChange={(e) =>
+                        setEditedUser({
+                          ...editedUser,
+                          rollNumber: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    selectedUser.rollNumber || "Không có"
+                  )}
+                </p>
+              </>
+            )}
+            {selectedUser.role === 2 && (
+              <>
+                <p>
+                  <b>Số điện thoại:</b>{" "}
+                  {isEditMode ? (
+                    <Input
+                      value={editedUser.phoneNumber || ""}
+                      onChange={(e) =>
+                        setEditedUser({
+                          ...editedUser,
+                          phoneNumber: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    selectedUser.phoneNumber || "Không có"
+                  )}
+                </p>
+              </>
+            )}
+            <p>
+              <b>Trạng thái:</b>{" "}
+              {isEditMode ? (
+                <Select
+                  value={editedUser.status}
+                  onChange={(value) =>
+                    setEditedUser({ ...editedUser, status: value })
+                  }
+                  style={{ width: "100%" }}
+                >
+                  <Select.Option value="Active">Active</Select.Option>
+                  <Select.Option value="Inactive">Inactive</Select.Option>
+                </Select>
+              ) : (
+                <Tag color={selectedUser.status === "Active" ? "green" : "red"}>
+                  {selectedUser.status}
+                </Tag>
+              )}
+            </p>
+          </div>
+        )}
+      </Modal>
+      ;<h3 className="header-content-mentor-detail">Quản lý người dùng</h3>
       <div
         style={{
           minHeight: "600px",

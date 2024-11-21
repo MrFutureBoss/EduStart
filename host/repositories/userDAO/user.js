@@ -178,6 +178,18 @@ const changePassword = async (email, oldPassword, newPassword) => {
   }
 };
 
+const updateUserById = async (userId, updateData) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true, // Return the updated document
+      runValidators: true, // Run schema validation
+    });
+    return updatedUser;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   loginUser,
   findUserByEmail,
@@ -185,4 +197,5 @@ export default {
   findUserById,
   updateUserPassword,
   changePassword,
+  updateUserById,
 };
