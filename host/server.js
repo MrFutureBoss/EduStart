@@ -9,6 +9,7 @@ import semesterController from "./controllers/semesterController/index.js";
 import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import { Server as SocketIOServer } from "socket.io";
+import activityController from "./controllers/activityController/activityController.js";
 
 dotenv.config();
 
@@ -89,6 +90,15 @@ app.use((err, req, res, next) => {
 
 cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
+});
+
+cron.schedule("5 0 * * *", async () => {
+  try {
+    await activityController.autoAssignOutcomes();
+    console.log(`[${new Date().toISOString()}] Auto-assign job completed.`);
+  } catch (error) {
+    console.error("Error in scheduled auto-assign:", error);
+  }
 });
 
 server.listen(port, () => {

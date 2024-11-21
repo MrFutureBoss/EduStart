@@ -238,25 +238,6 @@ const TableOutcome = ({ classList, semesterId }) => {
         </span>
       ),
     },
-    {
-      title: "",
-      key: "details",
-      width: "5%",
-      render: (_, record) => (
-        <Tooltip title="Xem chi tiết lớp">
-          <Button
-            type="link"
-            icon={<EyeOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(
-                `/teacher-dashboard/class/detail/${record.className}/outcomes`
-              );
-            }}
-          />
-        </Tooltip>
-      ),
-    },
   ];
 
   const handleRowClick = (record) => {
@@ -269,7 +250,7 @@ const TableOutcome = ({ classList, semesterId }) => {
         <Spin size="large" tip="Loading data..." />
       ) : (
         <>
-          <h3>Tiến độ {currentOutcomeType}</h3>
+          <h5>Tiến độ {currentOutcomeType}</h5>
           <Table
             columns={columns}
             dataSource={filteredData}

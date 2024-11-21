@@ -70,6 +70,12 @@ activityRouters.patch(
   activityController.updateOutcomeDeadline
 );
 
+activityRouters.post(
+  "/auto-assign-outcomes",
+  verifyAccessToken,
+  verifyRole([2]),
+  activityController.autoAssignOutcomes
+);
 //Outcome type
 activityRouters.get(
   "/outcome-type",

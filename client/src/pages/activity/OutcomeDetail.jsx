@@ -26,6 +26,7 @@ import { setClassList } from "../../redux/slice/ClassSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import moment from "moment";
+import { IoChevronBackOutline } from "react-icons/io5";
 
 const OutcomeDetail = () => {
   const dispatch = useDispatch();
@@ -178,10 +179,28 @@ const OutcomeDetail = () => {
   };
 
   const renderOutcomes = (outcomesList, completedStatus) => {
+    const handleSendReminder = (groupName) => {
+      Modal.confirm({
+        title: "Xác nhận gửi lời nhắc",
+        content: `Bạn có chắc chắn muốn gửi lời nhắc tới ${groupName}?`,
+        okText: "Gửi",
+        cancelText: "Hủy",
+        onOk: async () => {
+          try {
+            // await axios.post(`${BASE_URL}/reminder/send`, { groupName }, config);
+            message.success(`Đã gửi lời nhắc tới ${groupName}`);
+          } catch (error) {
+            console.error("Error sending reminder:", error);
+            message.error("Gửi lời nhắc thất bại.");
+          }
+        },
+      });
+    };
     return outcomesList.map((outcome, index) => {
       const deadline = moment(outcome.deadline, "YYYY-MM-DD");
       const now = moment();
       const daysUntilDeadline = deadline.diff(now, "days");
+      const daysLate = now.diff(deadline, "days");
       const isOverdue = deadline.isBefore(now, "day");
       const isNearDeadline = daysUntilDeadline <= 3 && daysUntilDeadline >= 0;
 
@@ -196,15 +215,16 @@ const OutcomeDetail = () => {
         <Card.Grid
           key={index}
           style={{
-            width: "30%",
-            padding: "20px",
-            marginBottom: "10px",
-            marginRight: "10px",
+            width: "20%",
+            padding: "5px",
+            margin: "0 8px 8px 8px",
+            height: "fit-content",
             backgroundColor: completedStatus ? "#e6fffb" : "#fffbe6",
             borderLeft: completedStatus
               ? "4px solid #52c41a"
               : "4px solid #faad14",
             borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           }}
         >
           <Descriptions
@@ -248,9 +268,21 @@ const OutcomeDetail = () => {
                 </Tooltip>
               )}
             </Descriptions.Item>
-            {/* Warning message in separate Descriptions.Item */}
-            {isNearDeadline && (
-              <Descriptions.Item>
+            <Descriptions.Item>
+              {isOverdue ? (
+                <div
+                  style={{
+                    color: "red",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Tooltip title="Deadline đã quá hạn">
+                    <BellFilled style={{ marginRight: "4px" }} />
+                  </Tooltip>
+                  <span>Nộp muộn {daysLate} ngày!</span>
+                </div>
+              ) : isNearDeadline ? (
                 <div
                   style={{
                     color: "red",
@@ -259,12 +291,15 @@ const OutcomeDetail = () => {
                   }}
                 >
                   <Tooltip title="Gửi lời nhắc">
-                    <BellFilled style={{ marginRight: "4px" }} />
+                    <BellFilled
+                      onClick={() => handleSendReminder(outcome.groupName)}
+                      style={{ marginRight: "4px" }}
+                    />
                   </Tooltip>
-                  <span>Chỉ còn {daysUntilDeadline} ngày tới hạn nộp!</span>
+                  <span>Còn {daysUntilDeadline} ngày tới hạn nộp!</span>
                 </div>
-              </Descriptions.Item>
-            )}
+              ) : null}
+            </Descriptions.Item>
           </Descriptions>
         </Card.Grid>
       );
@@ -272,14 +307,26 @@ const OutcomeDetail = () => {
   };
 
   return (
-    <Layout style={{ padding: "24px", minHeight: "83vh" }}>
+    <Layout style={{ padding: "0", minHeight: "83vh" }}>
       <Divider
-        style={{ textAlign: "center", marginBottom: "20px", fontSize: "40px" }}
+        style={{ textAlign: "center", marginBottom: "20px", fontSize: "30px" }}
       >
-        Tiến độ nộp outcome của lớp
+        {`Tiến độ nộp ${outcomes[0]?.name || "chưa xác định"} của lớp ${
+          className || ""
+        }`}
       </Divider>
       <div>
-        <h4 style={{ marginBottom: "20px" }}>Lớp {className}</h4>
+        <p
+          style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "8px" }}
+        >
+          Tình hình chung:{" "}
+          <span style={{ color: "#f5222d" }}>
+            {outcomes.filter((o) => !o.completed).length}
+          </span>
+          {" / "}
+          <span style={{ color: "#1890ff" }}>{outcomes.length}</span> nhóm chưa
+          nộp
+        </p>
         <Tooltip
           title={
             outcomes
@@ -288,7 +335,7 @@ const OutcomeDetail = () => {
               .join(", ") || "Chưa có nhóm nào nộp"
           }
         >
-          <p style={{ fontSize: "15px" }}>
+          <p style={{ fontSize: "15px", fontWeight: "bold" }}>
             Các nhóm đã nộp ({outcomes.filter((o) => o.completed).length}):{" "}
             {outcomes.filter((o) => o.completed).length > 0
               ? outcomes
@@ -306,17 +353,18 @@ const OutcomeDetail = () => {
           </p>
         </Tooltip>
       </div>
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]} style={{ padding: "0" }}>
         <Col
           xs={24}
           sm={24}
-          md={18}
-          lg={18}
-          xl={18}
+          md={19}
+          lg={19}
+          xl={19}
           style={{
             border: "1px solid #e0e0e0",
             borderRadius: "8px",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            padding: "0",
           }}
         >
           <Divider
@@ -329,7 +377,7 @@ const OutcomeDetail = () => {
               padding: "8px",
               zIndex: "20",
               position: "relative",
-              bottom: "1.8rem",
+              bottom: "0.9rem",
               borderTopRightRadius: "8px",
               borderTopLeftRadius: "8px",
             }}
@@ -360,20 +408,18 @@ const OutcomeDetail = () => {
             )}
           </Card>
         </Col>
-
-        <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+        <Col xs={24} sm={24} md={5} lg={5} xl={5} style={{ padding: "0" }}>
           <Card bordered={false} style={{ backgroundColor: "#f5f5f5" }}>
             <MaterialList selectedClassId={classId} />
           </Card>
         </Col>
       </Row>
+      <br />
       <Button
-        type="link"
-        icon={<ArrowLeftOutlined />}
+        style={{ width: "fit-content" }}
         onClick={() => navigate("/teacher-dashboard/class")}
-        style={{ fontSize: "16px", color: "#1890ff", float: "left" }}
       >
-        Quay trở lại lớp học
+        <IoChevronBackOutline /> Quay lại quản lí lớp
       </Button>
       {editDeadline && (
         <Modal
