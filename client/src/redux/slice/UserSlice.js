@@ -3,7 +3,7 @@ const initialValue = {
   users: {},
   userProfile: {},
   userRegister: {},
-  userLogin: { role: 0 },
+  userLogin: {},
   filterRole: 0,
   searchValue: "",
   sort: -1,

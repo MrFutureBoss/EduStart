@@ -122,3 +122,6 @@
   border-color: #40a9ff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
+.group-members-mentor-card .ant-card-head-title {
+  text-align: start;
+}

@@ -271,7 +271,7 @@ const MentorProfile = () => {
                     {isEditing ? (
                       <InputNumber
                         min={0}
-                        max={100}
+                        max={15}
                         value={maxLoad}
                         onChange={handleMaxLoadChange}
                       />
