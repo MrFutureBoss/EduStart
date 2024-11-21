@@ -1,0 +1,86 @@
+.rbc-calendar {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.rbc-header {
+  color: white;
+  font-size: 14px !important;
+  background: #149cdb;
+  padding: 0px  !important;
+}
+
+.rbc-allday-cell {
+  display: none !important;
+}
+
+.rbc-time-header-cell .rbc-today {
+  background-color: #17405d !important;
+}
+
+.rbc-time-slot {
+  color: #74a4c3;
+  z-index: 1;
+}
+
+.rbc-time-slot:not(.rbc-today .rbc-time-slot) {
+  background-color: #ffffff;
+}
+
+/*Event Styles*/
+.rbc-event,
+.rbc-background-event {
+  z-index: 2;
+  padding: 0px !important;
+  border: none !important;
+}
+
+.rbc-events-container {
+  width: 100% !important;
+}
+
+.rbc-agenda-view table.rbc-agenda-table .rbc-agenda-time-cell>span {
+  background: #E0E0E0 !important;
+  border-radius: 16px !important;
+  padding: 3px 12px 3px 12px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  border: 1px solid #eff4f7;
+}
+
+/* detects '<<' on <<all day>> placeholder */
+.rbc-agenda-view table.rbc-agenda-table .rbc-agenda-time-cell>span::before {
+  display: none !important;
+}
+
+/* detects '>>' on <<all day>> placeholder */
+.rbc-agenda-view table.rbc-agenda-table .rbc-agenda-time-cell>span::after {
+  display: none !important;
+}
+
+.rbc-event-label {
+  display: flex !important;
+  text-align: center !important;
+  padding: 5px;
+  width: 100%;
+}
+
+
+div .rbc-event-content {
+  padding: 5px;
+  background-color: #e4e0c2;
+  color: #000;
+}
+
+.rbc-overflowing{
+  margin-right: 0px !important;
+}
+
+.rbc-show-more{
+  background-color: #F0F2F5;
+}
+
+.rbc-time-content{
+  overflow-y: hidden !important;
+}

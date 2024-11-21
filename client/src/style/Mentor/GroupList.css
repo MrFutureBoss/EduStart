@@ -88,3 +88,61 @@
     transition: background-color 0.3s ease;
 }
 
+
+.mentor-group-card {
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background-color: #f7f9fc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mentor-group-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mentor-group-card {
+    animation: fadeIn 0.5s ease;
+}
+
+.mentor-group-card:hover .ant-badge-count {
+    background-color: #108ee9 !important;
+    transition: background-color 0.3s ease;
+}
+
+.mentor-group-card {
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background-color: #f7f9fc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.mentor-group-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.mentor-group-card-selected {
+    background-color: #e6f7ff;
+    border: 2px solid #1890ff;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+.mentor-group-card-selected h4,
+.mentor-group-card-selected p {
+    color: #1890ff;
+}

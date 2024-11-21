@@ -206,12 +206,15 @@ const getAllMatchingDetailByMentorId = async (mentorId) => {
     const groupDetails = await Promise.all(
       matchedRecords.map(async (matched) => {
         const group = await Group.findById(matched.groupId._id)
-          .populate("projectId") 
-          .populate("classId", "className"); 
+          .populate("projectId")
+          .populate("classId", "className");
 
         if (!group) return null;
 
-        const groupMembers = await User.find({ groupId: group._id })
+        const groupMembers = await User.find({
+          groupId: group._id,
+          status: "Active",
+        })
           .select(
             "username email phoneNumber rollNumber memberCode status isLeader major"
           )
