@@ -59,8 +59,49 @@ const getTeacherSelection = async (req, res) => {
   }
 };
 
+// update phone number teacher 
+
+const updateTeacherPhoneNumber = async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+    const { phoneNumber } = req.body;
+
+    if (!phoneNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Số điện thoại không được để trống",
+      });
+    }
+
+    const updatedTeacher = await teacherDAO.updatePhoneNumberTeacher(teacherId, phoneNumber);
+
+    if (!updatedTeacher) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy giáo viên",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Cập nhật số điện thoại thành công",
+      data: updatedTeacher,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
+};
+
+
+
+
 export default {
   getGroupsByTeacher,
   saveTeacherSelection,
   getTeacherSelection,
+  updateTeacherPhoneNumber
 };

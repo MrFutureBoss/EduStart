@@ -17,6 +17,7 @@ import projectRouter from "./projectRouter.js";
 import mentorRouter from "./mentorRouter.js";
 import submissionRouter from "./submissionRouter.js";
 import classTransferRoutes from "./clasTransferRouter.js";
+import getMentorCategoryByUserId from "../routes/mentorCategory.js"
 
 const routes = {
   professionRouters,
@@ -38,6 +39,7 @@ const routes = {
   mentorRouter,
   submissionRouter,
   classTransferRoutes,
+
 };
 
 export default routes;

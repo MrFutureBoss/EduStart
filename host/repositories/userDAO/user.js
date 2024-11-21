@@ -178,6 +178,16 @@ const changePassword = async (email, oldPassword, newPassword) => {
   }
 };
 
+const updateUserById = async (userId, updateData) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true, // Return the updated document
+      runValidators: true, // Run schema validation
+    });
+    return updatedUser;
+  } catch (error) {
+    throw error;
+
 const getAllStudentByClassId = async (classId, limit, skip) => {
   try {
     const query = User.find({
@@ -221,6 +231,7 @@ const updateUserById = async (userId, updateData) => {
   } catch (error) {
     console.error("Error updating user:", error.message);
     throw new Error(error.message);
+
   }
 };
 
