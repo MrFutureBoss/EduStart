@@ -197,7 +197,7 @@ const ProjectUpdateModal = ({
     <CustomModal
       show={show}
       onHide={onHide}
-      title={isUpdating ? "Sửa lại Dự Án" : "Cập Nhật Dự Án"}
+      title={isUpdating ? "Sửa Lại Dự Án" : "Cập Nhật Dự Án"}
       content={
         <div style={{ width: "730px", maxWidth: "100%" }}>
           {isLoading ? (
