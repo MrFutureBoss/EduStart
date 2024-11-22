@@ -214,6 +214,7 @@ const OutcomeDetail = () => {
       return (
         <Card.Grid
           key={index}
+          onClick={() => navigate(`/teacher-dashboard/group-detail/${outcome.groupId}`)}
           style={{
             width: "20%",
             padding: "5px",
@@ -225,6 +226,7 @@ const OutcomeDetail = () => {
               : "4px solid #faad14",
             borderRadius: "8px",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+            cursor: "pointer",
           }}
         >
           <Descriptions

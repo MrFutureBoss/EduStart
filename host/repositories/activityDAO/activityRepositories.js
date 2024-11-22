@@ -185,13 +185,25 @@ const countOutcomesType = async () => {
 };
 const getActivitiesByClassId = async (classId) => {
   try {
-    const activities = await Activity.find({ classId, activityType: "outcome" }).lean();
+    const activities = await Activity.find({
+      classId,
+      activityType: "outcome",
+    }).lean();
     return activities;
   } catch (error) {
     console.error(`Error fetching activities for class ${classId}:`, error);
     throw new Error("Error fetching activities by class ID.");
   }
 };
+const getGroupOutcomesByGroupId = async (groupId) => {
+  try {
+    return await Activity.find({ groupId, activityType: "outcome" }).lean();
+  } catch (error) {
+    console.error(`[GroupOutcomeRepository] Error fetching group outcomes: ${error.message}`);
+    throw new Error("Failed to fetch group outcomes.");
+  }
+};
+
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -217,4 +229,5 @@ export default {
   countOutcomesType,
   getActivitiesByClassId,
   getOutcomesBySemesterId,
+  getGroupOutcomesByGroupId,
 };

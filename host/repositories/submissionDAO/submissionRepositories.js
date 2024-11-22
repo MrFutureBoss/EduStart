@@ -49,10 +49,18 @@ const deleteSubmissionById = async (id) => {
   }
 };
 
+const findSubmissionBySubmitId = async (submitId) => {
+  return await Submission.findOne({ submitId })
+    .populate("groupId", "name description status")
+    .populate("classId", "className limitStudent teacherId status")
+    .populate("leaderId", "username email rollNumber");
+};
+
 export default {
   createSubmission,
   getSubmissionById,
   getSubmissions,
   updateSubmissionById,
   deleteSubmissionById,
+  findSubmissionBySubmitId,
 };

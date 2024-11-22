@@ -58,6 +58,13 @@ activityRouters.post(
   activityController.sendReminder
 );
 activityRouters.post(
+"/assign-outcome-manual",
+verifyAccessToken,
+verifyRole([2]),
+activityController.assignOutcomeToAllGroupsManual
+);
+
+activityRouters.post(
   "/assign-outcome",
   verifyAccessToken,
   verifyRole([2]),
@@ -75,6 +82,12 @@ activityRouters.post(
   verifyAccessToken,
   verifyRole([2]),
   activityController.autoAssignOutcomes
+);
+activityRouters.get(
+  "/group-outcomes/:groupId",
+  verifyAccessToken,
+  verifyRole([2, 4]),
+  activityController.getGroupOutcomes
 );
 //Outcome type
 activityRouters.get(
@@ -103,10 +116,9 @@ activityRouters.delete(
 activityRouters.get(
   "/outcome-type/:id",
   verifyAccessToken,
-  verifyRole([1, 2]),
+  verifyRole([1, 2, 3, 4]),
   activityController.getOutcomeTypeById
 );
-
 activityRouters.get(
   "/outcome-type/semester/:semesterId",
   verifyAccessToken,
