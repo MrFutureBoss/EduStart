@@ -2,7 +2,6 @@ import express from "express";
 import userController from "../controllers/userController/index.js";
 import { verifyAccessToken, authorize } from "../utilities/jwt.js";
 
-
 const userRouters = express.Router();
 userRouters.get(
   "/class/:classId",

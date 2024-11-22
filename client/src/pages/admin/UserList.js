@@ -12,6 +12,7 @@ import {
   Menu,
   Modal,
   message,
+  Badge,
 } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserAddModal from "../semester/semesterModel/UserAddModal";
@@ -38,6 +39,7 @@ import SemesterDetailsCard from "../semester/SemesterDetailsCard";
 import UploadFileModal from "./UploadFileModal";
 import "../../pages/teacher/teacherCSS/MentorSelectionOverview.css";
 import SelectRoleModal from "./SelectRoleModal";
+import CustomButton from "../../components/Button/Button";
 const { Option } = Select;
 const { Search } = Input;
 
@@ -98,16 +100,12 @@ const UserListSemester = () => {
         ...selectedUser, // Giữ lại các trường cũ
         ...response.data, // Ghi đè các trường được cập nhật
       };
-  
+
       // Cập nhật Redux state
       const updatedUsers = usersInSmt.map((user) =>
         user._id === selectedUser._id ? updatedUser : user
       );
-      console.log("Updated Users:", updatedUsers); // Kiểm tra log
-  
       dispatch(setUsersInSmt(updatedUsers));
-  
-      
 
       // Cập nhật thông tin người dùng hiện tại
       setSelectedUser(response.data);
@@ -172,7 +170,13 @@ const UserListSemester = () => {
   const handleTableChange = (pagination) => {
     setPagination(pagination);
   };
-
+  const roleCounts = usersInSmt.reduce(
+    (acc, user) => {
+      acc[user.role] = (acc[user.role] || 0) + 1;
+      return acc;
+    },
+    { 4: 0, 2: 0, 3: 0, 5: 0 } // Initialize counts for each role
+  );
   const roles = [
     { id: 4, name: "Học sinh" },
     { id: 2, name: "Giáo viên" },
@@ -572,7 +576,7 @@ const UserListSemester = () => {
           </div>
         )}
       </Modal>
-      ;<h3 className="header-content-mentor-detail">Quản lý người dùng</h3>
+      {/* ;<h3 className="header-content-mentor-detail">Quản lý người dùng</h3> */}
       <div
         style={{
           minHeight: "600px",
@@ -604,7 +608,10 @@ const UserListSemester = () => {
             >
               <p>Kỳ học chưa có dữ liệu!</p>
               <Space>
-                <Button onClick={handleAddUserClick}>Thêm người dùng</Button>
+                <CustomButton
+                  onClick={handleAddUserClick}
+                  content={"Thêm người dùng"}
+                ></CustomButton>
 
                 {fullClassUsers.length > 0 && (
                   <Button
@@ -675,27 +682,35 @@ const UserListSemester = () => {
               }}
             >
               {roles.map((role) => (
-                <Card
-                  className="card-choose-user"
+                <Badge
+                  count={roleCounts[role.id]}
                   key={role.id}
-                  hoverable
-                  style={{
-                    width: "150px",
-                    marginLeft: 10,
-                    textAlign: "center",
-                    border: "none",
-                    backgroundColor:
-                      selectedRole === role.id
-                        ? "#ffbfa0"
-                        : "rgb(248, 235, 222)",
-                    fontWeight: "bold",
-                    borderRadius: "12px",
-                  }}
-                  bodyStyle={{ padding: "10px" }}
-                  onClick={() => handleRoleSelect(role.id)}
+                  showZero
+                  overflowCount={Infinity}
+                  style={{ backgroundColor: "#62b6cb" }}
                 >
-                  {role.name}
-                </Card>
+                  <Card
+                    className="card-choose-user"
+                    key={role.id}
+                    hoverable
+                    style={{
+                      width: "150px",
+                      marginLeft: 10,
+                      textAlign: "center",
+                      border: "none",
+                      backgroundColor:
+                        selectedRole === role.id
+                          ? "#ffbfa0"
+                          : "rgb(248, 235, 222)",
+                      fontWeight: "bold",
+                      borderRadius: "12px",
+                    }}
+                    bodyStyle={{ padding: "10px" }}
+                    onClick={() => handleRoleSelect(role.id)}
+                  >
+                    {role.name}
+                  </Card>
+                </Badge>
               ))}
             </div>
             <div>
@@ -741,7 +756,10 @@ const UserListSemester = () => {
                 }}
               >
                 <Space>
-                  <Button onClick={handleAddUserClick}>Thêm người dùng</Button>
+                  <CustomButton
+                    onClick={handleAddUserClick}
+                    content={"Thêm người dùng"}
+                  ></CustomButton>
                 </Space>
               </div>
             </div>

@@ -19,6 +19,7 @@ import {
   setUsersInSmt,
 } from "../../redux/slice/semesterSlide";
 import { BASE_URL } from "../../utilities/initalValue";
+import AdminHeader from "../../layouts/admin/AdminHeader";
 
 const { Content } = Layout;
 
@@ -134,7 +135,7 @@ const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", overflowX: "hidden" }}>
-      {/* <AppHeader collapsed={collapsed} toggleCollapse={toggleCollapse} /> */}
+      <AdminHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
       <Layout style={{ backgroundColor: "#F7F7F7" }}>
         <AppSider
           collapsed={collapsed}
@@ -150,6 +151,7 @@ const MainLayout = () => {
               margin: 0,
               minHeight: 280,
               background: "#f5f5f5",
+              marginTop: 35,
             }}
           >
             {loading ? (
