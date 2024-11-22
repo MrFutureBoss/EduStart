@@ -1,0 +1,99 @@
+/* General container */
+.request-class-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Title */
+  .request-class-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  /* Button Container */
+  .create-request-button-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Create Request Button */
+  .create-request-button {
+    background-color: #1890ff;
+    color: #fff;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: none;
+  }
+  
+  .create-request-button:hover {
+    background-color: #40a9ff;
+    color: #fff;
+  }
+  
+  /* Modal */
+  .create-request-modal {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+  }
+  
+  /* Dropdown */
+  .select-class-dropdown {
+    font-size: 14px;
+  }
+  
+  /* Text Area */
+  .reason-textarea {
+    border-radius: 5px;
+    font-size: 14px;
+    padding: 10px;
+  }
+  
+  /* Requests List */
+  .requests-list {
+    margin-top: 20px;
+  }
+  
+  .requests-list-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  /* Request Card */
+  .request-card-container {
+    margin-bottom: 15px;
+  }
+  
+  .request-card {
+    background-color: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .request-card h3 {
+    color: #1890ff;
+  }
+  
+  .request-card p {
+    margin: 5px 0;
+    color: #555;
+  }
+  
+  .request-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+  
