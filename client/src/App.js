@@ -9,7 +9,7 @@ import SignIn from "./pages/authen&author/SignIn.jsx";
 import { ProtectRoute } from "./utilities/auth.js";
 import TeacherRouter from "./routers/teacher/TeacherRouter.js";
 import AdminRouter from "./routers/admin/AdminRouter.js";
-import UserProfile from "./pages/UserProfile.jsx"
+import UserProfile from "./pages/UserProfile.jsx";
 import StudentRouter from "./routers/student/StudentRouter.js";
 import MentorRouter from "./routers/mentor/MentorRouter.js";
 

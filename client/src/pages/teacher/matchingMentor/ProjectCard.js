@@ -3,13 +3,13 @@ import React from "react";
 import { Card, Tag, Space, Tooltip } from "antd";
 import "../teacherCSS/ProjectCard.css";
 
-const ProjectCard = ({ project, style, className, onSelect }) => {
+const ProjectCard = ({ project, style, className, onSelect = () => {} }) => {
   return (
     <div className={`project-outer-container ${className}`}>
       {/* Thẻ Tag cho professions nằm ở bên ngoài viền của Card */}
       <div className="project-tag-container">
         {project.projectCategory?.professionId?.map((profession) => (
-          <Tooltip title="Lĩnh vực">
+          <Tooltip title="Lĩnh vực" key={profession._id}>
             <Tag key={profession._id} className="tag-overlay">
               {profession.name}
             </Tag>
@@ -39,7 +39,7 @@ const ProjectCard = ({ project, style, className, onSelect }) => {
         <div className="project-specialties">
           <Space size={[0, 8]} wrap>
             {project.projectCategory?.specialtyIds?.map((specialty) => (
-              <Tooltip title="Chuyên môn">
+              <Tooltip title="Chuyên môn" key={specialty._id}>
                 <Tag
                   className={`project-specialties-tag ${className}`}
                   key={specialty._id}

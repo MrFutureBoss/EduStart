@@ -243,7 +243,7 @@ const TransferRequestManagement = () => {
 
   return (
     <div>
-      <h3 className="header-content-mentor-detail">Danh sách yêu cầu hỗ trợ</h3>
+      {/* <h3 className="header-content-mentor-detail">Danh sách yêu cầu hỗ trợ</h3> */}
       <div
         style={{
           minHeight: 500,
@@ -274,7 +274,7 @@ const TransferRequestManagement = () => {
                   style={{
                     marginTop: -17,
                     right: -1,
-                    backgroundColor: "#389e0d",
+                    backgroundColor: "rgb(98, 182, 203)",
                     transform: "scale(0.8)",
                   }}
                 />
@@ -308,7 +308,7 @@ const TransferRequestManagement = () => {
                   style={{
                     marginTop: -17,
                     right: -1,
-                    backgroundColor: "#389e0d",
+                    backgroundColor: "rgb(98, 182, 203)",
                     transform: "scale(0.8)",
                   }}
                 />

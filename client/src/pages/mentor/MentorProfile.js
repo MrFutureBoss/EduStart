@@ -217,7 +217,6 @@ const MentorProfile = () => {
 
   return (
     <div>
-      <AdminHeader content="Thông tin người dùng" />
       <Card
         bordered={false}
         style={{

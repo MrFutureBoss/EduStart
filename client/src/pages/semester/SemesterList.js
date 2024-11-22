@@ -271,6 +271,7 @@ const SemesterList = () => {
           justifyContent: "center",
           marginBottom: "30px",
           marginLeft: "auto",
+          marginTop: 20,
         }}
       >
         <Button

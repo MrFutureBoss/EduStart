@@ -55,9 +55,6 @@ const ProfessionManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [pageSize, setPageSize] = useState(6);
-
-  console.log("sp from pf redux:" + specialtiesData);
-  console.log("sp from redux:" + specialties);
   useEffect(() => {
     console.log(`Fetching data for page: ${currentPage}, limit: ${pageSize}`);
     axios
@@ -187,7 +184,7 @@ const ProfessionManagement = () => {
     },
   };
   return (
-    <Container fluid>
+    <Container style={{ marginTop: 20 }} fluid>
       <SmallModal
         title={<>Chọn file .xlx để thêm dữ liệu</>}
         content={
@@ -215,9 +212,9 @@ const ProfessionManagement = () => {
             <Button onClick={handleOpenModal}>
               <ContainerOutlined /> Nhập dữ liệu
             </Button>
-              <Button onClick={handleOpenImportModal}>
-                <UploadOutlined /> Thêm dữ liệu bằng file
-              </Button>
+            <Button onClick={handleOpenImportModal}>
+              <UploadOutlined /> Thêm dữ liệu bằng file
+            </Button>
           </div>
         }
         isModalOpen={isModalShowTypeAdd}
@@ -330,8 +327,8 @@ const ProfessionManagement = () => {
                   ]}
                   style={{
                     width: "calc(50vw - 10px)", // Mỗi card chiếm 25% chiều rộng màn hình, trừ khoảng cách giữa chúng
-                    maxWidth: "28rem",          // Giới hạn chiều rộng tối đa
-                    height: "100%",             // Chiều cao 100%
+                    maxWidth: "28rem", // Giới hạn chiều rộng tối đa
+                    height: "100%", // Chiều cao 100%
                     marginBottom: "5px",
                     display: "flex",
                     flexDirection: "column",

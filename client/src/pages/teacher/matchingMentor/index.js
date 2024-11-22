@@ -58,8 +58,9 @@ const MatchingMentorIndex = () => {
           style={{
             marginBottom: 20,
             gap: "39px",
-            marginLeft: -18,
+            marginLeft: -7,
             marginRight: -18,
+            marginTop: 15,
           }}
           justify="center"
         >

@@ -31,6 +31,7 @@ import {
   setUsersInSmt,
 } from "../../redux/slice/semesterSlide";
 import { setRecentlyUpdatedUsers } from "../../redux/slice/UserSlice";
+import CustomButton from "../../components/Button/Button";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -563,13 +564,11 @@ const PendingUsers = () => {
       title: "Hành động",
       key: "action",
       render: (text, record) => (
-        <Button
-          style={{ backgroundColor: "#4682B4", color: "#FFF" }}
+        <CustomButton
           onClick={() => handleSaveUser(record._id)}
           loading={savingUserIds.includes(record._id)}
-        >
-          Lưu
-        </Button>
+          content={"Lưu"}
+        ></CustomButton>
       ),
     },
   ];
@@ -580,9 +579,9 @@ const PendingUsers = () => {
 
   return (
     <div className="pending-users">
-      <h3 className="header-content-mentor-detail">
+      {/* <h3 className="header-content-mentor-detail">
         Sinh Viên Chưa Được Thêm Vào Lớp - {currentSemester?.name}
-      </h3>
+      </h3> */}
       <div
         style={{
           minHeight: "600px",
@@ -822,13 +821,11 @@ const PendingUsers = () => {
                     marginBottom: "10px",
                   }}
                 >
-                  <Button
-                    style={{ backgroundColor: "#4682B4", color: "#FFF" }}
+                  <CustomButton
                     onClick={handleSaveAll}
                     loading={loading}
-                  >
-                    Lưu Tất Cả
-                  </Button>
+                    content={" Lưu Tất Cả"}
+                  ></CustomButton>
                 </div>
               </>
             )}

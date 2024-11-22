@@ -478,16 +478,11 @@ const AdminDashboard = () => {
 
   const [showAllWarnings, setShowAllWarnings] = useState(false);
   const [showAllActions, setShowAllActions] = useState(false);
-
-  const handleOpenTransferModal = () => {
-    navigate("list-request");
-  };
-
   const actionAlerts = alerts.filter((alert) => alert.type === "action");
 
   return (
     <Layout>
-      <h3 className="header-content-mentor-detail">Admin Dashboard</h3>
+      {/* <h3 className="header-content-mentor-detail">Admin Dashboard</h3> */}
       <div style={{ display: "flex" }}>
         <Content style={{ margin: 0, minHeight: 280 }}>
           {/* Thông báo và cảnh báo */}
