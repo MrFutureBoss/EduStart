@@ -21,7 +21,7 @@ const MatchedProjectDetails = ({ data, isMatched }) => {
   console.log(data);
 
   const handleNavigate = () => {
-    navigate("temp-matching");
+    navigate("/teacher/temp-matching");
   };
 
   return (

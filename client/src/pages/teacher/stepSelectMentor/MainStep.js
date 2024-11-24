@@ -38,8 +38,10 @@ const MainStep = () => {
       stepCheck === 1
     ) {
       setCurrentStep(1);
+    } else if (stepCheck === 0) {
+      setCurrentStep(0);
     }
-  }, [selectedProfessionId, selectedSpecialtyId]);
+  }, [selectedProfessionId, selectedSpecialtyId, stepCheck]);
   const handleNext = () => {
     setCurrentStep((prev) => prev + 1);
   };

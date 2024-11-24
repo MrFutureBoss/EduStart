@@ -28,7 +28,7 @@ const AdminRouter = () => {
       <Route path="semester-list" element={<SemesterList />} />
       <Route path="dashboard/current-semester" element={<UserListSemester />} />
       <Route path="current-semester" element={<UserListSemester />} />
-      <Route path="current-semester/pending-users" element={<PendingUsers />} />
+      <Route path="pending-users" element={<PendingUsers />} />
       <Route path="dashboard/pending-users" element={<PendingUsers />} />
       <Route
         path="semester-list/user-semester"
