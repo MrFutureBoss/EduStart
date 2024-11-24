@@ -220,11 +220,11 @@ const getAllMatchingDetailByMentorId = async (mentorId) => {
           )
           .lean();
 
-        const memberClassId = groupMembers[0].classId;
+        // const memberClassId = groupMembers[0].classId;
 
         const teacher = await User.findOne({
           role: 2,
-          classId: memberClassId,
+          classId: group.classId,
         })
           .select("username email")
           .lean();
