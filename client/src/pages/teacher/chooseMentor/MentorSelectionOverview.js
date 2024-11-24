@@ -71,7 +71,7 @@ const MentorSelectionOverview = ({
     }
 
     // Điều hướng đến MainStep
-    navigate("main-step");
+    navigate("/teacher/choose-mentor");
   };
 
   return (

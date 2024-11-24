@@ -38,6 +38,8 @@
   white-space: nowrap;
   border: none;
   margin-right: 20px;
+  position: relative;
+  top: -1px;
 }
 
 .notification-link {

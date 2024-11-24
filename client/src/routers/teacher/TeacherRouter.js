@@ -22,7 +22,7 @@ import GroupDetail from "../../pages/managegroup/GroupDetail";
 const TeacherRouter = () => {
   return (
     <Route
-      path="/teacher-dashboard"
+      path="/teacher"
       element={
         <ProtectRoute allowedRoles={["2"]}>
           <TeacherLayout />
@@ -30,15 +30,17 @@ const TeacherRouter = () => {
       }
     >
       <Route path="professionmanagement" element={<Result />} />
-      <Route path="class/detail/:className" element={<ClassDetail/>} />
+      <Route path="class/detail/:className" element={<ClassDetail />} />
       <Route path="class" element={<ClassManagement />} />
       <Route path="teacher-activity" element={<MyActivity />} />
       <Route path="professionmanagement" element={<ProfessionManagement />} />
       <Route path="teacher-dashboard" element={<MyActivity />} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />
       <Route path="choose-mentor" element={<MainStep />} />
-      <Route path="class/detail/:className/outcomes" element={<OutcomeDetail/>} />
-      <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
+      <Route
+        path="class/detail/:className/outcomes"
+        element={<OutcomeDetail />}
+      />
       <Route path="teacher" element={<TeacherProfile />} />
 
       <Route path="temp-matching" element={<ProjectCardMain />} />

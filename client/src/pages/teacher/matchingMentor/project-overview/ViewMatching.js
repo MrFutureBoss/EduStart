@@ -26,9 +26,6 @@ const ViewMatching = () => {
           setData(response.data);
           setIsMatched(false);
         } else if (!selectedGroup.isProjectUpdated) {
-          message.warning(
-            "Dự án chưa cập nhật! Vui lòng yêu cầu sinh viên cập nhật để tiếp tục"
-          );
           setData([]);
         }
       } catch (error) {

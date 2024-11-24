@@ -118,22 +118,24 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
     };
   }, [isNotificationOpen]);
 
-  // Lọc thông báo theo user role và filters
-  const filteredNotifications = notificationData.filter((notification) => {
-    const filters = notification.filters || {};
-    if (userLogin.role === 4) {
-      // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
-      return filters.classId || filters.groupId;
-    } else if (userLogin.role === 2) {
-      // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
-      return filters.groupId;
-    } else if (userLogin.role === 3) {
-      // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
-      return filters.groupId;
-    }
-    return false;
-  });
+  const filteredNotifications = useMemo(() => {
+    if (!userLogin) return []; // Nếu userLogin chưa sẵn sàng, trả về mảng rỗng
 
+    return notificationData.filter((notification) => {
+      const filters = notification.filters || {};
+      if (userLogin.role === 4) {
+        // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
+        return filters.classId || filters.groupId;
+      } else if (userLogin.role === 2) {
+        // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
+        return filters.groupId;
+      } else if (userLogin.role === 3) {
+        // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
+        return filters.groupId;
+      }
+      return false;
+    });
+  }, [notificationData, userLogin]);
   return (
     <div className="navbar">
       <div className="logo">

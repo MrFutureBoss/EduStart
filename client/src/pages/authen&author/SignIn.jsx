@@ -67,7 +67,7 @@ function SignIn() {
           if (userRole === 1) {
             navigation("/admin/dashboard", { replace: true });
           } else if (userRole === 2) {
-            navigation("/teacher-dashboard");
+            navigation("teacher/teacher-dashboard");
             dispatch(triggerTeacherDashboardNotification());
           } else if (userRole === 4) {
             navigation("/student-dashboard/group-detail"); // Nếu là học sinh
