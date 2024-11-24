@@ -35,7 +35,7 @@ const range = (start, end) => {
 
 const { Panel } = Collapse;
 
-const CreateMeetingDay = ({ open, close, groupId }) => {
+const EditMeetingDay = ({ open, close, groupId }) => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
@@ -568,4 +568,4 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
   );
 };
 
-export default CreateMeetingDay;
+export default EditMeetingDay;

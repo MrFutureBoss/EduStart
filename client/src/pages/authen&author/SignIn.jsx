@@ -46,11 +46,13 @@ function SignIn() {
       const role = res.data.user.role;
       const userId = res.data.user._id;
       const username = res.data.user.username;
+      const email = res.data.user.email;
       if (token) {
         localStorage.setItem("jwt", token);
         localStorage.setItem("role", role);
         localStorage.setItem("userId", userId);
         localStorage.setItem("username", username);
+        localStorage.setItem("email", email);
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.role;
 

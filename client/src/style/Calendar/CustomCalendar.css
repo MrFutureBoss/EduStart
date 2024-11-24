@@ -82,5 +82,28 @@ div .rbc-event-content {
 }
 
 .rbc-time-content{
-  overflow-y: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* .rbc-time-slot {
+  min-height: 10px !important;
+} */
+
+
+/* .rbc-timeslot-group{
+  min-height: 10px !important;
+} */
+
+.rbc-event-label{
+  height: 100% !important;
+  display: none !important;
+}
+
+.rbc-event-content{
+  padding: 0px !important;
+  cursor: default;
+} 
+
+.rbc-label{
+  min-height: 17px !important;
 }

@@ -129,7 +129,7 @@ const ClassManagement = () => {
             bordered={true}
             title={
               <h5 style={{ padding: "0px", margin: "0px" }}>
-                Việc cần giải quyết <FaPen />
+                Việc cần giải quyết
               </h5>
             }
             extra={
@@ -151,11 +151,6 @@ const ClassManagement = () => {
                 </Tooltip>
               </Dropdown>
             }
-            headStyle={{
-              background:
-                "linear-gradient(90deg, rgba(210,3,54,1) 67%, rgba(224,0,4,0.9097222222222222) 96%)",
-              color: "white",
-            }}
             bodyStyle={{ padding: "20px" }}
           >
             <TeacherTask />
@@ -204,10 +199,6 @@ const ClassManagement = () => {
                     </Tooltip>
                   </Dropdown>
                 }
-                headStyle={{
-                  background: "linear-gradient(-45deg, #005241, #128066)",
-                  color: "white",
-                }}
               >
                 <Row style={{ width: "100%", marginBottom: "1rem" }}>
                   <Col lg={8}>
@@ -339,10 +330,6 @@ const ClassManagement = () => {
                     style={{ fontSize: "1.2rem", cursor: "pointer" }}
                   />
                 }
-                headStyle={{
-                  background: "green",
-                  color: "white",
-                }}
                 bodyStyle={{ padding: "20px" }}
               >
                 <AssignOutcome />
@@ -381,11 +368,6 @@ const ClassManagement = () => {
                 </Tooltip>
               </Dropdown>
             }
-            headStyle={{
-              background:
-                "linear-gradient(90deg, rgba(23,153,218,1) 64%, rgba(19,163,224,1) 96%)",
-              color: "white",
-            }}
           >
             {classInfo?.semesters.length > 0 &&
             classInfo.semesters.some(
