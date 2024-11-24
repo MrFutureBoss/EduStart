@@ -21,6 +21,8 @@ import ProjectUpdateModal from "./ProjectUpdateModal";
 import "./GroupMembersStyles.css";
 import io from "socket.io-client";
 import CustomButton from "../../components/Button/Button";
+import GroupOutcomeCard from "../activity/GroupOutcomeCard";
+
 const socket = io(BASE_URL);
 const { Text, Title } = Typography;
 
@@ -422,6 +424,7 @@ const GroupMembers = () => {
               </Card>
             </Badge.Ribbon>
           )}
+          <GroupOutcomeCard groupId={groupId} />
         </div>
       </div>
       {isModalVisible && (

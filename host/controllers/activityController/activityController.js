@@ -338,81 +338,81 @@ const sendReminder = async (req, res) => {
     });
   }
 };
-// const assignOutcomeToAllGroups = async (req, res) => {
-//   try {
-//     const { description, classIds, semesterId, outcomes } = req.body;
+const assignOutcomeToAllGroupsManual = async (req, res) => {
+  try {
+    const { description, classIds, semesterId, outcomes } = req.body;
 
-//     if (!Array.isArray(classIds) || classIds.length === 0) {
-//       return res
-//         .status(400)
-//         .json({ message: "Thiếu hoặc không hợp lệ classIds." });
-//     }
+    if (!Array.isArray(classIds) || classIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ classIds." });
+    }
 
-//     if (!semesterId) {
-//       return res
-//         .status(400)
-//         .json({ message: "Thiếu hoặc không hợp lệ semesterId." });
-//     }
+    if (!semesterId) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ semesterId." });
+    }
 
-//     if (!Array.isArray(outcomes) || outcomes.length === 0) {
-//       return res
-//         .status(400)
-//         .json({ message: "Thiếu hoặc không hợp lệ outcomes." });
-//     }
+    if (!Array.isArray(outcomes) || outcomes.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc không hợp lệ outcomes." });
+    }
 
-//     const allGroups = await groupDAO.getGroupsByClassIds(classIds);
-//     if (!allGroups || allGroups.length === 0) {
-//       return res.status(404).json({
-//         message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
-//       });
-//     }
+    const allGroups = await groupDAO.getGroupsByClassIds(classIds);
+    if (!allGroups || allGroups.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy nhóm nào trong các lớp được chỉ định.",
+      });
+    }
 
-//     const groupsByClassId = {};
-//     allGroups.forEach((group) => {
-//       if (!groupsByClassId[group.classId]) {
-//         groupsByClassId[group.classId] = [];
-//       }
-//       groupsByClassId[group.classId].push(group);
-//     });
+    const groupsByClassId = {};
+    allGroups.forEach((group) => {
+      if (!groupsByClassId[group.classId]) {
+        groupsByClassId[group.classId] = [];
+      }
+      groupsByClassId[group.classId].push(group);
+    });
 
-//     const activities = [];
-//     classIds.forEach((classId) => {
-//       const groups = groupsByClassId[classId];
-//       if (groups) {
-//         groups.forEach((group) => {
-//           outcomes.forEach((outcome) => {
-//             activities.push({
-//               teacherId: req.user._id,
-//               activityType: "outcome",
-//               description: outcome.description || description,
-//               outcomeId: outcome.outcomeId,
-//               startDate: new Date(outcome.startDate),
-//               deadline: new Date(outcome.deadline),
-//               classId: classId,
-//               groupId: group._id,
-//               semesterId: semesterId,
-//             });
-//           });
-//         });
-//       }
-//     });
+    const activities = [];
+    classIds.forEach((classId) => {
+      const groups = groupsByClassId[classId];
+      if (groups) {
+        groups.forEach((group) => {
+          outcomes.forEach((outcome) => {
+            activities.push({
+              teacherId: req.user._id,
+              activityType: "outcome",
+              description: outcome.description || description,
+              outcomeId: outcome.outcomeId,
+              startDate: new Date(outcome.startDate),
+              deadline: new Date(outcome.deadline),
+              classId: classId,
+              groupId: group._id,
+              semesterId: semesterId,
+            });
+          });
+        });
+      }
+    });
 
-//     if (activities.length === 0) {
-//       return res
-//         .status(400)
-//         .json({ message: "Không có hoạt động nào để giao." });
-//     }
+    if (activities.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Không có hoạt động nào để giao." });
+    }
 
-//     await activityDAO.createActivity(activities);
+    await activityDAO.createActivity(activities);
 
-//     return res.status(201).json({
-//       message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
-//     });
-//   } catch (error) {
-//     console.error("Error in assignOutcomeToAllGroups:", error);
-//     res.status(500).json({ message: "Đã xảy ra lỗi khi giao Outcome." });
-//   }
-// };
+    return res.status(201).json({
+      message: "Giao Outcome thành công tới tất cả các nhóm trong các lớp.",
+    });
+  } catch (error) {
+    console.error("Error in assignOutcomeToAllGroups:", error);
+    res.status(500).json({ message: "Đã xảy ra lỗi khi giao Outcome." });
+  }
+};
 
 const updateOutcomeDeadline = async (req, res) => {
   try {
@@ -645,7 +645,6 @@ const assignOutcomeToAllGroups = async ({
 
   return await activityDAO.createActivity(activities);
 };
-
 const autoAssignOutcomes = async (req, res) => {
   try {
     const semester = await semesterDAO.getCurrentSemester();
@@ -766,6 +765,26 @@ const autoAssignOutcomes = async (req, res) => {
       res.status(500).json({ message: "Error auto-assigning outcomes." });
   }
 };
+const getGroupOutcomes = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    if (!groupId) {
+      return res.status(400).json({ message: "Group ID is required." });
+    }
+
+    const outcomes = await activityDAO.getGroupOutcomesByGroupId(groupId);
+
+    if (!outcomes || outcomes.length === 0) {
+      return res.status(404).json({ message: "No outcomes found for this group." });
+    }
+
+    res.status(200).json(outcomes);
+  } catch (error) {
+    console.error(`[GroupOutcomeController] Error fetching group outcomes: ${error.message}`);
+    res.status(500).json({ message: "Error fetching group outcomes." });
+  }
+};
 
 export default {
   createActivity,
@@ -786,4 +805,6 @@ export default {
   deleteOutcomeType,
   getOutcomesBySemester,
   autoAssignOutcomes,
+  getGroupOutcomes,
+  assignOutcomeToAllGroupsManual,
 };

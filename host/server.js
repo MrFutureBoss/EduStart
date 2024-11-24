@@ -106,7 +106,7 @@ cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
 
-cron.schedule("5 0 * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   try {
     await activityController.autoAssignOutcomes();
     console.log(`[${new Date().toISOString()}] Auto-assign job completed.`);
