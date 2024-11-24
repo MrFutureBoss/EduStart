@@ -1,6 +1,6 @@
 // src/components/layout/AppHeader.js
-import React, { useEffect, useMemo } from "react";
-import { Layout, Menu, message, Tooltip } from "antd";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Badge, Layout, Menu, message, Tooltip } from "antd";
 import SubMenu from "antd/es/menu/SubMenu";
 import { FaUserCircle } from "react-icons/fa";
 import { setLoading } from "../../redux/slice/semesterSlide";
@@ -14,7 +14,13 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { CiLogout } from "react-icons/ci";
 import { BellFilled } from "@ant-design/icons";
 import { setUserLogin } from "../../redux/slice/UserSlice";
+import io from "socket.io-client"; // Import Socket.IO client
+import { setNotificationData } from "../../redux/slice/NotificationSlice";
+import { getAllNotification } from "../../api";
+import NotificationDropdown from "../../pages/notification/NotificationDropdown";
+import { AnimatePresence } from "framer-motion";
 
+const socket = io(BASE_URL);
 const { Header } = Layout;
 
 const MentorHeader = ({ collapsed, toggleCollapse }) => {
@@ -22,6 +28,12 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
   const jwt = localStorage.getItem("jwt");
   const dispatch = useDispatch();
   const userLogin = useSelector((state) => state.user.userLogin);
+  const notificationData = useSelector(
+    (state) => state.notification.notificationData
+  );
+  const dropdownRef = useRef(null);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false); // State to open/close notification dropdown
+
   const config = useMemo(
     () => ({
       headers: {
@@ -51,6 +63,76 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
     navigate("/");
     localStorage.removeItem("jwt");
   };
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await getAllNotification();
+        dispatch(setNotificationData(response.data.notifications || []));
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+
+    if (userLogin && userLogin._id) {
+      socket.emit("joinRoom", `user:${userLogin._id}`);
+
+      socket.on("notification", (data) => {
+        fetchNotifications();
+      });
+
+      return () => {
+        socket.off("notification");
+        socket.emit("leaveRoom", `user:${userLogin._id}`);
+      };
+    }
+  }, [userLogin, dispatch]);
+
+  // Toggle Notification Dropdown
+  const toggleNotificationDropdown = () => {
+    setIsNotificationOpen((prev) => !prev);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !event.target.closest(".notification-bell-wrapper")
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    if (isNotificationOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isNotificationOpen]);
+
+  // Lọc thông báo theo user role và filters
+  const filteredNotifications = notificationData.filter((notification) => {
+    const filters = notification.filters || {};
+    if (userLogin.role === 4) {
+      // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
+      return filters.classId || filters.groupId;
+    } else if (userLogin.role === 2) {
+      // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
+      return filters.groupId;
+    } else if (userLogin.role === 3) {
+      // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
+      return filters.groupId;
+    }
+    return false;
+  });
 
   return (
     <div className="navbar">
@@ -107,10 +189,32 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
             <span style={{ cursor: "pointer" }}>Đăng xuất</span>
           </Menu.Item>
         </SubMenu>
-        <Menu.Item key="4">
-          <Link style={{ textDecoration: "none" }} to="/contact">
-            <BellFilled style={{ fontSize: "1.5rem" }} className="bell-icon" />
-          </Link>
+        <Menu.Item key="8" className="notification-menu-item">
+          <div
+            className="notification-bell-wrapper"
+            onClick={toggleNotificationDropdown}
+          >
+            <Badge
+              count={filteredNotifications.filter((n) => !n.isRead).length}
+              overflowCount={99}
+              style={{ marginTop: -8, left: 10, transform: "scale(0.8)" }}
+            >
+              <BellFilled
+                style={{ fontSize: "1.5rem" }}
+                className="bell-icon"
+              />
+            </Badge>
+          </div>
+          <div ref={dropdownRef} className="notification-dropdown-container">
+            <AnimatePresence>
+              {isNotificationOpen && (
+                <NotificationDropdown
+                  notifications={filteredNotifications}
+                  onClose={() => setIsNotificationOpen(false)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
         </Menu.Item>
       </Menu>
     </div>

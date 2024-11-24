@@ -20,8 +20,8 @@
   margin: 20px 15px -2px 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 13px 13px 9px 9px;
-  color: #dad7cd;
-  background-color: #011936;
+  color: #fff;
+  background-color: rgb(2 99 123 / 73%);
 }
 /* Content and Card styles */
 .group-members-content {

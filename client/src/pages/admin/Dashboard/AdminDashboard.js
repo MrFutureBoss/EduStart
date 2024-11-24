@@ -197,7 +197,7 @@ const AdminDashboard = () => {
           if (taskDetails.studentCount < requiredStudents) {
             return `Cần thêm ${
               requiredStudents - taskDetails.studentCount
-            } sinh viên để đủ cho ${requiredClasses} lớp (mỗi lớp 30 học sinh).`;
+            } sinh viên để đủ cho ${requiredClasses} lớp (mỗi lớp 30 sinh viên).`;
           }
           if (taskDetails.studentsWithoutClass > 0) {
             return `Có ${taskDetails.studentsWithoutClass} sinh viên chưa được phân lớp.`;
@@ -222,7 +222,7 @@ const AdminDashboard = () => {
           dispatch(
             addAlert({
               type: "warning",
-              message: `Có ${classesNotFull.length} lớp chưa đủ số lượng học sinh.`,
+              message: `Có ${classesNotFull.length} lớp chưa đủ số lượng sinh viên.`,
               description: `Các lớp chưa đủ: ${classesNotFull
                 .map(
                   (classItem) =>
@@ -434,11 +434,11 @@ const AdminDashboard = () => {
       } else if (key === "addMentors") {
         role = { id: 3, name: "Mentor" };
       } else if (key === "addStudents") {
-        role = { id: 4, name: "Học sinh" };
+        role = { id: 4, name: "Sinh viên" };
       }
       if (role) {
         dispatch(setRoleSelect(role.id));
-        navigate("current-semester", { state: { fromAdmin: true } });
+        navigate("/admin/current-semester", { state: { fromAdmin: true } });
       }
     }
   };

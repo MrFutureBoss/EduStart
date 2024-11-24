@@ -11,18 +11,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-.header-content-group-detail {
-  position: relative;
-  /* padding: 0; */
-  background-color: #dedede;
-  z-index: 20;
-  padding: 13px;
-  margin: 20px 15px -2px 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 13px 13px 9px 9px;
-  color: #dad7cd;
-  background-color: #011936;
-}
+
 /* Content and Card styles */
 .group-members-content {
   width: 65%;

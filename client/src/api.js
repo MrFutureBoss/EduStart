@@ -178,3 +178,24 @@ export const getMentorProfile = (mentorId) => {
 export const getAllProfesionAndSpeciatly = () => {
   return axios.get(`${BASE_URL}/profession/get-all`, getConfig());
 };
+
+// API để lấy toàn bộ thông báo
+export const getAllNotification = () => {
+  return axios.get(
+    `${BASE_URL}/notification/get-all-notification`,
+    getConfig()
+  );
+};
+
+// API để đánh dấu đã đọc thông báo
+export const readedNotification = (notificationId) => {
+  return axios.patch(
+    `${BASE_URL}/notification/${notificationId}/read`,
+    getConfig()
+  );
+};
+
+// API để đánh dấu đã đọc tất cả thông báo
+export const readedAllNotification = (userId) => {
+  return axios.put(`${BASE_URL}/notification/${userId}/all-read`, getConfig());
+};

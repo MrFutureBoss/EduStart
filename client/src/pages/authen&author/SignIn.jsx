@@ -68,7 +68,7 @@ function SignIn() {
             navigation("/teacher-dashboard");
             dispatch(triggerTeacherDashboardNotification());
           } else if (userRole === 4) {
-            navigation("/student-dashboard"); // Nếu là học sinh
+            navigation("/student-dashboard/group-detail"); // Nếu là học sinh
           } else if (userRole === 3) {
             navigation("/mentor-dashboard"); // Nếu là mentor
           } else {

@@ -198,7 +198,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
           <Descriptions bordered size="small" column={1}>
             <Descriptions.Item
               style={{ padding: "4px 8px" }}
-              label={<strong style={{ fontSize: 13 }}>Số học sinh</strong>}
+              label={<strong style={{ fontSize: 13 }}>Số sinh viên</strong>}
             >
               <span style={{ fontSize: 13 }}>{studentCount}</span>
             </Descriptions.Item>
@@ -241,7 +241,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
               <Descriptions.Item
                 style={{ padding: "4px 8px" }}
                 label={
-                  <strong style={{ fontSize: 13 }}>Học sinh đã có lớp</strong>
+                  <strong style={{ fontSize: 13 }}>Sinh viên đã có lớp</strong>
                 }
               >
                 <span style={{ fontSize: 13 }}>{studentsWithClass}</span>
@@ -249,7 +249,9 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
               <Descriptions.Item
                 style={{ padding: "4px 8px" }}
                 label={
-                  <strong style={{ fontSize: 13 }}>Học sinh chưa có lớp</strong>
+                  <strong style={{ fontSize: 13 }}>
+                    Sinh viên chưa có lớp
+                  </strong>
                 }
               >
                 <Link
@@ -302,7 +304,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
               <Descriptions.Item
                 style={{ padding: "4px 8px" }}
                 label={
-                  <strong style={{ fontSize: 13 }}>Lớp có học sinh</strong>
+                  <strong style={{ fontSize: 13 }}>Lớp có sinh viên</strong>
                 }
               >
                 <Button
@@ -310,7 +312,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
-                      "Danh sách các lớp có học sinh",
+                      "Danh sách các lớp có sinh viên",
                       classesWithStudentsList
                     )
                   }
@@ -321,7 +323,9 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
               <Descriptions.Item
                 style={{ padding: "4px 8px" }}
                 label={
-                  <strong style={{ fontSize: 13 }}>Lớp chưa có học sinh</strong>
+                  <strong style={{ fontSize: 13 }}>
+                    Lớp chưa có sinh viên
+                  </strong>
                 }
               >
                 <Button
@@ -329,7 +333,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
-                      "Danh sách các lớp chưa có học sinh",
+                      "Danh sách các lớp chưa có sinh viên",
                       classesWithoutStudentsList
                     )
                   }
@@ -350,7 +354,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
-                      "Danh sách mentor đã matched",
+                      "Danh sách người hướng dẫn đã matched",
                       mentorsWithMatch
                     )
                   }
@@ -371,7 +375,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   style={{ padding: 0, fontSize: 13 }}
                   onClick={() =>
                     handleShowModal(
-                      "Danh sách mentor chưa matched",
+                      "Danh sách người hướng dẫn chưa matched",
                       mentorsWithoutMatch
                     )
                   }
@@ -402,7 +406,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
                   }
                   description={
                     item.studentCount
-                      ? `Số lượng học sinh: ${item.studentCount}`
+                      ? `Số lượng sinh viên: ${item.studentCount}`
                       : item.email
                   }
                 />

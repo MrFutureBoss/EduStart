@@ -57,6 +57,9 @@ io.on("connection", (socket) => {
   socket.on("joinProject", (projectId) => {
     socket.join(`project:${projectId}`);
   });
+  socket.on("joinClass", (classId) => {
+    socket.join(`class:${classId}`);
+  });
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
@@ -81,6 +84,7 @@ app.use("/project", routes.projectRouter);
 app.use("/mentor", routes.mentorRouter);
 app.use("/submission", routes.submissionRouter);
 app.use("/classTranfer", routes.classTransferRoutes);
+app.use("/notification", routes.notificationRouter);
 
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {
