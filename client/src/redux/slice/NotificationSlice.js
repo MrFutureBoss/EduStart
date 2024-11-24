@@ -3,6 +3,7 @@ const initialValue = {
   highlevel: true,
   warminglevel: true,
   teacherDashboardNotification: false,
+  notificationData: [],
 };
 
 const notificationSlice = createSlice({
@@ -12,7 +13,9 @@ const notificationSlice = createSlice({
     setHighPriorityTrigger: (state, action) => {
       state.highlevel = action.payload;
     },
-
+    setNotificationData: (state, action) => {
+      state.notificationData = action.payload;
+    },
     setWarmingPriorityTrigger: (state, action) => {
       state.warminglevel = action.payload;
     },
@@ -30,5 +33,6 @@ export const {
   setWarmingPriorityTrigger,
   triggerTeacherDashboardNotification,
   resetTeacherDashboardNotification,
+  setNotificationData,
 } = notificationSlice.actions;
 export default notificationSlice.reducer;

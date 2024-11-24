@@ -1,7 +1,6 @@
 // src/components/layout/AppHeader.js
-import React, { useEffect, useMemo } from "react";
-import { Layout, Menu, Tooltip } from "antd";
-import SubMenu from "antd/es/menu/SubMenu";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Badge, Layout, Menu, message, Tooltip } from "antd";
 import { FaUserCircle } from "react-icons/fa";
 import { setLoading } from "../../redux/slice/semesterSlide";
 import { setTeacherData } from "../../redux/slice/ClassManagementSlice";
@@ -13,8 +12,16 @@ import { ImProfile } from "react-icons/im";
 import { IoSettingsOutline } from "react-icons/io5";
 import { CiLogout } from "react-icons/ci";
 import { BellFilled } from "@ant-design/icons";
+import { AnimatePresence } from "framer-motion";
+import NotificationDropdown from "../../pages/notification/NotificationDropdown";
+import io from "socket.io-client"; // Import Socket.IO client
+import { setUserLogin } from "../../redux/slice/UserSlice";
+import { setNotificationData } from "../../redux/slice/NotificationSlice";
+import { getAllNotification } from "../../api";
 
-const { Header } = Layout;
+const socket = io(BASE_URL);
+
+const { SubMenu } = Menu;
 
 const TeacherHeader = ({ collapsed, toggleCollapse }) => {
   const navigate = useNavigate();
@@ -22,6 +29,12 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
   const jwt = localStorage.getItem("jwt");
   const dispatch = useDispatch();
   const { teacher } = useSelector((state) => state.classManagement);
+  const notificationData = useSelector(
+    (state) => state.notification.notificationData
+  );
+  const { userLogin } = useSelector((state) => state.user);
+  const dropdownRef = useRef(null);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false); // State to open/close notification dropdown
 
   const config = useMemo(
     () => ({
@@ -52,10 +65,96 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
     fetchUserData();
   }, [userId, config, dispatch]);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userRes = await axios.get(`${BASE_URL}/user/profile`, config);
+        dispatch(setUserLogin(userRes.data));
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        message.error("Lỗi khi tải thông tin người dùng.");
+      }
+    };
+
+    if (jwt) {
+      fetchUserData();
+    }
+  }, [dispatch, jwt]);
+
+  // Fetch notifications and set up socket
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await getAllNotification();
+        dispatch(setNotificationData(response.data.notifications || []));
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+
+    if (userLogin && userLogin._id) {
+      socket.emit("joinRoom", `user:${userLogin._id}`);
+      socket.on("connect", () => console.log("Socket connected"));
+      socket.on("notification", (data) => {
+        console.log("Received notification:", data);
+        fetchNotifications();
+      });
+
+      return () => {
+        socket.off("notification");
+        socket.emit("leaveRoom", `user:${userLogin._id}`);
+      };
+    }
+  }, [userLogin, dispatch]);
+
+  // Toggle Notification Dropdown
+  const toggleNotificationDropdown = () => {
+    setIsNotificationOpen((prev) => !prev);
+  };
+
   const handleLogout = () => {
     navigate("/");
     localStorage.removeItem("jwt");
+    dispatch(setUserLogin(null)); // Reset user state
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !event.target.closest(".notification-bell-wrapper")
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    if (isNotificationOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isNotificationOpen]);
+
+  // Lọc thông báo theo user role và filters
+  const filteredNotifications = notificationData.filter((notification) => {
+    const filters = notification.filters || {};
+    if (userLogin.role === 4) {
+      // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
+      return filters.classId || filters.groupId;
+    } else if (userLogin.role === 2) {
+      // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
+      return filters.groupId;
+    }
+    return false;
+  });
 
   return (
     <div className="navbar">
@@ -80,7 +179,8 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
                 className="user-circle-icon"
               />
               <span style={{ lineHeight: "1rem" }}>
-                Giáo viên <br /> Xin chào! {teacher?.username}
+                Xin chào Giáo viên!
+                <br /> {teacher?.username}
               </span>
             </div>
           }
@@ -88,40 +188,55 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
         >
           <Menu.Item
             key="1"
-            icon={<ImProfile className={toggleCollapse ? "" : "custom-icon"} />}
+            style={{ position: "relative", top: 0 }}
+            icon={<ImProfile />}
           >
-            Thông tin của bạn
+            <Link style={{ textDecoration: "none" }} to={"mentor-profile"}>
+              Thông tin của bạn
+            </Link>
           </Menu.Item>
           <Menu.Item
             key="2"
-            icon={
-              <IoSettingsOutline
-                className={toggleCollapse ? "" : "custom-icon"}
-              />
-            }
+            style={{ position: "relative", top: 0 }}
+            icon={<IoSettingsOutline />}
           >
             Cài đặt
           </Menu.Item>
           <Menu.Item
             key="3"
-            icon={
-              <CiLogout
-                className={toggleCollapse ? "" : "custom-icon"}
-                onClick={handleLogout}
-              />
-            }
+            style={{ position: "relative", top: 0 }}
+            icon={<CiLogout onClick={handleLogout} />}
             onClick={handleLogout}
           >
             <span style={{ cursor: "pointer" }}>Đăng xuất</span>
           </Menu.Item>
         </SubMenu>
-        <Menu.Item key="4">
-          <Link style={{ textDecoration: "none" }} to="/contact">
+        <Menu.Item key="8" className="notification-menu-item">
+          <div
+            className="notification-bell-wrapper"
+            onClick={toggleNotificationDropdown}
+          >
+            <Badge
+              count={filteredNotifications.filter((n) => !n.isRead).length}
+              overflowCount={99}
+              style={{ marginTop: -8, left: 10, transform: "scale(0.8)" }}
+            >
               <BellFilled
                 style={{ fontSize: "1.5rem" }}
                 className="bell-icon"
               />
-          </Link>
+            </Badge>
+          </div>
+          <div ref={dropdownRef} className="notification-dropdown-container">
+            <AnimatePresence>
+              {isNotificationOpen && (
+                <NotificationDropdown
+                  notifications={filteredNotifications}
+                  onClose={() => setIsNotificationOpen(false)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
         </Menu.Item>
       </Menu>
     </div>

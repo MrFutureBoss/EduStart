@@ -178,7 +178,7 @@ const UserListSemester = () => {
     { 4: 0, 2: 0, 3: 0, 5: 0 } // Initialize counts for each role
   );
   const roles = [
-    { id: 4, name: "Học sinh" },
+    { id: 4, name: "Sinh viên" },
     { id: 2, name: "Giáo viên" },
     { id: 3, name: "Mentor" },
     { id: 5, name: "Người dùng khác" },
@@ -460,7 +460,7 @@ const UserListSemester = () => {
       {/* đây là modal khi click vào sẽ hiển thị ra  */}
       <Modal
         title={`Thông tin ${
-          selectedUser?.role === 4 ? "Học sinh" : "Giáo viên"
+          selectedUser?.role === 4 ? "Sinh viên" : "Giáo viên"
         }`}
         open={isUserModalVisible}
         onCancel={closeUserModal}
@@ -618,7 +618,7 @@ const UserListSemester = () => {
                     type="primary"
                     onClick={() => navigate("pending-users")}
                   >
-                    Xem Học Sinh Chưa Thêm Vào Lớp
+                    Xem Sinh Viên Chưa Thêm Vào Lớp
                   </Button>
                 )}
               </Space>

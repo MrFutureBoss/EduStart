@@ -25,7 +25,7 @@ const { Option } = Select;
 const roles = [
   {
     id: 4,
-    name: "Học sinh",
+    name: "Sinh viên",
     template: "/templatesExcel/student_template.xlsx",
   },
   {

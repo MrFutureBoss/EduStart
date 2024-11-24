@@ -20,7 +20,9 @@ import { setUserLogin } from "../../redux/slice/UserSlice";
 import ProjectUpdateModal from "./ProjectUpdateModal";
 import "./GroupMembersStyles.css";
 import io from "socket.io-client";
+import CustomButton from "../../components/Button/Button";
 import GroupOutcomeCard from "../activity/GroupOutcomeCard";
+
 const socket = io(BASE_URL);
 const { Text, Title } = Typography;
 
@@ -236,17 +238,14 @@ const GroupMembers = () => {
               extra={
                 userLogin?.role === 4 &&
                 userLogin?.isLeader && (
-                  <Button
-                    style={{
-                      backgroundColor: "rgb(135, 208, 104)",
-                      color: "white",
-                    }}
+                  <CustomButton
+                    content={
+                      groupDetails?.project?.status === "Planning"
+                        ? "Cập nhật dự án"
+                        : "Sửa lại dự án"
+                    }
                     onClick={handleOpenModal}
-                  >
-                    {groupDetails?.project?.status === "Planning"
-                      ? "Cập nhật dự án"
-                      : "Sửa lại dự án"}
-                  </Button>
+                  />
                 )
               }
             >
@@ -355,7 +354,7 @@ const GroupMembers = () => {
                       <Avatar
                         onClick={() => handleUserDetailClick(member._id)}
                         src={member.avatar}
-                        style={{ backgroundColor: "#87d068" }}
+                        style={{ backgroundColor: "rgb(98, 182, 203)" }}
                       >
                         {member?.username
                           ? member.username
