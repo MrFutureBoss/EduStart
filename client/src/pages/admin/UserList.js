@@ -12,6 +12,7 @@ import {
   Menu,
   Modal,
   message,
+  Badge,
 } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserAddModal from "../semester/semesterModel/UserAddModal";
@@ -38,10 +39,90 @@ import SemesterDetailsCard from "../semester/SemesterDetailsCard";
 import UploadFileModal from "./UploadFileModal";
 import "../../pages/teacher/teacherCSS/MentorSelectionOverview.css";
 import SelectRoleModal from "./SelectRoleModal";
+import CustomButton from "../../components/Button/Button";
 const { Option } = Select;
 const { Search } = Input;
 
 const UserListSemester = () => {
+  // 2 state này để đóng mở modal
+  const [isUserModalVisible, setIsUserModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  // 2 state này để edit
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedUser, setEditedUser] = useState(null);
+
+  // click vào ( bật ắt modal )
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setEditedUser(null);
+    setIsEditMode(false);
+    setIsUserModalVisible(true);
+  };
+  // handle khi ấn edit
+  const toggleEditMode = () => {
+    if (isEditMode) {
+      setIsEditMode(false);
+      setEditedUser(null);
+    } else {
+      setIsEditMode(true);
+      setEditedUser({ ...selectedUser });
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      // So sánh dữ liệu đã thay đổi
+      const updatedFields = {};
+      for (const key in editedUser) {
+        if (editedUser[key] !== selectedUser[key]) {
+          updatedFields[key] = editedUser[key];
+        }
+      }
+
+      // Nếu không có dữ liệu nào thay đổi, không cần gửi request
+      if (Object.keys(updatedFields).length === 0) {
+        message.warning("Không có thay đổi nào để cập nhật!");
+        setIsEditMode(false);
+        return;
+      }
+
+      // Gửi request cập nhật chỉ với các trường thay đổi
+      const response = await axios.put(
+        `${BASE_URL}/user/update/${selectedUser._id}`,
+        updatedFields,
+        config
+      );
+
+      message.success("Cập nhật thành công!");
+
+      // Cập nhật danh sách người dùng trong state Redux
+      const updatedUser = {
+        ...selectedUser, // Giữ lại các trường cũ
+        ...response.data, // Ghi đè các trường được cập nhật
+      };
+
+      // Cập nhật Redux state
+      const updatedUsers = usersInSmt.map((user) =>
+        user._id === selectedUser._id ? updatedUser : user
+      );
+      dispatch(setUsersInSmt(updatedUsers));
+
+      // Cập nhật thông tin người dùng hiện tại
+      setSelectedUser(response.data);
+      setIsUserModalVisible(false); // Đóng modal
+      setIsEditMode(false); // Tắt chế độ chỉnh sửa
+    } catch (error) {
+      console.error("Lỗi khi cập nhật người dùng:", error);
+      message.error("Cập nhật thất bại!");
+    }
+  };
+
+  const closeUserModal = () => {
+    setIsEditMode(false);
+    setEditedUser(null);
+    setIsUserModalVisible(false);
+  };
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { sid, usersInSmt, currentSemester, semester } = useSelector(
@@ -89,9 +170,15 @@ const UserListSemester = () => {
   const handleTableChange = (pagination) => {
     setPagination(pagination);
   };
-
+  const roleCounts = usersInSmt.reduce(
+    (acc, user) => {
+      acc[user.role] = (acc[user.role] || 0) + 1;
+      return acc;
+    },
+    { 4: 0, 2: 0, 3: 0, 5: 0 } // Initialize counts for each role
+  );
   const roles = [
-    { id: 4, name: "Học sinh" },
+    { id: 4, name: "Sinh viên" },
     { id: 2, name: "Giáo viên" },
     { id: 3, name: "Mentor" },
     { id: 5, name: "Người dùng khác" },
@@ -202,7 +289,11 @@ const UserListSemester = () => {
       title: "Tên",
       dataIndex: "username",
       key: "username",
-      render: (text, record) => <Link to={`/user/${record._id}`}>{text}</Link>,
+      render: (text, record) => (
+        <Button type="link" onClick={() => handleUserClick(record)}>
+          {text}
+        </Button>
+      ),
     },
     {
       title: "Email",
@@ -366,7 +457,126 @@ const UserListSemester = () => {
 
   return (
     <div className="user-details">
-      <h3 className="header-content-mentor-detail">Quản lý người dùng</h3>
+      {/* đây là modal khi click vào sẽ hiển thị ra  */}
+      <Modal
+        title={`Thông tin ${
+          selectedUser?.role === 4 ? "Sinh viên" : "Giáo viên"
+        }`}
+        open={isUserModalVisible}
+        onCancel={closeUserModal}
+        footer={[
+          isEditMode ? (
+            <>
+              <Button key="cancel" onClick={toggleEditMode}>
+                Hủy
+              </Button>
+              <Button key="save" type="primary" onClick={handleSaveChanges}>
+                Lưu
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button key="edit" type="primary" onClick={toggleEditMode}>
+                Chỉnh sửa
+              </Button>
+              <Button key="close" onClick={closeUserModal}>
+                Đóng
+              </Button>
+            </>
+          ),
+        ]}
+      >
+        {selectedUser && (
+          <div>
+            <p>
+              <b>Tên:</b>{" "}
+              {isEditMode ? (
+                <Input
+                  value={editedUser.username}
+                  onChange={(e) =>
+                    setEditedUser({ ...editedUser, username: e.target.value })
+                  }
+                />
+              ) : (
+                selectedUser.username
+              )}
+            </p>
+            <p>
+              <b>Email:</b>{" "}
+              {isEditMode ? (
+                <Input
+                  value={editedUser.email}
+                  onChange={(e) =>
+                    setEditedUser({ ...editedUser, email: e.target.value })
+                  }
+                />
+              ) : (
+                selectedUser.email
+              )}
+            </p>
+            {selectedUser.role === 4 && (
+              <>
+                <p>
+                  <b>MSSV:</b>{" "}
+                  {isEditMode ? (
+                    <Input
+                      value={editedUser.rollNumber || ""}
+                      onChange={(e) =>
+                        setEditedUser({
+                          ...editedUser,
+                          rollNumber: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    selectedUser.rollNumber || "Không có"
+                  )}
+                </p>
+              </>
+            )}
+            {selectedUser.role === 2 && (
+              <>
+                <p>
+                  <b>Số điện thoại:</b>{" "}
+                  {isEditMode ? (
+                    <Input
+                      value={editedUser.phoneNumber || ""}
+                      onChange={(e) =>
+                        setEditedUser({
+                          ...editedUser,
+                          phoneNumber: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    selectedUser.phoneNumber || "Không có"
+                  )}
+                </p>
+              </>
+            )}
+            <p>
+              <b>Trạng thái:</b>{" "}
+              {isEditMode ? (
+                <Select
+                  value={editedUser.status}
+                  onChange={(value) =>
+                    setEditedUser({ ...editedUser, status: value })
+                  }
+                  style={{ width: "100%" }}
+                >
+                  <Select.Option value="Active">Active</Select.Option>
+                  <Select.Option value="Inactive">Inactive</Select.Option>
+                </Select>
+              ) : (
+                <Tag color={selectedUser.status === "Active" ? "green" : "red"}>
+                  {selectedUser.status}
+                </Tag>
+              )}
+            </p>
+          </div>
+        )}
+      </Modal>
+      {/* ;<h3 className="header-content-mentor-detail">Quản lý người dùng</h3> */}
       <div
         style={{
           minHeight: "600px",
@@ -398,14 +608,17 @@ const UserListSemester = () => {
             >
               <p>Kỳ học chưa có dữ liệu!</p>
               <Space>
-                <Button onClick={handleAddUserClick}>Thêm người dùng</Button>
+                <CustomButton
+                  onClick={handleAddUserClick}
+                  content={"Thêm người dùng"}
+                ></CustomButton>
 
                 {fullClassUsers.length > 0 && (
                   <Button
                     type="primary"
                     onClick={() => navigate("pending-users")}
                   >
-                    Xem Học Sinh Chưa Thêm Vào Lớp
+                    Xem Sinh Viên Chưa Thêm Vào Lớp
                   </Button>
                 )}
               </Space>
@@ -469,27 +682,35 @@ const UserListSemester = () => {
               }}
             >
               {roles.map((role) => (
-                <Card
-                  className="card-choose-user"
+                <Badge
+                  count={roleCounts[role.id]}
                   key={role.id}
-                  hoverable
-                  style={{
-                    width: "150px",
-                    marginLeft: 10,
-                    textAlign: "center",
-                    border: "none",
-                    backgroundColor:
-                      selectedRole === role.id
-                        ? "#ffbfa0"
-                        : "rgb(248, 235, 222)",
-                    fontWeight: "bold",
-                    borderRadius: "12px",
-                  }}
-                  bodyStyle={{ padding: "10px" }}
-                  onClick={() => handleRoleSelect(role.id)}
+                  showZero
+                  overflowCount={Infinity}
+                  style={{ backgroundColor: "#62b6cb" }}
                 >
-                  {role.name}
-                </Card>
+                  <Card
+                    className="card-choose-user"
+                    key={role.id}
+                    hoverable
+                    style={{
+                      width: "150px",
+                      marginLeft: 10,
+                      textAlign: "center",
+                      border: "none",
+                      backgroundColor:
+                        selectedRole === role.id
+                          ? "#ffbfa0"
+                          : "rgb(248, 235, 222)",
+                      fontWeight: "bold",
+                      borderRadius: "12px",
+                    }}
+                    bodyStyle={{ padding: "10px" }}
+                    onClick={() => handleRoleSelect(role.id)}
+                  >
+                    {role.name}
+                  </Card>
+                </Badge>
               ))}
             </div>
             <div>
@@ -535,7 +756,10 @@ const UserListSemester = () => {
                 }}
               >
                 <Space>
-                  <Button onClick={handleAddUserClick}>Thêm người dùng</Button>
+                  <CustomButton
+                    onClick={handleAddUserClick}
+                    content={"Thêm người dùng"}
+                  ></CustomButton>
                 </Space>
               </div>
             </div>

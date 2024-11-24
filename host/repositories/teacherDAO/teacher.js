@@ -1,5 +1,6 @@
 import MentorCategory from "../../models/mentorCategoryModel.js";
 import TeacherSelection from "../../models/teacherSelection.js";
+import User from "../../models/userModel.js";
 import mongoose from "mongoose";
 
 const saveSelection = async ({
@@ -84,7 +85,21 @@ const getSelection = async ({ teacherId, professionId, specialtyId }) => {
   return mentorsWithPriority;
 };
 
+// update phone teacher 
+const updatePhoneNumberTeacher = async (teacherId, phoneNumber) => {
+  try {
+    const teacher = await User.findByIdAndUpdate(
+      teacherId,
+      { phoneNumber },
+      { new: true }
+    );
+    return teacher;
+  } catch (error) {
+    throw new Error("Không thể cập nhật số điện thoại: " + error.message);
+  }
+};
 export default {
   saveSelection,
   getSelection,
+  updatePhoneNumberTeacher,
 };

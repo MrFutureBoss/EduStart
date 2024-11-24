@@ -178,6 +178,18 @@ const changePassword = async (email, oldPassword, newPassword) => {
   }
 };
 
+const updateUserById = async (userId, updateData) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true, // Return the updated document
+      runValidators: true, // Run schema validation
+    });
+    return updatedUser;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getAllStudentByClassId = async (classId, limit, skip) => {
   try {
     const query = User.find({
@@ -197,29 +209,6 @@ const getAllStudentByClassId = async (classId, limit, skip) => {
 
     return { students, total };
   } catch (error) {
-    throw new Error(error.message);
-  }
-};
-
-const updateUserById = async (userId, updateData) => {
-  try {
-    if (!mongoose.isValidObjectId(userId)) {
-      throw new Error("Invalid user ID format");
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUser) {
-      throw new Error("User not found");
-    }
-
-    return updatedUser;
-  } catch (error) {
-    console.error("Error updating user:", error.message);
     throw new Error(error.message);
   }
 };

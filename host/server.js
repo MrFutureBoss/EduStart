@@ -47,18 +47,18 @@ app.use((req, res, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
   socket.on("message", (msg) => {
     console.log("Received message:", msg);
     io.emit("message", msg);
   });
   socket.on("joinRoom", (userId) => {
     socket.join(`user:${userId}`);
-    console.log(`User ${userId} joined their personal room.`);
   });
   socket.on("joinProject", (projectId) => {
     socket.join(`project:${projectId}`);
-    console.log(`User joined project room: project:${projectId}`);
+  });
+  socket.on("joinClass", (classId) => {
+    socket.join(`class:${classId}`);
   });
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
@@ -84,6 +84,7 @@ app.use("/project", routes.projectRouter);
 app.use("/mentor", routes.mentorRouter);
 app.use("/submission", routes.submissionRouter);
 app.use("/classTranfer", routes.classTransferRoutes);
+app.use("/notification", routes.notificationRouter);
 
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {
@@ -105,7 +106,7 @@ cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
 
-cron.schedule("5 0 * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   try {
     await activityController.autoAssignOutcomes();
     console.log(`[${new Date().toISOString()}] Auto-assign job completed.`);

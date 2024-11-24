@@ -243,7 +243,6 @@ const ProjectsList = () => {
 
   return (
     <div>
-      <AdminHeader content="Lựa chọn dự án ưu tiên" />
       <div className="projects-list-container">
         <div className="filter-section-mentor-preference">
           <Search

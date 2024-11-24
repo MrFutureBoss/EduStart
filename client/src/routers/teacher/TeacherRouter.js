@@ -9,6 +9,8 @@ import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
 import Result from "../../pages/Dnd_test/Result";
 import ClassManagement from "../../pages/class/ClassManagement";
 import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
+import TeacherProfile from "../../pages/teacher/TeacherProfile";
+import ClassGroupTreeView from "../../pages/teacher/matchingMentor/ClassGroupTreeView";
 import MatchingMentorIndex from "../../pages/teacher/matchingMentor";
 import ProjectCardMain from "../../pages/teacher/matchingMentor/matching/ProjectCardMain";
 import DetailedSelection from "../../pages/teacher/matchingMentor/matching/DetailedSelection";
@@ -37,6 +39,8 @@ const TeacherRouter = () => {
       <Route path="choose-mentor" element={<MainStep />} />
       <Route path="class/detail/:className/outcomes" element={<OutcomeDetail/>} />
       <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
+      <Route path="teacher" element={<TeacherProfile />} />
+
       <Route path="temp-matching" element={<ProjectCardMain />} />
       <Route path="summary-class/temp-matching" element={<ProjectCardMain />} />
       <Route path="summary-class" element={<MatchingMentorIndex />} />

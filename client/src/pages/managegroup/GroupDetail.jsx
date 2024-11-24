@@ -9,6 +9,7 @@ import { BASE_URL } from "../../utilities/initalValue";
 import { setGroup, updateGroupLeader } from "../../redux/slice/GroupSlice";
 import { setUserLogin } from "../../redux/slice/UserSlice";
 import "../../style/Class/GroupMembersStyles.css";
+import GroupOutcomeCard from "../activity/GroupOutcomeCard";
 
 const { Text, Title } = Typography;
 
@@ -237,6 +238,7 @@ const GroupDetail = () => {
               </p>
             </Card>
           )}
+          <GroupOutcomeCard groupId={groupId} />
         </div>
       </div>
     </div>

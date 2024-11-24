@@ -1,3 +1,5 @@
+import groupDAO from "../../repositories/groupDAO/index.js";
+import notificationDAO from "../../repositories/notificationDAO/index.js";
 import projectDAO from "../../repositories/projectDAO/index.js";
 import mongoose from "mongoose";
 
@@ -49,6 +51,17 @@ const updateGroupProject = async (req, res, io) => {
       specialtyIds
     );
 
+    const notificationMessage = `Dự án nhóm ${group.name} đã cập nhật.`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "ProjectNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: group._id,
+      audience: "Teacher",
+      groupByKey: `Project_${projectId}`,
+      io: req.io,
+    });
     const io = req.io; // Lấy `io` từ req
     io.to(`user:${teacherId}`).emit("projectUpdated", {
       message: "Project updated",
@@ -137,6 +150,7 @@ const reviseProject = async (req, res, io) => {
     } = req.body;
 
     const group = await projectDAO.findGroupById(groupId);
+
     if (!group || !group.projectId) {
       return res
         .status(404)
@@ -166,6 +180,18 @@ const reviseProject = async (req, res, io) => {
       professionId,
       specialtyIds
     );
+    const recipients = [teacherId];
+    const notificationMessage = `Dự án nhóm ${group.name} đã cập nhật lại.`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "ProjectNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: group._id,
+      audience: "Teacher",
+      groupByKey: `Project_${projectId}`,
+      io: req.io,
+    });
     // kết nối socket.io
     const io = req.io; // Lấy `io` từ req
     io.to(`user:${teacherId}`).emit("projectUpdated", {
@@ -222,11 +248,30 @@ const approveProjectPlanning = async (req, res) => {
       projectId,
       "InProgress"
     );
+    const teacherId = req.user._id;
+
     if (!updatedProject) {
       return res.status(404).json({
         error: "Không tìm thấy dự án có trạng thái Planning",
       });
     }
+    const group = await groupDAO.getGroupByProjectId(projectId);
+
+    const groupMembers = await groupDAO.getGroupMembers(group._id);
+
+    const recipients = groupMembers.map((member) => member._id);
+
+    const notificationMessage = `Dự án của nhóm bạn đã được giáo viên duyệt.`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "ProjectNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: teacherId,
+      audience: "Student",
+      groupByKey: `Project_${projectId}`,
+      io: req.io,
+    });
 
     const io = req.io;
     if (projectId) {
@@ -245,32 +290,53 @@ const approveProjectPlanning = async (req, res) => {
 
 const declineProjectPlanning = async (req, res) => {
   const { projectId } = req.params;
-  const { declineMessage } = req.body; // Get decline message from request body
+  const { declineMessage } = req.body;
 
   try {
-    // Update project status
+    const teacherId = req.user._id;
+
     const updatedProjectStatus = await projectDAO.updateProjectStatusPlanning(
       projectId,
       "Decline"
     );
+
     if (!updatedProjectStatus) {
-      return res.status(404).json({
-        error: "Không tìm thấy dự án có trạng thái Planning",
-      });
+      return res
+        .status(404)
+        .json({ error: "Project not found or not in Planning status" });
     }
-    // Update decline message
-    const updatedProjectMessage = await projectDAO.updateProjectDeclineMessage(
+
+    await projectDAO.updateProjectDeclineMessage(projectId, declineMessage);
+
+    const group = await groupDAO.getGroupByProjectId(projectId);
+
+    const groupMembers = await groupDAO.getGroupMembers(group._id);
+
+    const recipients = groupMembers.map((member) => member._id);
+
+    const notificationMessage = `Dự án của nhóm bạn đã bị giáo viên từ chối. Lý do: "${declineMessage}".`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "ProjectNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: teacherId,
+      audience: "Student",
+      groupByKey: `Project_${projectId}`,
+      io: req.io,
+    });
+
+    // Emit sự kiện qua WebSocket
+    req.io.to(`project:${projectId}`).emit("projectUpdated", {
+      message: "Project Declined",
       projectId,
-      declineMessage
-    );
-    const io = req.io;
-    if (projectId) {
-      io.to(`project:${projectId}`).emit("projectUpdated", {
-        message: "Project Decline",
-        projectId,
-      });
-    }
-    res.json(updatedProjectMessage);
+    });
+
+    res.json({
+      message: "Project declined successfully",
+      declineMessage,
+      notifications,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -283,12 +349,32 @@ const approveProjectChanging = async (req, res) => {
       projectId,
       "InProgress"
     );
+    const teacherId = req.user._id;
     if (!updatedProject) {
       return res.status(404).json({
         error: "Không tìm thấy dự án có trạng thái Changing",
       });
     }
     const io = req.io;
+
+    const group = await groupDAO.getGroupByProjectId(projectId);
+
+    const groupMembers = await groupDAO.getGroupMembers(group._id);
+
+    const recipients = groupMembers.map((member) => member._id);
+
+    const notificationMessage = `Dự án của nhóm bạn đã được giáo duyệt.`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "ProjectNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: teacherId,
+      audience: "Student",
+      groupByKey: `Project_${projectId}`,
+      io: req.io,
+    });
+
     if (projectId) {
       io.to(`project:${projectId}`).emit("projectUpdated", {
         message: "Project approve",
@@ -311,6 +397,7 @@ const declineProjectChanging = async (req, res, io) => {
       projectId,
       "Decline"
     );
+    const teacherId = req.user._id;
     if (!updatedProjectStatus) {
       return res.status(404).json({
         error: "Không tìm thấy dự án có trạng thái Changing",
@@ -321,6 +408,25 @@ const declineProjectChanging = async (req, res, io) => {
       projectId,
       declineMessage
     );
+
+    const group = await groupDAO.getGroupByProjectId(projectId);
+
+    const groupMembers = await groupDAO.getGroupMembers(group._id);
+
+    const recipients = groupMembers.map((member) => member._id);
+
+    const notificationMessage = `Dự án của nhóm bạn đã bị giáo viên từ chối. Lý do: "${declineMessage}".`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "ProjectNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: teacherId,
+      audience: "Student",
+      groupByKey: `Project_${projectId}`,
+      io: req.io,
+    });
+
     // Phát tín hiệu cập nhật đến học sinh và giáo viên
     const io = req.io;
     if (projectId) {

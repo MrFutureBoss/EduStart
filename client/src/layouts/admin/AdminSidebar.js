@@ -20,11 +20,6 @@ const AppSider = ({
   handleFetchCurrentSemesters,
   toggleCollapse,
 }) => {
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    navigate("/");
-    localStorage.removeItem("jwt");
-  };
   return (
     <Sider
       width={270}
@@ -34,6 +29,7 @@ const AppSider = ({
       className="site-layout-background"
       style={{
         boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
+        marginTop: 60,
       }}
     >
       <Menu
@@ -168,15 +164,6 @@ const AppSider = ({
           <Link style={{ textDecoration: "none" }} to="professionmanagement">
             Quản lí lĩnh vực
           </Link>
-        </Menu.Item>
-        <Menu.Item
-          key="6"
-          icon={
-            <LogoutOutlined style={{ color: "red" }} onClick={handleLogout} />
-          }
-          onClick={handleLogout}
-        >
-          <span style={{ cursor: "pointer", color: "red" }}>Đăng xuất</span>
         </Menu.Item>
       </Menu>
     </Sider>

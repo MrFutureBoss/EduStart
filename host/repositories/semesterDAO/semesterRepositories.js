@@ -106,7 +106,7 @@ const getUsersBySemesterId = async (semesterId) => {
         select: "name",
       })
       .populate({
-        path: "professionId",
+        path: "professionIds",
         model: "Profession",
         select: "name",
       });

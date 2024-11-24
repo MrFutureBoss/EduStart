@@ -63,8 +63,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
     fetchUserData();
   }, [userId, config, dispatch]);
 
-
-
   return (
     <Sider
       width={270}
@@ -81,7 +79,12 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         mode="inline"
         defaultSelectedKeys={["4"]}
         // defaultOpenKeys={["sub1"]}
-        style={{ height: "100%", borderRight: 0, padding: 10 }}
+        style={{
+          height: "100%",
+          borderRight: 0,
+          padding: 10,
+          marginTop: "60px",
+        }}
       >
         {/* <SubMenu
           key="sub1"
@@ -122,10 +125,11 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           style={{ margin: "0px", padding: "0px" }}
         >
           <Menu.Item
+            
             key="1"
             icon={<ImProfile className={toggleCollapse ? "" : "custom-icon"} />}
           >
-            Thông tin của bạn
+            <Link to="/teacher-dashboard/teacher">Thông tin của bạn</Link>
           </Menu.Item>
           <Menu.Item
             key="2"

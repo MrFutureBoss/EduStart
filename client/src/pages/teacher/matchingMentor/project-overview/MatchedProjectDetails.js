@@ -1,19 +1,11 @@
 // MatchedProjectDetails.js
 import React from "react";
-import { Tag, Space, Card, Button } from "antd";
+import { Tag, Space, Card, Button, Alert } from "antd";
 import { useNavigate } from "react-router-dom";
 import ProjectCard from "../ProjectCard";
 import "../../teacherCSS/MatchedProjectCard.css";
 import { useSelector } from "react-redux";
 
-const statusColors = {
-  Pending: "#700576",
-  Planning: "#108ee9",
-  Changing: "#108ee9",
-  Accepted: "#04724d",
-  InProgress: "#FFB85C",
-  Decline: "#963638",
-};
 const statusTexts = {
   Pending: "Chờ Mentor chấp nhận",
   Accepted: "Mentor đã chấp nhận",
@@ -36,26 +28,38 @@ const MatchedProjectDetails = ({ data, isMatched }) => {
     <Space direction="vertical" size="middle" style={{ width: "100%" }}>
       {/* Thẻ hiển thị trạng thái nếu là matchedData */}
       {isMatched && data.status && (
-        <Tag
-          color={statusColors[data.status]}
-          style={{ fontSize: "1rem", padding: "7px 10px", fontWeight: "bold" }}
-        >
-          Trạng thái: {statusTexts[data.status]}
-        </Tag>
+        <Alert
+          message={`Trạng thái: ${statusTexts[data.status]}`}
+          type={
+            data.status === "Pending"
+              ? "warning"
+              : data.status === "Accepted"
+              ? "success"
+              : data.status === "Decline"
+              ? "error"
+              : "info"
+          }
+          showIcon
+          style={{ marginBottom: "10px", width: "50%" }}
+        />
       )}
       {!isMatched && data.status === "InProgress" && (
         <>
-          <div>
-            <Tag
-              color={statusColors[data.status]}
-              style={{
-                fontSize: "1rem",
-                padding: "7px 10px",
-                fontWeight: "bold",
-              }}
-            >
-              Trạng thái: {statusTexts[data.status]}
-            </Tag>
+          <div style={{ display: "flex" }}>
+            <Alert
+              message={`Trạng thái: ${statusTexts[data.status]}`}
+              type={
+                data.status === "Pending"
+                  ? "warning"
+                  : data.status === "Accepted"
+                  ? "success"
+                  : data.status === "Decline"
+                  ? "error"
+                  : "info"
+              }
+              showIcon
+              style={{ marginRight: "30%" }}
+            />
             <Button
               className="button-select-mentor-not-matched"
               onClick={handleNavigate} // Gắn hàm điều hướng vào nút
@@ -68,54 +72,67 @@ const MatchedProjectDetails = ({ data, isMatched }) => {
       {!isMatched && data.status === "Planning" && (
         <>
           <div>
-            <Tag
-              color={statusColors[data.status]}
-              style={{
-                fontSize: "1rem",
-                padding: "7px 10px",
-                fontWeight: "bold",
-              }}
-            >
-              Trạng thái: {statusTexts[data.status]}
-            </Tag>
+            <Alert
+              message={`Trạng thái: ${statusTexts[data.status]}`}
+              type={
+                data.status === "Pending"
+                  ? "warning"
+                  : data.status === "Accepted"
+                  ? "success"
+                  : data.status === "Decline"
+                  ? "error"
+                  : "info"
+              }
+              showIcon
+              style={{ marginBottom: "10px" }}
+            />
           </div>
         </>
       )}
       {!isMatched && data.status === "Changing" && (
         <>
           <div>
-            <Tag
-              color={statusColors[data.status]}
-              style={{
-                fontSize: "1rem",
-                padding: "7px 10px",
-                fontWeight: "bold",
-              }}
-            >
-              Trạng thái: {statusTexts[data.status]}
-            </Tag>
+            <Alert
+              message={`Trạng thái: ${statusTexts[data.status]}`}
+              type={
+                data.status === "Pending"
+                  ? "warning"
+                  : data.status === "Accepted"
+                  ? "success"
+                  : data.status === "Decline"
+                  ? "error"
+                  : "info"
+              }
+              showIcon
+              style={{ marginBottom: "10px" }}
+            />
           </div>
         </>
       )}
+
       {!isMatched && data.status === "Decline" && (
         <>
           <div>
-            <Tag
-              color={statusColors[data.status]}
-              style={{
-                fontSize: "1rem",
-                padding: "7px 10px",
-                fontWeight: "bold",
-              }}
-            >
-              Trạng thái: {statusTexts[data.status]}
-            </Tag>
+            <Alert
+              message={`Trạng thái: ${statusTexts[data.status]}`}
+              type={
+                data.status === "Pending"
+                  ? "warning"
+                  : data.status === "Accepted"
+                  ? "success"
+                  : data.status === "Decline"
+                  ? "error"
+                  : "info"
+              }
+              showIcon
+              style={{ marginBottom: "10px", width: "50%" }}
+            />
           </div>
         </>
       )}
       {data.length !== 0 && (
         <ProjectCard
-          style={{ width: "100%", marginLeft: 1 }}
+          style={{ width: "98%", marginLeft: 1, minHeight: "fit-content" }}
           project={data}
           className="always-hover"
         />
@@ -135,21 +152,21 @@ const MatchedProjectDetails = ({ data, isMatched }) => {
           className="elevated-card"
           style={{
             position: "absolute",
-            bottom: "19%",
-            left: "61%",
+            bottom: "62%",
+            left: "76%",
             boxShadow: "rgb(135, 186, 207) 0px 2px 6px",
-            borderRadius: 21,
+            borderRadius: 20,
             border: "none",
             backgroundColor: "#c2e1eb",
-            padding: 16,
+            padding: 7,
           }}
         >
           <strong
             style={{
               position: "absolute",
-              top: -19,
-              left: 21,
-              fontSize: "0.8rem",
+              top: -9,
+              left: 0,
+              fontSize: "0.7rem",
               padding: "4px 10px",
               boxShadow: "0 2px 6px #87bacf",
               backgroundColor: "#62b6cb",
@@ -162,20 +179,20 @@ const MatchedProjectDetails = ({ data, isMatched }) => {
             Mentor Đã Chọn
           </strong>
           <div
-            style={{ borderRadius: 17, padding: 20, backgroundColor: "white" }}
+            style={{ borderRadius: 17, padding: 16, backgroundColor: "white" }}
           >
             <Card.Meta
               description={
                 <>
-                  <p style={{ marginBottom: 2 }}>
+                  <p style={{ marginBottom: 2, fontSize: "0.8rem" }}>
                     <strong>Tên: </strong>
                     {data?.mentorId?.username}
                   </p>
-                  <p style={{ marginBottom: 2 }}>
+                  <p style={{ marginBottom: 2, fontSize: "0.8rem" }}>
                     <strong>Email: </strong>
                     {data?.mentorId?.email}
                   </p>
-                  <p style={{ marginBottom: 2 }}>
+                  <p style={{ marginBottom: 2, fontSize: "0.8rem" }}>
                     <strong>Số điện thoại: </strong>
                     {data?.mentorId?.phoneNumber}
                   </p>

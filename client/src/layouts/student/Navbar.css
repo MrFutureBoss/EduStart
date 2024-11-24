@@ -1,6 +1,5 @@
 /* src/components/Navbar.css */
 .navbar {
-  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -35,7 +34,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 20px;
   white-space: nowrap;
   border: none;
   margin-right: 20px;
@@ -68,5 +66,52 @@
   }
   100% {
     transform: rotate(0);
+  }
+}
+.notification-menu-item {
+  position: relative;
+}
+
+.notification-bell-wrapper {
+  position: relative;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.notification-bell-wrapper:hover {
+  background-color: #f0f0f0;
+}
+
+.notification-dropdown-container {
+  position: absolute;
+  top: 50px; /* Adjust based on navbar height */
+  right: 10px; /* Align with the bell icon */
+}
+
+.bell-icon {
+  color: #1890ff;
+}
+
+.logout-text {
+  cursor: pointer;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .menu {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .notification-dropdown-container {
+    right: 10px;
+    top: 45px;
   }
 }

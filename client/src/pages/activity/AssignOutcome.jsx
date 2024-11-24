@@ -186,7 +186,7 @@ const AssignOutcome = ({ onAssigned }) => {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/activity/assign-outcome`,
+        `${BASE_URL}/activity/assign-outcome-manual`,
         payload,
         config
       );

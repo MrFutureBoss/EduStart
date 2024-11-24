@@ -350,6 +350,19 @@ const updateGroupById = async (groupId, updateData) => {
   }
 };
 
+const getGroupByProjectId = async (projectId) => {
+  try {
+    const group = await Group.findOne({ projectId }).populate(
+      "projectId classId"
+    );
+    if (!group) {
+      throw new Error("Group not found for the given project ID");
+    }
+    return group;
+  } catch (error) {
+    throw new Error(`Error fetching group: ${error.message}`);
+  }
+};
 export default {
   checkGroupsExist,
   addUserToGroup,
@@ -364,4 +377,5 @@ export default {
   getGroupsByClassIds,
   getAllUserByClassId,
   updateGroupById,
+  getGroupByProjectId,
 };

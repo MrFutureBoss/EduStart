@@ -6,32 +6,47 @@ import upload, { multipleUpload } from "../middlewares/uploadMiddleware.js";
 const submissionRouter = express.Router();
 
 submissionRouter.get(
-    "/",
-    verifyAccessToken,
-    verifyRole([4]),
-    submissionController.getSubmissions
-  );
+  "/",
+  verifyAccessToken,
+  verifyRole([2, 4]),
+  submissionController.getSubmissions
+);
 
 submissionRouter.get(
   "/:id",
   verifyAccessToken,
-  verifyRole([4]),
+  verifyRole([2, 4]),
   submissionController.getSubmissionById
 );
 
-submissionRouter.post("/", multipleUpload, submissionController.createSubmission);
+submissionRouter.post(
+  "/",
+  multipleUpload,
+  verifyAccessToken,
+  verifyRole([2, 4]),
+  submissionController.createSubmission
+);
 
-submissionRouter.put(
+submissionRouter.patch(
   "/:id",
   verifyAccessToken,
-  verifyRole([4]),
+  verifyRole([2, 4]),
+  multipleUpload,
   submissionController.updateSubmissionById
 );
 
 submissionRouter.delete(
-    "/:id",
-    verifyAccessToken,
-    verifyRole([4]),
-    submissionController.deleteSubmissionById
-)
+  "/:id",
+  verifyAccessToken,
+  verifyRole([2, 4]),
+  submissionController.deleteSubmissionById
+);
+
+submissionRouter.get(
+  "/submitId/:submitId",
+  verifyAccessToken,
+  verifyRole([2, 4]),
+  submissionController.getSubmissionBySubmitId
+);
+
 export default submissionRouter;

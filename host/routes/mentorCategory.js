@@ -38,4 +38,9 @@ mentorCategoryRouters.get(
   verifyRole([2]),
   teacherController.getTeacherSelection
 );
+mentorCategoryRouters.get(
+  "/findmentorcategorybyuserid/:userId",
+  mentorCategoryController.getMentorCategoryByUserId,
+  verifyAccessToken,
+);
 export default mentorCategoryRouters;

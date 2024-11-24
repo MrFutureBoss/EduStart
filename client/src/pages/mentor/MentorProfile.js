@@ -217,7 +217,6 @@ const MentorProfile = () => {
 
   return (
     <div>
-      <AdminHeader content="Thông tin người dùng" />
       <Card
         bordered={false}
         style={{
@@ -271,7 +270,7 @@ const MentorProfile = () => {
                     {isEditing ? (
                       <InputNumber
                         min={0}
-                        max={100}
+                        max={15}
                         value={maxLoad}
                         onChange={handleMaxLoadChange}
                       />

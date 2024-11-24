@@ -10,7 +10,12 @@ const StudentLayout = () => (
   <Layout style={{ minHeight: "100vh" }}>
     <Navbar />
     <Layout>
-      <Content style={{ padding: "40px", backgroundColor: "rgb(252 252 252)" }}>
+      <Content
+        style={{
+          backgroundColor: "rgb(252 252 252)",
+          padding: "50px 30px 20px 30px",
+        }}
+      >
         <Outlet /> {/* Nội dung route con */}
       </Content>
     </Layout>

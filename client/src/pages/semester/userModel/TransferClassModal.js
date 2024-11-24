@@ -34,7 +34,6 @@ const TransferClassModal = ({
   const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const jwt = localStorage.getItem("jwt");
-  console.log("requestId", requestId);
 
   const config = {
     headers: {

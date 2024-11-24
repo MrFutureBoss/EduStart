@@ -29,6 +29,7 @@ const TeacherLayout = () => {
           <Content
             className="site-layout-background"
             style={{
+              marginTop: 50,
               padding: 30,
               overflow: "initial",
               minHeight: 280,

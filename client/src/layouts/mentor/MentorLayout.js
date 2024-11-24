@@ -3,6 +3,7 @@ import { Content } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
 import MentorSidebar from "./MentorSidebar";
+import MentorHeader from "./MentorHeader";
 
 const MentorLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -16,7 +17,8 @@ const MentorLayout = () => {
         backgroundColor: "#F5F5F5",
       }}
     >
-      <Layout style={{ backgroundColor: "#F5F5F5" }}>
+      <MentorHeader />
+      <Layout style={{ backgroundColor: "#F5F5F5", marginTop: 50 }}>
         <MentorSidebar collapsed={collapsed} toggleCollapse={toggleCollapse} />
         <Layout
           style={{

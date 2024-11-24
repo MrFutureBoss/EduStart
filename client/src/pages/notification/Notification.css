@@ -1,0 +1,131 @@
+/* src/pages/notification/NotificationDropdown.css */
+
+.notification-dropdown {
+  position: absolute;
+  top: 6px; /* Adjust based on the navbar height */
+  right: 0;
+  width: 380px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  overflow: hidden;
+  pointer-events: auto;
+}
+.ant-dropdown {
+  pointer-events: auto;
+}
+.notification-header {
+  display: flex;
+  align-items: center;
+  padding: 0px 15px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e8e8e8;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.notification-icon {
+  margin-right: 8px;
+  color: #1890ff;
+  font-size: 1.2rem;
+}
+
+.notification-list {
+  max-height: 400px; /* Adjust as needed */
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 2px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+.notification-group-header {
+  margin-left: 10px;
+}
+.notification-item p {
+  margin: 3px;
+  color: #555;
+  font-size: 0.9rem;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+}
+
+.notification-item.empty {
+  text-align: center;
+  color: #888;
+}
+.filter-button {
+  padding: 5px 20px;
+  background-color: rgb(110 208 234 / 45%);
+  border: none;
+  border-radius: 30px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  height: 33px;
+  color: rgb(0, 125, 157);
+}
+
+.filter-button:hover {
+  background-color: rgb(137 214 233 / 66%);
+}
+
+.filter-button.active {
+  background-color: rgb(98, 182, 203);
+  color: white;
+}
+.filter-button-text {
+  position: relative;
+  top: -12px;
+}
+.notification-filter {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 20px 10px 20px;
+}
+.notification-header {
+  margin-left: 4px;
+  background-color: #fff;
+  font-size: 28px;
+  padding-bottom: 8px;
+  color: rgb(54 164 192);
+  padding-top: 6px;
+}
+.title-notification {
+  position: relative;
+  top: 1px;
+  left: 7px;
+}
+.notification-type {
+  margin-bottom: -7px;
+  color: rgb(54 164 192);
+}
+.main-header-notification {
+  justify-content: space-between;
+  padding: 0 20px 0 0;
+}
+.icon-notification-header {
+  height: 34px;
+  width: 34px;
+  border-radius: 30px;
+  border: #fff;
+  background: #fff;
+  top: 11px;
+  position: absolute;
+  left: 86%;
+}
+.icon-notification-header:hover {
+  background-color: rgb(238, 238, 238);
+}
