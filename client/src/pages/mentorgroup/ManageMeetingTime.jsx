@@ -1,15 +1,17 @@
-import { Col, Row } from "antd";
 import React from "react";
 import CustomCalendar from "./MeetingSchedule";
+import HugeModal from "../../components/Modal/HugeModal";
 
-const ManageMeetingTime = () => {
+const ManageMeetingTime = ({open, close}) => {
   return (
-    <Row gutter={[12, 16]}>
-      <Col span={18}>
-        <CustomCalendar />
-      </Col>
-      <Col span={6}><p>HHH</p></Col>
-    </Row>
+    <HugeModal
+      title=""
+      content={<CustomCalendar />}
+      isModalOpen={open}
+      handleCancel={close}
+      closeable={true}
+      footer=""
+    />
   );
 };
 

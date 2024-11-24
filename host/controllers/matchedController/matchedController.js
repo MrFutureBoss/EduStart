@@ -122,10 +122,38 @@ const patchMatched = async (req, res) => {
   }
 };
 
+const createNewTimeEventsHandler = async (req, res) => {
+  const { id } = req.params;
+  const { time } = req.body;
+  try {
+    if (!time || !Array.isArray(time) || time.length === 0) {
+      return res.status(400).json({ message: "No valid time data provided" });
+    }
+    const updatedMatched = await matchedDAO.createNewTimeEvents(id, time);
+
+    res.status(200).json({
+      message: "New time events added successfully",
+      matched: updatedMatched,
+    });
+  } catch (error) {
+    console.error("Error in createNewTimeEventsHandler:", error.message);
+
+    if (error.message === "Invalid Matched ID format") {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.message === "Matched record not found") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
   updateMatchedStatus,
   getAllMatchingDetailByMentorId,
   patchMatched,
+  createNewTimeEventsHandler,
 };

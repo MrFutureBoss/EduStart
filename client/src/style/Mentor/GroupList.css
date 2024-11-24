@@ -146,3 +146,12 @@
 .mentor-group-card-selected p {
     color: #1890ff;
 }
+
+.custom-panel-header .ant-collapse-item {
+    background-color: #E6F4FF !important;
+    border-style: none !important;
+}
+
+.custom-panel-header .ant-collapse-header {
+    padding: 4px 8px !important;
+}

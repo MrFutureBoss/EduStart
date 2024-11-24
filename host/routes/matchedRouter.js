@@ -27,6 +27,12 @@ matchedRouter.put(
 
 matchedRouter.patch("/:id", verifyAccessToken, matchedController.patchMatched);
 
+matchedRouter.post(
+  "/time/:id",
+  verifyAccessToken,
+  matchedController.createNewTimeEventsHandler
+);
+
 matchedRouter.get(
   "/mentor/:mentorId",
   verifyAccessToken,

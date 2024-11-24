@@ -308,6 +308,32 @@ const patchMatchedById = async (id, updateData) => {
   }
 };
 
+const createNewTimeEvents = async (id, newTimeArray) => {
+  try {
+    if (!mongoose.isValidObjectId(id)) {
+      throw new Error("Invalid Matched ID format");
+    }
+
+    if (!Array.isArray(newTimeArray) || newTimeArray.length === 0) {
+      throw new Error("Time data must be a non-empty array");
+    }
+    const updatedMatched = await Matched.findByIdAndUpdate(
+      id,
+      { $push: { time: { $each: newTimeArray } } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMatched) {
+      throw new Error("Matched record not found");
+    }
+
+    return updatedMatched;
+  } catch (error) {
+    console.error("Error creating new time events:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 export default {
   createMatched,
   updateMatchedById,
@@ -315,4 +341,5 @@ export default {
   getMatchedInfoByGroupId,
   getAllMatchingDetailByMentorId,
   patchMatchedById,
+  createNewTimeEvents,
 };

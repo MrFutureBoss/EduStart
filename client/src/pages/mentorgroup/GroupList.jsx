@@ -17,6 +17,7 @@ import {
   Input,
   Badge,
   Empty,
+  Form,
 } from "antd";
 import { StarFilled, CalendarOutlined, PlusOutlined } from "@ant-design/icons";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -33,6 +34,7 @@ import { FaClock, FaThumbtack } from "react-icons/fa";
 import { TiEdit } from "react-icons/ti";
 import { BiDetail } from "react-icons/bi";
 import CreateMeetingDay from "./CreateMeetingDay";
+import ManageMeetingTime from "./ManageMeetingTime";
 
 const GroupList = () => {
   const dispatch = useDispatch();
@@ -42,12 +44,15 @@ const GroupList = () => {
   const [loading, setLoading] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [groupId, setGroupId] = useState("");
   const [selectedMember, setSelectedMember] = useState(null);
   const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
   const [declineMessage, setDeclineMessage] = useState("");
   const [selectedGroupToReject, setSelectedGroupToReject] = useState(null);
   const [currentPageMyGroups, setCurrentPageMyGroups] = useState(1);
   const [currentPagePendingGroups, setCurrentPagePendingGroups] = useState(1);
+  const [form] = Form.useForm();
   const pageSize = 3;
 
   const groups = useSelector((state) => state.matchedGroup.data || []);
@@ -235,17 +240,38 @@ const GroupList = () => {
     navigate("/mentor-dashboard/schedule");
   };
 
-  const HandleOpenAddModal = () => {
+  const HandleOpenAddModal = (groupKey) => {
     setIsAddModalOpen(true);
+    setGroupId(groupKey);
+    form.setFieldsValue({
+      meetingContent: "",
+      meetingDate: null,
+      meetingStartTime: null,
+      meetingDuration: 90,
+    });
   };
 
   const HandleCloseAddModal = () => {
     setIsAddModalOpen(false);
+    setGroupId("");
+  };
+
+  const HandleOpenSchedule = () => {
+    setIsScheduleOpen(true);
+  };
+
+  const HandleCloseSchedule = () => {
+    setIsScheduleOpen(false);
   };
 
   return (
     <div>
-      <CreateMeetingDay open={isAddModalOpen} close={HandleCloseAddModal} />
+      <CreateMeetingDay
+        groupId={groupId}
+        open={isAddModalOpen}
+        close={HandleCloseAddModal}
+      />
+      <ManageMeetingTime open={isScheduleOpen} close={HandleCloseSchedule} />
       <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
         Quản lý nhóm
       </h1>
@@ -270,7 +296,7 @@ const GroupList = () => {
               marginBottom: "2rem",
               fontSize: "1.1rem",
             }}
-            onClick={() => handleMoveToSchedule()}
+            onClick={() => HandleOpenSchedule()}
           >
             Lịch họp các nhóm
           </Button>
@@ -288,16 +314,17 @@ const GroupList = () => {
                   style={{ display: "flex", alignItems: "center", gap: "8px" }}
                 >
                   <span>Nhóm của bạn</span>
-                  <Badge
-                    count={myGroups.length}
+                  {/* <Badge
+                    count={0}
                     showZero
                     style={{
                       backgroundColor: "#52c41a",
                     }}
-                  />
+                  /> */}
                 </div>
               }
             >
+              <h5>Bạn có {myGroups.length} nhóm</h5>
               {paginatedMyGroups.map((group, index) => (
                 <Card
                   key={index}
@@ -452,7 +479,9 @@ const GroupList = () => {
                 extra={
                   <Tooltip title="Thêm cuộc hẹn mới">
                     <PlusOutlined
-                      onClick={() => HandleOpenAddModal()}
+                      onClick={() =>
+                        HandleOpenAddModal(selectedGroup?.matchedDetails?._id)
+                      }
                       style={{
                         fontSize: "1.4rem",
                         color: "#1890FF",
@@ -549,6 +578,23 @@ const GroupList = () => {
                 ) : (
                   <Empty description="Chưa có lịch hãy vào lịch của các nhóm để tạo" />
                 )}
+              </Card>
+
+              <Card
+                title="Hành động"
+                headStyle={{
+                  color: "#000",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  fontSize: "18px",
+                }}
+                bodyStyle={{
+                  maxHeight: "400px",
+                  overflowY: "auto",
+                }}
+              >
+                 <Button>Rời bỏ nhóm</Button>
+
               </Card>
             </Col>
             <Col xs={24} md={16}>

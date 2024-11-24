@@ -9,54 +9,39 @@ import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import {
-  ContainerOutlined,
   EditOutlined,
-  EllipsisOutlined,
-  EyeOutlined,
+  UnlockOutlined,
   LockOutlined,
   PlusCircleOutlined,
-  UnlockOutlined,
-  UploadOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import {
-  Avatar,
-  Badge,
-  Card,
-  Empty,
-  Pagination,
+  Table,
+  Tag,
   Popconfirm,
   Popover,
-  Tag,
-  Upload,
+  Pagination,
+  Empty,
+  Typography,
 } from "antd";
 import AddNewProfession from "./AddNewProfession.jsx";
 import EditProfession from "./EditProfession.jsx";
 import "../../style/Admin/Profession.css";
-import Search from "antd/es/transfer/search.js";
-import SmallModal from "../../components/Modal/SmallModal.jsx";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
   const professions = useSelector((state) => state.profession.professions.data);
-  const specialtiesData = useSelector(
-    (state) => state.profession.specialtiesData.data || []
-  );
   const specialties = useSelector(
     (state) => state.specialty.specialties.data || []
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalShowTypeAdd, setIsModalShowTypeAdd] = useState(false);
-  const [isModalImportFile, setIsModalImportFile] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [professionId, setProfessionId] = useState("");
-  //Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [pageSize, setPageSize] = useState(6);
+
   useEffect(() => {
-    console.log(`Fetching data for page: ${currentPage}, limit: ${pageSize}`);
     axios
       .get(`${BASE_URL}/profession`, {
         params: {
@@ -71,13 +56,10 @@ const ProfessionManagement = () => {
       .catch((err) => console.log("Error fetching professions", err));
   }, [dispatch, currentPage, pageSize]);
 
-  //Gọi data specialty
   const fetchSpecialties = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/specialty`);
       const data = response.data;
-      console.log("Total Specialties: " + response.data.total);
-      // dispatch(setSpecialties(data));
       dispatch(setSpecialtiesData(data));
     } catch (error) {
       console.error("Error fetching specialties:", error);
@@ -85,7 +67,7 @@ const ProfessionManagement = () => {
   };
 
   useEffect(() => {
-    fetchSpecialties(); // Gọi hàm async để fetch dữ liệu
+    fetchSpecialties();
   }, [dispatch]);
 
   const getSpecialtyNameById = (id) => {
@@ -93,18 +75,12 @@ const ProfessionManagement = () => {
     return define ? define.name : "Unknown";
   };
 
-  const getSpecialtyStatusById = (id) => {
-    const define = specialties.find((sp) => sp._id === id);
-    return define ? define.status : false;
-  };
-
-  //Đổi status lĩnh vực
   const toggleStatus = (id, currentStatus) => {
     const updatedStatus = { status: !currentStatus };
 
     axios
       .patch(`${BASE_URL}/profession/${id}`, updatedStatus)
-      .then((res) => {
+      .then(() => {
         dispatch(
           setProfessions({
             ...professions,
@@ -117,47 +93,11 @@ const ProfessionManagement = () => {
       .catch((err) => console.log("Error updating profession status", err));
   };
 
-  const cancelToggle = (e) => {
-    console.log(e);
-  };
-
   const onPageChange = (pageNumber) => {
-    console.log(`Changing to page: ${pageNumber}`);
     setCurrentPage(pageNumber);
   };
 
-  const onPageSizeChange = (current, size) => {
-    setPageSize(size);
-    setCurrentPage(1);
-    axios
-      .get(`${BASE_URL}/profession`, {
-        params: {
-          page: 1,
-          limit: size,
-        },
-      })
-      .then((res) => {
-        setTotalItems(res.data.total);
-        dispatch(setProfessions(res.data));
-      })
-      .catch((err) => console.log("Error fetching professions", err));
-  };
-
-  const handleOpenAddTypeModal = () => {
-    setIsModalShowTypeAdd(true);
-  };
-  const handleCloseAddTypeModal = () => {
-    setIsModalShowTypeAdd(false);
-  };
-  const handleOpenImportModal = () => {
-    setIsModalImportFile(true);
-  };
-  const handleCloseImportModal = () => {
-    setIsModalImportFile(false);
-  };
-
   const handleOpenModal = () => {
-    setIsModalShowTypeAdd(false);
     setIsModalOpen(true);
   };
 
@@ -175,217 +115,100 @@ const ProfessionManagement = () => {
     setIsEditModalOpen(false);
   };
 
-  const props = {
-    action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-    onChange({ file, fileList }) {
-      if (file.status !== "uploading") {
-        console.log(file, fileList);
-      }
+  const columns = [
+    {
+      title: "Tên lĩnh vực",
+      dataIndex: "name",
+      key: "name",
     },
-  };
+    {
+      title: "Chuyên môn",
+      dataIndex: "specialty",
+      key: "specialty",
+      render: (specialty) =>
+        specialty.length > 0 ? (
+          specialty.map((sp) => <Tag key={sp}>{getSpecialtyNameById(sp)}</Tag>)
+        ) : (
+          <Tag>Chưa có chuyên môn nào</Tag>
+        ),
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      render: (status, record) => (
+        <Popover content={status ? "Đang hoạt động" : "Chưa hoạt động"}>
+          <Popconfirm
+            title="Đổi trạng thái hoạt động"
+            onConfirm={() => toggleStatus(record._id, status)}
+            okText="Có"
+            cancelText="Hủy"
+          >
+            {status ? (
+              <UnlockOutlined
+                style={{
+                  fontSize: "1.2rem",
+                  color: "green",
+                  cursor: "pointer",
+                }}
+              />
+            ) : (
+              <LockOutlined
+                style={{ fontSize: "1.2rem", color: "red", cursor: "pointer" }}
+              />
+            )}
+          </Popconfirm>
+        </Popover>
+      ),
+    },
+    {
+      title: "Hành động",
+      key: "actions",
+      render: (_, record) => (
+        <Button
+          onClick={() => handleOpenEditModal(record._id)}
+          icon={<EditOutlined />}
+        >
+          Cập nhật
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <Container style={{ marginTop: 20 }} fluid>
-      <SmallModal
-        title={<>Chọn file .xlx để thêm dữ liệu</>}
-        content={
-          <div
-            style={{ display: "flex", justifyContent: "center", gap: "10px" }}
-          >
-            <Upload {...props}>
-              <Button onClick={handleOpenImportModal}>
-                <UploadOutlined /> Upload file .xlx
-              </Button>
-            </Upload>
-          </div>
-        }
-        isModalOpen={isModalImportFile}
-        handleOk={handleOpenImportModal}
-        handleCancel={handleCloseImportModal}
-        footer={<></>}
-      />
-      <SmallModal
-        title={<>Chọn kiểu thêm</>}
-        content={
-          <div
-            style={{ display: "flex", justifyContent: "center", gap: "10px" }}
-          >
-            <Button onClick={handleOpenModal}>
-              <ContainerOutlined /> Nhập dữ liệu
-            </Button>
-            <Button onClick={handleOpenImportModal}>
-              <UploadOutlined /> Thêm dữ liệu bằng file
-            </Button>
-          </div>
-        }
-        isModalOpen={isModalShowTypeAdd}
-        handleOk={handleOpenAddTypeModal}
-        handleCancel={handleCloseAddTypeModal}
-        footer={<></>}
-      />
+    <Container fluid>
       <AddNewProfession show={isModalOpen} close={handleCloseModal} />
       <EditProfession
         _id={professionId}
         show={isEditModalOpen}
         close={handleCloseEditModal}
       />
-      <Row style={{ marginBottom: "10px" }}>
-        <Col sm={2}>
-          <Button
-            style={{ width: "10rem" }}
-            variant="primary"
-            onClick={handleOpenAddTypeModal}
-          >
-            <PlusCircleOutlined /> Thêm lĩnh vực
-          </Button>
+      <Row style={{ marginBottom: "20px" }}>
+        <Col>
+          <Typography.Title level={2} style={{ textAlign: "center" }}>
+            Quản lý lĩnh vực
+          </Typography.Title>
         </Col>
-        <Col sm={5}>
-          <Search
-            placeholder="Tìm theo tên lĩnh vực và chuyên môn"
-            // onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: "260px", marginBottom: "20px" }}
-            allowClear
-          />
+      </Row>
+      <Row style={{ marginBottom: "10px" }}>
+        <Col>
+          <Button
+            variant="primary"
+            onClick={handleOpenModal}
+            icon={<PlusCircleOutlined />}
+          >
+            Thêm lĩnh vực
+          </Button>
         </Col>
       </Row>
       <Row>
         {professions.length > 0 ? (
-          professions.map((pro) => (
-            <Col
-              sx={12}
-              sm={12}
-              md={12}
-              lg={6}
-              key={pro._id}
-              className="profession-list"
-            >
-              <Badge.Ribbon
-                text={
-                  <span className="count-mentors">
-                    0&nbsp;
-                    <EyeOutlined
-                      style={{
-                        fontSize: "inherit",
-                        lineHeight: 1,
-                        verticalAlign: "middle",
-                      }}
-                    />
-                  </span>
-                }
-              >
-                <Card
-                  actions={[
-                    pro.status ? (
-                      <Popover content="Đang hoạt động">
-                        <Popconfirm
-                          title="Đổi trạng thái hoạt động"
-                          description="Bạn có chắc là muốn cho dừng hoạt động lĩnh vực này không?"
-                          onConfirm={() => toggleStatus(pro._id, pro.status)}
-                          onCancel={cancelToggle}
-                          okText="Có"
-                          cancelText="Hủy"
-                        >
-                          <UnlockOutlined
-                            style={{
-                              color: "green",
-                              fontSize: "18px",
-                              cursor: "pointer",
-                            }}
-                          />
-                        </Popconfirm>
-                      </Popover>
-                    ) : (
-                      <Popover content="Chưa hoạt động">
-                        <Popconfirm
-                          title="Đổi trạng thái hoạt động"
-                          description="Bạn có chắc là muốn cho hoạt động lĩnh vực này không?"
-                          onConfirm={() => toggleStatus(pro._id, pro.status)}
-                          onCancel={cancelToggle}
-                          okText="Có"
-                          cancelText="Hủy"
-                        >
-                          <LockOutlined
-                            style={{
-                              color: "red",
-                              fontSize: "18px",
-                              cursor: "pointer",
-                            }}
-                          />
-                        </Popconfirm>
-                      </Popover>
-                    ),
-                    <Popover content="Cập nhật">
-                      <EditOutlined
-                        style={{
-                          fontSize: "18px",
-                          cursor: "pointer",
-                        }}
-                        key="edit"
-                        onClick={() => handleOpenEditModal(pro._id)}
-                      />
-                    </Popover>,
-                    <EllipsisOutlined key="ellipsis" />,
-                  ]}
-                  style={{
-                    width: "calc(50vw - 10px)", // Mỗi card chiếm 25% chiều rộng màn hình, trừ khoảng cách giữa chúng
-                    maxWidth: "28rem", // Giới hạn chiều rộng tối đa
-                    height: "100%", // Chiều cao 100%
-                    marginBottom: "5px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Card.Meta
-                    avatar={
-                      <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-                    }
-                    title={pro.name}
-                    description={
-                      <div>
-                        Chuyên môn: &nbsp;
-                        {pro.specialty.length > 0 ? (
-                          pro.specialty.map((sp) => (
-                            <Popover content="Đang hoạt động">
-                              <Tag
-                                bordered={true}
-                                className="specialty-tags"
-                                key={sp}
-                              >
-                                <span
-                                  style={{
-                                    marginRight: "6px",
-                                  }}
-                                >
-                                  {getSpecialtyNameById(sp)}&nbsp;
-                                </span>
-                                <span
-                                  className="count-mentors"
-                                  style={{ borderLeft: "1px solid white" }}
-                                >
-                                  0
-                                  <UserOutlined
-                                    style={{
-                                      fontSize: "inherit",
-                                      lineHeight: 1,
-                                      verticalAlign: "middle",
-                                    }}
-                                  />
-                                </span>
-                              </Tag>
-                            </Popover>
-                          ))
-                        ) : (
-                          <Tag className="specialty-tags">
-                            Chưa có chuyên môn nào{" "}
-                          </Tag>
-                        )}
-                      </div>
-                    }
-                  />
-                </Card>
-              </Badge.Ribbon>
-            </Col>
-          ))
+          <Table
+            columns={columns}
+            dataSource={professions}
+            rowKey="_id"
+            pagination={false}
+          />
         ) : (
           <Empty />
         )}
@@ -393,14 +216,11 @@ const ProfessionManagement = () => {
       <Row>
         <Pagination
           showQuickJumper
-          style={{
-            display: "flex",
-            justifyContent: "center",
-          }}
           current={currentPage}
           pageSize={pageSize}
           total={totalItems}
           onChange={onPageChange}
+          style={{ marginTop: "20px", textAlign: "center" }}
         />
       </Row>
     </Container>
