@@ -1,4 +1,16 @@
 import ClassTransferRequest from "../../models/ClassTransferRequest.js";
+import Class from "../../models/classModel.js";
+
+const getAvailableClasses = async () => {
+  try {
+    return await Class.find({ limitStudent: { $gt: 0 }, status: "Active" })
+      .select("className limitStudent")
+      .lean();
+  } catch (error) {
+    console.error("Error fetching available classes:", error);
+    throw error;
+  }
+};
 
 const createTransferRequest = async ({
   studentId,
@@ -7,71 +19,89 @@ const createTransferRequest = async ({
   reason,
 }) => {
   try {
+    const existingRequest = await ClassTransferRequest.findOne({
+      studentId,
+      currentClassId,
+      requestedClassId,
+      status: "pending",
+    });
+
+    if (existingRequest) {
+      throw new Error("A pending transfer request already exists.");
+    }
+
     const transferRequest = new ClassTransferRequest({
       studentId,
       currentClassId,
       requestedClassId,
       reason,
+      status: "pending",
     });
 
     return await transferRequest.save();
   } catch (error) {
-    console.error("Lỗi khi tạo yêu cầu chuyển lớp:", error);
+    console.error("Error creating transfer request:", error);
     throw error;
   }
 };
 
 const updateRequestStatus = async (requestId, status, rejectMessage = null) => {
   try {
-    // Kiểm tra trạng thái có hợp lệ không
     if (!["approved", "rejected"].includes(status)) {
-      throw new Error("Trạng thái không hợp lệ.");
+      throw new Error("Invalid status.");
     }
 
-    // Nếu trạng thái là "rejected", yêu cầu rejectMessage
     const updateFields = { status };
-    if (status === "rejected") {
-      if (!rejectMessage) {
-        throw new Error("Bạn phải cung cấp rejectMessage khi từ chối yêu cầu.");
-      }
+    if (status === "rejected" && rejectMessage) {
       updateFields.rejectMessage = rejectMessage;
     }
 
-    // Cập nhật yêu cầu với các trường cần thiết
-    const transferRequest = await ClassTransferRequest.findByIdAndUpdate(
+    const updatedRequest = await ClassTransferRequest.findByIdAndUpdate(
       requestId,
       updateFields,
       { new: true }
     );
 
-    if (!transferRequest) {
-      throw new Error("Yêu cầu chuyển lớp không tồn tại.");
+    if (!updatedRequest) {
+      throw new Error("Transfer request not found.");
     }
 
-    return transferRequest;
+    return updatedRequest;
   } catch (error) {
-    console.error("Lỗi khi cập nhật trạng thái yêu cầu chuyển lớp:", error);
+    console.error("Error updating transfer request status:", error);
     throw error;
   }
 };
 
 const getAllTransferRequests = async () => {
   try {
-    // Tìm tất cả các yêu cầu đổi lớp
-    const transferRequests = await ClassTransferRequest.find()
+    return await ClassTransferRequest.find()
       .populate("studentId", "username email rollNumber")
       .populate("currentClassId", "className")
       .populate("requestedClassId", "className")
       .lean();
-    return transferRequests;
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách yêu cầu đổi lớp:", error);
+    console.error("Error fetching transfer requests:", error);
+    throw error;
+  }
+};
+
+const getUserTransferRequests = async (userId) => {
+  try {
+    return await ClassTransferRequest.find({ studentId: userId })
+      .populate("currentClassId", "className")
+      .populate("requestedClassId", "className")
+      .lean();
+  } catch (error) {
+    console.error("Error fetching user transfer requests:", error);
     throw error;
   }
 };
 
 export default {
-  getAllTransferRequests,
+  getAvailableClasses,
   createTransferRequest,
   updateRequestStatus,
+  getAllTransferRequests,
+  getUserTransferRequests,
 };
