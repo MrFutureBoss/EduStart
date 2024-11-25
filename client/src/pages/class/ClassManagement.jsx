@@ -122,7 +122,6 @@ const ClassManagement = () => {
 
   return (
     <div>
-      <h1 style={{ marginBottom: "40px" }}>Quản lý lớp học</h1>
       <Row gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={12} xl={16}>
           <Card
