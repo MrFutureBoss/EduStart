@@ -26,6 +26,7 @@ import {
 import AddNewProfession from "./AddNewProfession.jsx";
 import EditProfession from "./EditProfession.jsx";
 import "../../style/Admin/Profession.css";
+import UpdateButton from "../../components/Button/UpdateButton.jsx";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
@@ -117,12 +118,17 @@ const ProfessionManagement = () => {
 
   const columns = [
     {
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+    },
+    {
       title: "Tên lĩnh vực",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Chuyên môn",
+      title: "Tên chuyên môn",
       dataIndex: "specialty",
       key: "specialty",
       render: (specialty) =>
@@ -165,31 +171,23 @@ const ProfessionManagement = () => {
       title: "Hành động",
       key: "actions",
       render: (_, record) => (
-        <Button
+        <UpdateButton
+          content="Cập nhật"
           onClick={() => handleOpenEditModal(record._id)}
           icon={<EditOutlined />}
-        >
-          Cập nhật
-        </Button>
+        />
       ),
     },
   ];
 
   return (
-    <Container fluid>
+    <Container fluid style={{ marginTop: "3rem" }}>
       <AddNewProfession show={isModalOpen} close={handleCloseModal} />
       <EditProfession
         _id={professionId}
         show={isEditModalOpen}
         close={handleCloseEditModal}
       />
-      <Row style={{ marginBottom: "20px" }}>
-        <Col>
-          <Typography.Title level={2} style={{ textAlign: "center" }}>
-            Quản lý lĩnh vực
-          </Typography.Title>
-        </Col>
-      </Row>
       <Row style={{ marginBottom: "10px" }}>
         <Col>
           <Button
