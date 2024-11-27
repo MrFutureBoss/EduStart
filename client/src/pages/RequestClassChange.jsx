@@ -22,11 +22,11 @@ const RequestClassChange = ({ currentUserId, currentClassId, refreshData }) => {
       const response = await fetch(`/api/classes/available`);
       const data = await response.json();
       if (!data.classes.length) {
-        message.info("No classes with available slots.");
+        message.info("Không có lớp nào khả dụng.");
       }
       setAvailableClasses(data.classes);
     } catch (error) {
-      message.error("Failed to fetch available classes.");
+      message.error("Không thể lấy danh sách các lớp khả dụng.");
     }
   };
 
@@ -36,13 +36,13 @@ const RequestClassChange = ({ currentUserId, currentClassId, refreshData }) => {
       const data = await response.json();
       setChangeRequests(data.data);
     } catch (error) {
-      message.error("Failed to fetch change requests.");
+      message.error("Không thể lấy danh sách yêu cầu.");
     }
   };
 
   const handleCreateRequest = async () => {
     if (!selectedClass) {
-      message.error("Please select a class.");
+      message.error("Vui lòng chọn lớp.");
       return;
     }
 
@@ -59,7 +59,7 @@ const RequestClassChange = ({ currentUserId, currentClassId, refreshData }) => {
       });
 
       if (response.ok) {
-        message.success("Request created successfully!");
+        message.success("Tạo yêu cầu thành công!");
         fetchChangeRequests();
         refreshData();
         setIsModalOpen(false);
@@ -67,60 +67,60 @@ const RequestClassChange = ({ currentUserId, currentClassId, refreshData }) => {
         setReason("");
       } else {
         const errorData = await response.json();
-        message.error(errorData.message || "Failed to create request.");
+        message.error(errorData.message || "Không thể tạo yêu cầu.");
       }
     } catch (error) {
-      message.error("Error creating request.");
+      message.error("Lỗi khi tạo yêu cầu.");
     }
   };
 
   return (
     <div className="request-class-container">
-      <h2 className="request-class-title">Request to Change Class</h2>
+      <h2 className="request-class-title">Yêu Cầu Chuyển Lớp</h2>
 
       <Button
         type="primary"
         onClick={() => setIsModalOpen(true)}
         className="create-request-button"
       >
-        Create Request
+        Tạo Yêu Cầu
       </Button>
 
       <Modal
-        title="Create Class Change Request"
+        title="Tạo Yêu Cầu Chuyển Lớp"
         visible={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onOk={handleCreateRequest}
-        okText="Submit Request"
+        okText="Gửi Yêu Cầu"
       >
         <Select
-          placeholder="Select a class"
+          placeholder="Chọn lớp"
           style={{ width: "100%", marginBottom: 20 }}
           onChange={(value) => setSelectedClass(value)}
         >
           {availableClasses.map((cls) => (
             <Option key={cls._id} value={cls._id}>
-              {cls.className} (Slots: {cls.limitStudent})
+              {cls.className} (Số lượng: {cls.limitStudent})
             </Option>
           ))}
         </Select>
 
         <TextArea
-          placeholder="Reason for change"
+          placeholder="Lý do chuyển lớp"
           rows={4}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
         />
       </Modal>
 
-      <h3>Your Requests</h3>
+      <h3>Danh Sách Yêu Cầu Của Bạn</h3>
       <List
         dataSource={changeRequests}
         renderItem={(item) => (
           <List.Item>
-            <Card title={`To: ${item.requestedClassId.className}`}>
-              <p>Status: {item.status}</p>
-              <p>Reason: {item.reason || "No reason provided"}</p>
+            <Card title={`Chuyển đến: ${item.requestedClassId.className}`}>
+              <p>Trạng thái: {item.status}</p>
+              <p>Lý do: {item.reason || "Không có lý do được cung cấp"}</p>
             </Card>
           </List.Item>
         )}
@@ -129,4 +129,4 @@ const RequestClassChange = ({ currentUserId, currentClassId, refreshData }) => {
   );
 };
 
-export default RequestClassChange;
+export default RequestClassChange

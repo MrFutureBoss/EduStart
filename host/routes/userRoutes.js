@@ -8,6 +8,22 @@ userRouters.get(
   verifyAccessToken,
   userController.getAllStudentByClassId
 );
+
+userRouters.patch("/:id", verifyAccessToken, userController.patchUser);
+userRouters.put("/update/:id", verifyAccessToken, userController.updateUser);
+// Change request endpoints
+userRouters.post(
+  "/change-request",
+  verifyAccessToken,
+  userController.createChangeRequest
+);
+userRouters.get(
+  "/change-requests/:userId",
+  verifyAccessToken,
+  userController.getUserChangeRequests
+);
+
+
 userRouters.get("/profile", verifyAccessToken, userController.userProfile);
 userRouters.get("/:id", verifyAccessToken, userController.findUserById);
 userRouters.patch("/:id", verifyAccessToken, userController.patchUser);

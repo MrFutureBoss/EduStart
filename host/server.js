@@ -10,6 +10,7 @@ import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import { Server as SocketIOServer } from "socket.io";
 import activityController from "./controllers/activityController/activityController.js";
+import classChangeRoutes from "./routes/classChangeRoutes.js";
 
 dotenv.config();
 
@@ -85,6 +86,8 @@ app.use("/mentor", routes.mentorRouter);
 app.use("/submission", routes.submissionRouter);
 app.use("/classTranfer", routes.classTransferRoutes);
 app.use("/notification", routes.notificationRouter);
+app.use("/api/requests", classChangeRoutes);
+
 
 // Handle 404 errors for undefined routes
 app.use((req, res, next) => {

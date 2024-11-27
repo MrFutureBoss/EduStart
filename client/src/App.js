@@ -12,8 +12,21 @@ import AdminRouter from "./routers/admin/AdminRouter.js";
 import UserProfile from "./pages/UserProfile.jsx";
 import StudentRouter from "./routers/student/StudentRouter.js";
 import MentorRouter from "./routers/mentor/MentorRouter.js";
+import UserInformationForm from "./pages/UserInformationForm.jsx";
+import RequestHomepage from "./pages/Requestpage.jsx";
 
 function App() {
+  const [userId, setUserId] = useState(null);
+  const [classId, setClassId] = useState(null);
+
+  useEffect(() => {
+    // Fetch user ID and class ID from localStorage or API
+    const loggedInUserId = localStorage.getItem("userId");
+    const loggedInClassId = localStorage.getItem("classId"); // Assuming this is stored
+    setUserId(loggedInUserId);
+    setClassId(loggedInClassId);
+  }, []);
+
   return (
     <BrowserRouter>
       <ToastContainer />
@@ -21,6 +34,7 @@ function App() {
         {AdminRouter()}
         {TeacherRouter()}
         <Route path="/profile" element={<UserProfile />} />
+        <Route path="/user-inform" element={<UserInformationForm userId={userId} />} />
         <Route
           path="/student-dashboard"
           element={
@@ -31,6 +45,7 @@ function App() {
         />
         {StudentRouter()}
         {MentorRouter()}
+        <Route path="/request-homepage" element={<RequestHomepage />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/" element={<SignIn />} />
         <Route path="/unauthorized" element={<h1>Access Denied</h1>} />

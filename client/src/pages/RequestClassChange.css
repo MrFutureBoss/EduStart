@@ -1,99 +1,135 @@
-/* General container */
+
 .request-class-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Title */
-  .request-class-title {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-  }
-  
-  /* Button Container */
-  .create-request-button-container {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  /* Create Request Button */
-  .create-request-button {
-    background-color: #1890ff;
-    color: #fff;
-    font-size: 16px;
-    padding: 8px 16px;
-    border-radius: 5px;
-    border: none;
-  }
-  
-  .create-request-button:hover {
-    background-color: #40a9ff;
-    color: #fff;
-  }
-  
-  /* Modal */
-  .create-request-modal {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-  }
-  
-  /* Dropdown */
-  .select-class-dropdown {
-    font-size: 14px;
-  }
-  
-  /* Text Area */
-  .reason-textarea {
-    border-radius: 5px;
-    font-size: 14px;
-    padding: 10px;
-  }
-  
-  /* Requests List */
-  .requests-list {
-    margin-top: 20px;
-  }
-  
-  .requests-list-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 15px;
-  }
-  
-  /* Request Card */
-  .request-card-container {
-    margin-bottom: 15px;
-  }
-  
-  .request-card {
-    background-color: #ffffff;
-    border: 1px solid #f0f0f0;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .request-card h3 {
-    color: #1890ff;
-  }
-  
-  .request-card p {
-    margin: 5px 0;
-    color: #555;
-  }
-  
-  .request-card:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
-  }
-  
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+.request-class-title {
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+
+.create-request-button-container {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+
+.create-request-button {
+  background-color: #4caf50;
+  color: #fff;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+}
+
+.create-request-button:hover {
+  background-color: #45a049;
+  box-shadow: 0 6px 14px rgba(76, 175, 80, 0.4);
+  transform: translateY(-2px);
+}
+
+
+.create-request-modal {
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.select-class-dropdown {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+}
+
+.select-class-dropdown:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
+}
+
+
+.reason-textarea {
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #d9d9d9;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reason-textarea:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
+}
+
+
+.requests-list {
+  margin-top: 25px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+}
+
+.requests-list-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+
+.request-card-container {
+  margin-bottom: 20px;
+}
+
+.request-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.request-card h3 {
+  color: #4caf50;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.request-card p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 15px;
+}
+
+.request-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+
+h3,
+p {
+  line-height: 1.6;
+}

@@ -196,6 +196,41 @@ const patchUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// Create a new change request
+export const createChangeRequest = async (req, res) => {
+  const { userId, field, newValue, reason } = req.body;
+
+  try {
+    const newRequest = new ChangeRequest({
+      userId,
+      field,
+      newValue,
+      reason,
+    });
+
+    await newRequest.save();
+
+    res.status(201).json({ message: "Yêu cầu thay đổi đã được tạo." });
+  } catch (error) {
+    console.error("Lỗi khi tạo yêu cầu thay đổi:", error);
+    res.status(500).json({ message: "Lỗi máy chủ." });
+  }
+};
+
+// Get all change requests for a specific user
+export const getUserChangeRequests = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const requests = await ChangeRequest.find({ userId }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error("Lỗi khi lấy yêu cầu thay đổi:", error);
+    res.status(500).json({ message: "Lỗi máy chủ." });
+  }
+};
 
 export default {
   getUserLogin,
@@ -207,5 +242,7 @@ export default {
   updateUser,
   getAllStudentByClassId,
   patchUser,
+  createChangeRequest,
+  getUserChangeRequests,
 
 };

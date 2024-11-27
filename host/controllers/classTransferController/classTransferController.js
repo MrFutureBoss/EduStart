@@ -1,5 +1,5 @@
 import classTransferDAO from "../../repositories/classTransferDAO/index.js";
-
+import ClassChangeRequest from "../../models/ClassChangeRequest.js";
 const requestClassTransfer = async (req, res) => {
   try {
     const { studentId, currentClassId, requestedClassId, reason } = req.body;
