@@ -213,6 +213,19 @@ const getAllStudentByClassId = async (classId, limit, skip) => {
   }
 };
 
+const updateInfoUserById = async (userId, updateData) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true } // Trả về document đã được cập nhật
+    );
+    return updatedUser;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 export default {
   loginUser,
   findUserByEmail,
@@ -222,4 +235,5 @@ export default {
   changePassword,
   getAllStudentByClassId,
   updateUserById,
+  updateInfoUserById,
 };
