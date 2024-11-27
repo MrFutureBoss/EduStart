@@ -163,7 +163,7 @@ const StudentHeader = () => {
           style={{ margin: "0px", padding: "0px" }}
         >
           <Menu.Item key="1" icon={<ImProfile />}>
-            <Link style={{ textDecoration: "none" }} to="/profile">
+            <Link style={{ textDecoration: "none" }} to="profile">
               Thông tin của bạn
             </Link>
           </Menu.Item>

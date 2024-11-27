@@ -18,6 +18,7 @@ import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
 import OutcomeDetail from "../../pages/activity/OutcomeDetail";
 import ClassDetail from "../../pages/class/ClassDetail";
 import GroupDetail from "../../pages/managegroup/GroupDetail";
+import UserProfile from "../../pages/UserProfile";
 
 const TeacherRouter = () => {
   return (
@@ -56,6 +57,7 @@ const TeacherRouter = () => {
       />
       <Route path="project-request" element={<ProjectRequest />} />
       <Route path="group-detail/:groupId" element={<GroupDetail />} />
+      <Route path="profile" element={<UserProfile />} />
     </Route>
   );
 };
