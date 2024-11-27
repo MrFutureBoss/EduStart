@@ -195,7 +195,7 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
             style={{ position: "relative", top: 0 }}
             icon={<ImProfile />}
           >
-            <Link style={{ textDecoration: "none" }} to={"mentor-profile"}>
+            <Link style={{ textDecoration: "none" }} to={"profile"}>
               Thông tin của bạn
             </Link>
           </Menu.Item>

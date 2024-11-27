@@ -20,7 +20,7 @@ function App() {
       <Routes>
         {AdminRouter()}
         {TeacherRouter()}
-        <Route path="/profile" element={<UserProfile />} />
+        
         <Route
           path="/student-dashboard"
           element={

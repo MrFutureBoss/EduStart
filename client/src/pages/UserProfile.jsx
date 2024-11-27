@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Avatar, Input, Button, Layout, Menu, Card, Typography, Divider } from "antd";
-import { UserOutlined, LockOutlined, EditOutlined, SaveOutlined } from "@ant-design/icons";
+import { Input, Button, Layout, Card, Typography, Divider } from "antd";
+import { EditOutlined, SaveOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 const { Title } = Typography;
 
 export default function UserProfile() {
@@ -36,11 +36,14 @@ export default function UserProfile() {
 
       if (role === "3") {
         axios
-          .get(`http://localhost:9999/mentorcategory/findmentorcategorybyuserid/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          .get(
+            `http://localhost:9999/mentorcategory/findmentorcategorybyuserid/${userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
           .then((response) => {
             setMentorCategoryData(response.data);
           })
@@ -52,7 +55,27 @@ export default function UserProfile() {
   }, []);
 
   const handleSaveChanges = () => {
-    setIsEditing(false);
+    const token = localStorage.getItem("jwt");
+
+    console.log("Updated userData before saving:", userData);
+
+    axios
+      .put(
+        "http://localhost:9999/user/profile/edit",
+        { ...userData },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log("Profile updated:", response.data);
+        setIsEditing(false);
+      })
+      .catch((error) => {
+        console.error("Error updating profile:", error);
+      });
   };
 
   const renderProfileContent = () => {
@@ -60,7 +83,7 @@ export default function UserProfile() {
 
     return (
       <Card
-        title={<Title level={4} className="text-center">User Profile</Title>}
+        title={<Title level={4} className="text-center">Thông Tin Cá Nhân</Title>}
         bordered={false}
         style={{
           maxWidth: 600,
@@ -72,9 +95,10 @@ export default function UserProfile() {
         }}
       >
         <div className="d-flex align-items-center justify-content-between mb-3">
-          <span className="fw-bold">Username</span>
+          <span className="fw-bold">Họ Tên</span>
           <Input
-            defaultValue={userData.username}
+            value={userData?.username}
+            onChange={(e) => setUserData({ ...userData, username: e.target.value })}
             disabled={!isEditing}
             className="rounded"
             style={{ width: "75%" }}
@@ -84,39 +108,60 @@ export default function UserProfile() {
         <div className="d-flex align-items-center justify-content-between mb-3">
           <span className="fw-bold">Email</span>
           <Input
-            defaultValue={userData.email}
+            value={userData?.email}
+            onChange={(e) => setUserData({ ...userData, email: e.target.value })}
             disabled={!isEditing}
             className="rounded"
             style={{ width: "75%" }}
           />
         </div>
         <Divider />
-        {userRole === "3" && mentorCategoryData && (
+        {userRole === "2" && (
           <>
-            <div className="mb-3">
-              <span className="fw-bold">Professions</span>
-              <ul className="list-group mt-2">
-                {mentorCategoryData.professionIds.map((profession) => (
-                  <li key={profession._id} className="list-group-item border-0 ps-0">
-                    <i className="text-primary me-2">•</i> {profession.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Divider />
-            <div className="mb-3">
-              <span className="fw-bold">Specialties</span>
-              <ul className="list-group mt-2">
-                {mentorCategoryData.specialties.map((specialty) => (
-                  <li key={specialty._id} className="list-group-item border-0 ps-0">
-                    <i className="text-info me-2">•</i> {specialty.specialtyId.name}
-                  </li>
-                ))}
-              </ul>
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <span className="fw-bold">Số Điện Thoại</span>
+              <Input
+                value={userData?.phoneNumber}
+                onChange={(e) =>
+                  setUserData({ ...userData, phoneNumber: e.target.value })
+                }
+                disabled={!isEditing}
+                className="rounded"
+                style={{ width: "75%" }}
+              />
             </div>
             <Divider />
           </>
         )}
+        {userRole === "4" && (
+          <>
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <span className="fw-bold">Chuyên Ngành</span>
+              <Input
+                value={userData?.major}
+                onChange={(e) => setUserData({ ...userData, major: e.target.value })}
+                disabled={!isEditing}
+                className="rounded"
+                style={{ width: "75%" }}
+              />
+            </div>
+            <Divider />
+            <div className="d-flex align-items-center justify-content-between mb-3">
+              <span className="fw-bold">Mã Số Sinh Viên</span>
+              <Input
+                value={userData?.rollNumber}
+                onChange={(e) =>
+                  setUserData({ ...userData, rollNumber: e.target.value })
+                }
+                disabled={!isEditing}
+                className="rounded"
+                style={{ width: "75%" }}
+              />
+            </div>
+            <Divider />
+          </>
+        )}
+        
         <div className="text-end">
           <Button
             type="primary"
@@ -125,7 +170,7 @@ export default function UserProfile() {
             className="rounded-pill"
             style={{ backgroundColor: isEditing ? "#52c41a" : "#1890ff" }}
           >
-            {isEditing ? "Save Changes" : "Edit Profile"}
+            {isEditing ? "Lưu Thông tin" : "Xửa Thông Tin"}
           </Button>
         </div>
       </Card>
@@ -134,55 +179,9 @@ export default function UserProfile() {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={250} theme="light">
-        <div className="p-4 text-center">
-          <Avatar size={100} icon={<UserOutlined />} style={{ backgroundColor: "#87d068" }} />
-          <Title level={4} className="mt-3">
-            {userData ? userData.username : "Loading..."}
-          </Title>
-          <p className="text-muted">Welcome to your dashboard</p>
-        </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[activeTab]}
-          onClick={({ key }) => {
-            setActiveTab(key);
-            setIsEditing(false);
-          }}
-          items={[
-            { key: "Profile", icon: <UserOutlined />, label: "Profile" },
-            { key: "Security", icon: <LockOutlined />, label: "Security" },
-          ]}
-        />
-      </Sider>
-
       <Layout>
         <Content style={{ padding: "30px 50px" }}>
-          <Title level={3} className="mb-4" style={{ color: "#595959" }}>
-            {activeTab === "Profile" ? "Public Profile" : "Security Settings"}
-          </Title>
           {activeTab === "Profile" && renderProfileContent()}
-          {activeTab === "Security" && (
-            <Card title="Change Password" bordered={false} style={{ maxWidth: 500, margin: "0 auto" }}>
-              <div className="mb-3">
-                <label className="form-label">Current Password</label>
-                <Input.Password placeholder="Enter current password" className="rounded" />
-              </div>
-              <Divider />
-              <div className="mb-3">
-                <label className="form-label">New Password</label>
-                <Input.Password placeholder="Enter new password" className="rounded" />
-              </div>
-              <Divider />
-              <div className="mb-3">
-                <label className="form-label">Confirm New Password</label>
-                <Input.Password placeholder="Confirm new password" className="rounded" />
-              </div>
-              <Button type="primary" className="w-100 mt-3 rounded-pill">
-                Change Password
-              </Button>
-            </Card>
-          )}
         </Content>
       </Layout>
     </Layout>

@@ -8,6 +8,7 @@ import PendingUsers from "../../pages/admin/PendingUserList";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
 import AdminDashboard from "../../pages/admin/Dashboard/AdminDashboard";
 import TransferRequestManagement from "../../pages/admin/Dashboard/TransferRequestManager";
+import UserProfile from "../../pages/UserProfile";
 const AdminRouter = () => {
   return (
     <Route
@@ -35,6 +36,7 @@ const AdminRouter = () => {
         element={<UserListSemester />}
       />
       <Route path="professionmanagement" element={<ProfessionManagement />} />
+      <Route path="profile" element={<UserProfile />} />
     </Route>
   );
 };
