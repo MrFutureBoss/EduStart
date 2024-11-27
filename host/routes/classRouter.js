@@ -42,7 +42,21 @@ classRouter.get(
   verifyAccessToken,
   classController.getClassesInfoAndTaskByTeacherId
 );
-
+classRouter.get(
+  "/all-class/:semesterId",
+  verifyAccessToken,
+  classController.getClasses
+);
+classRouter.get(
+  "/class-detail/:id",
+  verifyAccessToken,
+  classController.getClassDetails
+);
+classRouter.put(
+  "/update-class/:id",
+  verifyAccessToken,
+  classController.updateClass
+);
 // classRouter.post(
 //   "/auto-fill-deadline",
 //   classController.autoFillGroupsOnDeadline

@@ -102,9 +102,10 @@ const AppSider = ({
                 Quản lý người dùng
               </Link>
             </Menu.Item>
-            <Menu.Item key="pending-users" icon={<UsergroupAddOutlined />}>
-              <Link style={{ textDecoration: "none" }} to="pending-users">
-                Sinh viên chưa có lớp
+
+            <Menu.Item key="class-manager" icon={<UsergroupAddOutlined />}>
+              <Link style={{ textDecoration: "none" }} to="class-manager">
+                Quản lý lớp học
               </Link>
             </Menu.Item>
             <Menu.Item

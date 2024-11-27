@@ -141,13 +141,89 @@ const autoFillGroupsOnDeadline = async (req, res, next) => {
       });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Auto-filling complete with all students assigned to groups.",
-      });
+    res.status(200).json({
+      message: "Auto-filling complete with all students assigned to groups.",
+    });
   } catch (error) {
     next(error);
+  }
+};
+
+const getClasses = async (req, res) => {
+  const { semesterId } = req.params;
+
+  if (!semesterId) {
+    return res.status(400).json({ message: "Semester ID is required." });
+  }
+
+  try {
+    // Lấy danh sách lớp của kỳ học
+    const classes = await classDAO.getClassDetailsBySemesterId(semesterId);
+
+    // Lấy thông tin chi tiết của từng lớp, bao gồm danh sách sinh viên
+    const detailedClassesWithStudents = await Promise.all(
+      classes.map(async (classObj) => {
+        const classDetails = await classDAO.findClassById(classObj._id);
+        return {
+          ...classObj, // Thông tin cơ bản của lớp
+          students: classDetails.students, // Thêm danh sách sinh viên vào từng lớp
+        };
+      })
+    );
+
+    return res.status(200).json(detailedClassesWithStudents);
+  } catch (error) {
+    console.error("Error fetching class details:", error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred while fetching class details." });
+  }
+};
+
+const getClassDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const classData = await classDAO.findClassById(id);
+
+    res.status(200).json(classData);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching class details", error: error.message });
+  }
+};
+const updateClass = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { className, teacherId } = req.body;
+
+    // Tìm lớp học hiện tại
+    const existingClass = await classDAO.getClassById(id);
+
+    const isDuplicate = await classDAO.isClassNameDuplicate(
+      className,
+      existingClass.semesterId,
+      id
+    );
+
+    if (isDuplicate) {
+      return res.status(400).json({
+        errors: {
+          className: "Tên lớp đã tồn tại trong kỳ học",
+        },
+      });
+    }
+
+    const updatedClass = await classDAO.updateClassDetails(id, {
+      className,
+      teacherId,
+    });
+
+    res.status(200).json(updatedClass);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating class", error: error.message });
   }
 };
 
@@ -160,4 +236,7 @@ export default {
   getSemestersAndClassesByTeacherId,
   getClassesInfoAndTaskByTeacherId,
   autoFillGroupsOnDeadline,
+  getClasses,
+  getClassDetails,
+  updateClass,
 };

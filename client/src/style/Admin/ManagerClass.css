@@ -1,0 +1,21 @@
+.class-manager-card .ant-card-head-title {
+  margin-left: -9px;
+}
+.class-manager-card .ant-card-head {
+  background-color: rgb(98, 182, 203);
+  color: #fff;
+}
+.student-without-class-card .ant-card-head {
+  background-color: rgb(182, 181, 179);
+  color: #fff;
+}
+.student-suggest-list {
+  border: 1px dashed rgb(98, 182, 203);
+  padding: 0px 6px;
+  height: 198px;
+  overflow-y: auto;
+}
+.student-without-class-card {
+  position: relative;
+  margin-top: 32px;
+}
