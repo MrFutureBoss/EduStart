@@ -214,7 +214,7 @@ const OutcomeDetail = () => {
       return (
         <Card.Grid
           key={index}
-          onClick={() => navigate(`/teacher-dashboard/group-detail/${outcome.groupId}`)}
+          onClick={() => navigate(`/teacher/group-detail/${outcome.groupId}`)}
           style={{
             width: "20%",
             padding: "5px",
@@ -419,7 +419,7 @@ const OutcomeDetail = () => {
       <br />
       <Button
         style={{ width: "fit-content" }}
-        onClick={() => navigate("/teacher-dashboard/class")}
+        onClick={() => navigate("/teacher/class")}
       >
         <IoChevronBackOutline /> Quay lại quản lí lớp
       </Button>

@@ -67,7 +67,7 @@ const GroupList = () => {
   const groupInClass = useSelector((state) => state.group.groupInClass || []);
 
   const handleMGroupDetail = (groupId) => {
-    navigate(`/teacher-dashboard/group-detail/${groupId}`);
+    navigate(`/teacher/group-detail/${groupId}`);
   };
 
   return (
