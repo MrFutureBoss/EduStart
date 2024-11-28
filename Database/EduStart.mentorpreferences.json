@@ -1,0 +1,16 @@
+[{
+  "_id": {
+    "$oid": "673d0b5aa4c9ea8d813edb60"
+  },
+  "mentorId": {
+    "$oid": "673cef10d1043af664f64d90"
+  },
+  "projectIds": [],
+  "createdAt": {
+    "$date": "2024-11-19T22:04:10.558Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-19T22:04:10.558Z"
+  },
+  "__v": 0
+}]

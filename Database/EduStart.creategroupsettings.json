@@ -1,0 +1,84 @@
+[{
+  "_id": {
+    "$oid": "6734e57acd53b27aebddea7b"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "deadline": {
+    "$date": "2024-11-14T17:00:00.000Z"
+  },
+  "autoFinish": true,
+  "status": false,
+  "ruleJoin": [
+    {
+      "$oid": "6725c81105c6e73505972b32"
+    }
+  ],
+  "tempGroupId": [
+    {
+      "$oid": "6734e57acd53b27aebddea71"
+    },
+    {
+      "$oid": "6734e57acd53b27aebddea72"
+    },
+    {
+      "$oid": "6734e57acd53b27aebddea73"
+    },
+    {
+      "$oid": "6734e57acd53b27aebddea74"
+    },
+    {
+      "$oid": "6734e57acd53b27aebddea75"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-11-13T17:44:26.651Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-13T17:44:26.651Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "673810b20b39dadb6261a9df"
+  },
+  "classId": {
+    "$oid": "67226af9c39e5e1cb0fc51c4"
+  },
+  "deadline": {
+    "$date": "2024-11-16T17:00:00.000Z"
+  },
+  "autoFinish": false,
+  "status": false,
+  "ruleJoin": [
+    {
+      "$oid": "6725c81105c6e73505972b32"
+    }
+  ],
+  "tempGroupId": [
+    {
+      "$oid": "673810b20b39dadb6261a9d5"
+    },
+    {
+      "$oid": "673810b20b39dadb6261a9d6"
+    },
+    {
+      "$oid": "673810b20b39dadb6261a9d7"
+    },
+    {
+      "$oid": "673810b20b39dadb6261a9d8"
+    },
+    {
+      "$oid": "673810b20b39dadb6261a9d9"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-11-16T03:25:38.804Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-16T03:25:38.804Z"
+  },
+  "__v": 0
+}]

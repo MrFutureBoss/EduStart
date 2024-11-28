@@ -1,157 +1,273 @@
 [{
   "_id": {
-    "$oid": "67184043dc1998b8acdb2403"
+    "$oid": "6734e57acd53b27aebddea72"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "groupName": "Nhóm 2",
+  "status": true,
+  "userIds": [
+    {
+      "$oid": "67182c4e3cdaefd84e901edb"
+    },
+    {
+      "$oid": "671828fd3cdaefd84e901ece"
+    },
+    {
+      "$oid": "671829473cdaefd84e901ed2"
+    },
+    {
+      "$oid": "67182c4e3cdaefd84e901ed7"
+    },
+    {
+      "$oid": "67182c4e3cdaefd84e901ed9"
+    }
+  ],
+  "maxStudent": 5,
+  "createdAt": {
+    "$date": "2024-11-13T17:44:26.612Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-14T10:08:14.538Z"
+  },
+  "__v": 2
+},
+{
+  "_id": {
+    "$oid": "6734e57acd53b27aebddea74"
   },
   "classId": {
     "$oid": "6717cdc43cdaefd84e901ec2"
   },
   "groupName": "Nhóm 4",
+  "status": true,
   "userIds": [
     {
-      "$oid": "67182d383cdaefd84e901eec"
+      "$oid": "67182d383cdaefd84e901ee5"
     },
     {
-      "$oid": "67182d383cdaefd84e901eeb"
+      "$oid": "671829793cdaefd84e901ed4"
     },
     {
-      "$oid": "67182d383cdaefd84e901eea"
+      "$oid": "67182c4e3cdaefd84e901ed8"
+    },
+    {
+      "$oid": "671829173cdaefd84e901ed0"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901ee6"
     }
   ],
-  "maxStudent": 6,
+  "maxStudent": 5,
   "createdAt": {
-    "$date": "2024-10-23T00:16:03.398Z"
+    "$date": "2024-11-13T17:44:26.613Z"
   },
   "updatedAt": {
-    "$date": "2024-10-23T00:16:03.398Z"
+    "$date": "2024-11-14T08:46:21.886Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "6718404cdc1998b8acdb2405"
+    "$oid": "6734e57acd53b27aebddea73"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "groupName": "Nhóm 3",
+  "status": true,
+  "userIds": [
+    {
+      "$oid": "67182d383cdaefd84e901edf"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901ee0"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901ee1"
+    },
+    {
+      "$oid": "67182c4e3cdaefd84e901eda"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901ede"
+    }
+  ],
+  "maxStudent": 5,
+  "createdAt": {
+    "$date": "2024-11-13T17:44:26.613Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-14T10:08:14.595Z"
+  },
+  "__v": 2
+},
+{
+  "_id": {
+    "$oid": "6734e57acd53b27aebddea71"
   },
   "classId": {
     "$oid": "6717cdc43cdaefd84e901ec2"
   },
   "groupName": "Nhóm 1",
+  "status": true,
+  "userIds": [
+    {
+      "$oid": "67182d383cdaefd84e901eec"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901ee3"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901edd"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901ee2"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901ee4"
+    },
+    {
+      "$oid": "67182c4e3cdaefd84e901edc"
+    }
+  ],
+  "maxStudent": 6,
+  "createdAt": {
+    "$date": "2024-11-13T17:44:26.612Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-18T14:25:23.183Z"
+  },
+  "__v": 15
+},
+{
+  "_id": {
+    "$oid": "6734e57acd53b27aebddea75"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "groupName": "Nhóm 5",
+  "status": true,
   "userIds": [
     {
       "$oid": "67182d383cdaefd84e901ee7"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901eea"
     },
     {
       "$oid": "67182d383cdaefd84e901ee8"
     },
     {
       "$oid": "67182d383cdaefd84e901ee9"
+    },
+    {
+      "$oid": "67182d383cdaefd84e901eeb"
     }
   ],
-  "maxStudent": 6,
+  "maxStudent": 5,
   "createdAt": {
-    "$date": "2024-10-23T00:16:12.488Z"
+    "$date": "2024-11-13T17:44:26.613Z"
   },
   "updatedAt": {
-    "$date": "2024-10-23T00:16:12.488Z"
+    "$date": "2024-11-14T08:46:21.891Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "6718f8a4eff42157492043fd"
+    "$oid": "673810b20b39dadb6261a9d6"
   },
   "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
-  },
-  "groupName": "Nhóm 3",
-  "userIds": [
-    {
-      "$oid": "671828fd3cdaefd84e901ece"
-    },
-    {
-      "$oid": "671829173cdaefd84e901ed0"
-    },
-    {
-      "$oid": "671829473cdaefd84e901ed2"
-    },
-    {
-      "$oid": "671829793cdaefd84e901ed4"
-    }
-  ],
-  "maxStudent": 6,
-  "createdAt": {
-    "$date": "2024-10-23T13:22:44.086Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-23T13:22:44.086Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67190323eff4215749204447"
-  },
-  "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
+    "$oid": "67226af9c39e5e1cb0fc51c4"
   },
   "groupName": "Nhóm 2",
-  "userIds": [
-    {
-      "$oid": "67182c4e3cdaefd84e901ed7"
-    },
-    {
-      "$oid": "67182c4e3cdaefd84e901ed8"
-    },
-    {
-      "$oid": "67182c4e3cdaefd84e901ed9"
-    },
-    {
-      "$oid": "67182c4e3cdaefd84e901eda"
-    },
-    {
-      "$oid": "67182c4e3cdaefd84e901edb"
-    }
-  ],
-  "maxStudent": 6,
+  "status": false,
+  "userIds": [],
+  "maxStudent": 7,
   "createdAt": {
-    "$date": "2024-10-23T14:07:31.233Z"
+    "$date": "2024-11-16T03:25:38.763Z"
   },
   "updatedAt": {
-    "$date": "2024-10-23T14:07:31.233Z"
+    "$date": "2024-11-16T03:25:38.763Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "67193fbc91cdd917f81c6132"
+    "$oid": "673810b20b39dadb6261a9d5"
   },
   "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
+    "$oid": "67226af9c39e5e1cb0fc51c4"
+  },
+  "groupName": "Nhóm 1",
+  "status": false,
+  "userIds": [],
+  "maxStudent": 7,
+  "createdAt": {
+    "$date": "2024-11-16T03:25:38.762Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-16T03:25:38.762Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "673810b20b39dadb6261a9d9"
+  },
+  "classId": {
+    "$oid": "67226af9c39e5e1cb0fc51c4"
   },
   "groupName": "Nhóm 5",
+  "status": false,
   "userIds": [],
   "maxStudent": 6,
   "createdAt": {
-    "$date": "2024-10-23T18:26:04.933Z"
+    "$date": "2024-11-16T03:25:38.764Z"
   },
   "updatedAt": {
-    "$date": "2024-10-23T18:26:04.933Z"
+    "$date": "2024-11-16T03:25:38.764Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "67193fd091cdd917f81c6139"
+    "$oid": "673810b20b39dadb6261a9d7"
   },
   "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
+    "$oid": "67226af9c39e5e1cb0fc51c4"
   },
-  "groupName": "Nhóm 6",
+  "groupName": "Nhóm 3",
+  "status": false,
   "userIds": [],
   "maxStudent": 6,
   "createdAt": {
-    "$date": "2024-10-23T18:26:24.561Z"
+    "$date": "2024-11-16T03:25:38.764Z"
   },
   "updatedAt": {
-    "$date": "2024-10-23T18:26:24.561Z"
+    "$date": "2024-11-16T03:25:38.764Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "673810b20b39dadb6261a9d8"
+  },
+  "classId": {
+    "$oid": "67226af9c39e5e1cb0fc51c4"
+  },
+  "groupName": "Nhóm 4",
+  "status": false,
+  "userIds": [],
+  "maxStudent": 6,
+  "createdAt": {
+    "$date": "2024-11-16T03:25:38.764Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-16T03:25:38.764Z"
   },
   "__v": 0
 }]

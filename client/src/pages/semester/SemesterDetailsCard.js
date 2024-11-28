@@ -101,7 +101,7 @@ const SemesterDetailsCard = ({ handleEditSemester }) => {
           <Descriptions bordered size="small" column={1}>
             <Descriptions.Item
               style={{ padding: "4px 8px" }}
-              label={<strong style={{ fontSize: 13 }}>Tên kỳ học</strong>}
+              label={<strong style={{ fontSize: 13 }}>Kỳ học</strong>}
             >
               <Title
                 level={5}

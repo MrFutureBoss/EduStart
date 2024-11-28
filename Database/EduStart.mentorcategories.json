@@ -1,0 +1,80 @@
+[{
+  "_id": {
+    "$oid": "6715dd20e3b96d4ba609da61"
+  },
+  "mentorId": {
+    "$oid": "6715dd20e3b96d4ba609da5b"
+  },
+  "professionIds": [
+    {
+      "$oid": "6715dd20e3b96d4ba609da54"
+    },
+    {
+      "$oid": "6715dd20e3b96d4ba609da56"
+    }
+  ],
+  "specialties": [
+    {
+      "specialtyId": {
+        "$oid": "6715dd20e3b96d4ba609da4e"
+      },
+      "proficiencyLevel": 5
+    },
+    {
+      "specialtyId": {
+        "$oid": "6715dd20e3b96d4ba609da53"
+      },
+      "proficiencyLevel": 5
+    }
+  ],
+  "maxLoad": 8,
+  "currentLoad": 3,
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.337Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-21T04:48:32.337Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "673d06f3d1043af664f64da8"
+  },
+  "mentorId": {
+    "$oid": "673cef10d1043af664f64d90"
+  },
+  "professionIds": [
+    {
+      "$oid": "6702db8d694a3a03a306e326"
+    },
+    {
+      "$oid": "670974aff61773522abe6f36"
+    }
+  ],
+  "specialties": [
+    {
+      "specialtyId": {
+        "$oid": "6710069550b43dfad026530e"
+      },
+      "_id": {
+        "$oid": "6746eeb0fc5f5ad10f95f161"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "670974aff61773522abe6f30"
+      },
+      "_id": {
+        "$oid": "6746eeb0fc5f5ad10f95f162"
+      }
+    }
+  ],
+  "maxLoad": 7,
+  "currentLoad": 8,
+  "createdAt": {
+    "$date": "2024-10-21T04:48:32.337Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T10:04:50.412Z"
+  }
+}]

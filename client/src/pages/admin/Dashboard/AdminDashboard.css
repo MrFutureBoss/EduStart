@@ -3,7 +3,18 @@
   font-size: 24px; /* Adjust as needed */
   animation: blink 1s infinite;
 }
-
+.admin-card-custum .ant-card-head {
+  min-height: 33px !important;
+  background-color: rgb(98, 182, 203);
+  color: #fff;
+  margin-bottom: -8px !important;
+}
+.admin-card-custum .ant-list-item {
+  padding: 3px !important;
+}
+.admin-card-custum .ant-list-item-meta-title {
+  font-size: 13px;
+}
 /* Add a subtle pulsing animation */
 @keyframes pulse {
   0% {
@@ -18,4 +29,10 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+.semester-infor-head .ant-card-body {
+  padding: 8px !important;
+}
+.semester-infor-head .ant-card-head {
+  min-height: 33px !important;
 }

@@ -87,4 +87,46 @@
     "$date": "2024-09-25T08:31:02.619Z"
   },
   "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67226af9c39e5e1cb0fc51c4"
+  },
+  "className": "SE1751-NET",
+  "limitStudent": 30,
+  "teacherId": {
+    "$oid": "670bb3642eb65e19740ca591"
+  },
+  "semesterId": {
+    "$oid": "670bacd404ec36ddb74918e9"
+  },
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-10-30T17:20:57.230Z"
+  },
+  "updatedAt": {
+    "$date": "2024-10-30T17:20:57.230Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67403d6a3a9022d1ba1bd1ea"
+  },
+  "className": "HE171545",
+  "limitStudent": 30,
+  "teacherId": {
+    "$oid": "670bdf49d34e56db79875864"
+  },
+  "semesterId": {
+    "$oid": "670bacd404ec36ddb74918e9"
+  },
+  "status": "Active",
+  "createdAt": {
+    "$date": "2024-11-22T08:14:34.861Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-22T08:14:34.861Z"
+  },
+  "__v": 0
 }]

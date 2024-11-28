@@ -10,6 +10,7 @@ import {
   BookOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
+import { GrGroup } from "react-icons/gr";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -103,7 +104,7 @@ const AppSider = ({
               </Link>
             </Menu.Item>
 
-            <Menu.Item key="class-manager" icon={<UsergroupAddOutlined />}>
+            <Menu.Item key="class-manager" icon={<GrGroup />}>
               <Link style={{ textDecoration: "none" }} to="class-manager">
                 Quản lý lớp học
               </Link>
