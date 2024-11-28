@@ -10,6 +10,7 @@ import cron from "node-cron";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import { Server as SocketIOServer } from "socket.io";
 import activityController from "./controllers/activityController/activityController.js";
+import TempGroupController from "./controllers/tempGroupController/index.js";
 
 dotenv.config();
 
@@ -114,6 +115,11 @@ cron.schedule("0 * * * *", async () => {
     console.error("Error in scheduled auto-assign:", error);
   }
 });
+
+// cron.schedule("0 * * * *", () => {
+//   TempGroupController.autoFillGroupsOnDeadline();
+// });
+
 
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);

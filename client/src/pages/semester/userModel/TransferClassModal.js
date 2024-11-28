@@ -26,6 +26,7 @@ const TransferClassModal = ({
   currentSemester,
   targetClassId,
   requestId,
+  isHander,
 }) => {
   const dispatch = useDispatch();
   const [availableClasses, setAvailableClasses] = useState([]);
@@ -34,6 +35,8 @@ const TransferClassModal = ({
   const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const jwt = localStorage.getItem("jwt");
+  console.log("student", student);
+  console.log(requestId);
 
   const config = {
     headers: {
@@ -52,11 +55,13 @@ const TransferClassModal = ({
   const fetchAvailableClasses = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${BASE_URL}/admins/${currentSemester?._id}/available/class`,
-        config
-      );
-      setAvailableClasses(response.data.classes);
+      const apiUrl = isHander
+        ? `${BASE_URL}/class/all-class/${currentSemester._id}`
+        : `${BASE_URL}/admins/${currentSemester?._id}/available/class`;
+
+      const response = await axios.get(apiUrl, config);
+
+      setAvailableClasses(response.data.classes || response.data);
     } catch (error) {
       message.error("Lỗi khi lấy danh sách lớp.");
     } finally {
@@ -104,7 +109,10 @@ const TransferClassModal = ({
         config
       );
       message.success("Chuyển lớp thành công!");
-      await updateTransferRequestStatus(requestId, "approved");
+      if (requestId) {
+        await updateTransferRequestStatus(requestId, "approved");
+      }
+
       // Bắt đầu animation
       setIsAnimating(true);
       dispatch(setRecentlyUpdatedUsers([student._id]));
@@ -181,7 +189,10 @@ const TransferClassModal = ({
           >
             {filteredClasses.map((cls) => (
               <Option key={cls._id} value={cls._id}>
-                {cls.className} (Còn {cls.remainingSlots} chỗ)
+                {cls.remainingSlots > 0
+                  ? `${cls.className} Còn ${cls.remainingSlots} chỗ)`
+                  : `${cls.className} (đã có
+                ${cls.studentCount} sinh viên)`}
               </Option>
             ))}
           </Select>
@@ -202,11 +213,16 @@ const TransferClassModal = ({
                     }
                   </span>
                 </Descriptions.Item>
-                <Descriptions.Item label="Số lượng chỗ còn lại">
-                  {
-                    filteredClasses.find((cls) => cls._id === selectedClass)
-                      ?.remainingSlots
+                <Descriptions.Item
+                  label={
+                    isHander
+                      ? "Số lượng sinh viên trong lớp"
+                      : "Số lượng chỗ còn lại"
                   }
+                >
+                  {filteredClasses.find((cls) => cls._id === selectedClass)?.[
+                    isHander ? "studentCount" : "remainingSlots"
+                  ] || "Không rõ"}
                 </Descriptions.Item>
               </Descriptions>
             </Card>

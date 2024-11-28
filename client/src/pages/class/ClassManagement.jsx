@@ -37,14 +37,12 @@ import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassInfoData } from "../../redux/slice/ClassManagementSlice";
 import calculateWeekAndPhase from "./calculateWeekAndPhase";
-import CardClass from "./CardClass";
 import AssignOutcome from "../activity/AssignOutcome";
 
 const ClassManagement = () => {
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
-  const [view, setView] = useState("List");
   const [showUngropColumn, setShowUngropColumn] = useState(false);
   const [showEmptyColumn, setShowEmptygropColumn] = useState(false);
   const gridCard = "50%";
@@ -122,7 +120,6 @@ const ClassManagement = () => {
 
   return (
     <div>
-      <h1 style={{ marginBottom: "40px" }}>Quản lý lớp học</h1>
       <Row gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={12} xl={16}>
           <Card
@@ -131,25 +128,6 @@ const ClassManagement = () => {
               <h5 style={{ padding: "0px", margin: "0px" }}>
                 Việc cần giải quyết
               </h5>
-            }
-            extra={
-              <Dropdown
-                menu={{
-                  items,
-                }}
-                placement="bottom"
-                arrow
-              >
-                <Tooltip title="Tùy chỉnh thẻ">
-                  <MoreOutlined
-                    style={{
-                      fontSize: "1.2rem",
-                      cursor: "pointer",
-                      color: "#FFF",
-                    }}
-                  />
-                </Tooltip>
-              </Dropdown>
             }
             bodyStyle={{ padding: "20px" }}
           >
@@ -180,58 +158,15 @@ const ClassManagement = () => {
                     Danh sách lớp học đang quản lý
                   </h5>
                 }
-                extra={
-                  <Dropdown
-                    menu={{
-                      items,
-                    }}
-                    placement="bottom"
-                    arrow
-                  >
-                    <Tooltip title="Tùy chỉnh thẻ">
-                      <MoreOutlined
-                        style={{
-                          fontSize: "1.2rem",
-                          cursor: "pointer",
-                          color: "#FFF",
-                        }}
-                      />
-                    </Tooltip>
-                  </Dropdown>
-                }
               >
                 <Row style={{ width: "100%", marginBottom: "1rem" }}>
-                  <Col lg={8}>
-                    {/* Đổi cách list data */}
-                    <Segmented
-                      style={{ margin: "10px 10px" }}
-                      options={[
-                        {
-                          label: (
-                            <Tooltip title="Danh sách">
-                              <BarsOutlined />
-                            </Tooltip>
-                          ),
-                          value: "List",
-                        },
-                        {
-                          label: (
-                            <Tooltip title="Thẻ">
-                              <AppstoreOutlined />
-                            </Tooltip>
-                          ),
-                          value: "Card",
-                        },
-                      ]}
-                      onChange={setView}
-                    />
-                  </Col>
                   <Col
                     lg={24}
                     style={{
-                      display: view === "List" ? "flex" : "none",
+                      display: "flex",
                       alignItems: "center",
                       marginLeft: "0.7rem",
+                      marginTop: "1rem",
                       gap: "1rem",
                     }}
                   >
@@ -243,7 +178,7 @@ const ClassManagement = () => {
                           padding: "8px",
                         }}
                       >
-                        <SyncOutlined />
+                        <SyncOutlined /> Làm mới bảng
                       </Button>
                     </Tooltip>
                     <Space direction="vertical">
@@ -290,18 +225,22 @@ const ClassManagement = () => {
                     </Space>
                   </Col>
                 </Row>
+                <Row>
+                  <Col lg={24}>
+                    <p className="remove-default-style-p">
+                      Tổng số lớp bạn dạy kì này:{" "}
+                      <span>{classInfo?.totalClasses} lớp</span>
+                    </p>
+                  </Col>
+                </Row>
                 <Card.Grid
                   id="TaskTable"
                   style={{ width: "100%", padding: "0px" }}
                 >
-                  {view === "List" ? (
-                    <TableClass
-                      ungroup={showUngropColumn}
-                      emptygroup={showEmptyColumn}
-                    />
-                  ) : (
-                    <CardClass />
-                  )}
+                  <TableClass
+                    ungroup={showUngropColumn}
+                    emptygroup={showEmptyColumn}
+                  />
                 </Card.Grid>
               </Card>
             </Tabs.TabPane>
@@ -325,153 +264,12 @@ const ClassManagement = () => {
                     Theo dõi tiến độ Outcome
                   </h5>
                 }
-                extra={
-                  <IoIosMove
-                    style={{ fontSize: "1.2rem", cursor: "pointer" }}
-                  />
-                }
                 bodyStyle={{ padding: "20px" }}
               >
                 <AssignOutcome />
               </Card>
             </Tabs.TabPane>
           </Tabs>
-        </Col>
-      </Row>
-
-      <Row style={{ marginTop: "40px" }}>
-        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>
-                Thông tin{" "}
-                <MdInfoOutline style={{ color: "#FFF", fontSize: "1.5rem" }} />
-              </h5>
-            }
-            extra={
-              <Dropdown
-                menu={{
-                  items,
-                }}
-                placement="bottom"
-                arrow
-              >
-                <Tooltip title="Tùy chỉnh thẻ">
-                  <MoreOutlined
-                    style={{
-                      fontSize: "1.2rem",
-                      cursor: "pointer",
-                      color: "#FFF",
-                    }}
-                  />
-                </Tooltip>
-              </Dropdown>
-            }
-          >
-            {classInfo?.semesters.length > 0 &&
-            classInfo.semesters.some(
-              (semester) => semester.status === "Ongoing"
-            ) ? (
-              classInfo.semesters
-                .filter((semester) => semester.status === "Ongoing")
-                .map((semester) => (
-                  <Card.Grid
-                    style={{ width: `${gridCard}` }}
-                    key={semester._id}
-                  >
-                    <div
-                      className="classinfo-content"
-                      style={{ display: "flex", alignItems: "center" }}
-                    >
-                      <p
-                        style={{
-                          fontWeight: "700",
-                          whiteSpace: "nowrap",
-                          marginRight: "8px",
-                        }}
-                      >
-                        Kì học hiện tại:&nbsp;
-                      </p>
-                      <p
-                        style={{
-                          color: "",
-                          fontSize: "1.3rem",
-                          fontWeight: "700",
-                          lineHeight: "2rem",
-                        }}
-                      >
-                        {semester.name}
-                      </p>
-                    </div>
-
-                    <div className="classinfo-content">
-                      <p style={{ fontWeight: "700" }}>Bắt đầu từ:&nbsp;</p>{" "}
-                      <Tag style={{ height: "fit-content" }} color="#108ee9">
-                        {new Date(semester.startDate).toLocaleDateString()}
-                      </Tag>
-                    </div>
-                    <div className="classinfo-content">
-                      <p style={{ fontWeight: "700" }}>Kết thúc từ:&nbsp;</p>{" "}
-                      <Tag style={{ height: "fit-content" }} color="#108ee9">
-                        {new Date(semester.endDate).toLocaleDateString()}
-                      </Tag>
-                    </div>
-                  </Card.Grid>
-                ))
-            ) : (
-              <Card.Grid>Hiện tại chưa có kì học nào</Card.Grid>
-            )}
-            {classInfo?.semesters.length > 0 &&
-            classInfo.semesters.some(
-              (semester) => semester.status === "Ongoing"
-            ) ? (
-              classInfo.semesters
-                .filter((semester) => semester.status === "Ongoing")
-                .map((semester) => {
-                  const { week, phases } = calculateWeekAndPhase(
-                    semester.startDate
-                  );
-                  return (
-                    <Card.Grid
-                      style={{ width: `${gridCard}` }}
-                      key={semester._id}
-                    >
-                      <div className="classinfo-content">
-                        <p style={{ fontWeight: "700" }}>Tuần học:&nbsp;</p>
-                        <Tag style={{ height: "fit-content" }} color="#008D87">
-                          Tuần {week}
-                        </Tag>
-                      </div>
-                    </Card.Grid>
-                  );
-                })
-            ) : (
-              <Card.Grid>Hiện tại chưa có kì học nào</Card.Grid>
-            )}
-
-            <Card.Grid style={{ width: `${gridCard}` }}>
-              <div className="classinfo-content">
-                <p style={{ fontWeight: "700" }}>
-                  {" "}
-                  Tổng số lớp bạn dạy kì này:&nbsp;{" "}
-                </p>
-                <Tag color="#108ee9">{classInfo?.totalClasses}</Tag>
-              </div>
-            </Card.Grid>
-            <Card.Grid style={{ width: `${gridCard}` }}>
-              <div
-                className="classinfo-content"
-                style={{ display: "flex", justifyContent: "start" }}
-              >
-                <p style={{ fontWeight: "700" }}>
-                  {" "}
-                  Tổng sĩ số sinh viên:&nbsp;{" "}
-                </p>
-                <Tag color="#108ee9">{classInfo?.totalStudents}</Tag>
-              </div>
-            </Card.Grid>
-          </Card>
         </Col>
       </Row>
     </div>

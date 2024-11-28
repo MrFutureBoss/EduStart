@@ -6,7 +6,6 @@ import MyActivity from "../../pages/activity/MyActivity";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
 // import UnGroupList from "../../pages/class/UnGroupList";
 import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
-import Result from "../../pages/Dnd_test/Result";
 import ClassManagement from "../../pages/class/ClassManagement";
 import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
 import TeacherProfile from "../../pages/teacher/TeacherProfile";
@@ -19,6 +18,7 @@ import OutcomeDetail from "../../pages/activity/OutcomeDetail";
 import ClassDetail from "../../pages/class/ClassDetail";
 import GroupDetail from "../../pages/managegroup/GroupDetail";
 import TeacherDashboard from "../../pages/teacher/dashboard/TeacherDashboard";
+import UserProfile from "../../pages/UserProfile";
 
 const TeacherRouter = () => {
   return (
@@ -30,15 +30,16 @@ const TeacherRouter = () => {
         </ProtectRoute>
       }
     >
-      <Route path="professionmanagement" element={<Result />} />
-      <Route path="class/detail/:className" element={<ClassDetail/>} />
+      <Route path="class/detail/:className" element={<ClassDetail />} />
       <Route path="class" element={<ClassManagement />} />
       <Route path="professionmanagement" element={<ProfessionManagement />} />
       <Route path="dashboard" element={<TeacherDashboard/>} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />
       <Route path="choose-mentor" element={<MainStep />} />
-      <Route path="class/detail/:className/outcomes" element={<OutcomeDetail/>} />
-      <Route path="dashboard-choose-mentor/main-step" element={<MainStep />} />
+      <Route
+        path="class/detail/:className/outcomes"
+        element={<OutcomeDetail />}
+      />
       <Route path="teacher" element={<TeacherProfile />} />
 
       <Route path="temp-matching" element={<ProjectCardMain />} />
@@ -54,6 +55,7 @@ const TeacherRouter = () => {
       />
       <Route path="project-request" element={<ProjectRequest />} />
       <Route path="group-detail/:groupId" element={<GroupDetail />} />
+      <Route path="profile" element={<UserProfile />} />
     </Route>
   );
 };

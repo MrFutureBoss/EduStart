@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Menu, message, Badge } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
@@ -21,8 +21,7 @@ const socket = io(BASE_URL);
 
 const { SubMenu } = Menu;
 
-const Navbar = () => {
-  const [toggleCollapse, setToggleCollapse] = useState(false); // State for icon size toggle
+const StudentHeader = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false); // State to open/close notification dropdown
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -118,58 +117,26 @@ const Navbar = () => {
     };
   }, [isNotificationOpen]);
 
-  // Lọc thông báo theo user role và filters
-  const filteredNotifications = notificationData.filter((notification) => {
-    const filters = notification.filters || {};
-    if (userLogin.role === 4) {
-      // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
-      return filters.classId || filters.groupId;
-    } else if (userLogin.role === 2) {
-      // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
-      return filters.groupId;
-    }
-    return false;
-  });
+  const filteredNotifications = useMemo(() => {
+    if (!userLogin) return []; // Nếu userLogin chưa sẵn sàng, trả về mảng rỗng
+
+    return notificationData.filter((notification) => {
+      const filters = notification.filters || {}; // Đảm bảo filters không phải undefined/null
+      if (userLogin?.role === 4) {
+        // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
+        return filters.classId != null || filters.groupId != null;
+      } else if (userLogin?.role === 2) {
+        // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
+        return filters.groupId != null;
+      }
+      return false;
+    });
+  }, [notificationData, userLogin]);
 
   return (
     <div className="navbar">
       <div className="logo"></div>
       <Menu mode="horizontal" defaultSelectedKeys={["4"]} className="menu">
-        <div style={{ position: "relative", left: "-190px" }}>
-          <Menu.Item key="4">
-            <Link style={{ textDecoration: "none", marginRight: "20px" }} to="">
-              Trang chủ
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="5">
-            <Link
-              style={{ textDecoration: "none", margin: "0 20px" }}
-              to="class"
-            >
-              Lớp của bạn
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="6">
-            <Link
-              style={{ textDecoration: "none", margin: "0 20px" }}
-              to="group-detail"
-            >
-              Nhóm
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="7">
-            <Link
-              style={{
-                textDecoration: "none",
-                marginLeft: "20px",
-                marginRight: 40,
-              }}
-              to="contact"
-            >
-              Liên hệ
-            </Link>
-          </Menu.Item>
-        </div>
         <SubMenu
           key="sub1"
           title={
@@ -187,16 +154,16 @@ const Navbar = () => {
                 className="user-circle-icon"
               />
               <span style={{ lineHeight: "1.2rem", marginTop: 4 }}>
-                Xin chào {userLogin.role === 4 ? "Sinh Viên" : "Giáo Viên"}!
+                Xin chào {userLogin?.role === 4 ? "Sinh Viên" : "Giáo Viên"}!
                 <br />
-                {userLogin?.username}
+                {userLogin?.username || "N/A"}
               </span>
             </div>
           }
           style={{ margin: "0px", padding: "0px" }}
         >
           <Menu.Item key="1" icon={<ImProfile />}>
-            <Link style={{ textDecoration: "none" }} to="/profile">
+            <Link style={{ textDecoration: "none" }} to="profile">
               Thông tin của bạn
             </Link>
           </Menu.Item>
@@ -241,4 +208,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default StudentHeader;

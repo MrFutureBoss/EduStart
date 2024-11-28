@@ -16,6 +16,8 @@ import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfessions } from "../../redux/slice/ProfessionSlice.js";
 import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
+import AddButton from "../../components/Button/AddButton.jsx";
+import ConfirmButton from "../../components/Button/ConfirmButton.jsx";
 
 const AddNewProfession = ({ show, close }) => {
   const dispatch = useDispatch();
@@ -388,11 +390,11 @@ const AddNewProfession = ({ show, close }) => {
     }
   };
 
-  //Pop-up thêm chuyên môn và lĩnh vực
-  //Header Content
   const modalHeader = (
     <>
-      <h3 style={{ color: "#FFF" }}>Thêm lĩnh vực mới</h3>
+      <h3 style={{ color: "#FFF", padding: "0px", margin: "0" }}>
+        Thêm lĩnh vực mới
+      </h3>
     </>
   );
 
@@ -596,7 +598,10 @@ const AddNewProfession = ({ show, close }) => {
               </small>
             </Form.Group>
             <Form.Group style={{ marginBottom: "10px" }}>
-              <div className="speicalty_tag_container" style={{ display: "flex" }}>
+              <div
+                className="speicalty_tag_container"
+                style={{ display: "flex" }}
+              >
                 {specialties.map((specialty, index) => (
                   <Tag
                     className="speicalty_tag"
@@ -643,13 +648,11 @@ const AddNewProfession = ({ show, close }) => {
   //Footer button
   const modalFooter = (
     <>
-      <Button
-        variant="success"
+      <AddButton
+        content="Thêm Vào"
         onClick={handleConfirmSubmit}
         disabled={!isFormValid}
-      >
-        Thêm Vào
-      </Button>
+      />
       <Button variant="danger" onClick={handleClose}>
         Thoát
       </Button>

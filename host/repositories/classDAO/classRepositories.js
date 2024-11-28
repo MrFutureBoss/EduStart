@@ -561,6 +561,121 @@ const unGroupUser = async (classId) => {
   }
 };
 
+const getClassDetailsBySemesterId = async (semesterId) => {
+  try {
+    // Ensure semester exists
+    const semesterExists = await Semester.findById(semesterId);
+    if (!semesterExists) {
+      throw new Error("Semester not found");
+    }
+
+    // Fetch all classes for the given semester
+    const classes = await Class.find({ semesterId })
+      .populate("teacherId", "username email") // Get teacher's name and email
+      .exec();
+
+    // Add student count to each class
+    const detailedClasses = await Promise.all(
+      classes.map(async (classObj) => {
+        const studentCount = await User.countDocuments({
+          classId: classObj._id,
+        });
+        return {
+          ...classObj._doc,
+          teacherName: classObj.teacherId?.username || "N/A",
+          studentCount,
+        };
+      })
+    );
+
+    return detailedClasses;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const findClassById = async (id) => {
+  try {
+    // Fetch class details and teacher information
+    const classData = await Class.findById(id).populate(
+      "teacherId",
+      "username email"
+    );
+
+    if (!classData) {
+      throw new Error("Class not found");
+    }
+
+    // Fetch all users with this classId
+    const students = await User.find({ classId: id }).select(
+      "username email rollNumber major status classId"
+    );
+
+    // Tạo danh sách các `classId` cần lấy thông tin
+    const classIds = students
+      .map((student) => student.classId)
+      .filter((classId) => classId); // Lọc bỏ các giá trị null hoặc undefined
+
+    // Truy vấn thông tin từ bảng Class cho các classId duy nhất
+    const classInfoMap = await Class.find({ _id: { $in: classIds } })
+      .select("className")
+      .then((classes) =>
+        classes.reduce((acc, cls) => {
+          acc[cls._id] = { _id: cls._id, className: cls.className }; // Tạo object với className và _id
+          return acc;
+        }, {})
+      );
+
+    // Map classId thành object { className, _id }
+    const studentsWithClassInfo = students.map((student) => ({
+      ...student.toObject(),
+      classId: student.classId
+        ? classInfoMap[student.classId] // Gắn object classId
+        : null,
+    }));
+
+    return { ...classData.toObject(), students: studentsWithClassInfo }; // Combine class and student data
+  } catch (error) {
+    throw new Error(`Error fetching class details: ${error.message}`);
+  }
+};
+
+const updateClassDetails = async (id, updateData) => {
+  try {
+    const { className, teacherId } = updateData;
+
+    // Validate teacherId if provided
+    if (teacherId) {
+      const teacherExists = await User.findById(teacherId);
+      if (!teacherExists) {
+        throw new Error("Teacher not found");
+      }
+    }
+
+    // Update class details
+    const updatedClass = await Class.findByIdAndUpdate(
+      id,
+      { className, teacherId },
+      { new: true }
+    ).populate("teacherId", "username email");
+
+    if (!updatedClass) {
+      throw new Error("Class not found or failed to update");
+    }
+
+    return updatedClass;
+  } catch (error) {
+    throw new Error(`Error updating class details: ${error.message}`);
+  }
+};
+const isClassNameDuplicate = async (className, semesterId, excludeId) => {
+  const duplicateClass = await Class.findOne({
+    className,
+    semesterId,
+    _id: { $ne: excludeId }, // Loại trừ lớp hiện tại
+  });
+  return !!duplicateClass;
+};
 export default {
   getStudentCountByClassId,
   getClassById,
@@ -578,4 +693,8 @@ export default {
   getClassesInfoAndTaskByTeacherId,
   checkAndFillExpiredGroups,
   unGroupUser,
+  getClassDetailsBySemesterId,
+  findClassById,
+  updateClassDetails,
+  isClassNameDuplicate,
 };

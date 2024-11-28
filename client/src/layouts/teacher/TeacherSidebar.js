@@ -7,7 +7,7 @@ import {
   FileTextOutlined,
   StarOutlined,
 } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,13 +16,9 @@ import {
   setTeacherData,
 } from "../../redux/slice/ClassManagementSlice";
 import "../../style/Layouts/TeacherLayout.css";
-import { FaUserCircle } from "react-icons/fa";
-import { ImProfile } from "react-icons/im";
-import { IoSettingsOutline } from "react-icons/io5";
-import { CiLogout } from "react-icons/ci";
-import { FaClipboardList } from "react-icons/fa";
 import { GrGroup } from "react-icons/gr";
 import { MdSupportAgent } from "react-icons/md";
+import { setStepCheck } from "../../redux/slice/SelectMentorSlice";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -33,6 +29,8 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
   const jwt = localStorage.getItem("jwt");
   const dispatch = useDispatch();
   const { teacher } = useSelector((state) => state.classManagement);
+  const location = useLocation();
+  const selectedKey = location.pathname.split("/")[2];
 
   const config = useMemo(
     () => ({
@@ -43,6 +41,8 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
     }),
     [jwt]
   );
+  const { stepCheck } = useSelector((state) => state.selectMentor);
+  console.log(stepCheck);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -62,7 +62,9 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
 
     fetchUserData();
   }, [userId, config, dispatch]);
-
+  const setCheckStep = () => {
+    dispatch(setStepCheck(0));
+  };
   return (
     <Sider
       width={270}
@@ -77,8 +79,8 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
       <Menu
         // theme="dark"
         mode="inline"
-        defaultSelectedKeys={["4"]}
-        // defaultOpenKeys={["sub1"]}
+        selectedKeys={[selectedKey]}
+        defaultOpenKeys={["teacher-dashboard"]}
         style={{
           height: "100%",
           borderRight: 0,
@@ -86,81 +88,13 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           marginTop: "60px",
         }}
       >
-        {/* <SubMenu
-          key="sub1"
-          icon={
-            <FaUserCircle
-              style={{ fontSize: toggleCollapse ? "1.2rem" : "1.4rem" }}
-              className="user-circle-icon"
-            />
-          }
-          title={
-            <div style={{ height: "100%", overflow: "hidden" }}>
-              <p
-                style={{
-                  height: "50%",
-                  margin: 0,
-                  fontSize: "0.8rem",
-                  lineHeight: "1.2rem",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                Welcome! {teacher?.username}
-              </p>
-              <p
-                style={{
-                  height: "50%",
-                  margin: 0,
-                  fontSize: "0.7rem",
-                  lineHeight: "1.2rem",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {teacher?.email}
-              </p>
-            </div>
-          }
-          style={{ margin: "0px", padding: "0px" }}
-        >
-          <Menu.Item
-            
-            key="1"
-            icon={<ImProfile className={toggleCollapse ? "" : "custom-icon"} />}
-          >
-            <Link to="/teacher-dashboard/teacher">Thông tin của bạn</Link>
-          </Menu.Item>
-          <Menu.Item
-            key="2"
-            icon={
-              <IoSettingsOutline
-                className={toggleCollapse ? "" : "custom-icon"}
-              />
-            }
-          >
-            Cài đặt
-          </Menu.Item>
-          <Menu.Item
-            key="3"
-            icon={
-              <CiLogout
-                className={toggleCollapse ? "" : "custom-icon"}
-                onClick={handleLogout}
-              />
-            }
-            onClick={handleLogout}
-          >
-            <span style={{ cursor: "pointer" }}>Đăng xuất</span>
-          </Menu.Item>
-        </SubMenu> */}
-        <Menu.Item key="4" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="dashboard">
+        <Menu.Item key="teacher-dashboard" icon={<DashboardOutlined />}>
+          <Link style={{ textDecoration: "none" }} to="teacher-dashboard">
             Dashboard
           </Link>
         </Menu.Item>
         {teacher?.classList?.length > 0 ? (
-          <Menu.Item key="5" icon={<GrGroup className="custom-icon" />}>
+          <Menu.Item key="class" icon={<GrGroup className="custom-icon" />}>
             <Link style={{ textDecoration: "none" }} to="class">
               Quản lý lớp học
             </Link>
@@ -169,7 +103,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           <></>
         )}
         <Menu.Item
-          key="13"
+          key="project-request"
           style={{ marginLeft: 1 }}
           icon={
             <svg
@@ -240,7 +174,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           style={{ padding: "0px", marginLeft: -4 }}
         >
           <Menu.Item
-            key="9"
+            key="dashboard-choose-mentor"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -293,7 +227,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
             </Link>
           </Menu.Item>
           <Menu.Item
-            key="10"
+            key="choose-mentor"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -325,7 +259,11 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
               </svg>
             }
           >
-            <Link style={{ textDecoration: "none" }} to="choose-mentor">
+            <Link
+              onClick={setCheckStep}
+              style={{ textDecoration: "none" }}
+              to="choose-mentor"
+            >
               Lựa Chọn Độ Ưu Tiên
             </Link>
           </Menu.Item>
@@ -366,7 +304,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           style={{ marginLeft: "-4px", padding: "0px" }}
         >
           <Menu.Item
-            key="11"
+            key="summary-class"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -416,7 +354,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
             </Link>
           </Menu.Item>
           <Menu.Item
-            key="12"
+            key="temp-matching"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -494,19 +432,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         >
           <Link style={{ textDecoration: "none" }} to="">
             Hỗ trợ
-          </Link>
-        </Menu.Item>
-        <Menu.Item
-          key="16"
-          icon={
-            <MdSupportAgent
-              style={{ fontSize: "1.5em" }}
-              className={toggleCollapse ? "" : "custom-icon"}
-            />
-          }
-        >
-          <Link style={{ textDecoration: "none" }} to="professionmanagement">
-            Test DnD
           </Link>
         </Menu.Item>
       </Menu>

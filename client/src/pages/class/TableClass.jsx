@@ -280,9 +280,7 @@ const TableClass = ({ ungroup, emptygroup }) => {
     },
   ];
 
-  const handleRowClick = (record) => {
-    navigate(`/teacher/class/detail/${record.className}`);
-  };
+
 
   return (
     <div>
@@ -293,10 +291,6 @@ const TableClass = ({ ungroup, emptygroup }) => {
           columns={columns}
           dataSource={filteredData} // Use filtered data
           rowKey="_id"
-          onRow={(record) => ({
-            onClick: () => handleRowClick(record),
-            style: { cursor: "pointer" },
-          })}
         />
       )}
     </div>

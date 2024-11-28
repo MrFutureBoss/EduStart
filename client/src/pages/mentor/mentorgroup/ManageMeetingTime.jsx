@@ -1,6 +1,6 @@
 import React from "react";
 import CustomCalendar from "./MeetingSchedule";
-import HugeModal from "../../components/Modal/HugeModal";
+import HugeModal from "../../../components/Modal/HugeModal";
 
 const ManageMeetingTime = ({open, close}) => {
   return (

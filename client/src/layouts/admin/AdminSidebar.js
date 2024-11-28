@@ -9,7 +9,7 @@ import {
   LogoutOutlined,
   BookOutlined,
 } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -20,12 +20,13 @@ const AppSider = ({
   handleFetchCurrentSemesters,
   toggleCollapse,
 }) => {
+  const location = useLocation();
+  const selectedKey = location.pathname.split("/")[2];
+
   return (
     <Sider
       width={270}
       collapsible
-      // collapsed={collapsed}
-      // onCollapse={toggleCollapse}
       className="site-layout-background"
       style={{
         boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
@@ -34,11 +35,11 @@ const AppSider = ({
     >
       <Menu
         mode="inline"
-        defaultSelectedKeys={["1"]}
-        defaultOpenKeys={["1"]}
+        selectedKeys={[selectedKey]}
+        defaultOpenKeys={["sub1"]}
         style={{ height: "100%", borderRight: 0, padding: 10 }}
       >
-        <Menu.Item key="1" icon={<DashboardOutlined />}>
+        <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
           <Link style={{ textDecoration: "none" }} to="dashboard">
             Dashboard
           </Link>
@@ -50,7 +51,7 @@ const AppSider = ({
             title="Kỳ học hiện tại"
           >
             <Menu.Item
-              key="2"
+              key="current-semester"
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -101,16 +102,14 @@ const AppSider = ({
                 Quản lý người dùng
               </Link>
             </Menu.Item>
-            <Menu.Item key="3" icon={<UsergroupAddOutlined />}>
-              <Link
-                style={{ textDecoration: "none" }}
-                to="current-semester/pending-users"
-              >
-                Sinh viên chưa có lớp
+
+            <Menu.Item key="class-manager" icon={<UsergroupAddOutlined />}>
+              <Link style={{ textDecoration: "none" }} to="class-manager">
+                Quản lý lớp học
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="7"
+              key="list-request"
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -155,12 +154,12 @@ const AppSider = ({
             </Menu.Item>
           </SubMenu>
         )}
-        <Menu.Item key="4" icon={<UnorderedListOutlined />}>
+        <Menu.Item key="semester-list" icon={<UnorderedListOutlined />}>
           <Link style={{ textDecoration: "none" }} to="semester-list">
             Danh sách kỳ học
           </Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<BookOutlined />}>
+        <Menu.Item key="professionmanagement" icon={<BookOutlined />}>
           <Link style={{ textDecoration: "none" }} to="professionmanagement">
             Quản lí lĩnh vực
           </Link>

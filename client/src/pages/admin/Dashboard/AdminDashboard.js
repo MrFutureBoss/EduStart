@@ -120,7 +120,7 @@ const AdminDashboard = () => {
       dispatch(setUsersInSmt(userResponse.data));
     } catch (error) {
       console.error("Error fetching current semester:", error);
-      navigate("admin-dashboard/semester-list");
+      navigate("/admin/semester-list");
     } finally {
       dispatch(setLoading(false));
     }
@@ -247,7 +247,7 @@ const AdminDashboard = () => {
           type: "action",
           message: `Có ${taskDetails.studentsWithoutClass} sinh viên chưa có lớp`,
           description: "Nhấn vào đây để phân lớp",
-          actionRoute: "pending-users",
+          actionRoute: "/admin/pending-users",
           actionText: "Phân lớp",
         })
       );

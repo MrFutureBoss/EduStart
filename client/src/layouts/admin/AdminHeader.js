@@ -86,7 +86,9 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
             key="1"
             icon={<ImProfile className={toggleCollapse ? "" : "custom-icon"} />}
           >
-            Thông tin của bạn
+            <Link style={{ textDecoration: "none" }} to="profile">
+              Thông tin của bạn
+            </Link>
           </Menu.Item>
           <Menu.Item
             key="2"

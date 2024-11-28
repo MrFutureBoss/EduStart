@@ -32,7 +32,7 @@ const GroupMembers = () => {
   const url = useLocation();
   const { group: groupDetails } = useSelector((state) => state.group);
   const { userLogin } = useSelector((state) => state.user);
-  const groupId = userLogin.groupId;
+  const groupId = userLogin?.groupId;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -310,17 +310,14 @@ const GroupMembers = () => {
               extra={
                 userLogin?.role === 4 &&
                 userLogin?.isLeader && (
-                  <Button
-                    style={{
-                      backgroundColor: "rgb(135, 208, 104)",
-                      color: "white",
-                    }}
+                  <CustomButton
                     onClick={handleOpenModal}
-                  >
-                    {!groupDetails?.project?.status
-                      ? "Cập nhật dự án"
-                      : "Sửa lại dự án"}
-                  </Button>
+                    content={
+                      !groupDetails?.project?.status
+                        ? "Cập nhật dự án"
+                        : "Sửa lại dự án"
+                    }
+                  />
                 )
               }
             >

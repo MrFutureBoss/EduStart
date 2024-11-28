@@ -56,7 +56,6 @@ const ManageGroup = () => {
             backgroundColor: "#fff",
           }}
           headStyle={{
-            backgroundColor: "#e6f7ff",
             borderBottom: "1px solid #d9d9d9",
             textAlign: "center",
             fontWeight: "bold",

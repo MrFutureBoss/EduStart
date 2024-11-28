@@ -27,7 +27,7 @@
   font-size: 24px;
   font-weight: bold;
   margin-left: 20px;
-  color: #1890ff;
+  color: rgb(98, 182, 203);
   margin: 5px 0 0 85px;
 }
 
@@ -38,6 +38,8 @@
   white-space: nowrap;
   border: none;
   margin-right: 20px;
+  position: relative;
+  top: -1px;
 }
 
 .notification-link {

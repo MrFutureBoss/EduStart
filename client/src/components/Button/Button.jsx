@@ -1,7 +1,15 @@
 import React from "react";
 import "../../style/components/button/Button.css";
 
-const CustomButton = ({ color, type, content, disable, style, onClick }) => {
+const CustomButton = ({
+  color,
+  type,
+  content,
+  disable,
+  style,
+  onClick,
+  icon,
+}) => {
   return (
     <button
       style={style}
@@ -11,6 +19,7 @@ const CustomButton = ({ color, type, content, disable, style, onClick }) => {
       type={type}
       disable={disable}
     >
+      {icon}
       {content}
     </button>
   );

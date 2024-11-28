@@ -244,11 +244,6 @@ const ClassDetail = () => {
             title={<h5 style={{ margin: "0px" }}>Tình hình lớp</h5>}
             // <MdInfoOutline style={{ color: "#000", fontSize: "1.5rem" }} />
             bordered={true}
-            headStyle={{
-              background:
-                "linear-gradient(90deg, rgba(210,3,54,1) 67%, rgba(224,0,4,0.9097222222222222) 96%)",
-              color: "white",
-            }}
           >
             {" "}
             {groupInClass.length === 0 ? (

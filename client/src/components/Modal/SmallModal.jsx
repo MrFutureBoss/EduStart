@@ -7,11 +7,12 @@ const SmallModal = ({
   isModalOpen,
   handleOk,
   handleCancel,
-  closeable
+  closeable,
 }) => {
+  const headerModal = <p className="modal-title-custom">{title}</p>;
   return (
     <Modal
-      title={title}
+      title={headerModal}
       open={isModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
