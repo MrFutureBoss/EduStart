@@ -17,6 +17,8 @@ import {
 import ForgotPasswordModal from "./ForgotPasswordModal.jsx";
 import { jwtDecode } from "jwt-decode";
 import { triggerTeacherDashboardNotification } from "../../redux/slice/NotificationSlice.js";
+import backgroundLogo from "../../assets/images/background-logo.jpg";
+import logo from "../../assets/images/logo-2.png";
 
 function SignIn() {
   const [forgotPasswordVisible, setForgotPasswordVisible] = useState(false);
@@ -67,7 +69,7 @@ function SignIn() {
           if (userRole === 1) {
             navigation("/admin/dashboard", { replace: true });
           } else if (userRole === 2) {
-            navigation("/teacher-dashboard");
+            navigation("/teacher/dashboard");
             dispatch(triggerTeacherDashboardNotification());
           } else if (userRole === 4) {
             navigation("/student-dashboard/group-detail"); // Nếu là học sinh
@@ -117,25 +119,100 @@ function SignIn() {
   return (
     <div className="sign-in-container">
       <div className="sign-in-full-height">
-        <Row justify="center" align="middle" style={{ height: "100%" }}>
-          <Col xs={22} sm={18} md={12} lg={8} xl={6}>
-            <Card className="card-login-body">
-              <div className="card-title-login">
-                <Title
-                  level={2}
-                  style={{
-                    color: "white",
-                    marginTop: "4%",
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    letterSpacing: "3px",
-                    fontSize: "1.8rem",
-                  }}
-                >
-                  EduStart
-                </Title>
+        <Row style={{ height: "100%" }}>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <div
+              style={{
+                height: "100vh",
+                overflowY: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                position: "relative",
+              }}
+            >
+              <img
+                src={backgroundLogo}
+                alt="Login logo"
+                style={{
+                  width: "61.7%",
+                  height: "auto",
+                  position: "absolute",
+                  right: "0", // Căn bên phải
+                  top: "50%", // Căn giữa theo trục y
+                  transform: "translateY(-50%)",
+                  maxHeight: "100vh",
+                  objectFit: "contain",
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+                  borderTopLeftRadius: "20px",
+                  borderBottomLeftRadius: "20px",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%", // Căn giữa theo chiều dọc
+                  left: "70%", // Căn giữa theo chiều ngang
+                  transform: "translate(-50%, -50%)",
+                  color: "white",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  padding: "10px 22px",
+                  borderRadius: "8px",
+                  fontSize: "1.4rem",
+                  textAlign: "center",
+                  maxWidth: "80%",
+                }}
+              >
+                Chào mừng bạn đến với EduStart, nơi kết nốt tri thức!
               </div>
-
+            </div>
+          </Col>
+          <Col
+            xs={24}
+            sm={24}
+            md={12}
+            lg={12}
+            xl={12}
+            style={{
+              display: "flex",
+              // justifyContent: "center",
+              alignItems: "center",
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <img
+                src={logo}
+                alt="Corner Illustration"
+                style={{
+                  width: "3rem",
+                  height: "3rem",
+                  borderRadius: "3px",
+                }}
+              />
+              <h1
+                style={{
+                  fontSize: "1.5rem",
+                  color: "#70c0d8",
+                  margin: 0,
+                }}
+              >
+                EduStart
+              </h1>
+            </div>
+            <div className="card-login-body">
+              <h1 className="card-title-login">Đăng nhập</h1>
+              <p style={{ color: "#70c0d8" }}>Bắt đầu kết nối thôi nào!</p>
+              <br />
               {fetchError && (
                 <div className="error-message-response">
                   <div>Email và mật khẩu không chính xác</div>
@@ -169,7 +246,8 @@ function SignIn() {
                         className="lg_error_message"
                       />
                     </div>
-                    <div>
+                    <br />
+                    <div style={{ marginTop: "6px" }}>
                       <label htmlFor="password" className="label-login">
                         Mật khẩu
                       </label>
@@ -188,24 +266,24 @@ function SignIn() {
                         className="lg_error_message"
                       />
                     </div>
-                    <p
-                      onClick={showForgotPasswordModal}
-                      className="forgot-password-p"
-                    >
-                      Quên mật khẩu? Bấm tại đây
-                    </p>
-                    <Button
-                      type="primary"
-                      block
-                      htmlType="submit"
-                      className="login-button"
-                    >
+                    <br />
+                    <div className="forgot-password-container">
+                      <span>Quên mật khẩu? </span>
+                      <span
+                        onClick={showForgotPasswordModal}
+                        className="forgot-password-p"
+                      >
+                        Bấm tại đây!
+                      </span>
+                    </div>
+                    <br />
+                    <button htmlType="submit" className="login-button">
                       Đăng nhập
-                    </Button>
+                    </button>
                   </Form>
                 )}
               </Formik>
-            </Card>
+            </div>
           </Col>
         </Row>
         <ForgotPasswordModal

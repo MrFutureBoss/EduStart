@@ -241,7 +241,7 @@ const TableOutcome = ({ classList, semesterId }) => {
   ];
 
   const handleRowClick = (record) => {
-    navigate(`/teacher-dashboard/class/detail/${record.className}/outcomes`);
+    navigate(`/teacher/class/detail/${record.className}/outcomes`);
   };
 
   return (

@@ -18,11 +18,12 @@ import ProjectRequest from "../../pages/teacher/projectApproval/ProjectRequest";
 import OutcomeDetail from "../../pages/activity/OutcomeDetail";
 import ClassDetail from "../../pages/class/ClassDetail";
 import GroupDetail from "../../pages/managegroup/GroupDetail";
+import TeacherDashboard from "../../pages/teacher/dashboard/TeacherDashboard";
 
 const TeacherRouter = () => {
   return (
     <Route
-      path="/teacher-dashboard"
+      path="/teacher"
       element={
         <ProtectRoute allowedRoles={["2"]}>
           <TeacherLayout />
@@ -32,9 +33,8 @@ const TeacherRouter = () => {
       <Route path="professionmanagement" element={<Result />} />
       <Route path="class/detail/:className" element={<ClassDetail/>} />
       <Route path="class" element={<ClassManagement />} />
-      <Route path="teacher-activity" element={<MyActivity />} />
       <Route path="professionmanagement" element={<ProfessionManagement />} />
-      <Route path="teacher-dashboard" element={<MyActivity />} />
+      <Route path="dashboard" element={<TeacherDashboard/>} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />
       <Route path="choose-mentor" element={<MainStep />} />
       <Route path="class/detail/:className/outcomes" element={<OutcomeDetail/>} />

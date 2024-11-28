@@ -36,7 +36,7 @@ const ClassDetail = () => {
   const navigate = useNavigate();
 
   const handleMoveBackToClassManagement = () => {
-    navigate("/teacher-dashboard/class");
+    navigate("/teacher/class");
   };
 
   const config = useMemo(

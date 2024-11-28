@@ -43,7 +43,7 @@ const CardClass = () => {
   const classTask = useSelector((state) => state.classManagement.classtask);
 
   const handleMoveToClassDetail = (value) => {
-    navigate(`/teacher-dashboard/class/detail/${value}`);
+    navigate(`/teacher/class/detail/${value}`);
   };
 
   return (

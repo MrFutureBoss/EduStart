@@ -23,6 +23,7 @@ import {
 import ConfirmButton from "../../../components/Button/ConfirmButton";
 import CancelButton from "../../../components/Button/CancelButton";
 import io from "socket.io-client";
+import { useLocation } from "react-router-dom";
 const socket = io(BASE_URL);
 
 const { confirm } = Modal;
@@ -41,13 +42,6 @@ const ProjectRequest = () => {
   const [isDeclineModalVisible, setIsDeclineModalVisible] = useState(false);
   const [changingProjects, setChangingProjects] = useState([]);
   const [activeTab, setActiveTab] = useState("1"); // Biến trạng thái để lưu trữ tab hiện tại
-
-  useEffect(() => {
-    if (userId) {
-      fetchProjects();
-      fetchChangingProjects();
-    }
-  }, [dispatch, userId]);
 
   useEffect(() => {
     if (userId) {
@@ -244,10 +238,19 @@ const ProjectRequest = () => {
       ),
     },
   ];
+  const location = useLocation();
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "1" || tabParam === "2") {
+      setActiveTab(tabParam);
+    }
+  }, [location]);
   return (
     <div style={{ padding: "24px" }}>
       <Tabs
+      activeKey={activeTab} // Tab hiện tại
         defaultActiveKey="1"
         onChange={(key) => setActiveTab(key)} // Cập nhật tab hiện tại khi thay đổi
       >

@@ -155,7 +155,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           </Menu.Item>
         </SubMenu> */}
         <Menu.Item key="4" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="teacher-dashboard">
+          <Link style={{ textDecoration: "none" }} to="dashboard">
             Dashboard
           </Link>
         </Menu.Item>
