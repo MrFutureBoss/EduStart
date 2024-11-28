@@ -6,7 +6,6 @@ import MyActivity from "../../pages/activity/MyActivity";
 import ProfessionManagement from "../../pages/professiona&specialty/ProfessionManagement";
 // import UnGroupList from "../../pages/class/UnGroupList";
 import ChooseMentor from "../../pages/teacher/chooseMentor/ChooseMentor";
-import Result from "../../pages/Dnd_test/Result";
 import ClassManagement from "../../pages/class/ClassManagement";
 import MainStep from "../../pages/teacher/stepSelectMentor/MainStep";
 import TeacherProfile from "../../pages/teacher/TeacherProfile";
@@ -30,7 +29,6 @@ const TeacherRouter = () => {
         </ProtectRoute>
       }
     >
-      <Route path="professionmanagement" element={<Result />} />
       <Route path="class/detail/:className" element={<ClassDetail />} />
       <Route path="class" element={<ClassManagement />} />
       <Route path="teacher-activity" element={<MyActivity />} />

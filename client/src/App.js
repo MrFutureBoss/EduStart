@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import "./App.css";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -12,6 +10,7 @@ import AdminRouter from "./routers/admin/AdminRouter.js";
 import UserProfile from "./pages/UserProfile.jsx";
 import StudentRouter from "./routers/student/StudentRouter.js";
 import MentorRouter from "./routers/mentor/MentorRouter.js";
+import "../src/style/Common.css";
 
 function App() {
   return (

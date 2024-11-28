@@ -91,10 +91,11 @@ const GroupList = () => {
                 style={{
                   fontSize: "16px",
                   fontWeight: "bold",
-                  color: group.status === "InActive" ? "#FFF" : "#1890ff",
+                  color: group.status === "InActive" ? "#FFF" : "#FFF",
                 }}
               >
-                {group.name} {group.status==="InActive" ? "- Đã giải tán" : ""}
+                {group.name}{" "}
+                {group.status === "InActive" ? "- Đã giải tán" : ""}
               </span>
             }
             bordered={false}
@@ -105,7 +106,7 @@ const GroupList = () => {
               backgroundColor: "#fff",
             }}
             headStyle={{
-              backgroundColor: group.status === "InActive" ? "grey" : "#e6f7ff",
+              backgroundColor: group.status === "InActive" ? "grey" : "#60B2C7",
               textAlign: "center",
             }}
             className="manage-group-card"

@@ -149,6 +149,59 @@ const createNewTimeEventsHandler = async (req, res) => {
   }
 };
 
+const updateTimeEventHandler = async (req, res) => {
+  const { eventId } = req.params;
+  const updateData = req.body;
+
+  try {
+    if (!updateData || typeof updateData !== "object" || Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No valid update data provided" });
+    }
+
+    const updatedMatched = await matchedDAO.updateTimeEventById(eventId, updateData);
+
+    res.status(200).json({
+      message: "Time event updated successfully",
+      matched: updatedMatched,
+    });
+  } catch (error) {
+    console.error("Error in updateTimeEventHandler:", error.message);
+
+    if (error.message === "Invalid Event ID format") {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.message === "Event record not found") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteTimeEventHandler = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    const updatedMatched = await matchedDAO.deleteTimeEventById(eventId);
+
+    res.status(200).json({
+      message: "Time event deleted successfully",
+      matched: updatedMatched,
+    });
+  } catch (error) {
+    console.error("Error in deleteTimeEventHandler:", error.message);
+
+    if (error.message === "Invalid Event ID format") {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.message === "Event record not found") {
+      return res.status(404).json({ error: error.message });
+    }
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
@@ -156,4 +209,6 @@ export default {
   getAllMatchingDetailByMentorId,
   patchMatched,
   createNewTimeEventsHandler,
+  updateTimeEventHandler,
+  deleteTimeEventHandler,
 };

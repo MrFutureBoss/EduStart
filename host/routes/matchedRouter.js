@@ -33,6 +33,18 @@ matchedRouter.post(
   matchedController.createNewTimeEventsHandler
 );
 
+matchedRouter.patch(
+  "/time/:eventId",
+  verifyAccessToken,
+  matchedController.updateTimeEventHandler
+);
+
+matchedRouter.delete(
+  "/time/:eventId",
+  verifyAccessToken,
+  matchedController.deleteTimeEventHandler
+);
+
 matchedRouter.get(
   "/mentor/:mentorId",
   verifyAccessToken,

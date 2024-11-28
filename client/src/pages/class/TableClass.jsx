@@ -265,7 +265,7 @@ const TableClass = ({ ungroup, emptygroup }) => {
       width: "15%",
       render: (_, record) => (
         <Link
-          to={`/teacher-dashboard/class/detail/${record.className}`}
+          to={`/teacher/class/detail/${record.className}`}
           style={{
             padding: "6px 12px",
             borderRadius: "6px",
@@ -280,9 +280,7 @@ const TableClass = ({ ungroup, emptygroup }) => {
     },
   ];
 
-  const handleRowClick = (record) => {
-    navigate(`/teacher-dashboard/class/detail/${record.className}`);
-  };
+
 
   return (
     <div>
@@ -293,10 +291,6 @@ const TableClass = ({ ungroup, emptygroup }) => {
           columns={columns}
           dataSource={filteredData} // Use filtered data
           rowKey="_id"
-          onRow={(record) => ({
-            onClick: () => handleRowClick(record),
-            style: { cursor: "pointer" },
-          })}
         />
       )}
     </div>
