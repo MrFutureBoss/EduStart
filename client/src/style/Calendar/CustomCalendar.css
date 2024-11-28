@@ -4,11 +4,12 @@
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
 .rbc-header {
   color: white;
   font-size: 14px !important;
   background: #149cdb;
-  padding: 0px  !important;
+  padding: 0px !important;
 }
 
 .rbc-allday-cell {
@@ -73,15 +74,15 @@ div .rbc-event-content {
   color: #000;
 }
 
-.rbc-overflowing{
+.rbc-overflowing {
   margin-right: 0px !important;
 }
 
-.rbc-show-more{
+.rbc-show-more {
   background-color: #F0F2F5;
 }
 
-.rbc-time-content{
+.rbc-time-content {
   overflow-y: auto !important;
 }
 
@@ -94,16 +95,20 @@ div .rbc-event-content {
   min-height: 10px !important;
 } */
 
-.rbc-event-label{
+.rbc-event-label {
   height: 100% !important;
   display: none !important;
 }
 
-.rbc-event-content{
+.rbc-event-content {
   padding: 0px !important;
   cursor: default;
-} 
+}
 
-.rbc-label{
+.rbc-label {
   min-height: 17px !important;
+}
+
+.rbc-toolbar {
+  padding-top: 1rem;
 }

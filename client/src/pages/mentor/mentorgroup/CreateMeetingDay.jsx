@@ -1,29 +1,31 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BASE_URL } from "../../utilities/initalValue";
-import SmallModal from "../../components/Modal/SmallModal";
+import { BASE_URL } from "../../../utilities/initalValue";
+import SmallModal from "../../../components/Modal/SmallModal";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { setLoading } from "../../redux/slice/ClassManagementSlice";
-import { setMatchedGroups } from "../../redux/slice/MatchedGroupSlice";
+import { setLoading } from "../../../redux/slice/ClassManagementSlice";
+import { setMatchedGroups } from "../../../redux/slice/MatchedGroupSlice";
 import {
   Col,
   Collapse,
   DatePicker,
   Form,
   Input,
-  InputNumber,
   message,
   Popconfirm,
   Row,
   Tooltip,
+  Typography,
 } from "antd";
-import ConfirmButton from "../../components/Button/ConfirmButton";
-import CancelButton from "../../components/Button/CancelButton";
+import ConfirmButton from "../../../components/Button/ConfirmButton";
+import CancelButton from "../../../components/Button/CancelButton";
 import moment from "moment";
 import dayjs from "dayjs";
 import { runes } from "runes2";
 import { CaretRightOutlined } from "@ant-design/icons";
-import "../../style/Mentor/GroupList.css";
+import "../../../style/Mentor/GroupList.css";
+
+const { Text } = Typography;
 
 const range = (start, end) => {
   const result = [];
@@ -41,9 +43,14 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
   const dispatch = useDispatch();
   const [selectedDate, setSelectedDate] = useState(null);
   const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState("Chưa xác định");
-  const [duration, setDuration] = useState(90);
+  const [endTime, setEndTime] = useState("Chọn giờ bắt đầu trước");
   const [form] = Form.useForm();
+  const [conflictMessage, setConflictMessage] = useState("");
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => {
+    setClientReady(true);
+  }, []);
+  const groups = useSelector((state) => state.matchedGroup.data || []);
 
   const config = useMemo(
     () => ({
@@ -54,8 +61,6 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
     }),
     [jwt]
   );
-
-  const groups = useSelector((state) => state.matchedGroup.data || []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -80,20 +85,16 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
 
   const disabledDate = (current) => {
     const today = moment().startOf("day");
-    const month = today.month() + 1; // Tháng bắt đầu từ 0, nên cần cộng thêm 1
+    const month = today.month() + 1;
     let startMonth, endMonth;
 
-    // Xác định kỳ học hiện tại
     if (month >= 1 && month <= 4) {
-      // Kỳ học 1: Tháng 1, 2, 3, 4
       startMonth = 1;
       endMonth = 4;
     } else if (month >= 5 && month <= 8) {
-      // Kỳ học 2: Tháng 5, 6, 7, 8
       startMonth = 5;
       endMonth = 8;
     } else {
-      // Kỳ học 3: Tháng 9, 10, 11, 12
       startMonth = 9;
       endMonth = 12;
     }
@@ -111,10 +112,10 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
     );
   };
 
-  const disabledRangeTime = (start, end) => (selectedDate, type) => {
+  const disabledRangeTime = (selectedDate, type) => {
     const now = dayjs();
     const startHour = 7;
-    const endHour = 22;
+    const endHour = 20;
 
     if (!selectedDate) return {};
 
@@ -124,10 +125,10 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
           const hours = range(0, 24);
           if (selectedDate.isSame(now, "day")) {
             return hours.filter(
-              (hour) => hour < now.hour() || hour < startHour
+              (hour) => hour < now.hour() || hour < startHour || hour > endHour
             );
           }
-          return hours.filter((hour) => hour < startHour || hour >= endHour);
+          return hours.filter((hour) => hour < startHour || hour > endHour);
         },
         disabledMinutes: (selectedHour) => {
           if (selectedDate.isSame(now, "day") && selectedHour === now.hour()) {
@@ -141,43 +142,66 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
     return {};
   };
 
-  const formatDuration = (minutes) => {
-    if (minutes === null) return "";
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours > 0 ? `${hours} tiếng` : ""} ${
-      mins > 0 ? `${mins} phút` : ""
-    }`.trim();
-  };
-
-  const calculateEndTime = () => {
-    if (!startTime) return "";
-    return startTime.clone().add(duration, "minutes").format("HH:mm");
-  };
-
   useEffect(() => {
     if (startTime) {
-      setEndTime(startTime.clone().add(duration, "minutes").format("HH:mm"));
+      setEndTime(startTime.clone().add(150, "minutes").format("HH:mm"));
     }
-  }, [startTime, duration]);
+  }, [startTime]);
+
+  const checkConflict = (selectedStart) => {
+    let conflict = "";
+    if (selectedDate && selectedStart) {
+      const selectedStartTime = selectedDate
+        .hour(selectedStart.hour())
+        .minute(selectedStart.minute());
+      const selectedEndTime = selectedStartTime.clone().add(150, "minutes");
+
+      // Duyệt qua tất cả các nhóm và cuộc họp của nhóm để kiểm tra xung đột
+      groups.forEach((group) => {
+        group.matchedDetails?.time.forEach((meeting) => {
+          const meetingStart = moment(meeting.start);
+          const meetingEnd = moment(meeting.end);
+
+          // Kiểm tra nếu khoảng thời gian của cuộc họp mới giao nhau với khoảng thời gian cuộc họp đã tồn tại
+          if (
+            (selectedStartTime.isBefore(meetingEnd) &&
+              selectedEndTime.isAfter(meetingStart)) ||
+            selectedStartTime.isSame(meetingStart) ||
+            selectedEndTime.isSame(meetingEnd)
+          ) {
+            conflict = `Trùng cuộc hẹn với lớp ${group.class.className} - ${
+              group.group.name
+            } vào ${meetingStart.format("DD-MM-YYYY")} từ ${meetingStart.format(
+              "HH:mm"
+            )} đến ${meetingEnd.format("HH:mm")}`;
+          }
+        });
+      });
+    }
+    setConflictMessage(conflict);
+  };
 
   const handleMakeNewEvent = async () => {
+    if (conflictMessage) {
+      message.error("Thời gian họp bị trùng, vui lòng chọn thời gian khác.");
+      return;
+    }
+
     try {
-      // Kiểm tra giá trị groupId
       if (!groupId) {
         message.error("Group ID không hợp lệ. Vui lòng kiểm tra lại.");
         return;
       }
 
-      const start = moment(selectedDate)
+      const start = selectedDate
         .hour(startTime.hour())
         .minute(startTime.minute())
         .second(0)
         .toISOString();
 
-      const end = moment(selectedDate)
+      const end = selectedDate
         .hour(startTime.hour())
-        .minute(startTime.minute() + duration)
+        .minute(startTime.minute() + 150)
         .second(0)
         .toISOString();
 
@@ -188,41 +212,27 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
         end: end,
       };
 
-      console.log("Group ID:", groupId);
-      console.log("New Event:", newEvent);
-
-      // Gửi request tới server
       const response = await axios.post(
         `${BASE_URL}/matched/time/${groupId}`,
         { time: [newEvent] },
         config
       );
 
-      // Kiểm tra phản hồi từ server
       if (response.status === 200) {
-        const updatedGroups = groups.map((group) => {
-          if (group.matchedDetails._id === groupId) {
-            return {
-              ...group,
-              matchedDetails: {
-                ...group.matchedDetails,
-                time: [...(group.matchedDetails.time || []), newEvent], // Đảm bảo thêm sự kiện mới mà vẫn giữ các sự kiện cũ
-              },
-            };
-          }
-          return group;
-        });
+        const groupResponse = await axios.get(
+          `${BASE_URL}/matched/mentor/${userId}`,
+          config
+        );
 
-        dispatch(setMatchedGroups(updatedGroups));
+        dispatch(setMatchedGroups(groupResponse.data?.groups));
 
         message.success("Lịch họp đã được tạo thành công!");
-        close(); // Đóng modal sau khi thành công
+        close();
       } else {
         console.error("Error response:", response);
         message.error("Có lỗi xảy ra khi tạo lịch họp. Vui lòng thử lại.");
       }
     } catch (error) {
-      // In chi tiết lỗi để hiểu rõ hơn
       if (error.response) {
         console.error("API Error:", error.response.data);
         message.error(
@@ -280,7 +290,7 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
               exceedFormatter: (txt, { max }) =>
                 runes(txt).slice(0, max).join(""),
             }}
-            style={{ width: "350px" }} // Đảm bảo input chiếm hết chiều ngang
+            style={{ width: "350px" }}
           />
         </Form.Item>
 
@@ -338,7 +348,7 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
               background: "#f7f7f7",
               borderRadius: "8px",
               marginTop: "8px",
-              border: "1px solid #d9d9d9", // Thêm border để nhận biết cần chú ý
+              border: "1px solid #d9d9d9",
             }}
           >
             <small style={{ fontSize: "12px" }}>
@@ -364,6 +374,13 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
           rules={[
             { required: true, message: "Vui lòng chọn thời gian bắt đầu họp" },
           ]}
+          extra={
+            <>
+              <span style={{ color: "#888", fontSize: "12px" }}>
+                Giờ kết thúc: {endTime}
+              </span>
+            </>
+          }
         >
           <Tooltip
             title={!selectedDate ? "Hãy chọn ngày trước khi chọn giờ" : ""}
@@ -373,20 +390,19 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
               picker="time"
               placeholder="Chọn giờ bắt đầu"
               style={{ width: "150px" }}
-              disabledDate={disabledDate}
               disabledTime={(date) =>
-                selectedDate
-                  ? disabledRangeTime(null, null)(selectedDate, "start")
-                  : {}
+                selectedDate ? disabledRangeTime(selectedDate, "start") : {}
               }
               onChange={(value) => {
                 setStartTime(value);
                 if (value) {
                   setEndTime(
-                    value.clone().add(duration, "minutes").format("HH:mm")
+                    value.clone().add(150, "minutes").format("HH:mm") // +2 tiếng rưỡi
                   );
+                  checkConflict(value);
                 } else {
-                  setEndTime("");
+                  setEndTime("Chọn giờ bắt đầu trước");
+                  setConflictMessage("");
                 }
               }}
               showTime={{
@@ -398,6 +414,11 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
             />
           </Tooltip>
         </Form.Item>
+        {conflictMessage && (
+          <Text type="danger" style={{ display: "block", marginTop: "10px" }}>
+            {conflictMessage}
+          </Text>
+        )}
         <Collapse
           bordered={false}
           style={{
@@ -429,94 +450,10 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
             <small style={{ fontSize: "12px" }}>
               (*) Ví dụ nhập: 13:45
               <br />
-              (*) Giới hạn chọn giờ bắt đầu từ 7h30 đến 22h
+              (*) Giới hạn giờ bắt đầu từ 7h đến 20h30
               <br />
-              (*) Lưu ý bạn không thể điền giờ đã qua nếu chọn ngày hôm nay
-            </small>
-          </Panel>
-        </Collapse>
-
-        <Form.Item
-          style={{ marginBottom: "0.6rem", marginTop: "24px" }}
-          label={
-            <span
-              style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
-            >
-              Chọn thời lượng họp
-            </span>
-          }
-          name="meetingDuration"
-          rules={[{ required: true, message: "Vui lòng chọn thời lượng họp" }]}
-          extra={
-            <>
-              <span style={{ color: "#888", fontSize: "12px" }}>
-                Thời gian họp là: {formatDuration(duration)}
-              </span>{" "}
-              <br />
-              <span style={{ color: "#888", fontSize: "12px" }}>
-                Giờ kết thúc: {endTime}
-              </span>
-            </>
-          }
-        >
-          <InputNumber
-            min={15}
-            max={180}
-            step={30}
-            defaultValue={90}
-            value={duration}
-            onChange={(value) => {
-              if (value >= 15) {
-                setDuration(value);
-              }
-            }}
-            onBlur={() => {
-              if (duration < 15) {
-                setDuration(15);
-              }
-            }}
-            placeholder="Điền phút"
-            style={{ width: "150px" }}
-            disabled={!selectedDate || !startTime}
-            changeOnWheel
-          />
-        </Form.Item>
-        <Collapse
-          className="custom-panel-header"
-          bordered={false}
-          style={{
-            marginBottom: "16px",
-            width: "315px",
-            backgroundColor: "#E6F4FF",
-          }}
-          expandIcon={({ isActive }) => (
-            <CaretRightOutlined rotate={isActive ? 90 : 0} />
-          )}
-        >
-          <Panel
-            header={
-              <p
-                className="remove-default-style-p"
-                style={{ fontSize: "0.8rem", fontWeight: "500", margin: 0 }}
-              >
-                Lưu ý về chọn thời lượng họp !
-              </p>
-            }
-            key="1"
-            style={{
-              background: "#f7f7f7",
-              borderRadius: "8px",
-              marginTop: "8px",
-              border: "1px solid #d9d9d9",
-            }}
-          >
-            <small style={{ fontSize: "12px" }}>
-              (*) Giới hạn chọn thời lượng cuộc họp ít nhất 15 phút và tối đa 3
-              tiếng
-            </small>
-            <br />
-            <small style={{ fontSize: "12px" }}>
-              (*) Thời gian kết thúc cuộc họp không quá 23h
+              (*) Lưu ý bạn không thể nhập hoặc chọn giờ đã qua nếu chọn ngày
+              hôm nay
             </small>
           </Panel>
         </Collapse>
@@ -535,20 +472,15 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
           onConfirm={handleMakeNewEvent}
           okText="Đồng ý"
           cancelText="Hủy"
-          // disabled={
-          //   !form.isFieldsTouched(true) ||
-          //   form.getFieldsError().some(({ errors }) => errors.length)
-          // }
         >
           <ConfirmButton
             content="Thêm vào"
-            // disabled={
-            //   !form.isFieldsTouched(true) ||
-            //   form.getFieldsError().some(({ errors }) => errors.length) ||
-            //   !selectedDate ||
-            //   !startTime ||
-            //   !duration
-            // }
+            disabled={
+              !clientReady ||
+              !!conflictMessage ||
+              !!form.getFieldsError().filter(({ errors }) => errors.length)
+                .length
+            }
           />
         </Popconfirm>
         <CancelButton content="Hủy" onClick={close} />

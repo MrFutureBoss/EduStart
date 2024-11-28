@@ -16,11 +16,6 @@ import {
   setTeacherData,
 } from "../../redux/slice/ClassManagementSlice";
 import "../../style/Layouts/TeacherLayout.css";
-import { FaUserCircle } from "react-icons/fa";
-import { ImProfile } from "react-icons/im";
-import { IoSettingsOutline } from "react-icons/io5";
-import { CiLogout } from "react-icons/ci";
-import { FaClipboardList } from "react-icons/fa";
 import { GrGroup } from "react-icons/gr";
 import { MdSupportAgent } from "react-icons/md";
 import { setStepCheck } from "../../redux/slice/SelectMentorSlice";
@@ -437,19 +432,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         >
           <Link style={{ textDecoration: "none" }} to="">
             Hỗ trợ
-          </Link>
-        </Menu.Item>
-        <Menu.Item
-          key="16"
-          icon={
-            <MdSupportAgent
-              style={{ fontSize: "1.5em" }}
-              className={toggleCollapse ? "" : "custom-icon"}
-            />
-          }
-        >
-          <Link style={{ textDecoration: "none" }} to="professionmanagement">
-            Test DnD
           </Link>
         </Menu.Item>
       </Menu>

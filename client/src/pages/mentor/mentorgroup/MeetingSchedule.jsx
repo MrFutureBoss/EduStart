@@ -4,16 +4,16 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import "../../style/Calendar/CustomCalendar.css";
+import "../../../style/Calendar/CustomCalendar.css";
 import { Button, message, Tag, Tooltip } from "antd";
 
 // Đặt ngôn ngữ là tiếng Việt cho Moment
 import "moment/locale/vi";
 import { useDispatch, useSelector } from "react-redux";
-import { BASE_URL } from "../../utilities/initalValue";
-import { setMatchedGroups } from "../../redux/slice/MatchedGroupSlice";
+import { BASE_URL } from "../../../utilities/initalValue";
+import { setMatchedGroups } from "../../../redux/slice/MatchedGroupSlice";
 import axios from "axios";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import MeetingTimeDetail from "./MeetingTimeDetail";
 moment.locale("vi");
 
 const localizer = momentLocalizer(moment);
@@ -24,7 +24,7 @@ const minTime = new Date();
 minTime.setHours(7, 0, 0);
 
 const maxTime = new Date();
-maxTime.setHours(23, 0, 0);
+maxTime.setHours(23, 59, 0);
 
 // Component tiêu đề tùy chỉnh cho ngày
 const CustomDateHeader = ({ label, date }) => {
@@ -44,7 +44,7 @@ const CustomDateHeader = ({ label, date }) => {
 };
 
 // Component Lịch Tùy Chỉnh
-const CustomCalendar = () => {
+const CustomCalendar = ({ selectedEvent }) => {
   const dispatch = useDispatch();
   const [events, setEvents] = useState([]);
   const [isDragAndDropEnabled, setIsDragAndDropEnabled] = useState(false);
@@ -52,6 +52,9 @@ const CustomCalendar = () => {
   const userId = localStorage.getItem("userId");
   const email = localStorage.getItem("email");
   const [loading, setLoading] = useState(false);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [eventId, setEventId] = useState("");
+  const [eventGroup, setEventGroup] = useState("");
   const groups = useSelector((state) => state.matchedGroup.data || []);
   const groupColors = {};
 
@@ -77,6 +80,11 @@ const CustomCalendar = () => {
     [jwt]
   );
 
+  const selectedEventIds = useMemo(
+    () => selectedEvent?.time?.map((event) => event._id) || [],
+    [selectedEvent]
+  );
+
   useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
@@ -86,20 +94,6 @@ const CustomCalendar = () => {
           config
         );
         dispatch(setMatchedGroups(groupResponse.data?.groups));
-
-        const mappedEvents = groupResponse.data.groups.flatMap((group) =>
-          group.matchedDetails.time.map((meet) => ({
-            id: meet._id,
-            group: `${group.class.className} - ${group.group.name}`,
-            title: `${meet.title}`,
-            start: new Date(meet.start),
-            end: new Date(meet.end),
-            color: assignGroupColor(group.group.name),
-            tooltip: `Nội dung cuộc họp: ${meet.title}`,
-          }))
-        );
-
-        setEvents(mappedEvents);
       } catch (error) {
         console.error(
           error.response ? error.response.data.message : error.message
@@ -112,10 +106,24 @@ const CustomCalendar = () => {
     fetchUserData();
   }, [config, dispatch, userId]);
 
-  const myGroups = useMemo(
-    () => groups.filter((group) => group.matchedDetails.status === "Accepted"),
-    [groups]
-  );
+  useEffect(() => {
+    if (groups.length > 0) {
+      const mappedEvents = groups.flatMap((group) =>
+        group.matchedDetails.time.map((meet) => ({
+          id: meet._id,
+          group: `${group.class.className} - ${group.group.name}`,
+          title: `${meet.title}`,
+          start: new Date(meet.start),
+          end: new Date(meet.end),
+          // color: assignGroupColor(group.group.name),
+          tooltip: `Nội dung cuộc họp: ${meet.title}`,
+        }))
+      );
+
+      setEvents(mappedEvents);
+    }
+  }, [groups]);
+
   const handleEventDrop = ({ event, start, end }) => {
     const now = new Date();
     now.setSeconds(0, 0);
@@ -150,6 +158,18 @@ const CustomCalendar = () => {
     }
   };
 
+  const HandleOpenSchedule = (id, group) => {
+    setEventId(id);
+    setEventGroup(group);
+    setIsScheduleOpen(true);
+  };
+
+  const HandleCloseSchedule = () => {
+    setIsScheduleOpen(false);
+    setEventId("");
+    setEventGroup("");
+  };
+
   const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
       return `${text.slice(0, maxLength)}...`;
@@ -167,15 +187,7 @@ const CustomCalendar = () => {
     };
     const isCurrentEvent =
       new Date() >= new Date(event.start) && new Date() <= new Date(event.end);
-
-      console.log({
-        eventStart: new Date(event.start),
-        eventEnd: new Date(event.end),
-        now: new Date(),
-        isPastEvent,
-        isCurrentEvent,
-      });
-
+    const isSelectedEvent = selectedEventIds.includes(event.id);
     return (
       <Tooltip
         title={
@@ -196,18 +208,22 @@ const CustomCalendar = () => {
             padding: "10px 8px",
             backgroundColor: isPastEvent
               ? "grey"
+              : isSelectedEvent
+              ? "#bdd8ee" // Nhóm bạn chọn
               : isCurrentEvent
-              ? "#C7E6C1" // Màu khác cho sự kiện đang diễn ra
-              : "#e4e0c2",
+              ? "#C7E6C1" // Nhóm khác bạn chọn
+              : "#e4e0c2",// Cuộc họp đã qua
+            cursor: "pointer",
           }}
+          onClick={() => HandleOpenSchedule(event.id, event.group)}
         >
-          <span style={{ fontSize: "0.7rem", fontWeight: "bold" }}>
+          <span style={{ fontSize: "0.9rem", fontWeight: "bold" }}>
             {event.group}
           </span>
           <span
-            style={{ fontSize: "0.7rem", fontWeight: "400", marginTop: "3px" }}
+            style={{ fontSize: "0.8rem", fontWeight: "400", marginTop: "3px" }}
           >
-            {truncateText(event.title, 22)}
+            {truncateText(event.title, 20)}
           </span>
           <div
             style={{
@@ -220,7 +236,7 @@ const CustomCalendar = () => {
             <Tag
               color={isPastEvent ? "#a5a6a8" : "#008000"}
               style={{
-                fontSize: "0.6rem",
+                fontSize: "0.7rem",
                 fontWeight: "600",
                 color: "#FFF",
                 borderRadius: "4px",
@@ -235,7 +251,7 @@ const CustomCalendar = () => {
               color={isPastEvent ? "#a5a6a8" : "#EC9A26"}
               style={{
                 cursor: "pointer",
-                fontSize: "0.7rem",
+                fontSize: "0.8rem",
                 margin: "0px",
                 padding: "0px 5px",
               }}
@@ -250,8 +266,13 @@ const CustomCalendar = () => {
   };
 
   return (
-    <div style={{ maxHeight: "600px", overflowY: "auto", padding: "20px" }}>
-      <h4>Lịch họp các nhóm</h4>
+    <div>
+      <MeetingTimeDetail
+        open={isScheduleOpen}
+        close={HandleCloseSchedule}
+        eventId={eventId}
+        eventGroup={eventGroup}
+      />
       <Button
         type="primary"
         onClick={() => setIsDragAndDropEnabled(!isDragAndDropEnabled)}
@@ -336,9 +357,7 @@ const CustomCalendar = () => {
                 if (start.getMonth() === end.getMonth()) {
                   return `Năm ${moment(start).format("YYYY")}`;
                 } else {
-                  return `Tháng ${moment(start).format("MM")} - Tháng ${moment(
-                    end
-                  ).format("MM")} năm ${moment(start).format("YYYY")}`;
+                  return `Năm ${moment(start).format("YYYY")}`;
                 }
               },
               monthHeaderFormat: (date, culture, localizer) => {
@@ -348,10 +367,9 @@ const CustomCalendar = () => {
               },
             }}
             step={10}
-            timeslots={6} // Chia thành các slot theo giờ
-            min={minTime} // Thời gian bắt đầu
-            max={maxTime} // Thời gian kết thúc
-            defaultDate={new Date(2024, 10, 20)}
+            timeslots={6}
+            min={minTime}
+            max={maxTime}
             components={{
               event: CustomEvent,
               week: {

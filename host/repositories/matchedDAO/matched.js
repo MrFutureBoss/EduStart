@@ -196,7 +196,6 @@ const getMatchedInfoByGroupId = async (groupId) => {
 
 const getAllMatchingDetailByMentorId = async (mentorId) => {
   try {
-    // Find all matched records for the mentor
     const matchedRecords = await Matched.find({ mentorId }).populate("groupId");
 
     if (!matchedRecords.length) {
@@ -207,7 +206,7 @@ const getAllMatchingDetailByMentorId = async (mentorId) => {
       matchedRecords.map(async (matched) => {
         const group = await Group.findById(matched.groupId._id)
           .populate("projectId")
-          .populate("classId", "className");
+          .populate("classId");
 
         if (!group) return null;
 
@@ -224,7 +223,7 @@ const getAllMatchingDetailByMentorId = async (mentorId) => {
 
         const teacher = await User.findOne({
           role: 2,
-          classId: group.classId,
+          _id: group.classId?.teacherId,
         })
           .select("username email")
           .lean();
@@ -334,6 +333,57 @@ const createNewTimeEvents = async (id, newTimeArray) => {
   }
 };
 
+const updateTimeEventById = async (eventId, updateData) => {
+  try {
+    if (!mongoose.isValidObjectId(eventId)) {
+      throw new Error("Invalid Event ID format");
+    }
+
+    const updatedMatched = await Matched.findOneAndUpdate(
+      { "time._id": eventId },
+      {
+        $set: {
+          "time.$": updateData, // Cập nhật toàn bộ object của event con
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMatched) {
+      throw new Error("Event record not found");
+    }
+
+    return updatedMatched;
+  } catch (error) {
+    console.error("Error updating time event:", error.message);
+    throw new Error(error.message);
+  }
+};
+
+const deleteTimeEventById = async (eventId) => {
+  try {
+    if (!mongoose.isValidObjectId(eventId)) {
+      throw new Error("Invalid Event ID format");
+    }
+
+    const updatedMatched = await Matched.findOneAndUpdate(
+      { "time._id": eventId },
+      { $pull: { time: { _id: eventId } } },
+      { new: true }
+    );
+
+    if (!updatedMatched) {
+      throw new Error("Event record not found");
+    }
+
+    return updatedMatched;
+  } catch (error) {
+    console.error("Error deleting time event:", error.message);
+    throw new Error(error.message);
+  }
+};
+
+
 export default {
   createMatched,
   updateMatchedById,
@@ -342,4 +392,6 @@ export default {
   getAllMatchingDetailByMentorId,
   patchMatchedById,
   createNewTimeEvents,
+  updateTimeEventById,
+  deleteTimeEventById,
 };

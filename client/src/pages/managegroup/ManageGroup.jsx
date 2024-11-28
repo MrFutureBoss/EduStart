@@ -56,12 +56,10 @@ const ManageGroup = () => {
             backgroundColor: "#fff",
           }}
           headStyle={{
-            backgroundColor: "#c2e1eb",
             borderBottom: "1px solid #d9d9d9",
             textAlign: "center",
             fontWeight: "bold",
             fontSize: "18px",
-            color: "#FFF"
           }}
           bodyStyle={{
             padding: "0px",

@@ -3,26 +3,12 @@ import { Layout, Menu, message, Modal } from "antd";
 import {
   BookOutlined,
   DashboardOutlined,
-  FileDoneOutlined,
-  FileTextOutlined,
-  StarOutlined,
 } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setLoading,
-  setTeacherData,
-} from "../../redux/slice/ClassManagementSlice";
 import "../../style/Layouts/TeacherLayout.css";
-import { FaUserCircle } from "react-icons/fa";
-import { ImProfile } from "react-icons/im";
-import { IoSettingsOutline } from "react-icons/io5";
-import { CiLogout } from "react-icons/ci";
-import { FaClipboardList } from "react-icons/fa";
-import { GrGroup } from "react-icons/gr";
-import { MdSupportAgent } from "react-icons/md";
 import { setUserLogin } from "../../redux/slice/UserSlice";
 
 const { Sider } = Layout;
@@ -35,7 +21,8 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
   const dispatch = useDispatch();
   const { userLogin } = useSelector((state) => state.user);
   const [hasShownWarning, setHasShownWarning] = useState(false); // Trạng thái theo dõi modal
-
+  const location = useLocation();
+  const selectedKey = location.pathname.split("/")[2];
   const config = useMemo(
     () => ({
       headers: {
@@ -92,11 +79,11 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
       <Menu
         // theme="dark"
         mode="inline"
-        defaultSelectedKeys={["4"]}
-        // defaultOpenKeys={["sub1"]}
+        defaultSelectedKeys={["mentor-dashboard"]}
+        selectedKeys={[selectedKey]}
         style={{ height: "100%", borderRight: 0, padding: 10 }}
       >
-        <Menu.Item key="4" icon={<DashboardOutlined />}>
+        <Menu.Item key="mentor-dashboard" icon={<DashboardOutlined />}>
           <Link
             onClick={checkUpdate}
             style={{ textDecoration: "none" }}
@@ -106,7 +93,7 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
           </Link>
         </Menu.Item>
         <Menu.Item
-          key="5"
+          key="managegroup"
           style={{ marginLeft: 2 }}
           icon={
             <svg
