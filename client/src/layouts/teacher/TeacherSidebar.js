@@ -80,7 +80,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
         // theme="dark"
         mode="inline"
         selectedKeys={[selectedKey]}
-        defaultOpenKeys={["teacher-dashboard"]}
+        defaultOpenKeys={["dashboard"]}
         style={{
           height: "100%",
           borderRight: 0,
@@ -88,8 +88,8 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           marginTop: "60px",
         }}
       >
-        <Menu.Item key="teacher-dashboard" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="teacher-dashboard">
+        <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
+          <Link style={{ textDecoration: "none" }} to="dashboard">
             Dashboard
           </Link>
         </Menu.Item>
