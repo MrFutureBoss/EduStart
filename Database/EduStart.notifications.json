@@ -1,0 +1,345 @@
+[{
+  "_id": {
+    "$oid": "67429838377fba891e00dce6"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901ee3"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab4f"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:06:32.259Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:06:32.259Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429838377fba891e00dce3"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901edd"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab4f"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:06:32.255Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:06:32.255Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429838377fba891e00dce4"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901edf"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab4f"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:06:32.258Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:06:32.258Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429838377fba891e00dce7"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901eec"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab4f"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:06:32.259Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:06:32.259Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429838377fba891e00dce5"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901ee2"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab4f"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:06:32.259Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:06:32.259Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429d1d377fba891e00df29"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "671828fd3cdaefd84e901ece"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab47"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:27:25.721Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:27:25.721Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429d1d377fba891e00df25"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "671829473cdaefd84e901ed2"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab47"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:27:25.719Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:27:25.719Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429d1d377fba891e00df27"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182c4e3cdaefd84e901ed9"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab47"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:27:25.720Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:27:25.720Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429d1d377fba891e00df28"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182c4e3cdaefd84e901edb"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab47"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:27:25.720Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:27:25.720Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67429d1d377fba891e00df26"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182c4e3cdaefd84e901ed7"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab47"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-24T03:27:25.720Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:27:25.720Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6746ed50fc5f5ad10f95ea49"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901ee0"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab51"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-27T09:58:40.486Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T09:58:40.486Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6746ed50fc5f5ad10f95ea48"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901ede"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab51"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-27T09:58:40.485Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T09:58:40.485Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6746ed50fc5f5ad10f95ea4a"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901ee4"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab51"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-27T09:58:40.486Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T09:58:40.486Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6746ed50fc5f5ad10f95ea4b"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901ee5"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab51"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-27T09:58:40.486Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T09:58:40.486Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6746ed50fc5f5ad10f95ea4c"
+  },
+  "message": "Dự án của nhóm bạn đã được giáo viên duyệt.",
+  "type": "ProjectNotification",
+  "recipient": {
+    "$oid": "67182d383cdaefd84e901ee7"
+  },
+  "isRead": false,
+  "filters": {
+    "groupId": {
+      "$oid": "6735fcc15b00d998a817ab51"
+    }
+  },
+  "createdAt": {
+    "$date": "2024-11-27T09:58:40.487Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T09:58:40.487Z"
+  },
+  "__v": 0
+}]

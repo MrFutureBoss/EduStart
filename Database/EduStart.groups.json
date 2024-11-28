@@ -104,4 +104,109 @@
   "updatedAt": {
     "$date": "2024-11-06T03:27:01.448Z"
   }
+},
+{
+  "_id": {
+    "$oid": "6735fcc15b00d998a817ab47"
+  },
+  "name": "Nhóm 2",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "67429c83377fba891e00dea9"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "createdAt": {
+    "$date": "2024-11-14T13:36:01.203Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-24T03:24:51.800Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6735fcc15b00d998a817ab4b"
+  },
+  "name": "Nhóm 4",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "673d4778c980e7599ecff788"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "createdAt": {
+    "$date": "2024-11-14T13:36:01.657Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-20T02:20:40.695Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6735fcc15b00d998a817ab4d"
+  },
+  "name": "Nhóm 3",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "673d0336cf3cbc126ed87a9f"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "createdAt": {
+    "$date": "2024-11-14T13:36:01.693Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-19T21:29:27.033Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6735fcc15b00d998a817ab4f"
+  },
+  "name": "Nhóm 1",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6737fba00b39dadb6261a2c2"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "createdAt": {
+    "$date": "2024-11-14T13:36:01.723Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T08:11:15.129Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6735fcc15b00d998a817ab51"
+  },
+  "name": "Nhóm 5",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6746ed2efc5f5ad10f95ea07"
+  },
+  "classId": {
+    "$oid": "6717cdc43cdaefd84e901ec2"
+  },
+  "createdAt": {
+    "$date": "2024-11-14T13:36:01.753Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-27T09:58:06.342Z"
+  },
+  "__v": 0
 }]

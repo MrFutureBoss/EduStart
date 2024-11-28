@@ -1,0 +1,110 @@
+[{
+  "_id": {
+    "$oid": "6737fc6c0017e64c6e97cdc4"
+  },
+  "groupId": {
+    "$oid": "6735fcc15b00d998a817ab4f"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-16T01:59:43.423Z"
+  },
+  "matchingMentors": [],
+  "mentorPreferred": [],
+  "status": "Pending",
+  "teacherId": {
+    "$oid": "670bb3642eb65e19740ca591"
+  },
+  "teacherPreferredMentors": [],
+  "updatedAt": {
+    "$date": "2024-11-27T10:04:52.077Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "673d0c6bd1043af664f64dcd"
+  },
+  "groupId": {
+    "$oid": "6735fcc15b00d998a817ab4d"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-16T01:59:43.423Z"
+  },
+  "matchingMentors": [],
+  "mentorPreferred": [],
+  "status": "Pending",
+  "teacherId": {
+    "$oid": "670bb3642eb65e19740ca591"
+  },
+  "teacherPreferredMentors": [],
+  "updatedAt": {
+    "$date": "2024-11-27T10:04:51.836Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "673f4d8545b4942d2b997dc0"
+  },
+  "groupId": {
+    "$oid": "6735fcc15b00d998a817ab4b"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-21T15:10:55.642Z"
+  },
+  "matchingMentors": [],
+  "mentorPreferred": [],
+  "status": "Pending",
+  "teacherId": {
+    "$oid": "670bb3642eb65e19740ca591"
+  },
+  "teacherPreferredMentors": [],
+  "updatedAt": {
+    "$date": "2024-11-27T10:04:51.593Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67429cffaaadcd780f3be809"
+  },
+  "groupId": {
+    "$oid": "6735fcc15b00d998a817ab47"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-24T03:27:39.548Z"
+  },
+  "matchingMentors": [],
+  "mentorPreferred": [],
+  "status": "Pending",
+  "teacherId": {
+    "$oid": "670bb3642eb65e19740ca591"
+  },
+  "teacherPreferredMentors": [],
+  "updatedAt": {
+    "$date": "2024-11-27T10:04:51.458Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6746ed77aaadcd780f3be842"
+  },
+  "groupId": {
+    "$oid": "6735fcc15b00d998a817ab51"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-27T09:59:57.523Z"
+  },
+  "matchingMentors": [],
+  "mentorPreferred": [],
+  "status": "Pending",
+  "teacherId": {
+    "$oid": "670bb3642eb65e19740ca591"
+  },
+  "teacherPreferredMentors": [],
+  "updatedAt": {
+    "$date": "2024-11-27T10:04:52.312Z"
+  }
+}]

@@ -30,7 +30,7 @@ import {
   checkTeacherWithoutClassStatus,
   getAllRequetChangClassAdmin,
 } from "../../../api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SemesterDetailsCard from "../../semester/SemesterDetailsCard";
 import { useDispatch, useSelector } from "react-redux";
 import { setRoleSelect } from "../../../redux/slice/UserSlice";
@@ -62,6 +62,8 @@ const AdminDashboard = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editApiErrors, setEditApiErrors] = useState(null);
   const { semester } = useSelector((state) => state.semester);
+  const checkpage = true;
+  console.log(checkpage);
 
   const jwt = localStorage.getItem("jwt");
 
@@ -211,6 +213,7 @@ const AdminDashboard = () => {
   const tasksList = processTasks();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchClassStatus = async () => {
       try {
         const response = await checkClassStatus();
@@ -218,11 +221,26 @@ const AdminDashboard = () => {
           (classItem) => classItem.status === "chưa đủ"
         );
 
-        if (classesNotFull.length > 0) {
+        if (isMounted && classesNotFull.length > 0) {
           dispatch(
             addAlert({
               type: "warning",
-              message: `Có ${classesNotFull.length} lớp chưa đủ số lượng sinh viên.`,
+              message: (
+                <span
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    navigate("/admin/class-manager", {
+                      state: { filter: "notFull" },
+                    })
+                  }
+                >
+                  Có {classesNotFull.length} lớp chưa đủ số lượng sinh viên.
+                </span>
+              ),
               description: `Các lớp chưa đủ: ${classesNotFull
                 .map(
                   (classItem) =>
@@ -238,7 +256,10 @@ const AdminDashboard = () => {
     };
 
     fetchClassStatus();
-  }, [dispatch]);
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch, navigate]);
 
   useEffect(() => {
     if (taskDetails.studentsWithoutClass > 0) {
@@ -246,8 +267,8 @@ const AdminDashboard = () => {
         addAlert({
           type: "action",
           message: `Có ${taskDetails.studentsWithoutClass} sinh viên chưa có lớp`,
-          description: "Nhấn vào đây để phân lớp",
-          actionRoute: "/admin/pending-users",
+
+          actionRoute: "/admin/class-manager",
           actionText: "Phân lớp",
         })
       );
@@ -414,9 +435,22 @@ const AdminDashboard = () => {
           ) : (
             <Tag color="red">Chưa hoàn thành</Tag>
           )}
+        </span>
+      ),
+    },
+    {
+      title: "Gợi ý",
+      key: "requirementMessage",
+      render: (_, record) => (
+        <span>
           {!record.isBalanced && record.requirementMessage && (
-            <div style={{ color: "red", marginTop: 8, fontSize: "12px" }}>
+            <div style={{ color: "red", fontSize: "13px" }}>
               {record.requirementMessage}
+            </div>
+          )}
+          {record.isBalanced && (
+            <div style={{ color: "green", fontSize: "13px" }}>
+              Công việc này đã hoàn thành.
             </div>
           )}
         </span>
@@ -489,7 +523,8 @@ const AdminDashboard = () => {
           <Row gutter={16} style={{ marginTop: "24px" }}>
             <Col span={12}>
               <Card
-                style={{ height: "300px", overflowY: "auto" }}
+                className="admin-card-custum"
+                style={{ height: "240px", overflowY: "auto" }}
                 title="Thông báo quan trọng"
                 bordered={false}
               >
@@ -511,9 +546,13 @@ const AdminDashboard = () => {
                             style={{ fontSize: "20px", color: "#faad14" }}
                           />
                         }
-                        title={<strong>{alert.message}</strong>}
+                        title={
+                          <strong style={{ fontSize: "13px" }}>
+                            {alert.message}
+                          </strong>
+                        }
                         description={
-                          <span style={{ fontSize: "14px" }}>
+                          <span style={{ fontSize: "13px" }}>
                             {alert.description}
                           </span>
                         }
@@ -536,7 +575,8 @@ const AdminDashboard = () => {
 
             <Col span={12}>
               <Card
-                style={{ height: "300px", overflowY: "auto" }}
+                className="admin-card-custum"
+                style={{ height: "240px", overflowY: "auto" }}
                 title="Việc cần làm"
                 bordered={false}
               >
@@ -571,9 +611,13 @@ const AdminDashboard = () => {
                             style={{ fontSize: "24px", color: "#faad14" }}
                           />
                         }
-                        title={<strong>{alert.message}</strong>}
+                        title={
+                          <strong style={{ fontSize: "13px" }}>
+                            {alert.message}
+                          </strong>
+                        }
                         description={
-                          <span style={{ fontSize: "14px" }}>
+                          <span style={{ fontSize: "13px" }}>
                             {alert.description}
                           </span>
                         }
@@ -598,6 +642,7 @@ const AdminDashboard = () => {
           <Row gutter={16} style={{ marginTop: "24px" }}>
             <Col span={24}>
               <Card
+                className="admin-card-custum"
                 title="Công việc cần làm khi có kỳ học mới"
                 bordered={false}
               >

@@ -224,7 +224,6 @@ const GroupMembers = () => {
 
   return (
     <div>
-      <h3 className="header-content-group-detail">Thông tin nhóm</h3>
       <div className="group-members-container">
         <div className="group-members-content">
           {groupDetails?.project && (

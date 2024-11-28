@@ -19,8 +19,17 @@ import {
   Badge,
   Menu,
   Dropdown,
+  Image,
+  Statistic,
 } from "antd";
-import { PlusOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EyeOutlined,
+  TeamOutlined,
+  UserOutlined,
+  SolutionOutlined,
+  CheckOutlined,
+} from "@ant-design/icons";
 import Search from "antd/es/input/Search";
 import ConfirmButton from "../../components/Button/ConfirmButton";
 import "../../style/Admin/ManagerClass.css";
@@ -28,7 +37,7 @@ import { setPendingUsers } from "../../redux/slice/semesterSlide";
 import { BASE_URL } from "../../utilities/initalValue";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CustomButton from "../../components/Button/Button";
 import CancelButton from "../../components/Button/CancelButton";
 import SwapClassModal from "../semester/userModel/SwapClassModal";
@@ -39,6 +48,7 @@ const { Option } = Select;
 
 const ClassManager = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const [selectedDropdown, setSelectedDropdown] = useState(null);
   const [swappedStudents, setSwappedStudents] = useState([]);
   const jwt = localStorage.getItem("jwt");
@@ -830,6 +840,12 @@ const ClassManager = () => {
     setMatchedStudents(matchedStudentIds);
   };
 
+  useEffect(() => {
+    if (location.state?.filter) {
+      setFilter(location.state.filter); // Lấy filter từ state truyền vào
+    }
+  }, [location.state]);
+
   // Phân trang danh sách lớp
   const indexOfLastClass = currentClassPage * classesPerPage;
   const indexOfFirstClass = indexOfLastClass - classesPerPage;
@@ -898,6 +914,164 @@ const ClassManager = () => {
   return (
     <Layout>
       <Content style={{ marginTop: "24px" }}>
+        <Row
+          gutter={[16, 16]}
+          style={{ marginBottom: "16px", backgroundColor: "rgb(238 238 238)" }}
+        >
+          <Col
+            style={{
+              backgroundColor: "rgb(238 238 238)",
+              padding: 9,
+              marginTop: -18,
+            }}
+            span={24}
+          >
+            <Row gutter={[16, 16]}>
+              <Col span={6}>
+                <Card
+                  bodyStyle={{ padding: "8px" }}
+                  style={{
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <TeamOutlined
+                      style={{
+                        fontSize: "18px",
+                        color: "#3f8600",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                      Tổng số lớp học:
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#3f8600",
+                        marginLeft: 5,
+                      }}
+                    >
+                      {classes.length}
+                    </span>
+                  </div>
+                </Card>
+              </Col>
+              <Col span={6}>
+                <Card
+                  bodyStyle={{ padding: "8px" }}
+                  style={{
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <UserOutlined
+                      style={{
+                        fontSize: "18px",
+                        color: "#cf1322",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                      Sinh viên chưa có lớp:
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#cf1322",
+                        marginLeft: 5,
+                      }}
+                    >
+                      {unassignedStudents.length}
+                    </span>
+                  </div>
+                </Card>
+              </Col>
+              <Col span={6}>
+                <Card
+                  bodyStyle={{ padding: "8px" }}
+                  style={{
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <SolutionOutlined
+                      style={{
+                        fontSize: "18px",
+                        color: "#1890ff",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                      Sinh viên đã được gợi ý:
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#1890ff",
+                        marginLeft: 5,
+                      }}
+                    >
+                      {classes.reduce(
+                        (total, classItem) =>
+                          total + classItem.suggestedStudents.length,
+                        0
+                      )}
+                    </span>
+                  </div>
+                </Card>
+              </Col>
+              <Col span={6}>
+                <Card
+                  bodyStyle={{ padding: "8px" }}
+                  style={{
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <CheckOutlined
+                      style={{
+                        fontSize: "18px",
+                        color: "#faad14",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                      Lớp đã đủ sinh viên:
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#faad14",
+                        marginLeft: 5,
+                      }}
+                    >
+                      {
+                        classes.filter(
+                          (classItem) =>
+                            classItem.studentCount >= classItem.limit
+                        ).length
+                      }
+                    </span>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+
         {/* Header với bộ lọc và tìm kiếm */}
         <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
           <Col span={18}>
@@ -1033,11 +1207,42 @@ const ClassManager = () => {
                           Số sinh viên hiện tại: {classItem.studentCount}/
                           {classItem.limit}
                         </p>
-                        <p style={{ fontSize: "13px", marginBottom: 5 }}>
-                          Số sinh viên gợi ý:{" "}
-                          {classItem.suggestedStudents.length}
-                        </p>
-
+                        {!searchValue ? (
+                          classItem.suggestedStudents.length > 0 ? (
+                            <p style={{ fontSize: "13px", marginBottom: 5 }}>
+                              Số sinh viên gợi ý:{" "}
+                              {classItem.suggestedStudents.length}
+                            </p>
+                          ) : classItem.studentCount >= classItem.limit ? (
+                            <div
+                              style={{
+                                display: "grid",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginTop: 46,
+                              }}
+                            >
+                              <Image
+                                width={110}
+                                src="https://cdn-icons-png.flaticon.com/512/190/190411.png" // URL của hình ảnh thông báo lớp đầy
+                                alt="Class Full"
+                                preview={false}
+                                style={{ opacity: 0.7 }}
+                              />
+                              <p
+                                style={{
+                                  marginTop: 19,
+                                  fontWeight: 500,
+                                  color: "#53BC99",
+                                  position: "relative",
+                                  left: -4,
+                                }}
+                              >
+                                Lớp đã đủ sinh viên!
+                              </p>
+                            </div>
+                          ) : null
+                        ) : null}
                         {/* Hiển thị danh sách sinh viên trong lớp chỉ khi có tìm kiếm */}
                         {searchValue && (
                           <div className="student-suggest-list">
@@ -1411,6 +1616,7 @@ const ClassManager = () => {
               }}
             >
               <Card
+                style={{ minWidth: 291 }}
                 className="student-without-class-card"
                 title={<>Sinh viên chưa có lớp </>}
               >
@@ -1588,8 +1794,8 @@ const ClassManager = () => {
                           }}
                           style={{
                             position: "relative",
-                            top: "16px",
-                            right: "16px",
+                            top: "-8px",
+                            right: "-389px",
                           }}
                         />
                       )}

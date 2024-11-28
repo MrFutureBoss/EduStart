@@ -1,0 +1,143 @@
+[{
+  "_id": {
+    "$oid": "6737fb7d0017e64c6e978a6f"
+  },
+  "projectId": {
+    "$oid": "6737fba00b39dadb6261a2c2"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-16T01:55:44.364Z"
+  },
+  "professionId": [
+    {
+      "$oid": "6702db8d694a3a03a306e326"
+    },
+    {
+      "$oid": "67096033f61773522abe6736"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67096033f61773522abe6734"
+    },
+    {
+      "$oid": "6710069550b43dfad026530e"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-11-18T14:28:20.174Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "673d031445b4942d2b997db7"
+  },
+  "projectId": {
+    "$oid": "673d0336cf3cbc126ed87a9f"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-19T21:29:27.071Z"
+  },
+  "professionId": [
+    {
+      "$oid": "6702db8d694a3a03a306e326"
+    },
+    {
+      "$oid": "6706a7584a9a02e60c8ec67d"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "6710069550b43dfad026530e"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-11-19T21:29:27.071Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "673d475645b4942d2b997db8"
+  },
+  "projectId": {
+    "$oid": "673d4778c980e7599ecff788"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-20T02:20:40.733Z"
+  },
+  "professionId": [
+    {
+      "$oid": "6715dd20e3b96d4ba609da55"
+    },
+    {
+      "$oid": "67097cdff61773522abe715d"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "6715dd20e3b96d4ba609da4f"
+    },
+    {
+      "$oid": "6715dd20e3b96d4ba609da50"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-11-20T02:20:40.733Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67429c58aaadcd780f3be808"
+  },
+  "projectId": {
+    "$oid": "67429c83377fba891e00dea9"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-24T03:24:51.828Z"
+  },
+  "professionId": [
+    {
+      "$oid": "6702db8d694a3a03a306e326"
+    },
+    {
+      "$oid": "671546a64d0d2f0baa0b006f"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "6710069550b43dfad026530e"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-11-24T03:25:07.693Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6746ed07aaadcd780f3be841"
+  },
+  "projectId": {
+    "$oid": "6746ed2efc5f5ad10f95ea07"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-27T09:58:06.372Z"
+  },
+  "professionId": [
+    {
+      "$oid": "670974aff61773522abe6f36"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "670974aff61773522abe6f30"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-11-27T09:58:10.945Z"
+  }
+}]

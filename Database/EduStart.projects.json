@@ -1,118 +1,80 @@
 [{
   "_id": {
-    "$oid": "671e0743f00e69b600bbfbcb"
+    "$oid": "6737fba00b39dadb6261a2c2"
   },
-  "name": "Data Science Project",
-  "description": "A project focused on data science applications.",
-  "status": "InProgress"
-},
-{
-  "_id": {
-    "$oid": "671e0743f00e69b600bbfbcc"
-  },
-  "name": "Web Development Project",
-  "description": "Building a responsive web application.",
+  "name": "Bánh tráng trộn Catsky",
+  "description": "Buôn xỉ bánh tráng khắp đại lý khu vực Hà Nội",
   "status": "InProgress",
-  "updatedAt": {
-    "$date": "2024-11-05T09:15:43.216Z"
+  "declineMessage": "",
+  "createdAt": {
+    "$date": "2024-11-16T01:55:44.288Z"
   },
-  "declineMessage": "a"
+  "updatedAt": {
+    "$date": "2024-11-24T03:06:32.119Z"
+  },
+  "__v": 0
 },
 {
   "_id": {
-    "$oid": "671e0743f00e69b600bbfbc0"
+    "$oid": "673d0336cf3cbc126ed87a9f"
   },
-  "name": "Data Science 1",
-  "description": "A project focused on data science applications.",
-  "status": "Decline",
+  "name": "Nến thơm Beauty Girl",
+  "description": "Dự án bán nến thơm trên nền tảng mạng xã hội\nĐối tượng: khách hàng nữ giới\nPhạm vi: Việt Nam",
+  "status": "InProgress",
+  "declineMessage": "",
+  "createdAt": {
+    "$date": "2024-11-19T21:29:26.983Z"
+  },
   "updatedAt": {
-    "$date": "2024-11-05T09:57:17.977Z"
-  }
+    "$date": "2024-11-19T21:30:10.499Z"
+  },
+  "__v": 0
 },
 {
   "_id": {
-    "$oid": "6729f80f661eab2247cbbe14"
+    "$oid": "673d4778c980e7599ecff788"
   },
-  "name": "Data Science 21",
-  "description": "A project focused on data science applications.",
-  "status": "Changing",
-  "updatedAt": {
-    "$date": "2024-11-06T14:16:13.665Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "672ae1c8c6214f6511936d11"
-  },
+  "name": "Phần mềm theo dõi sức khỏe gia đình",
+  "description": "Dự án về phần mềm tích hợp AI, giúp hỗ trợ các gia đình có trẻ con nhỏ hoặc người lớn tuổi theo dõi tình hình sức khỏe qua đồng hồ thông minh thế hệ mới.",
   "status": "Planning",
   "declineMessage": "",
   "createdAt": {
-    "$date": "2024-11-06T03:26:00.884Z"
+    "$date": "2024-11-20T02:20:40.642Z"
   },
   "updatedAt": {
-    "$date": "2024-11-06T03:26:00.884Z"
+    "$date": "2024-11-20T02:21:10.721Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "672ae1e9adff98fe341ec6f7"
+    "$oid": "67429c83377fba891e00dea9"
   },
+  "name": "Dog meat Trieu Khuc",
+  "description": "Dự án quảng bá thịt chó cho anh em quốc tế",
   "status": "Planning",
   "declineMessage": "",
   "createdAt": {
-    "$date": "2024-11-06T03:26:33.598Z"
+    "$date": "2024-11-24T03:24:51.766Z"
   },
   "updatedAt": {
-    "$date": "2024-11-06T03:26:33.598Z"
+    "$date": "2024-11-24T03:27:25.610Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "672ae205c0f39056de696238"
+    "$oid": "6746ed2efc5f5ad10f95ea07"
   },
+  "name": "Găng tay bóng đá Hoàng Sơn",
+  "description": "Dự án bán găng tay bóng đá chất lượng cao sản xuất tại Việt Nam",
   "status": "InProgress",
   "declineMessage": "",
   "createdAt": {
-    "$date": "2024-11-06T03:27:01.437Z"
+    "$date": "2024-11-27T09:58:06.304Z"
   },
   "updatedAt": {
-    "$date": "2024-11-06T12:56:36.971Z"
-  },
-  "__v": 0,
-  "description": "Updated project description.",
-  "name": "Updated Project Name"
-},
-{
-  "_id": {
-    "$oid": "672b3e9564b5433eec4f26b9"
-  },
-  "name": "Hương Sắc 34",
-  "description": "Bán túi thơm",
-  "status": "InProgress",
-  "declineMessage": "",
-  "createdAt": {
-    "$date": "2024-11-06T10:01:57.481Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-06T12:56:09.289Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67317c7a94d7bf6366070f89"
-  },
-  "name": "Hương Sắc 3",
-  "description": "hoa thơm trái ngọt đậu trên cành",
-  "status": "InProgress",
-  "declineMessage": "",
-  "createdAt": {
-    "$date": "2024-11-11T03:39:38.807Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-11T08:27:21.524Z"
+    "$date": "2024-11-27T09:58:40.375Z"
   },
   "__v": 0
 }]
