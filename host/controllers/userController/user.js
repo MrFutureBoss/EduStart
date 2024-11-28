@@ -197,6 +197,36 @@ const patchUser = async (req, res) => {
   }
 };
 
+const editUserProfile = async (req, res) => {
+  const userId = req.user._id; // ID người dùng từ token
+  const updateData = req.body; // Dữ liệu cập nhật từ request body
+
+  try {
+    // Kiểm tra nếu không có dữ liệu cập nhật
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No update data provided" });
+    }
+
+    // Lấy thông tin người dùng hiện tại
+    const existingUser = await userDAO.findUserById(userId);
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Cập nhật thông tin người dùng
+    const updatedUser = await userDAO.updateInfoUserById(userId, updateData);
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error in editUserProfile:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
 export default {
   getUserLogin,
   forgotPassword,
@@ -207,5 +237,5 @@ export default {
   updateUser,
   getAllStudentByClassId,
   patchUser,
-
+  editUserProfile,
 };

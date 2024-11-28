@@ -9,6 +9,7 @@ import AdminDashboard from "../../pages/admin/Dashboard/AdminDashboard";
 import TransferRequestManagement from "../../pages/admin/Dashboard/TransferRequestManager";
 import ClassManager from "../../pages/admin/ManagerClass";
 import ClassDetail from "../../pages/admin/ClassDetail";
+import UserProfile from "../../pages/UserProfile";
 const AdminRouter = () => {
   return (
     <Route
@@ -34,8 +35,10 @@ const AdminRouter = () => {
         element={<UserListSemester />}
       />
       <Route path="professionmanagement" element={<ProfessionManagement />} />
+
       <Route path="class-manager" element={<ClassManager />} />
       <Route path="class-manager/class-detail/:id" element={<ClassDetail />} />
+      <Route path="profile" element={<UserProfile />} />
     </Route>
   );
 };

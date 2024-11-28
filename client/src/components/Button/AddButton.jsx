@@ -2,14 +2,15 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import React from "react";
 
-const AddButton = ({ content, onClick, disable }) => {
+const AddButton = ({ key, content, onClick, disabled, style }) => {
   return (
     <Button
-      style={{ height: "2.2rem" }}
+      style={style}
       color="primary"
       variant="solid"
-      disable={disable}
+      disable={disabled}
       onClick={onClick}
+      key={key}
     >
       <PlusOutlined />
       {content}
