@@ -203,31 +203,37 @@ const CustomCalendar = ({ selectedEvent }) => {
             flexDirection: "column",
             display: "flex",
             alignItems: "start",
-            justifyContent: "center",
+            justifyContent: "space-evenly",
             fontWeight: "600",
-            padding: "10px 8px",
+            padding: "0.55rem 0.5rem",
             backgroundColor: isPastEvent
               ? "grey"
               : isSelectedEvent
               ? "#bdd8ee" // Nhóm bạn chọn
               : isCurrentEvent
               ? "#C7E6C1" // Nhóm khác bạn chọn
-              : "#e4e0c2",// Cuộc họp đã qua
+              : "#e4e0c2", // Cuộc họp đã qua
             cursor: "pointer",
           }}
           onClick={() => HandleOpenSchedule(event.id, event.group)}
         >
-          <span style={{ fontSize: "0.9rem", fontWeight: "bold" }}>
-            {event.group}
-          </span>
-          <span
-            style={{ fontSize: "0.8rem", fontWeight: "400", marginTop: "3px" }}
-          >
-            {truncateText(event.title, 20)}
-          </span>
+          <div style={{ lineHeight: "1.2rem" }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: "bold" }}>
+              {event.group}
+            </span>
+            <br />
+            <span
+              style={{
+                fontSize: "0.74rem",
+                fontWeight: "400",
+                marginTop: "3px",
+              }}
+            >
+              {truncateText(event.title, 20)}
+            </span>
+          </div>
           <div
             style={{
-              marginTop: "5px",
               display: "flex",
               textAlign: "center",
               gap: "10px",
@@ -236,12 +242,12 @@ const CustomCalendar = ({ selectedEvent }) => {
             <Tag
               color={isPastEvent ? "#a5a6a8" : "#008000"}
               style={{
-                fontSize: "0.7rem",
+                fontSize: "0.6rem",
                 fontWeight: "600",
-                color: "#FFF",
+                color: isPastEvent ? "grey" : "#FFF",
                 borderRadius: "4px",
                 margin: "0px",
-                padding: "0px 5px",
+                padding: "0px 0.2rem",
               }}
             >
               {moment(event.start).format("HH:mm")} -{" "}
@@ -251,9 +257,10 @@ const CustomCalendar = ({ selectedEvent }) => {
               color={isPastEvent ? "#a5a6a8" : "#EC9A26"}
               style={{
                 cursor: "pointer",
-                fontSize: "0.8rem",
+                fontSize: "0.7rem",
                 margin: "0px",
-                padding: "0px 5px",
+                padding: "0px 0.2rem",
+                color: isPastEvent ? "grey" : "#FFF",
               }}
               onClick={() => openMeet()}
             >
