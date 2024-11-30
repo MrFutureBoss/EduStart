@@ -53,7 +53,7 @@ adminRouter.get(
   adminController.fetchFullClasses
 );
 adminRouter.get(
-  "/teachers-list",
+  "/teachers-list/:semesterId",
   verifyAccessToken,
   verifyRole([1]),
   adminController.fetchTeachers

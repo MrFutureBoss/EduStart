@@ -35,32 +35,38 @@ semesterRouter.get(
   semesterController.getCurrentSemesterController
 );
 semesterRouter.get(
+  "/:semesterId/detail",
+  verifyAccessToken,
+  verifyRole([1, 2]),
+  semesterController.getSemesterDetail
+);
+semesterRouter.get(
   "/check-semester-status",
   verifyAccessToken,
   semesterController.checkSemesterStatus
 );
 semesterRouter.get(
-  "/check-teachers",
+  "/check-teachers/:semesterId",
   verifyAccessToken,
   semesterController.checkTeachersInSemester
 );
 semesterRouter.get(
-  "/check-mentors",
+  "/check-mentors/:semesterId",
   verifyAccessToken,
   semesterController.checkMentorsInSemester
 );
 semesterRouter.get(
-  "/check-students",
+  "/check-students/:semesterId",
   verifyAccessToken,
   semesterController.checkStudentsInSemester
 );
 semesterRouter.get(
-  "/check-students-pending",
+  "/check-students-pending/:semesterId",
   verifyAccessToken,
   semesterController.checkStudentsInSemesterStatus
 );
 semesterRouter.get(
-  "/check-class-capacity",
+  "/check-class-capacity/:semesterId",
   verifyAccessToken,
   semesterController.checkClassCapacity
 );

@@ -307,20 +307,18 @@ const findStudentsInSemester = async (semesterId) => {
 const findStudentsInSemesterStatus = async (semesterId) => {
   return User.find({
     role: 4,
-    status: "Pending",
     semesterId: semesterId,
-  });
+    $or: [
+      { classId: { $exists: false } }, // classId không tồn tại
+      { classId: null }, // hoặc classId là null
+    ],
+  }).populate("semesterId"); // Populates semester details
 };
 
-const getClassCapacityStatus = async () => {
+const getClassCapacityStatus = async (semesterId) => {
   try {
-    const currentSemester = await Semester.findOne({ status: "Ongoing" });
-
-    if (!currentSemester) {
-      throw new Error("Không tìm thấy kỳ học hiện tại.");
-    }
     const classes = await Class.find({
-      semesterId: currentSemester._id,
+      semesterId,
     }).lean();
 
     const classesStatus = await Promise.all(
@@ -346,24 +344,18 @@ const getClassCapacityStatus = async () => {
   }
 };
 
-const findTeachersWithoutClass = async () => {
+const findTeachersWithoutClass = async (semesterId) => {
   try {
-    const currentSemester = await Semester.findOne({ status: "Ongoing" });
-
-    if (!currentSemester) {
-      throw new Error("Không tìm thấy kỳ học hiện tại.");
-    }
-
     const teachersInCurrentSemester = await User.find({
       role: "2",
-      semesterId: currentSemester._id,
+      semesterId,
     })
       .select("_id username")
       .lean();
 
     const teachersWithClasses = (
       await Class.distinct("teacherId", {
-        semesterId: currentSemester._id,
+        semesterId: semesterId,
       })
     ).map((id) => id.toString());
 
@@ -392,6 +384,38 @@ const getTeachersInCurrentSemester = async (semesterId) => {
     throw error;
   }
 };
+const getSemesterByStatus = async (status) => {
+  try {
+    return await Semester.findOne({ status });
+  } catch (error) {
+    throw new Error("Error fetching semester by status");
+  }
+};
+const getSemesterById = async (semesterId) => {
+  try {
+    const semester = await Semester.findOne({ _id: semesterId });
+    if (!semester) {
+      throw new Error("Kỳ học không tồn tại.");
+    }
+    return semester;
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin kỳ học:", error);
+    throw new Error(error.message || "Không thể lấy thông tin kỳ học.");
+  }
+};
+
+const updateClassStatusBySemesterId = async (semesterId, status) => {
+  try {
+    const result = await Class.updateMany(
+      { semesterId }, // Điều kiện: Các lớp thuộc kỳ học
+      { $set: { status } } // Cập nhật trạng thái
+    );
+    return result; // Trả về kết quả cập nhật
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái lớp học:", error);
+    throw new Error("Lỗi khi cập nhật trạng thái lớp học.");
+  }
+};
 export default {
   createSemester,
   getAllSemesters,
@@ -412,4 +436,7 @@ export default {
   getClassCapacityStatus,
   findTeachersWithoutClass,
   getTeachersInCurrentSemester,
+  getSemesterByStatus,
+  updateClassStatusBySemesterId,
+  getSemesterById,
 };

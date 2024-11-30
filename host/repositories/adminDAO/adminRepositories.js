@@ -103,7 +103,14 @@ const assignStudentToClass = async (userId, classId) => {
 };
 
 const findFullClassUsers = async (semesterId) => {
-  return await User.find({ semesterId, status: "Pending" }).lean();
+  return await User.find({
+    semesterId,
+    role: 4,
+    $or: [
+      { classId: { $exists: false } }, // classId không tồn tại
+      { classId: null }, // hoặc classId là null
+    ],
+  }).lean();
 };
 
 const findUserByRollNumber = async (rollNumber) => {

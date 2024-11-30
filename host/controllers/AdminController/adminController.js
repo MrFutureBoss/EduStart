@@ -855,10 +855,10 @@ const getPendingUsers = async (req, res) => {
 const createClass = async (req, res) => {
   try {
     const { className, limitStudent, teacherId, semesterId } = req.body;
-    const classExits = await classDAO.isClassNameExist(className);
+    const classExits = await classDAO.isClassNameExist(className, semesterId);
     if (classExits) {
       return res.status(400).json({
-        field: "className",
+        field: "className", // Chỉ rõ trường gặp lỗi
         message: `Tên lớp: ${className} đã tồn tại trong hệ thống.`,
       });
     }
@@ -871,7 +871,7 @@ const createClass = async (req, res) => {
     });
     res.status(201).json(savedClass);
   } catch (error) {
-    console.error(error);
+    console.error("Error in createClass:", error);
     res
       .status(500)
       .json({ message: "An error occurred while creating the class" });
@@ -896,13 +896,22 @@ const fetchFullClasses = async (req, res) => {
 };
 
 const fetchTeachers = async (req, res) => {
-  try {
-    const teachers = await classDAO.getTeachersWithClassCount();
+  const { semesterId } = req.params;
 
-    res.status(200).json({ teachers });
+  // Check if semesterId is provided
+  if (!semesterId) {
+    return res.status(400).json({
+      message: "semesterId is required.",
+    });
+  }
+
+  try {
+    const teachers = await classDAO.getTeachersWithClassCount(semesterId);
+
+    return res.status(200).json({ teachers });
   } catch (error) {
     console.error("Error in fetchTeachers:", error);
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: "Error fetching teachers." });
   }
 };
 

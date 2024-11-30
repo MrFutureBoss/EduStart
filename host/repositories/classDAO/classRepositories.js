@@ -82,13 +82,15 @@ const createClass = async ({
   return await newClass.save();
 };
 
-const isClassNameExist = async (className) => {
+const isClassNameExist = async (className, semesterId) => {
   try {
-    const existingClass = await Class.findOne({ className });
+    const existingClass = await Class.findOne({ className, semesterId });
 
     return existingClass !== null;
   } catch (error) {
-    console.error(`Error checking class name existence: ${error.message}`);
+    console.error(
+      `Lỗi khi kiểm tra sự tồn tại của tên lớp học: ${error.message}`
+    );
     throw new Error(error.message);
   }
 };
@@ -122,17 +124,11 @@ const getFullClasses = async (semesterId) => {
   }
 };
 
-const getTeachersWithClassCount = async () => {
+const getTeachersWithClassCount = async (semesterId) => {
   try {
-    const currentSemester = await Semester.findOne({ status: "Ongoing" });
-
-    if (!currentSemester) {
-      throw new Error("No ongoing semester found");
-    }
-
     const teachers = await User.find({
       role: 2,
-      semesterId: currentSemester._id,
+      semesterId,
     }).select("username email");
 
     const teachersWithClassCount = await Promise.all(

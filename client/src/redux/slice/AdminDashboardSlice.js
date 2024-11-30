@@ -17,6 +17,7 @@ const initialState = {
     studentCount: 0,
     pendingStudentCount: 0,
     studentsWithoutClass: 0,
+    status: "",
   },
   alerts: [],
   isLoading: false,
