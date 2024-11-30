@@ -48,7 +48,6 @@ const LastConfirmGroup = ({ close, show }) => {
       // Thực hiện POST đầu tiên
       const firstPostResponse = await axios.post(
         `${BASE_URL}/tempgroup/offical-group/${classId}`,
-        null,
         config
       );
   
@@ -56,7 +55,6 @@ const LastConfirmGroup = ({ close, show }) => {
         // Nếu POST đầu tiên thành công, thực hiện POST thứ hai
         const secondPostResponse = await axios.post(
           `${BASE_URL}/tempgroup/students/${classId}`,
-          null,
           config
         );
   

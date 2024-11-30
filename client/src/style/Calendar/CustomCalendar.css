@@ -112,3 +112,7 @@ div .rbc-event-content {
 .rbc-toolbar {
   padding-top: 1rem;
 }
+
+.rbc-current-time-indicator {
+  display: none;
+}

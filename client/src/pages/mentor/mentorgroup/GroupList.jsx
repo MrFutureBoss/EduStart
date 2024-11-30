@@ -442,14 +442,14 @@ const GroupList = () => {
                         alignItems: "center",
                       }}
                     >
-                      <h4 style={{ margin: "0px", fontSize: "18px" }}>
+                      <h4 style={{ margin: "0px", fontSize: "1.1rem" }}>
                         Lớp {group.class.className} - {group.group.name}
                       </h4>
                     </div>
-                    <p style={{ marginBottom: "4px" }}>
+                    <p style={{ marginBottom: "4px",  fontSize: "0.8rem" }}>
                       Dự án {group.project.name}
                     </p>
-                    <p>
+                    <p style={{ marginBottom: "4px",  fontSize: "0.8rem" }}>
                       Thể loại dự án:{" "}
                       {group.projectCategory?.profession.map((profession) => (
                         <Tag
