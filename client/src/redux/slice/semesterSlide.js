@@ -3,6 +3,14 @@ function getInitialMaxStudentsPerClass() {
   const savedMaxStudents = localStorage.getItem("maxStudentsPerClass");
   return savedMaxStudents ? JSON.parse(savedMaxStudents) : 32;
 }
+export const removeAlert = (message) => (dispatch, getState) => {
+  const { alerts } = getState().adminDashboard;
+  const filteredAlerts = alerts.filter((alert) => alert.message !== message);
+  dispatch({
+    type: "REMOVE_ALERT",
+    payload: filteredAlerts,
+  });
+};
 
 const initialValue = {
   semesters: [],
@@ -37,6 +45,7 @@ const initialValue = {
   teachersWithoutClasses: [],
   mentorsWithMatch: [],
   mentorsWithoutMatch: [],
+  isChangeSemester: false,
 };
 
 const semesterSlice = createSlice({
@@ -106,6 +115,9 @@ const semesterSlice = createSlice({
     setFullClassesList: (state, action) => {
       state.fullClassesList = action.payload;
     },
+    setIsChangeSemester: (state, action) => {
+      state.isChangeSemester = action.payload;
+    },
     setMaxStudentsPerClass(state, action) {
       state.maxStudentsPerClass = action.payload;
       localStorage.setItem(
@@ -133,5 +145,6 @@ export const {
   setFullClassesList,
   setMaxStudentsPerClass,
   setDetailSemester,
+  setIsChangeSemester,
 } = actions;
 export default reducer;

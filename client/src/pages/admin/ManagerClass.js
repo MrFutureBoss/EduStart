@@ -29,11 +29,17 @@ import {
   UserOutlined,
   SolutionOutlined,
   CheckOutlined,
+  IssuesCloseOutlined,
+  UpCircleOutlined,
 } from "@ant-design/icons";
 import Search from "antd/es/input/Search";
 import ConfirmButton from "../../components/Button/ConfirmButton";
 import "../../style/Admin/ManagerClass.css";
-import { setPendingUsers } from "../../redux/slice/semesterSlide";
+import {
+  setIsChangeSemester,
+  setPendingUsers,
+  setSid,
+} from "../../redux/slice/semesterSlide";
 import { BASE_URL } from "../../utilities/initalValue";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,6 +48,11 @@ import CustomButton from "../../components/Button/Button";
 import CancelButton from "../../components/Button/CancelButton";
 import SwapClassModal from "../semester/userModel/SwapClassModal";
 import TransferClassModal from "../semester/userModel/TransferClassModal";
+import {
+  setClasses,
+  setUnassignedStudents,
+} from "../../redux/slice/ClassManagementSlice";
+import SmallModal from "../../components/Modal/SmallModal";
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -57,7 +68,6 @@ const ClassManager = () => {
   const [transferModalVisible, setTransferModalVisible] = useState(false);
   const [swapModalVisible, setSwapModalVisible] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false); // Trạng thái đang tải dữ liệu
-
   const config = useMemo(
     () => ({
       headers: {
@@ -68,9 +78,13 @@ const ClassManager = () => {
     [jwt]
   );
 
-  const { currentSemester, pendingUsers, usersInSmt } = useSelector(
+  const { currentSemester, sid, semester, isChangeSemester } = useSelector(
     (state) => state.semester
   );
+  const { classes, unassignedStudents } = useSelector(
+    (state) => state.classManagement
+  );
+  console.log("semester", semester);
 
   const handleStudentAction = (action, student) => {
     setSelectedStudent(student);
@@ -80,10 +94,6 @@ const ClassManager = () => {
       setSwapModalVisible(true);
     }
   };
-  // State để quản lý danh sách lớp và sinh viên chưa có lớp
-  const [classes, setClasses] = useState([]);
-  const [unassignedStudents, setUnassignedStudents] = useState([]);
-
   // State quản lý loading và error
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -102,6 +112,7 @@ const ClassManager = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [teachersList, setTeachersList] = useState([]);
   const [form] = Form.useForm();
+  const [isModal, setIsModal] = useState(false);
 
   // State để kiểm soát việc gợi ý sinh viên
   const [suggestionTriggered, setSuggestionTriggered] = useState(false);
@@ -132,10 +143,10 @@ const ClassManager = () => {
   };
 
   // Hàm để lấy danh sách giáo viên
-  const fetchTeachers = useCallback(async () => {
+  const fetchTeachersOtherSemeter = useCallback(async () => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/admins/teachers-list`,
+        `${BASE_URL}/admins/teachers-list/${sid}`,
         config
       );
       setTeachersList(response.data.teachers);
@@ -143,7 +154,7 @@ const ClassManager = () => {
       message.error("Lỗi khi lấy danh sách giáo viên.");
       console.error("Error fetching teachers:", error);
     }
-  }, [config]);
+  }, [config, sid]);
 
   // Gọi API để lấy danh sách lớp học
   const fetchClasses = useCallback(async () => {
@@ -153,7 +164,7 @@ const ClassManager = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `${BASE_URL}/class/all-class/${currentSemester._id}`,
+        `${BASE_URL}/class/all-class/${sid}`,
         config
       );
 
@@ -168,7 +179,7 @@ const ClassManager = () => {
         suggestedStudents: [], // Đảm bảo có mảng suggestedStudents
       }));
 
-      setClasses(fetchedClasses);
+      dispatch(setClasses(fetchedClasses));
       setSuggestionTriggered(false); // Reset flag để gợi ý lại nếu cần
     } catch (err) {
       console.error("Error fetching classes:", err);
@@ -176,102 +187,125 @@ const ClassManager = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentSemester, config]);
+  }, [currentSemester, config, sid]);
+  console.log("sid", sid);
 
   // Gọi API để lấy danh sách sinh viên chưa có lớp
   const fetchPendingUsers = useCallback(async () => {
-    if (!currentSemester || !currentSemester._id) return;
-
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(
-        `${BASE_URL}/admins/pending-user/${currentSemester._id}`,
-        config
-      );
-      console.log("Pending Users from API:", response.data.pendingUsers);
+      if (!sid) {
+        const semesterData = await axios.get(
+          `${BASE_URL}/semester/current`,
+          config
+        );
+        const semester = semesterData.data;
+        dispatch(setSid(semester._id));
+        const response = await axios.get(
+          `${BASE_URL}/admins/pending-user/${semester._id}`,
+          config
+        );
 
-      dispatch(setPendingUsers(response.data.pendingUsers));
-      setUnassignedStudents(response.data.pendingUsers);
-      setSuggestionTriggered(false); // Reset flag để gợi ý lại nếu cần
+        dispatch(setPendingUsers(response.data.pendingUsers));
+        dispatch(setUnassignedStudents(response.data.pendingUsers));
+        setSuggestionTriggered(false);
+      } else {
+        const response = await axios.get(
+          `${BASE_URL}/admins/pending-user/${sid}`,
+          config
+        );
+
+        dispatch(setPendingUsers(response.data.pendingUsers));
+        dispatch(setUnassignedStudents(response.data.pendingUsers));
+        setSuggestionTriggered(false); // Reset flag để gợi ý lại nếu cần
+      }
     } catch (err) {
       console.error("Error fetching pending users:", err);
       setError("Không thể tải danh sách sinh viên chưa có lớp.");
     } finally {
       setLoading(false);
     }
-  }, [currentSemester, dispatch, config]);
+  }, [dispatch, config, sid]);
 
   // Gọi API để lấy danh sách giáo viên khi component mount hoặc khi config thay đổi
   useEffect(() => {
-    fetchTeachers();
-  }, [fetchTeachers]);
-
-  // Gọi API để lấy danh sách lớp khi component mount hoặc khi semester thay đổi
-  useEffect(() => {
-    fetchClasses();
+    fetchClasses(); // Gọi một lần duy nhất khi component mount
   }, [fetchClasses]);
 
-  // Gọi API để lấy danh sách sinh viên chưa có lớp khi component mount hoặc khi semester thay đổi
   useEffect(() => {
-    fetchPendingUsers();
+    if (sid) {
+      fetchPendingUsers(); // Gọi API lấy danh sách giáo viên
+      fetchClasses(); // Gọi API lấy danh sách lớp học
+      fetchTeachersOtherSemeter();
+    }
+  }, [sid, fetchTeachersOtherSemeter, fetchClasses]);
+
+  useEffect(() => {
+    fetchPendingUsers(); // Gọi lại API khi `sid` thay đổi
   }, [fetchPendingUsers]);
 
   // Tự động gợi ý sinh viên vào các lớp còn chỗ trống dựa trên studentCount và limitStudent
-  useEffect(() => {
-    if (
-      isDataLoading ||
-      unassignedStudents.length === 0 ||
-      classes.length === 0
-    )
+  const handleSuggestion = async () => {
+    if (!currentSemester || !currentSemester._id) {
+      message.error("Không tìm thấy kỳ học hiện tại.");
       return;
+    }
 
-    // Kiểm tra xem có lớp nào chưa được gợi ý hay không
-    const classesNeedSuggestion = classes.filter(
-      (classItem) =>
-        classItem.suggestedStudents.length === 0 &&
-        classItem.studentCount < classItem.limit
-    );
+    setLoading(true);
+    setError(null);
 
-    if (classesNeedSuggestion.length === 0) return;
+    try {
+      // Tạo bản sao của các lớp để cập nhật gợi ý
+      let newClasses = classes.map((classItem) => ({
+        ...classItem,
+        suggestedStudents: [...classItem.suggestedStudents],
+      }));
 
-    // Tạo bản sao của các lớp để cập nhật gợi ý
-    let newClasses = classes.map((classItem) => ({
-      ...classItem,
-      suggestedStudents: [...classItem.suggestedStudents], // Đảm bảo không ghi đè trực tiếp
-    }));
+      let remainingUnassignedStudents = [...unassignedStudents];
 
-    let remainingUnassignedStudents = [...unassignedStudents];
+      // Gợi ý sinh viên cho từng lớp
+      newClasses.forEach((classItem) => {
+        if (
+          classItem.suggestedStudents.length === 0 &&
+          classItem.studentCount < classItem.limit
+        ) {
+          const remainingCapacity =
+            classItem.limit -
+            classItem.studentCount -
+            classItem.suggestedStudents.length;
 
-    // Gợi ý sinh viên cho từng lớp
-    newClasses.forEach((classItem) => {
-      if (
-        classItem.suggestedStudents.length === 0 &&
-        classItem.studentCount < classItem.limit
-      ) {
-        const remainingCapacity =
-          classItem.limit -
-          classItem.studentCount -
-          classItem.suggestedStudents.length;
+          const numberToAssign = Math.min(
+            remainingCapacity,
+            remainingUnassignedStudents.length
+          );
 
-        const numberToAssign = Math.min(
-          remainingCapacity,
-          remainingUnassignedStudents.length
-        );
-
-        for (let i = 0; i < numberToAssign; i++) {
-          const student = remainingUnassignedStudents.shift();
-          if (student) {
-            classItem.suggestedStudents.push(student);
+          for (let i = 0; i < numberToAssign; i++) {
+            const student = remainingUnassignedStudents.shift();
+            if (student) {
+              classItem.suggestedStudents.push(student);
+            }
           }
         }
-      }
-    });
+      });
 
-    // Cập nhật lại state
-    setClasses(newClasses);
-    setUnassignedStudents(remainingUnassignedStudents);
-  }, [classes, unassignedStudents, isDataLoading]);
+      // Cập nhật lại state
+      dispatch(setClasses(newClasses));
+      dispatch(setUnassignedStudents(remainingUnassignedStudents));
+      setSuggestionTriggered(true); // Đánh dấu đã gợi ý
+
+      message.success("Đã gợi ý sinh viên vào các lớp thành công.");
+    } catch (err) {
+      console.error("Error during suggestion:", err);
+      setError("Có lỗi xảy ra khi gợi ý sinh viên vào các lớp.");
+      Modal.error({
+        title: "Lỗi",
+        content: "Không thể gợi ý sinh viên vào các lớp.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Hàm tính toán tăng giới hạn cho các lớp
   const handleIncreaseClassLimit = () => {
@@ -301,7 +335,7 @@ const ClassManager = () => {
               };
             });
 
-            setClasses(updatedClasses);
+            dispatch(setClasses(updatedClasses));
 
             // Gợi ý lại danh sách sinh viên chưa có lớp dựa trên các lớp còn chỗ trống
             let newClasses = updatedClasses.map((classItem) => ({
@@ -328,8 +362,8 @@ const ClassManager = () => {
               }
             });
 
-            setClasses(newClasses);
-            setUnassignedStudents(remainingUnassignedStudents);
+            dispatch(setClasses(newClasses));
+            dispatch(setUnassignedStudents(remainingUnassignedStudents));
             setSuggestionTriggered(true); // Đánh dấu đã gợi ý
           } catch (err) {
             console.error("Error increasing class limit:", err);
@@ -415,12 +449,13 @@ const ClassManager = () => {
         return classItem;
       });
 
-      setClasses(updatedClasses);
+      dispatch(setClasses(updatedClasses));
 
-      // Loại bỏ sinh viên khỏi unassignedStudents
-      setUnassignedStudents((prevUnassigned) =>
-        prevUnassigned.filter((s) => s._id !== student._id)
-      );
+      // Cập nhật unassignedStudents
+      const updatedUnassignedStudents =
+        unassignedStudents?.filter((s) => s._id !== student._id) || [];
+
+      dispatch(setUnassignedStudents(updatedUnassignedStudents));
 
       message.success(`Đã thêm sinh viên ${student.username} vào lớp.`);
     } catch (err) {
@@ -455,7 +490,7 @@ const ClassManager = () => {
         if (classItem._id === classId) {
           const newSuggestedStudents = [...classItem.suggestedStudents];
           if (newSuggestedStudents.length > 0) {
-            studentToRemove = newSuggestedStudents.shift(); // Lấy sinh viên đầu tiên
+            studentToRemove = newSuggestedStudents.shift(); // Lấy sinh viên đầu tiên để loại bỏ
           }
           return {
             ...classItem,
@@ -467,20 +502,24 @@ const ClassManager = () => {
         return classItem;
       });
 
-      setClasses(updatedClasses);
+      // Cập nhật danh sách lớp trong Redux
+      dispatch(setClasses(updatedClasses));
 
-      // Nếu có sinh viên bị loại bỏ, thêm vào unassignedStudents
+      // Xử lý cập nhật unassignedStudents
+      const prevUnassigned = [...unassignedStudents];
+
+      // Nếu có sinh viên bị loại bỏ, thêm lại vào danh sách unassignedStudents
       if (studentToRemove) {
-        setUnassignedStudents((prevUnassigned) => [
-          ...prevUnassigned,
-          studentToRemove,
-        ]);
+        prevUnassigned.push(studentToRemove);
       }
 
-      // Loại bỏ sinh viên mới khỏi unassignedStudents
-      setUnassignedStudents((prevUnassigned) =>
-        prevUnassigned.filter((s) => s._id !== student._id)
+      // Loại bỏ sinh viên mới được thêm vào lớp khỏi unassignedStudents
+      const updatedUnassigned = prevUnassigned.filter(
+        (s) => s._id !== student._id
       );
+
+      // Cập nhật unassignedStudents trong Redux
+      dispatch(setUnassignedStudents(updatedUnassigned));
 
       message.success(
         `Đã thêm sinh viên ${student.username} vào lớp và trả một sinh viên gợi ý về danh sách chưa có lớp.`
@@ -538,13 +577,17 @@ const ClassManager = () => {
             return classItem;
           });
 
-          setClasses(updatedClasses);
+          dispatch(setClasses(updatedClasses));
 
           // Cập nhật danh sách sinh viên chưa có lớp bằng cách loại bỏ các sinh viên đã được phân bổ
-          setUnassignedStudents((prevUnassigned) =>
-            prevUnassigned.filter(
-              (student) =>
-                !classItem.suggestedStudents.find((s) => s._id === student._id)
+          dispatch(
+            setUnassignedStudents((prevUnassigned) =>
+              prevUnassigned.filter(
+                (student) =>
+                  !classItem.suggestedStudents.find(
+                    (s) => s._id === student._id
+                  )
+              )
             )
           );
 
@@ -598,7 +641,7 @@ const ClassManager = () => {
         axios.post(
           `${BASE_URL}/admins/create-class`,
           {
-            semesterId: currentSemester._id,
+            semesterId: sid,
             className: cls.className,
             teacherId: cls.teacherId,
             limitStudent: cls.limitStudent || 30,
@@ -607,16 +650,40 @@ const ClassManager = () => {
         )
       );
 
-      await Promise.all(createClassPromises);
+      const results = await Promise.allSettled(createClassPromises);
+
+      // Xử lý kết quả từ Promise.allSettled
+      const errors = results
+        .map((result, index) => {
+          if (result.status === "rejected") {
+            const errorResponse = result.reason.response?.data || {};
+            return { ...errorResponse, index }; // Gắn thêm index để xác định vị trí lớp bị lỗi
+          }
+          return null;
+        })
+        .filter((error) => error !== null);
+
+      if (errors.length > 0) {
+        // Nếu có lỗi, áp dụng lỗi vào các trường tương ứng trên form
+        errors.forEach((error) => {
+          if (error.field) {
+            form.setFields([
+              {
+                name: ["newClasses", error.index, error.field],
+                errors: [error.message],
+              },
+            ]);
+          }
+        });
+        throw new Error("Có lỗi xảy ra khi tạo lớp mới.");
+      }
 
       message.success("Tạo lớp mới thành công.");
 
       // Cập nhật trạng thái tải dữ liệu trước khi làm mới danh sách
       setIsDataLoading(true);
 
-      // Gọi lại API để làm mới danh sách lớp và sinh viên chưa có lớp
       await fetchClasses(); // Cập nhật danh sách lớp
-      await fetchPendingUsers(); // Cập nhật danh sách sinh viên chưa có lớp
 
       // Đánh dấu tải dữ liệu xong
       setIsDataLoading(false);
@@ -626,7 +693,6 @@ const ClassManager = () => {
       form.resetFields();
     } catch (error) {
       console.error("Error in handleCreateClass:", error);
-      message.error(error.message || "Có lỗi xảy ra khi tạo lớp mới.");
       setIsDataLoading(false); // Đảm bảo trạng thái tải dữ liệu được reset
     } finally {
       setLoading(false); // Kết thúc trạng thái tạo lớp
@@ -643,7 +709,7 @@ const ClassManager = () => {
     );
 
     // Luôn hiển thị thông báo gợi ý
-    if (totalUnassigned >= 20) {
+    if (totalUnassigned >= 20 && semester.status !== "Finished") {
       // Nếu tất cả các lớp đã đầy và còn sinh viên chưa có lớp
       return (
         <Alert
@@ -666,7 +732,11 @@ const ClassManager = () => {
           style={{ marginTop: "16px" }}
         />
       );
-    } else if (totalUnassigned > 0 && totalUnassigned < 20) {
+    } else if (
+      totalUnassigned > 0 &&
+      totalUnassigned < 20 &&
+      semester.status !== "Finished"
+    ) {
       // Nếu còn sinh viên chưa có lớp
       return (
         <Alert
@@ -677,8 +747,9 @@ const ClassManager = () => {
               giới hạn của lớp.
               <div style={{ marginTop: "16px" }}>
                 <CustomButton
-                  content="Tăng Giới Hạn Lớp"
+                  content="  Tăng Giới Hạn Lớp"
                   onClick={handleIncreaseClassLimit}
+                  icon={<UpCircleOutlined />}
                 />
               </div>
             </div>
@@ -747,7 +818,7 @@ const ClassManager = () => {
             return classItem;
           });
 
-          setClasses(updatedClasses);
+          dispatch(setClasses(updatedClasses));
 
           // Thêm các sinh viên đã hoán đổi vào state để highlight
           setSwappedStudents([swappedStudent._id, student._id]);
@@ -785,7 +856,7 @@ const ClassManager = () => {
         return classItem;
       });
 
-      setClasses(updatedClasses);
+      dispatch(setClasses(updatedClasses));
 
       // Thêm sinh viên vào state để highlight
       setSwappedStudents([student._id]);
@@ -888,8 +959,11 @@ const ClassManager = () => {
   const handleStudentPageChange = (page) => {
     setCurrentStudentPage(page);
   };
+  console.log("unassignedStudents", unassignedStudents);
 
-  const filteredUnassignedStudents = unassignedStudents.filter(
+  const filteredUnassignedStudents = (
+    Array.isArray(unassignedStudents) ? unassignedStudents : []
+  ).filter(
     (student) =>
       (student.username &&
         student.username.toLowerCase().includes(searchValue)) ||
@@ -910,6 +984,21 @@ const ClassManager = () => {
         classItem._id !== currentClassId
     );
   };
+  const showSuggestionModal = () => {
+    Modal.confirm({
+      title: "Xác nhận gợi ý sinh viên vào các lớp",
+      content: `Bạn có chắc chắn muốn gợi ý ${unassignedStudents.length} sinh viên chưa có lớp vào các lớp còn chỗ trống? Sau khi chấp nhận thì các sinh viên chưa có lớp sẽ được gợi ý vào các lớp còn trống.`,
+      onOk: handleSuggestion, // Hàm thực hiện gợi ý
+      onCancel: () => {},
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+    });
+  };
+  const areAllClassesFull = classes.every(
+    (classItem) =>
+      classItem.studentCount + classItem.suggestedStudents.length >=
+      classItem.limit
+  );
 
   return (
     <Layout>
@@ -1041,7 +1130,7 @@ const ClassManager = () => {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <CheckOutlined
+                    <IssuesCloseOutlined
                       style={{
                         fontSize: "18px",
                         color: "#faad14",
@@ -1049,7 +1138,7 @@ const ClassManager = () => {
                       }}
                     />
                     <span style={{ fontSize: "14px", fontWeight: "500" }}>
-                      Lớp đã đủ sinh viên:
+                      Lớp chưa đủ sinh viên:
                     </span>
                     <span
                       style={{
@@ -1061,7 +1150,7 @@ const ClassManager = () => {
                       {
                         classes.filter(
                           (classItem) =>
-                            classItem.studentCount >= classItem.limit
+                            classItem.studentCount < classItem.limit
                         ).length
                       }
                     </span>
@@ -1074,7 +1163,7 @@ const ClassManager = () => {
 
         {/* Header với bộ lọc và tìm kiếm */}
         <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
-          <Col span={18}>
+          <Col span={24}>
             <Row align="middle" gutter={[16, 16]}>
               <Col>
                 <Select
@@ -1123,11 +1212,36 @@ const ClassManager = () => {
                 />
               </Col>
               <Col>
-                <CustomButton
-                  content={" Tạo Lớp"}
-                  icon={<PlusOutlined />}
-                  onClick={showCreateClassModal}
-                />
+                {semester.status !== "Finished" && (
+                  <CustomButton
+                    style={{ marginRight: 20 }}
+                    content={" Tạo Lớp"}
+                    icon={<PlusOutlined />}
+                    onClick={showCreateClassModal}
+                  />
+                )}
+
+                {!areAllClassesFull &&
+                  unassignedStudents.length !== 0 &&
+                  semester.status !== "Finished" && (
+                    <>
+                      <CustomButton
+                        style={{ marginRight: 20 }}
+                        content={"  Gợi Ý Xếp Lớp"}
+                        icon={<SolutionOutlined />}
+                        onClick={showSuggestionModal}
+                      />
+                    </>
+                  )}
+                {unassignedStudents.length !== 0 &&
+                  semester.status !== "Finished" && (
+                    <CustomButton
+                      style={{ marginRight: 20 }}
+                      content={"  Tăng Giới Hạn Lớp"}
+                      icon={<UpCircleOutlined />}
+                      onClick={handleIncreaseClassLimit}
+                    />
+                  )}
               </Col>
             </Row>
           </Col>
@@ -1199,9 +1313,11 @@ const ClassManager = () => {
                       >
                         <p
                           style={{
-                            fontSize: "13px",
+                            fontWeight: 500,
+                            color: "#53BC99",
+                            position: "relative",
                             marginBottom: 0,
-                            marginTop: -10,
+                            marginTop: -4,
                           }}
                         >
                           Số sinh viên hiện tại: {classItem.studentCount}/
@@ -1241,7 +1357,35 @@ const ClassManager = () => {
                                 Lớp đã đủ sinh viên!
                               </p>
                             </div>
-                          ) : null
+                          ) : (
+                            <div
+                              style={{
+                                display: "grid",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginTop: 46,
+                              }}
+                            >
+                              <Image
+                                width={110}
+                                src="https://png.pngtree.com/png-clipart/20230418/original/pngtree-suggestions-line-icon-png-image_9065435.png" // URL của hình ảnh thông báo lớp đầy
+                                alt="Class Full"
+                                preview={false}
+                                style={{ opacity: 0.7 }}
+                              />
+                              <p
+                                style={{
+                                  marginTop: 19,
+                                  fontWeight: 500,
+                                  color: "#53BC99",
+                                  position: "relative",
+                                  left: 16,
+                                }}
+                              >
+                                Có thể gợi ý!
+                              </p>
+                            </div>
+                          )
                         ) : null}
                         {/* Hiển thị danh sách sinh viên trong lớp chỉ khi có tìm kiếm */}
                         {searchValue && (
@@ -1301,42 +1445,44 @@ const ClassManager = () => {
                                             searchValue
                                           )}
                                         </span>
-                                        <Tooltip title="Thao tác">
-                                          <Dropdown
-                                            overlay={
-                                              <Menu>
-                                                <Menu.Item
-                                                  key="transfer"
-                                                  onClick={() =>
-                                                    handleStudentAction(
-                                                      "transfer",
-                                                      student
-                                                    )
-                                                  }
-                                                >
-                                                  Chuyển lớp
-                                                </Menu.Item>
-                                                <Menu.Item
-                                                  key="swap"
-                                                  onClick={() =>
-                                                    handleStudentAction(
-                                                      "swap",
-                                                      student
-                                                    )
-                                                  }
-                                                >
-                                                  Hoán đổi lớp
-                                                </Menu.Item>
-                                              </Menu>
-                                            }
-                                            trigger={["click"]}
-                                          >
-                                            <Button
-                                              type="text"
-                                              icon={<PlusOutlined />}
-                                            />
-                                          </Dropdown>
-                                        </Tooltip>
+                                        {semester.status !== "Finished" && (
+                                          <Tooltip title="Thao tác">
+                                            <Dropdown
+                                              overlay={
+                                                <Menu>
+                                                  <Menu.Item
+                                                    key="transfer"
+                                                    onClick={() =>
+                                                      handleStudentAction(
+                                                        "transfer",
+                                                        student
+                                                      )
+                                                    }
+                                                  >
+                                                    Chuyển lớp
+                                                  </Menu.Item>
+                                                  <Menu.Item
+                                                    key="swap"
+                                                    onClick={() =>
+                                                      handleStudentAction(
+                                                        "swap",
+                                                        student
+                                                      )
+                                                    }
+                                                  >
+                                                    Hoán đổi lớp
+                                                  </Menu.Item>
+                                                </Menu>
+                                              }
+                                              trigger={["click"]}
+                                            >
+                                              <Button
+                                                type="text"
+                                                icon={<PlusOutlined />}
+                                              />
+                                            </Dropdown>
+                                          </Tooltip>
+                                        )}
                                       </div>
                                     </List.Item>
                                   )}
@@ -1394,63 +1540,65 @@ const ClassManager = () => {
                                           searchValue
                                         )}
                                       </span>
-                                      <Tooltip title="Chuyển sinh viên sang lớp khác">
-                                        <Button
-                                          type="text"
-                                          icon={
-                                            <svg
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              viewBox="0 0 24 24"
-                                              width="17"
-                                              height="17"
-                                              color="#000000"
-                                              fill="none"
-                                            >
-                                              <path
-                                                d="M3.78879 9.03708C3.0814 9.42 1.22668 10.2019 2.35633 11.1803C2.90815 11.6582 3.52275 12 4.29543 12H8.70457C9.47725 12 10.0918 11.6582 10.6437 11.1803C11.7733 10.2019 9.9186 9.42 9.21121 9.03708C7.55241 8.13915 5.44759 8.13915 3.78879 9.03708Z"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                              />
-                                              <path
-                                                d="M8.75 4.27273C8.75 5.52792 7.74264 6.54545 6.5 6.54545C5.25736 6.54545 4.25 5.52792 4.25 4.27273C4.25 3.01753 5.25736 2 6.5 2C7.74264 2 8.75 3.01753 8.75 4.27273Z"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                              />
-                                              <path
-                                                d="M4 15C4 18.3171 6.68286 21 10 21L9.14286 19.2857"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                              />
-                                              <path
-                                                d="M20 9C20 5.68286 17.3171 3 14 3L14.8571 4.71429"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                              />
-                                              <path
-                                                d="M14.7888 19.0371C14.0814 19.42 12.2267 20.2019 13.3563 21.1803C13.9082 21.6582 14.5227 22 15.2954 22H19.7046C20.4773 22 21.0918 21.6582 21.6437 21.1803C22.7733 20.2019 20.9186 19.42 20.2112 19.0371C18.5524 18.1392 16.4476 18.1392 14.7888 19.0371Z"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                              />
-                                              <path
-                                                d="M19.75 14.2727C19.75 15.5279 18.7426 16.5455 17.5 16.5455C16.2574 16.5455 15.25 15.5279 15.25 14.2727C15.25 13.0175 16.2574 12 17.5 12C18.7426 12 19.75 13.0175 19.75 14.2727Z"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                              />
-                                            </svg>
-                                          }
-                                          onClick={() =>
-                                            setSelectedDropdown(
-                                              selectedDropdown === student._id
-                                                ? null
-                                                : student._id
-                                            )
-                                          }
-                                        />
-                                      </Tooltip>
+                                      {semester.status !== "Finished" && (
+                                        <Tooltip title="Chuyển sinh viên sang lớp khác">
+                                          <Button
+                                            type="text"
+                                            icon={
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 24 24"
+                                                width="17"
+                                                height="17"
+                                                color="#000000"
+                                                fill="none"
+                                              >
+                                                <path
+                                                  d="M3.78879 9.03708C3.0814 9.42 1.22668 10.2019 2.35633 11.1803C2.90815 11.6582 3.52275 12 4.29543 12H8.70457C9.47725 12 10.0918 11.6582 10.6437 11.1803C11.7733 10.2019 9.9186 9.42 9.21121 9.03708C7.55241 8.13915 5.44759 8.13915 3.78879 9.03708Z"
+                                                  stroke="currentColor"
+                                                  strokeWidth="1.5"
+                                                />
+                                                <path
+                                                  d="M8.75 4.27273C8.75 5.52792 7.74264 6.54545 6.5 6.54545C5.25736 6.54545 4.25 5.52792 4.25 4.27273C4.25 3.01753 5.25736 2 6.5 2C7.74264 2 8.75 3.01753 8.75 4.27273Z"
+                                                  stroke="currentColor"
+                                                  strokeWidth="1.5"
+                                                />
+                                                <path
+                                                  d="M4 15C4 18.3171 6.68286 21 10 21L9.14286 19.2857"
+                                                  stroke="currentColor"
+                                                  strokeWidth="1.5"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                />
+                                                <path
+                                                  d="M20 9C20 5.68286 17.3171 3 14 3L14.8571 4.71429"
+                                                  stroke="currentColor"
+                                                  strokeWidth="1.5"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                />
+                                                <path
+                                                  d="M14.7888 19.0371C14.0814 19.42 12.2267 20.2019 13.3563 21.1803C13.9082 21.6582 14.5227 22 15.2954 22H19.7046C20.4773 22 21.0918 21.6582 21.6437 21.1803C22.7733 20.2019 20.9186 19.42 20.2112 19.0371C18.5524 18.1392 16.4476 18.1392 14.7888 19.0371Z"
+                                                  stroke="currentColor"
+                                                  strokeWidth="1.5"
+                                                />
+                                                <path
+                                                  d="M19.75 14.2727C19.75 15.5279 18.7426 16.5455 17.5 16.5455C16.2574 16.5455 15.25 15.5279 15.25 14.2727C15.25 13.0175 16.2574 12 17.5 12C18.7426 12 19.75 13.0175 19.75 14.2727Z"
+                                                  stroke="currentColor"
+                                                  strokeWidth="1.5"
+                                                />
+                                              </svg>
+                                            }
+                                            onClick={() =>
+                                              setSelectedDropdown(
+                                                selectedDropdown === student._id
+                                                  ? null
+                                                  : student._id
+                                              )
+                                            }
+                                          />
+                                        </Tooltip>
+                                      )}
                                       {selectedDropdown === student._id && (
                                         <Select
                                           showSearch
@@ -1495,8 +1643,10 @@ const ClassManager = () => {
                           )}
 
                         {/* Hiển thị nút lưu gợi ý khi không có tìm kiếm */}
+
                         {!searchValue &&
-                          classItem.suggestedStudents.length !== 0 && (
+                          classItem.suggestedStudents.length !== 0 &&
+                          semester.status !== "Finished" && (
                             <ConfirmButton
                               onClick={() => handleSaveClass(classItem._id)}
                               style={{
@@ -1663,51 +1813,53 @@ const ClassManager = () => {
                               )}{" "}
                               - {highlightText(student.username, searchValue)}
                             </span>
-                            <Tooltip title="Thêm vào lớp">
-                              <Button
-                                style={{
-                                  width: 25,
-                                  height: 25,
-                                  margin: " 5px 0",
-                                }}
-                                icon={
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    width="15"
-                                    height="15"
-                                    color="#000000"
-                                    fill="none"
-                                  >
-                                    <path
-                                      d="M12.5 22H6.59087C5.04549 22 3.81631 21.248 2.71266 20.1966C0.453365 18.0441 4.1628 16.324 5.57757 15.4816C7.67837 14.2307 10.1368 13.7719 12.5 14.1052C13.3575 14.2261 14.1926 14.4514 15 14.7809"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                    <path
-                                      d="M16.5 6.5C16.5 8.98528 14.4853 11 12 11C9.51472 11 7.5 8.98528 7.5 6.5C7.5 4.01472 9.51472 2 12 2C14.4853 2 16.5 4.01472 16.5 6.5Z"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                    />
-                                    <path
-                                      d="M18.5 22L18.5 15M15 18.5H22"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                    />
-                                  </svg>
-                                }
-                                onClick={() =>
-                                  setSelectedDropdown(
-                                    selectedDropdown === student._id
-                                      ? null
-                                      : student._id
-                                  )
-                                }
-                              />
-                            </Tooltip>
+                            {semester.status !== "Finished" && (
+                              <Tooltip title="Thêm vào lớp">
+                                <Button
+                                  style={{
+                                    width: 25,
+                                    height: 25,
+                                    margin: " 5px 0",
+                                  }}
+                                  icon={
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 24 24"
+                                      width="15"
+                                      height="15"
+                                      color="#000000"
+                                      fill="none"
+                                    >
+                                      <path
+                                        d="M12.5 22H6.59087C5.04549 22 3.81631 21.248 2.71266 20.1966C0.453365 18.0441 4.1628 16.324 5.57757 15.4816C7.67837 14.2307 10.1368 13.7719 12.5 14.1052C13.3575 14.2261 14.1926 14.4514 15 14.7809"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                      <path
+                                        d="M16.5 6.5C16.5 8.98528 14.4853 11 12 11C9.51472 11 7.5 8.98528 7.5 6.5C7.5 4.01472 9.51472 2 12 2C14.4853 2 16.5 4.01472 16.5 6.5Z"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                      />
+                                      <path
+                                        d="M18.5 22L18.5 15M15 18.5H22"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                      />
+                                    </svg>
+                                  }
+                                  onClick={() =>
+                                    setSelectedDropdown(
+                                      selectedDropdown === student._id
+                                        ? null
+                                        : student._id
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                            )}
                             {selectedDropdown === student._id && (
                               <Select
                                 showSearch

@@ -107,32 +107,67 @@ export const checkSemesterStatus = () => {
 };
 
 // API để kiểm tra giáo viên trong kỳ học
-export const checkTeachersInSemester = () => {
-  return axios.get(`${BASE_URL}/semester/check-teachers`, getConfig());
+export const checkTeachersInSemester = (semesterId) => {
+  if (!semesterId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
+  return axios.get(
+    `${BASE_URL}/semester/check-teachers/${semesterId}`,
+    getConfig()
+  );
 };
 
 // API để kiểm tra mentor trong kỳ học
-export const checkMentorsInSemester = () => {
-  return axios.get(`${BASE_URL}/semester/check-mentors`, getConfig());
+export const checkMentorsInSemester = (semesterId) => {
+  if (!semesterId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
+  return axios.get(
+    `${BASE_URL}/semester/check-mentors/${semesterId}`,
+    getConfig()
+  );
 };
 
 // API để kiểm tra học sinh trong kỳ học
-export const checkStudentsInSemester = () => {
-  return axios.get(`${BASE_URL}/semester/check-students`, getConfig());
+export const checkStudentsInSemester = (semesterId) => {
+  if (!semesterId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
+  return axios.get(
+    `${BASE_URL}/semester/check-students/${semesterId}`,
+    getConfig()
+  );
 };
 
 // API để kiểm tra học sinh có trạng thái Pending trong kỳ học
-export const checkStudentsPendingStatus = () => {
-  return axios.get(`${BASE_URL}/semester/check-students-pending`, getConfig());
+export const checkStudentsPendingStatus = (semesterId) => {
+  if (!semesterId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
+  return axios.get(
+    `${BASE_URL}/semester/check-students-pending/${semesterId}`,
+    getConfig()
+  );
 };
 
 // API để kiểm lớp học đã đủ học sinh chưa
-export const checkClassStatus = () => {
-  return axios.get(`${BASE_URL}/semester/check-class-capacity`, getConfig());
+export const checkClassStatus = (semesterId) => {
+  if (!semesterId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
+  return axios.get(
+    `${BASE_URL}/semester/check-class-capacity/${semesterId}`,
+    getConfig()
+  );
 };
 
 // API để kiểm giáo viên đã có lớp chưa
-export const checkTeacherWithoutClassStatus = () => {
+export const checkTeacherWithoutClassStatus = (semesterId) => {
   return axios.get(
     `${BASE_URL}/semester/check-teachers-without-class`,
     getConfig()

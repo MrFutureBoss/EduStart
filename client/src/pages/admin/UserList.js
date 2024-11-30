@@ -22,6 +22,7 @@ import ErrorAlerts from "../semester/ErrorAlerts";
 import {
   setCounts,
   setDetailSemester,
+  setIsChangeSemester,
   setLoading,
   setSemesterName,
   setSid,
@@ -324,7 +325,7 @@ const UserListSemester = () => {
               classes.map((cls) => (
                 <Link
                   key={cls.classId}
-                  to={`/class/${cls.classId}`}
+                  to={`/admin/class-manager/class-detail/${cls.classId}`}
                   style={{ display: "block" }}
                 >
                   {cls.className}
@@ -348,56 +349,6 @@ const UserListSemester = () => {
       render: (role) =>
         roles.find((r) => r.id === role)?.name || "Không xác định",
     },
-    ...(selectedRole === 4
-      ? [
-          {
-            title: "Hành động",
-            key: "action",
-            render: (text, record) =>
-              record.classId ? (
-                // Nếu có classId thì hiển thị các hành động liên quan đến chuyển và hoán đổi lớp
-                <Dropdown
-                  overlay={
-                    <Menu>
-                      <Menu.Item
-                        key="1"
-                        onClick={() => handleTransferModal(record)}
-                      >
-                        Chuyển lớp
-                      </Menu.Item>
-                      <Menu.Item
-                        key="2"
-                        onClick={() => handleSwapModal(record)}
-                      >
-                        Hoán đổi lớp
-                      </Menu.Item>
-                    </Menu>
-                  }
-                  trigger={["click"]}
-                >
-                  <Button>Hành động</Button>
-                </Dropdown>
-              ) : (
-                // Nếu không có classId thì hiển thị hành động "Thêm vào lớp"
-                <Dropdown
-                  overlay={
-                    <Menu>
-                      <Menu.Item
-                        key="1"
-                        onClick={() => navigate(`pending-users`)}
-                      >
-                        Thêm vào lớp{" "}
-                      </Menu.Item>
-                    </Menu>
-                  }
-                  trigger={["click"]}
-                >
-                  <Button>Hành động</Button>
-                </Dropdown>
-              ),
-          },
-        ]
-      : []),
   ];
 
   const fetchCurrentSemester = async () => {
@@ -405,6 +356,8 @@ const UserListSemester = () => {
       dispatch(setLoading(true));
       const response = await axios.get(`${BASE_URL}/semester/current`, config);
       const semester = response.data;
+
+      // Cập nhật Redux state
       dispatch(setSid(semester._id));
       dispatch(setSemesterName(semester.name));
       dispatch(
@@ -443,7 +396,6 @@ const UserListSemester = () => {
       dispatch(setUsersInSmt(userResponse.data));
     } catch (error) {
       console.error("Error fetching current semester:", error);
-      navigate("admin-dashboard/semester-list");
     } finally {
       dispatch(setLoading(false));
     }
@@ -453,130 +405,134 @@ const UserListSemester = () => {
     if (!currentSemester) {
       fetchCurrentSemester();
     }
-  }, [sid, dispatch, navigate]);
+  }, [currentSemester]);
 
   return (
     <div className="user-details">
       {/* đây là modal khi click vào sẽ hiển thị ra  */}
-      <Modal
-        title={`Thông tin ${
-          selectedUser?.role === 4 ? "Sinh viên" : "Giáo viên"
-        }`}
-        open={isUserModalVisible}
-        onCancel={closeUserModal}
-        footer={[
-          isEditMode ? (
-            <>
-              <Button key="cancel" onClick={toggleEditMode}>
-                Hủy
-              </Button>
-              <Button key="save" type="primary" onClick={handleSaveChanges}>
-                Lưu
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button key="edit" type="primary" onClick={toggleEditMode}>
-                Chỉnh sửa
-              </Button>
-              <Button key="close" onClick={closeUserModal}>
-                Đóng
-              </Button>
-            </>
-          ),
-        ]}
-      >
-        {selectedUser && (
-          <div>
-            <p>
-              <b>Tên:</b>{" "}
-              {isEditMode ? (
-                <Input
-                  value={editedUser.username}
-                  onChange={(e) =>
-                    setEditedUser({ ...editedUser, username: e.target.value })
-                  }
-                />
-              ) : (
-                selectedUser.username
-              )}
-            </p>
-            <p>
-              <b>Email:</b>{" "}
-              {isEditMode ? (
-                <Input
-                  value={editedUser.email}
-                  onChange={(e) =>
-                    setEditedUser({ ...editedUser, email: e.target.value })
-                  }
-                />
-              ) : (
-                selectedUser.email
-              )}
-            </p>
-            {selectedUser.role === 4 && (
+      {semester.status !== "Finished" && (
+        <Modal
+          title={`Thông tin ${
+            selectedUser?.role === 4 ? "Sinh viên" : "Giáo viên"
+          }`}
+          open={isUserModalVisible}
+          onCancel={closeUserModal}
+          footer={[
+            isEditMode ? (
               <>
-                <p>
-                  <b>MSSV:</b>{" "}
-                  {isEditMode ? (
-                    <Input
-                      value={editedUser.rollNumber || ""}
-                      onChange={(e) =>
-                        setEditedUser({
-                          ...editedUser,
-                          rollNumber: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    selectedUser.rollNumber || "Không có"
-                  )}
-                </p>
+                <Button key="cancel" onClick={toggleEditMode}>
+                  Hủy
+                </Button>
+                <Button key="save" type="primary" onClick={handleSaveChanges}>
+                  Lưu
+                </Button>
               </>
-            )}
-            {selectedUser.role === 2 && (
+            ) : (
               <>
-                <p>
-                  <b>Số điện thoại:</b>{" "}
-                  {isEditMode ? (
-                    <Input
-                      value={editedUser.phoneNumber || ""}
-                      onChange={(e) =>
-                        setEditedUser({
-                          ...editedUser,
-                          phoneNumber: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    selectedUser.phoneNumber || "Không có"
-                  )}
-                </p>
+                <Button key="edit" type="primary" onClick={toggleEditMode}>
+                  Chỉnh sửa
+                </Button>
+                <Button key="close" onClick={closeUserModal}>
+                  Đóng
+                </Button>
               </>
-            )}
-            <p>
-              <b>Trạng thái:</b>{" "}
-              {isEditMode ? (
-                <Select
-                  value={editedUser.status}
-                  onChange={(value) =>
-                    setEditedUser({ ...editedUser, status: value })
-                  }
-                  style={{ width: "100%" }}
-                >
-                  <Select.Option value="Active">Active</Select.Option>
-                  <Select.Option value="Inactive">Inactive</Select.Option>
-                </Select>
-              ) : (
-                <Tag color={selectedUser.status === "Active" ? "green" : "red"}>
-                  {selectedUser.status}
-                </Tag>
+            ),
+          ]}
+        >
+          {selectedUser && (
+            <div>
+              <p>
+                <b>Tên:</b>{" "}
+                {isEditMode ? (
+                  <Input
+                    value={editedUser.username}
+                    onChange={(e) =>
+                      setEditedUser({ ...editedUser, username: e.target.value })
+                    }
+                  />
+                ) : (
+                  selectedUser.username
+                )}
+              </p>
+              <p>
+                <b>Email:</b>{" "}
+                {isEditMode ? (
+                  <Input
+                    value={editedUser.email}
+                    onChange={(e) =>
+                      setEditedUser({ ...editedUser, email: e.target.value })
+                    }
+                  />
+                ) : (
+                  selectedUser.email
+                )}
+              </p>
+              {selectedUser.role === 4 && (
+                <>
+                  <p>
+                    <b>MSSV:</b>{" "}
+                    {isEditMode ? (
+                      <Input
+                        value={editedUser.rollNumber || ""}
+                        onChange={(e) =>
+                          setEditedUser({
+                            ...editedUser,
+                            rollNumber: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      selectedUser.rollNumber || "Không có"
+                    )}
+                  </p>
+                </>
               )}
-            </p>
-          </div>
-        )}
-      </Modal>
-      {/* ;<h3 className="header-content-mentor-detail">Quản lý người dùng</h3> */}
+              {selectedUser.role === 2 && (
+                <>
+                  <p>
+                    <b>Số điện thoại:</b>{" "}
+                    {isEditMode ? (
+                      <Input
+                        value={editedUser.phoneNumber || ""}
+                        onChange={(e) =>
+                          setEditedUser({
+                            ...editedUser,
+                            phoneNumber: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      selectedUser.phoneNumber || "Không có"
+                    )}
+                  </p>
+                </>
+              )}
+              <p>
+                <b>Trạng thái:</b>{" "}
+                {isEditMode ? (
+                  <Select
+                    value={editedUser.status}
+                    onChange={(value) =>
+                      setEditedUser({ ...editedUser, status: value })
+                    }
+                    style={{ width: "100%" }}
+                  >
+                    <Select.Option value="Active">Active</Select.Option>
+                    <Select.Option value="Inactive">Inactive</Select.Option>
+                  </Select>
+                ) : (
+                  <Tag
+                    color={selectedUser.status === "Active" ? "green" : "red"}
+                  >
+                    {selectedUser.status}
+                  </Tag>
+                )}
+              </p>
+            </div>
+          )}
+        </Modal>
+      )}
+
       <div
         style={{
           minHeight: "600px",
@@ -584,7 +540,7 @@ const UserListSemester = () => {
           borderRadius: "10px",
         }}
       >
-        {isSemesterListUserSemester && <SemesterDetailsCard />}
+        <SemesterDetailsCard />
         <ErrorAlerts
           fullClassUsers={fullClassUsers}
           errorMessages={errorMessages}
@@ -611,7 +567,7 @@ const UserListSemester = () => {
                 <CustomButton
                   onClick={handleAddUserClick}
                   content={"Thêm người dùng"}
-                ></CustomButton>
+                />
 
                 {fullClassUsers.length > 0 && (
                   <Button
@@ -627,7 +583,7 @@ const UserListSemester = () => {
               title="Chọn loại người dùng"
               open={isRoleSelectModalVisible}
               onOk={handleRoleSelectOk}
-              onCancel={() => setIsRoleSelectModalVisible(false)}
+              onCancel={handleRoleSelectCancel}
               okText="Tiếp tục"
               cancelText="Hủy"
             >
@@ -637,13 +593,40 @@ const UserListSemester = () => {
                 onChange={(value) => setSelectedUploadRole(value)}
                 value={selectedUploadRole}
               >
-                {roles.map((role) => (
-                  <Option key={role.id} value={role.id}>
-                    {role.name}
-                  </Option>
-                ))}
+                {roles
+                  .filter((role) => [2, 3, 4].includes(role.id))
+                  .map((role) => (
+                    <Option key={role.id} value={role.id}>
+                      {role.name}
+                    </Option>
+                  ))}
               </Select>
             </Modal>
+            <SelectRoleModal
+              visible={isSelectRoleModalVisible}
+              onManualAdd={() => {
+                setIsModalVisible(true);
+                setIsSelectRoleModalVisible(false);
+              }}
+              onFileUpload={() => {
+                setIsUploadModalVisible(true);
+                setIsSelectRoleModalVisible(false);
+              }}
+              onCancel={() => {
+                setIsSelectRoleModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+            />
+            {/* Thêm UploadFileModal */}
+            <UploadFileModal
+              visible={isUploadModalVisible}
+              onCancel={() => {
+                setIsUploadModalVisible(false);
+                dispatch(clearRoleSelect());
+              }}
+              semesterId={semester._id}
+              refreshData={fetchCurrentSemester}
+            />
             <UserAddModal
               visible={isModalVisible}
               onOk={() => {
@@ -656,61 +639,37 @@ const UserListSemester = () => {
               }}
               semesterId={semester._id}
             />
-            {/* Thêm UploadFileModal */}
-            <UploadFileModal
-              visible={isUploadModalVisible}
-              onCancel={() => {
-                setIsUploadModalVisible(false);
-                dispatch(clearRoleSelect());
-              }}
-              semesterId={semester._id}
-              refreshData={fetchCurrentSemester}
-            />
           </div>
         ) : (
           <div>
             <div
               style={{
                 display: "flex",
-                gap: "150px",
-                marginBottom: "25px",
-                marginTop: 17,
-                padding: 13,
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                backgroundColor: "#09636e94",
-                borderRadius: "12px",
+                justifyContent: "space-between",
+                marginBottom: "10px",
               }}
             >
               {roles.map((role) => (
-                <Badge
-                  count={roleCounts[role.id]}
+                <Card
+                  className="card-choose-user"
                   key={role.id}
-                  showZero
-                  overflowCount={Infinity}
-                  style={{ backgroundColor: "#62b6cb" }}
+                  hoverable
+                  style={{
+                    width: "150px",
+                    marginLeft: 10,
+                    textAlign: "center",
+                    border: "none",
+                    color: "#fff",
+                    backgroundColor:
+                      selectedRole === role.id ? "rgb(25 135 162)" : "#62b6cb",
+                    fontWeight: "bold",
+                    borderRadius: "10px",
+                  }}
+                  bodyStyle={{ padding: "10px" }}
+                  onClick={() => handleRoleSelect(role.id)}
                 >
-                  <Card
-                    className="card-choose-user"
-                    key={role.id}
-                    hoverable
-                    style={{
-                      width: "150px",
-                      marginLeft: 10,
-                      textAlign: "center",
-                      border: "none",
-                      backgroundColor:
-                        selectedRole === role.id
-                          ? "#ffbfa0"
-                          : "rgb(248, 235, 222)",
-                      fontWeight: "bold",
-                      borderRadius: "12px",
-                    }}
-                    bodyStyle={{ padding: "10px" }}
-                    onClick={() => handleRoleSelect(role.id)}
-                  >
-                    {role.name}
-                  </Card>
-                </Badge>
+                  {role.name}
+                </Card>
               ))}
             </div>
             <div>
@@ -759,7 +718,7 @@ const UserListSemester = () => {
                   <CustomButton
                     onClick={handleAddUserClick}
                     content={"Thêm người dùng"}
-                  ></CustomButton>
+                  />
                 </Space>
               </div>
             </div>
