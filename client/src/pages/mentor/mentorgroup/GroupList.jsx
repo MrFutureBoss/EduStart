@@ -356,7 +356,7 @@ const GroupList = () => {
   };
 
   return (
-    <div>
+    <div className="zoom-better">
       <CreateMeetingDay
         groupId={groupId}
         open={isAddModalOpen}

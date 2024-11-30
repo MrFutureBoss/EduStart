@@ -33,7 +33,6 @@ const MentorLayout = () => {
               overflowX: "hidden",
               minHeight: 280,
               background: "#F5F5F5",
-              background: "#F5F5F5",
             }}
           >
             <Outlet />
