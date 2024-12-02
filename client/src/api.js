@@ -102,8 +102,15 @@ export const getMatchedProject = (groupId) => {
   return axios.get(`${BASE_URL}/matched/infor-matched/${groupId}`, getConfig());
 };
 // API để kiểm tra kỳ học hiện tại và kỳ học sắp tới
-export const checkSemesterStatus = () => {
-  return axios.get(`${BASE_URL}/semester/check-semester-status`, getConfig());
+export const checkSemesterStatus = (semesterId) => {
+  if (!semesterId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
+  return axios.get(
+    `${BASE_URL}/semester/check-semester-status/${semesterId}`,
+    getConfig()
+  );
 };
 
 // API để kiểm tra giáo viên trong kỳ học
@@ -174,10 +181,10 @@ export const checkTeacherWithoutClassStatus = (semesterId) => {
   );
 };
 
-// API để lấy toàn bộ danh sách yêu cầu đổi lớp cho admin
-export const getAllRequetChangClassAdmin = () => {
+// API để đánh dấu đã đọc tất cả thông báo
+export const checkProfessionAndSpeciatyExit = () => {
   return axios.get(
-    `${BASE_URL}/classTranfer/all-transfer-requests`,
+    `${BASE_URL}/semester/check-profesison-speciatly`,
     getConfig()
   );
 };

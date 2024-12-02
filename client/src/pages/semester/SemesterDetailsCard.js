@@ -180,7 +180,9 @@ const SemesterDetailsCard = () => {
                 label={<strong style={{ fontSize: 13 }}>Ngày bắt đầu</strong>}
               >
                 <span style={{ fontSize: 13 }}>
-                  {new Date(startDate).toLocaleDateString("vi-VN")}
+                  {startDate
+                    ? new Date(startDate).toLocaleDateString("vi-VN")
+                    : ""}{" "}
                 </span>
               </Descriptions.Item>
               <Descriptions.Item
@@ -188,7 +190,7 @@ const SemesterDetailsCard = () => {
                 label={<strong style={{ fontSize: 13 }}>Ngày kết thúc</strong>}
               >
                 <span style={{ fontSize: 13 }}>
-                  {new Date(endDate).toLocaleDateString("vi-VN")}
+                  {endDate ? new Date(endDate).toLocaleDateString("vi-VN") : ""}
                 </span>
               </Descriptions.Item>
             </Descriptions>
@@ -269,7 +271,7 @@ const SemesterDetailsCard = () => {
                 >
                   <Link
                     style={{ textDecoration: "none", fontSize: 13 }}
-                    to="pending-users"
+                    to="/admin/class-manager"
                   >
                     {studentsWithoutClass}
                   </Link>

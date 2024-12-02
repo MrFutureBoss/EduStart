@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, DatePicker, Select, Button } from "antd";
+import { Modal, Form, Input, DatePicker, Select, Button, message } from "antd";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -56,6 +56,37 @@ const EditSemesterModal = ({
     form
       .validateFields()
       .then((values) => {
+        // Check if changing to "Finished" status
+        if (values.status === "Finished") {
+          const endDate = values.endDate;
+          const today = dayjs();
+
+          // Calculate the difference between today and the end date
+          const daysDifference = today.diff(endDate, "day");
+
+          // If the difference is more than 5 days, prompt for confirmation
+          if (daysDifference > 5) {
+            Modal.confirm({
+              title: "Xác nhận thay đổi trạng thái kỳ học",
+              content: `Hiện tại chưa đến thời gian kỳ học kết thúc. Bạn có chắc chắn muốn thay đổi trạng thái kỳ học về "Đã kết thúc"?`,
+              okText: "Xác nhận",
+              cancelText: "Hủy",
+              onOk: () => {
+                // Proceed with updating the semester
+                onOk({
+                  ...semester,
+                  name: values.name,
+                  startDate: values.startDate.toISOString(),
+                  endDate: values.endDate.toISOString(),
+                  status: values.status,
+                });
+              },
+            });
+            return;
+          }
+        }
+
+        // Proceed with updating if no confirmation is needed
         onOk({
           ...semester,
           name: values.name,
@@ -64,7 +95,9 @@ const EditSemesterModal = ({
           status: values.status,
         });
       })
-      .catch((info) => {});
+      .catch((info) => {
+        message.error("Vui lòng kiểm tra lại thông tin đã nhập!");
+      });
   };
 
   // Handle value changes
@@ -81,7 +114,6 @@ const EditSemesterModal = ({
     <Modal
       title="Chỉnh sửa kỳ học"
       open={visible}
-      onOk={handleOk}
       onCancel={() => {
         onCancel();
         form.resetFields();

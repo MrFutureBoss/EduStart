@@ -1,9 +1,12 @@
+import moment from "moment";
 import Class from "../../models/classModel.js";
 import Matched from "../../models/matchedModel.js";
 import MentorCategory from "../../models/mentorCategoryModel.js";
 import Semester from "../../models/semesterModel.js";
 import User from "../../models/userModel.js";
 import mongoose from "mongoose";
+import Profession from "../../models/professionModel.js";
+import Specialty from "../../models/specialtyModel.js";
 
 const createSemester = async (semesterData) => {
   const semester = new Semester(semesterData);
@@ -166,16 +169,22 @@ const findSemesterFinished = async (semesterIds) => {
 };
 const getCurrentSemester = async () => {
   const currentDate = new Date();
+
+  // Tính toán ngày bắt đầu hiệu chỉnh (startDate - 15 ngày)
+  const adjustedDate = new Date(currentDate);
+  adjustedDate.setDate(currentDate.getDate() + 15);
+
+  // Tìm kỳ học hiện tại
   const semester = await Semester.findOne({
-    startDate: { $lte: currentDate },
-    endDate: { $gte: currentDate },
+    startDate: { $lte: adjustedDate }, // startDate <= currentDate + 15
+    endDate: { $gte: currentDate }, // endDate >= currentDate
   });
 
   if (!semester) {
-    return null;
+    return null; // Không tìm thấy kỳ học
   }
 
-  return semester;
+  return semester; // Trả về kỳ học hiện tại
 };
 
 const getCountsForSemester = async (semesterId) => {
@@ -416,6 +425,36 @@ const updateClassStatusBySemesterId = async (semesterId, status) => {
     throw new Error("Lỗi khi cập nhật trạng thái lớp học.");
   }
 };
+
+const checkDataExistence = async () => {
+  try {
+    const results = {};
+
+    // Kiểm tra ngành nghề (ProfessionModel)
+    const professionCount = await Profession.countDocuments();
+    if (professionCount === 0) {
+      results.profession =
+        "Không có lĩnh vực nào được tìm thấy trong hệ thống.";
+    } else {
+      results.profession = `${professionCount} lĩnh vực được tìm thấy trong hệ thống.`;
+    }
+
+    // Kiểm tra chuyên môn (SpecialtyModel)
+    const specialtyCount = await Specialty.countDocuments();
+    if (specialtyCount === 0) {
+      results.specialty =
+        "Không có chuyên môn nào được tìm thấy trong hệ thống.";
+    } else {
+      results.specialty = `${specialtyCount} chuyên môn được tìm thấy trong hệ thống.`;
+    }
+
+    // Trả về kết quả kiểm tra
+    return results;
+  } catch (error) {
+    throw new Error(`Error checking data existence: ${error.message}`);
+  }
+};
+
 export default {
   createSemester,
   getAllSemesters,
@@ -439,4 +478,5 @@ export default {
   getSemesterByStatus,
   updateClassStatusBySemesterId,
   getSemesterById,
+  checkDataExistence,
 };

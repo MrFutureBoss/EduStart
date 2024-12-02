@@ -32,9 +32,9 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
   const dispatch = useDispatch();
   const { semesters, semester, isChangeSemester, currentSemester, sid } =
     useSelector((state) => state.semester);
-  console.log("isChangeSemester", isChangeSemester);
 
   const [isLoadingSemesters, setIsLoadingSemesters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const config = useMemo(
     () => ({
@@ -80,7 +80,7 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
     if (!semesters || semesters.length === 0) {
       refreshSemesters();
     }
-  }, [semesters]);
+  }, []);
 
   const handleSemesterChange = async (semesterId) => {
     const selectedSemester = semesters.find(
@@ -179,6 +179,28 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
     }
   }, [isChangeSemester, semester.status]);
 
+  useEffect(() => {
+    if (semesters && semesters.length > 0) {
+      // Chỉ auto chọn kỳ nếu chưa có sid và không có sự thay đổi kỳ do người dùng
+      if (!sid && !isChangeSemester) {
+        if (currentSemester && currentSemester._id) {
+          handleSemesterChange(currentSemester._id); // Chọn kỳ hiện tại
+        } else {
+          handleSemesterChange(semesters[0]._id); // Chọn kỳ đầu tiên
+        }
+      }
+    }
+  }, [semesters, currentSemester, sid, isChangeSemester]);
+
+  const filteredSemesters = useMemo(() => {
+    if (!searchTerm) {
+      return semesters;
+    }
+    return semesters.filter((semester) =>
+      semester.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [semesters, searchTerm]);
+
   const handleLogout = () => {
     navigate("/");
     localStorage.removeItem("jwt");
@@ -201,20 +223,66 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
           zIndex: 100,
         }}
       >
-        <span style={{ fontWeight: "500" }}>Chọn kỳ học:</span>
+        <span style={{ fontWeight: "500" }}>Kỳ học:</span>
         <Select
           value={sid} // Sử dụng sid để phản ánh kỳ học được chọn
           onChange={handleSemesterChange}
-          style={{ minWidth: "150px" }}
+          style={{ minWidth: "135px" }}
           loading={isLoadingSemesters}
           placeholder="Chọn kỳ học"
+          showSearch
+          onSearch={(value) => setSearchTerm(value)}
+          filterOption={false} // Sử dụng logic lọc của riêng mình
+          dropdownStyle={{ maxHeight: 135, overflow: "auto" }}
         >
-          {semesters.map((semester) => (
-            <Option key={semester._id} value={semester._id}>
-              {semester.name}
-            </Option>
-          ))}
+          {filteredSemesters.map((semester) => {
+            // Xác định trạng thái của kỳ học
+            const statusColor =
+              semester.status === "Ongoing"
+                ? "dodgerblue" // Xanh biển
+                : semester.status === "Upcoming"
+                ? "orange" // Cam
+                : "gray"; // Xám
+
+            // Kiểm tra xem có phải kỳ hiện tại hay không
+            const isCurrentSemester = semester._id === currentSemester?._id;
+
+            return (
+              <Option key={semester._id} value={semester._id}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  {/* Badge tròn nhỏ */}
+                  <span
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: statusColor,
+                      display: "inline-block",
+                      marginRight: "8px",
+                    }}
+                  />
+                  {/* Tên kỳ học */}
+                  <span>
+                    {semester.name}{" "}
+                    {isCurrentSemester && (
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          color: "dodgerblue",
+                          marginLeft: "8px",
+                        }}
+                      >
+                        (Kỳ hiện tại)
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </Option>
+            );
+          })}
         </Select>
+
         {isLoadingSemesters && <Spin size="small" />}
       </div>
       <Menu mode="horizontal" className="menu" style={{ height: "100%" }}>

@@ -115,7 +115,7 @@ const SemesterList = () => {
       );
 
       dispatch(setUsersInSmt(response.data));
-      navigate("user-semester");
+      navigate("/admin/dashboard");
     } catch (err) {
       dispatch(setError(err.message));
     } finally {
@@ -239,9 +239,9 @@ const SemesterList = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "Ongoing":
-        return "green";
-      case "Upcoming":
         return "blue";
+      case "Upcoming":
+        return "orange";
       case "Finished":
         return "red";
       default:
