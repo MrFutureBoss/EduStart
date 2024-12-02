@@ -41,7 +41,7 @@ semesterRouter.get(
   semesterController.getSemesterDetail
 );
 semesterRouter.get(
-  "/check-semester-status",
+  "/check-semester-status/:semesterId",
   verifyAccessToken,
   semesterController.checkSemesterStatus
 );
@@ -74,5 +74,10 @@ semesterRouter.get(
   "/check-teachers-without-class",
   verifyAccessToken,
   semesterController.getTeachersWithoutClass
+);
+semesterRouter.get(
+  "/check-profesison-speciatly",
+  verifyAccessToken,
+  semesterController.checkProfessionAndSpeciatyExit
 );
 export default semesterRouter;

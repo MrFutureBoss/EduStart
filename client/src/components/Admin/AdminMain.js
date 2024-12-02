@@ -140,7 +140,7 @@ const MainLayout = () => {
         <AppSider
           collapsed={collapsed}
           currentSemester={currentSemester}
-          handleFetchCurrentSemesters={handleFetchCurrentSemesters}
+          // handleFetchCurrentSemesters={handleFetchCurrentSemesters}
           toggleCollapse={toggleCollapse}
         />
         <Layout>

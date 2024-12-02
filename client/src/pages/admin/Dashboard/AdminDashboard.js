@@ -11,6 +11,7 @@ import {
   Tag,
   message,
   Empty,
+  Modal,
 } from "antd";
 import {
   UserOutlined,
@@ -30,6 +31,7 @@ import {
   checkClassStatus,
   checkTeacherWithoutClassStatus,
   getAllRequetChangClassAdmin,
+  checkProfessionAndSpeciatyExit,
 } from "../../../api";
 import { Link, useNavigate } from "react-router-dom";
 import SemesterDetailsCard from "../../semester/SemesterDetailsCard";
@@ -72,8 +74,9 @@ const AdminDashboard = () => {
   const [actionAlerts, setActionAlerts] = useState([]);
 
   const { taskDetails } = useSelector((state) => state.adminDashboard);
-  const { semester, sid } = useSelector((state) => state.semester);
-  console.log("taskDetails", taskDetails);
+  const { semester, sid, currentSemester, isChangeSemester } = useSelector(
+    (state) => state.semester
+  );
 
   const jwt = localStorage.getItem("jwt");
 
@@ -89,8 +92,9 @@ const AdminDashboard = () => {
       dispatch(setLoading(true));
       const response = await axios.get(`${BASE_URL}/semester/current`, config);
       const semester = response.data;
-      // dispatch(setSid(semester._id));
+      dispatch(setSid(semester._id));
       dispatch(setSemesterName(semester.name));
+      dispatch(setCurrentSemester(semester));
       dispatch(
         setCounts({
           studentCount: semester.studentCount,
@@ -155,7 +159,7 @@ const AdminDashboard = () => {
     );
 
     // Gọi API sau khi reset
-    checkSemesterStatus();
+    checkSemesterStatus(sid);
     checkStudentsPendingStatus(sid).then((response) => {
       const pendingStudents = response.data.students || [];
       dispatch(
@@ -165,6 +169,38 @@ const AdminDashboard = () => {
       );
     });
   }, [sid, dispatch]);
+
+  useEffect(() => {
+    if (!semester || !semester.name) {
+      setActionAlerts((prevActionAlerts) => {
+        // Kiểm tra nếu nhiệm vụ đã tồn tại trong danh sách, nếu chưa thì thêm mới
+        if (!prevActionAlerts.some((alert) => alert.key === "createSemester")) {
+          return [
+            ...prevActionAlerts,
+            {
+              key: "createSemester",
+              type: "action",
+              message: (
+                <span
+                  style={{
+                    textDecoration: "none",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setIsCreateSemesterVisible(true)} // Mở modal khi nhấn vào message
+                >
+                  Không có kỳ học nào trong hệ thống.
+                </span>
+              ),
+              description: "Cần tạo kỳ học mới để bắt đầu quản lý.",
+              actionRoute: null,
+              actionText: "Tạo kỳ học",
+            },
+          ];
+        }
+        return prevActionAlerts;
+      });
+    }
+  }, [semester]);
 
   const handleCreateSemester = async (semester) => {
     try {
@@ -179,15 +215,20 @@ const AdminDashboard = () => {
   };
 
   const processTasks = () => {
-    return [
-      {
-        key: "createSemester",
-        title: "Thiết lập kỳ học mới",
-        detail: taskDetails.semesterName,
-        isBalanced: taskDetails.semesterName !== "Chưa có",
-        requirementMessage:
-          taskDetails.semesterName === "Chưa có" ? "Cần thiết lập kỳ học." : "",
-      },
+    const tasks = [];
+
+    // Existing "createSemester" task for editing
+    tasks.push({
+      key: "createSemester",
+      title: "Thiết lập kỳ học mới",
+      detail: taskDetails.semesterName,
+      isBalanced: taskDetails.semesterName !== "Chưa có",
+      requirementMessage:
+        taskDetails.semesterName === "Chưa có" ? "Cần thiết lập kỳ học." : "",
+    });
+
+    // Existing tasks
+    tasks.push(
       {
         key: "addTeachers",
         title: "Thêm giáo viên vào kỳ học",
@@ -197,7 +238,6 @@ const AdminDashboard = () => {
             ? "Chưa có giáo viên nào được thêm."
             : "", // Nếu chưa có giáo viên, hiển thị thông báo
       },
-
       {
         key: "addMentors",
         title: "Thêm người hướng dẫn vào kỳ học",
@@ -240,17 +280,27 @@ const AdminDashboard = () => {
           }
           return ""; // Trường hợp đã hoàn thành
         })(),
-      },
-    ];
+      }
+    );
+
+    return tasks;
   };
 
   const tasksList = processTasks();
 
   // Thêm cảnh báo về ngày kỳ học
   useEffect(() => {
+    if (!taskDetails || !semester || !semester._id) {
+      return; // Đảm bảo không chạy khi dữ liệu chưa sẵn sàng
+    }
+
+    setWarnings([]); // Xóa warnings cũ
+
     const today = dayjs();
     const startDate = dayjs(taskDetails.startDate);
     const endDate = dayjs(taskDetails.endDate);
+    console.log("today", today);
+    console.log("taskDetails", taskDetails);
 
     const addWarning = (message, description) => {
       setWarnings((prevWarnings) => {
@@ -284,32 +334,42 @@ const AdminDashboard = () => {
         >
           Chỉnh sửa trạng thái kỳ học!
         </span>,
-        `Bạn cần sử lại trạng thái kỳ học thành "Đang diễn ra" vì thời gian kỳ học đã bắt đầu!`
+        `Bạn cần sửa lại trạng thái kỳ học thành "Đang diễn ra" vì thời gian kỳ học đã bắt đầu!`
       );
     }
 
     if (
       today.isBefore(startDate, "day") &&
-      today.add(7, "day").isSameOrAfter(startDate, "day")
+      today.add(7, "day").isSameOrAfter(startDate, "day") &&
+      semester.status === "Upcoming"
     ) {
+      // Tính số ngày còn lại
+      const daysToStart = startDate.diff(today, "day");
+
       addWarning(
         <span
           style={{
-            textDecoration: "underline",
+            textDecoration: "none",
             cursor: "pointer",
-            color: "blue",
           }}
           onClick={() => setIsEditModalVisible(true)}
         >
-          Ngày hiện tại gần đến ngày bắt đầu kỳ học.
+          Ngày hiện tại gần đến ngày bắt đầu kỳ học ({daysToStart} ngày còn
+          lại).
         </span>,
-        "Hãy kiểm tra và chỉnh sửa trạng thái kỳ học nếu cần."
+        `Hãy kiểm tra và chỉnh sửa trạng thái kỳ học nếu cần.`
       );
     }
-  }, [taskDetails, semester.status]);
+  }, [taskDetails, semester]);
 
   // Thêm cảnh báo về lớp chưa đủ và giáo viên chưa có lớp
   useEffect(() => {
+    if (!taskDetails || !semester || !semester._id) {
+      return; // Đảm bảo không chạy khi dữ liệu chưa sẵn sàng
+    }
+
+    setActionAlerts([]); // Xóa actionAlerts cũ
+
     let isMounted = true;
     const fetchClassStatus = async () => {
       try {
@@ -363,8 +423,98 @@ const AdminDashboard = () => {
     };
   }, [navigate]);
 
+  useEffect(() => {
+    if (!taskDetails || !semester || !semester._id) {
+      return; // Đảm bảo không chạy khi dữ liệu chưa sẵn sàng
+    }
+
+    setWarnings([]); // Xóa warnings cũ
+
+    let isMounted = true;
+
+    const fetchProfessionAndSpecialtyStatus = async () => {
+      try {
+        const response = await checkProfessionAndSpeciatyExit();
+        const { profession, specialty } = response.data.data;
+
+        if (isMounted) {
+          // Xử lý cảnh báo gộp cho cả profession và specialty
+          const items = [
+            {
+              type: "profession",
+              value: profession,
+              messagePath: "/admin/professionmanagement",
+              description: "Hãy kiểm tra và bổ sung lĩnh vực nếu cần.",
+            },
+            {
+              type: "specialty",
+              value: specialty,
+              messagePath: "/admin/professionmanagement",
+              description: "Hãy kiểm tra và bổ sung chuyên môn nếu cần.",
+            },
+          ];
+
+          items.forEach((item) => {
+            if (item.value.includes("Không có") || parseInt(item.value) < 5) {
+              setWarnings((prevWarnings) => [
+                ...prevWarnings,
+                {
+                  type: "warning",
+                  message: (
+                    <span
+                      style={{
+                        textDecoration: "none",
+                        color: "black",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        navigate(item.messagePath, {
+                          state: { admin: item.type },
+                        })
+                      }
+                    >
+                      {item.value.includes("Không có")
+                        ? `Không có ${
+                            item.type === "profession"
+                              ? "lĩnh vực"
+                              : "chuyên môn"
+                          } nào được tìm thấy trong hệ thống.`
+                        : `${item.value} ${
+                            item.type === "profession"
+                              ? "lĩnh vực"
+                              : "chuyên môn"
+                          } được tìm thấy. Kiểm tra lại vì có ít hơn 5 ${
+                            item.type === "profession"
+                              ? "lĩnh vực"
+                              : "chuyên môn"
+                          }.`}
+                    </span>
+                  ),
+                  description: item.description,
+                },
+              ]);
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error checking profession and specialty:", error);
+      }
+    };
+
+    fetchProfessionAndSpecialtyStatus();
+    return () => {
+      isMounted = false;
+    };
+  }, [semester, taskDetails]);
+
   // Thêm cảnh báo về sinh viên chưa có lớp và giáo viên chưa có lớp
   useEffect(() => {
+    if (!taskDetails || !semester || !semester._id) {
+      return; // Đảm bảo không chạy khi dữ liệu chưa sẵn sàng
+    }
+
+    setActionAlerts([]); // Xóa actionAlerts cũ
+
     if (taskDetails.studentsWithoutClass > 0) {
       const message = `Có ${taskDetails.studentsWithoutClass} sinh viên chưa có lớp`;
       const actionRoute = "/admin/class-manager";
@@ -409,14 +559,19 @@ const AdminDashboard = () => {
       .catch((error) => {
         console.error("Error fetching teachers without classes:", error);
       });
-  }, [taskDetails.studentsWithoutClass]);
+  }, [taskDetails.studentsWithoutClass, sid]);
 
   // Kiểm tra trạng thái kỳ học và cập nhật tasksStatus, taskDetails
   useEffect(() => {
     if (!sid) return; // Chỉ thực hiện khi `sid` có giá trị
+    if (!taskDetails || !semester || !semester._id) {
+      return; // Đảm bảo không chạy khi dữ liệu chưa sẵn sàng
+    }
+
+    setActionAlerts([]); // Xóa actionAlerts cũ
 
     // Kiểm tra trạng thái kỳ học
-    checkSemesterStatus()
+    checkSemesterStatus(sid)
       .then((response) => {
         dispatch(
           updateTasksStatus({
@@ -493,10 +648,8 @@ const AdminDashboard = () => {
     checkStudentsPendingStatus(sid)
       .then((response) => {
         const pendingStudents = response.data.students || [];
-        console.log("API Response for sid:", sid, response.data);
 
         if (pendingStudents.length > 0) {
-          console.log("Found pending students:", pendingStudents);
           dispatch(
             updateTasksStatus({
               studentsPending: true,
@@ -508,10 +661,6 @@ const AdminDashboard = () => {
             })
           );
         } else {
-          console.log(
-            "No pending students found. Clearing state for sid:",
-            sid
-          );
           dispatch(
             updateTasksStatus({
               studentsPending: false,
@@ -584,20 +733,20 @@ const AdminDashboard = () => {
 
   const handleTaskAction = (key) => {
     if (key === "createSemester") {
-      if (semester && semester.name) {
-        // Nếu đã có kỳ học, mở modal sửa kỳ học
-        setIsEditModalVisible(true);
-      } else {
-        // Nếu chưa có kỳ học, mở modal tạo kỳ học
+      if (!currentSemester || !currentSemester.name) {
+        // If no current semester, open create semester modal
         setIsCreateSemesterVisible(true);
+      } else if (semester.status !== "Finished") {
+        // If semester exists and is not finished, open edit semester modal
+        setIsEditModalVisible(true);
       }
     } else {
       let role;
-      if (key === "addTeachers") {
+      if (key === "addTeachers" && semester.status !== "Finished") {
         role = { id: 2, name: "Giáo viên" };
-      } else if (key === "addMentors") {
+      } else if (key === "addMentors" && semester.status !== "Finished") {
         role = { id: 3, name: "Người hướng dẫn" };
-      } else if (key === "addStudents") {
+      } else if (key === "addStudents" && semester.status !== "Finished") {
         role = { id: 4, name: "Sinh viên" };
       }
       if (role) {

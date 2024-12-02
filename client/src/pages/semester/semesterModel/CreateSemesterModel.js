@@ -66,6 +66,9 @@ const CreateSemesterModal = ({ visible, onOk, onCancel, apiErrors }) => {
       });
   };
 
+  const disabledPastDates = (current) => {
+    return current && current.isBefore(dayjs(), "day");
+  };
   return (
     <Modal
       title="Tạo kỳ học mới"
@@ -147,6 +150,7 @@ const CreateSemesterModal = ({ visible, onOk, onCancel, apiErrors }) => {
             format="DD/MM/YYYY"
             style={{ width: "100%" }}
             placeholder="Chọn ngày bắt đầu"
+            disabledDate={disabledPastDates}
           />
         </Form.Item>
 
@@ -201,6 +205,7 @@ const CreateSemesterModal = ({ visible, onOk, onCancel, apiErrors }) => {
             format="DD/MM/YYYY"
             style={{ width: "100%" }}
             placeholder="Chọn ngày kết thúc"
+            disabledDate={disabledPastDates}
           />
         </Form.Item>
 
