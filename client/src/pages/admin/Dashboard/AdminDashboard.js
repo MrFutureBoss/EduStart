@@ -476,17 +476,13 @@ const AdminDashboard = () => {
                       {item.value.includes("Không có")
                         ? `Không có ${
                             item.type === "profession"
-                              ? "lĩnh vực"
-                              : "chuyên môn"
+                              ? "Lĩnh Vực"
+                              : "Chuyên Môn"
                           } nào được tìm thấy trong hệ thống.`
-                        : `${item.value} ${
+                        : `${item.value} Kiểm tra lại vì có ít hơn 5 ${
                             item.type === "profession"
-                              ? "lĩnh vực"
-                              : "chuyên môn"
-                          } được tìm thấy. Kiểm tra lại vì có ít hơn 5 ${
-                            item.type === "profession"
-                              ? "lĩnh vực"
-                              : "chuyên môn"
+                              ? "Lĩnh Vực"
+                              : "Chuyên Môn"
                           }.`}
                     </span>
                   ),

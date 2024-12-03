@@ -85,6 +85,8 @@ const GroupList = () => {
           `${BASE_URL}/matched/mentor/${userId}`,
           config
         );
+        console.log("matched", groupResponse.data);
+
         dispatch(setMatchedGroups(groupResponse.data?.groups));
       } catch (error) {
         console.error(
@@ -446,10 +448,10 @@ const GroupList = () => {
                         Lớp {group.class.className} - {group.group.name}
                       </h4>
                     </div>
-                    <p style={{ marginBottom: "4px",  fontSize: "0.8rem" }}>
+                    <p style={{ marginBottom: "4px", fontSize: "0.8rem" }}>
                       Dự án {group.project.name}
                     </p>
-                    <p style={{ marginBottom: "4px",  fontSize: "0.8rem" }}>
+                    <p style={{ marginBottom: "4px", fontSize: "0.8rem" }}>
                       Thể loại dự án:{" "}
                       {group.projectCategory?.profession.map((profession) => (
                         <Tag

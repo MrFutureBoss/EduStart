@@ -1,6 +1,14 @@
 // UploadFileModal.js
 import React, { useState } from "react";
-import { Modal, Button, Upload, Select, message, notification } from "antd";
+import {
+  Modal,
+  Button,
+  Upload,
+  Select,
+  message,
+  notification,
+  Table,
+} from "antd";
 import { UploadOutlined, DownloadOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -51,6 +59,8 @@ const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
   const { selectedRole } = useSelector((state) => state.user);
   const [selectedFile, setSelectedFile] = useState(null); // File đã chọn
   const [isUploading, setIsUploading] = useState(false); // Trạng thái đang upload
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false); // Trạng thái hiển thị modal xác nhận
+  const [proposedClassChanges, setProposedClassChanges] = useState([]); // Danh sách thay đổi lớp đề xuất
 
   const handleDownloadTemplate = () => {
     const role = roles.find((r) => r.id === selectedRole);
@@ -91,28 +101,91 @@ const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
           },
           onUploadProgress: ({ total, loaded }) => {
             const percent = Math.round((loaded / total) * 100);
-            // Có thể thêm progress bar nếu muốn
+            console.log(`Upload progress: ${percent}%`);
           },
         }
       );
 
-      const {
-        successCount,
-        duplicateEmails,
-        duplicateRollNumbers,
-        duplicateMemberCodes,
-        fullClassUsers,
-        failedEmails,
-        errorMessages,
-        usersToInsert,
-      } = response.data;
+      console.log("Phản hồi từ backend:", response.data);
 
+      const responseData = response.data;
+
+      if (
+        responseData.success === false &&
+        responseData.proposedClassChanges &&
+        responseData.proposedClassChanges.length > 0
+      ) {
+        // Có các thay đổi lớp cần xác nhận
+        setProposedClassChanges(responseData.proposedClassChanges);
+        setIsConfirmModalVisible(true); // Hiển thị modal xác nhận
+        // Không đóng modal chính (onCancel) vì cần người dùng xác nhận
+        // Hiển thị thông báo nếu cần
+        notification.info({
+          message: "Có các thay đổi lớp cần xác nhận",
+          description:
+            responseData.message || "Vui lòng xác nhận các thay đổi lớp.",
+          duration: 5,
+        });
+        return; // Dừng xử lý tiếp
+      }
+
+      if (responseData.success === false) {
+        // Có lỗi xảy ra
+        if (responseData.generalError) {
+          // Xử lý lỗi định dạng file
+          dispatch(setGeneralError(responseData.generalError));
+          notification.error({
+            message: "Định dạng file không hợp lệ",
+            description: responseData.generalError,
+            duration: 10,
+          });
+        }
+
+        if (
+          responseData.errorMessages &&
+          responseData.errorMessages.length > 0
+        ) {
+          // Xử lý các lỗi dữ liệu chi tiết
+          dispatch(setErrorMessages(responseData.errorMessages));
+          notification.warning({
+            message: "Lỗi khi thêm người dùng",
+            description: `${responseData.errorMessages.length} lỗi xảy ra.`,
+            duration: 10,
+          });
+        }
+
+        if (responseData.failedEmails) {
+          // Xử lý các email không gửi được
+          dispatch(setFailedEmails(responseData.failedEmails));
+        }
+        // Không đóng modal, để người dùng có thể sửa
+        return;
+      }
+
+      // Nếu success === true, tiếp tục xử lý
+      const {
+        successCount = 0,
+        duplicateEmails = [],
+        duplicateRollNumbers = [],
+        duplicateMemberCodes = [],
+        fullClassUsers = [],
+        failedEmails = [],
+        errorMessages = [],
+        usersToInsert = [],
+      } = responseData;
+
+      // Xử lý các người dùng không liên quan đến thay đổi lớp
       // Dispatch các hành động cần thiết
-      dispatch(setRecentlyUpdatedUsers(usersToInsert.map((user) => user._id)));
+      if (usersToInsert && usersToInsert.length > 0) {
+        dispatch(
+          setRecentlyUpdatedUsers(usersToInsert.map((user) => user._id))
+        );
+      }
       dispatch(setErrorMessages(errorMessages));
       dispatch(setFullClassUsers(fullClassUsers));
       dispatch(setFailedEmails(failedEmails));
       refreshData();
+
       if (successCount > 0) {
         notification.success({
           message: "Upload thành công",
@@ -137,98 +210,36 @@ const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
 
         // Tạo file lỗi nếu có errorMessages
         if (errorMessages.length > 0) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: "array" });
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-
-            // Chuyển đổi worksheet thành mảng các dòng
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              defval: "",
-            });
-
-            // Thêm cột lỗi nếu chưa có
-            if (!jsonData[0].includes("Lỗi")) {
-              jsonData[0].push("Lỗi");
-            }
-
-            // Tạo một mảng để lưu trữ các lỗi theo số dòng
-            const errorsByRow = {};
-            errorMessages.forEach((error) => {
-              if (error.rowNumber) {
-                if (!errorsByRow[error.rowNumber]) {
-                  errorsByRow[error.rowNumber] = [];
-                }
-                errorsByRow[error.rowNumber].push(error.message);
-              }
-            });
-
-            // Duyệt qua các dòng và thêm thông báo lỗi
-            for (let i = 1; i < jsonData.length; i++) {
-              const rowNumber = i + 1; // Vì dòng đầu tiên là tiêu đề
-              if (errorsByRow[rowNumber]) {
-                // Thêm thông báo lỗi vào cột cuối
-                jsonData[i].push(errorsByRow[rowNumber].join("; "));
-              } else {
-                // Thêm cột lỗi trống
-                jsonData[i].push("");
-              }
-            }
-
-            // Tạo workbook và worksheet mới
-            const newWorksheet = XLSX.utils.aoa_to_sheet(jsonData);
-            const newWorkbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Sheet1");
-
-            // Áp dụng style cho các ô có lỗi
-            Object.keys(errorsByRow).forEach((rowNumStr) => {
-              const rowNum = parseInt(rowNumStr) - 1; // Chuyển đổi về chỉ số mảng
-              const colCount = jsonData[0].length;
-              for (let colIndex = 0; colIndex < colCount; colIndex++) {
-                const cellAddress = XLSX.utils.encode_cell({
-                  r: rowNum,
-                  c: colIndex,
-                });
-                const cell = newWorksheet[cellAddress];
-                if (cell) {
-                  cell.s = {
-                    fill: {
-                      fgColor: { rgb: "FFC7CE" }, // Màu nền đỏ nhạt
-                    },
-                    font: {
-                      color: { rgb: "9C0006" }, // Chữ đỏ đậm
-                    },
-                  };
-                }
-              }
-            });
-
-            // Chuyển đổi workbook thành Blob với đúng MIME type cho Excel
-            const wbout = XLSX.write(newWorkbook, {
-              bookType: "xlsx",
-              type: "array",
-            });
-            const blob = new Blob([wbout], {
-              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            });
-
-            // Tạo URL để tải file
-            const url = URL.createObjectURL(blob);
-
-            // Lưu trữ URL vào Redux Store
-            dispatch(setErrorFileUrl(url));
-          };
-          reader.readAsArrayBuffer(selectedFile);
+          const workbook = XLSX.utils.book_new();
+          const worksheetData = [
+            ["Email", "Row Number", "Lỗi"],
+            ...errorMessages.map((error) => [
+              error.email || "",
+              error.rowNumber || "",
+              error.message || "",
+            ]),
+          ];
+          const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Errors");
+          const wbout = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+          });
+          const blob = new Blob([wbout], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = URL.createObjectURL(blob);
+          dispatch(setErrorFileUrl(url));
         }
       }
 
-      onCancel(); // Đóng modal sau khi upload thành công hoặc có lỗi
+      onCancel(); // Đóng modal chính sau khi upload thành công hoặc có lỗi
 
       // Reset các state liên quan
       setSelectedFile(null);
     } catch (error) {
+      console.error("Lỗi khi upload file:", error);
+
       const errorData = error.response?.data;
 
       if (errorData) {
@@ -270,6 +281,96 @@ const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
     }
   };
 
+  const handleConfirmChanges = async () => {
+    setIsUploading(true);
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/admins/apply-class-changes`, // Đường dẫn endpoint applyClassChanges
+        {
+          classChanges: proposedClassChanges,
+          semesterId: semesterId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${jwt}`,
+          },
+        }
+      );
+
+      console.log("Phản hồi từ apply-class-changes:", response.data);
+
+      const {
+        success,
+        message: responseMessage,
+        errorMessages,
+      } = response.data;
+
+      if (success) {
+        notification.success({
+          message: "Xác nhận thay đổi lớp thành công",
+          description: responseMessage,
+          duration: 5,
+        });
+        refreshData(); // Cập nhật lại dữ liệu nếu cần
+      } else {
+        notification.error({
+          message: "Xác nhận thay đổi lớp thất bại",
+          description: responseMessage || "Đã có lỗi xảy ra.",
+          duration: 10,
+        });
+      }
+
+      if (errorMessages && errorMessages.length > 0) {
+        dispatch(setErrorMessages(errorMessages));
+        notification.warning({
+          message: "Một số thay đổi lớp không được áp dụng",
+          description: `${errorMessages.length} thay đổi lớp không thành công.`,
+          duration: 10,
+        });
+
+        // Tạo file lỗi nếu có errorMessages
+        const workbook = XLSX.utils.book_new();
+        const worksheetData = [
+          ["User ID", "Lỗi"],
+          ...errorMessages.map((error) => [
+            error.userId || "",
+            error.message || "",
+          ]),
+        ];
+        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Errors");
+        const wbout = XLSX.write(workbook, {
+          bookType: "xlsx",
+          type: "array",
+        });
+        const blob = new Blob([wbout], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = URL.createObjectURL(blob);
+        dispatch(setErrorFileUrl(url));
+      }
+
+      // Đóng modal xác nhận sau khi xử lý xong
+      setIsConfirmModalVisible(false);
+      setProposedClassChanges([]);
+    } catch (error) {
+      console.error("Lỗi khi áp dụng thay đổi lớp:", error);
+      notification.error({
+        message: "Áp dụng thay đổi lớp thất bại",
+        description: "Đã xảy ra lỗi khi áp dụng thay đổi lớp.",
+        duration: 10,
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleCancelConfirm = () => {
+    setIsConfirmModalVisible(false);
+    setProposedClassChanges([]);
+  };
+
   const uploadProps = {
     beforeUpload: (file) => {
       const isExcel =
@@ -301,79 +402,150 @@ const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
     fileList: selectedFile ? [selectedFile] : [],
   };
 
-  return (
-    <Modal
-      title="Tải file người dùng"
-      visible={visible}
-      onCancel={onCancel}
-      footer={[
-        <Button key="back" onClick={onCancel}>
-          Hủy
-        </Button>,
-        <Button
-          key="upload"
-          type="primary"
-          onClick={handleUpload}
-          disabled={!selectedFile}
-          loading={isUploading}
-        >
-          Tải lên
-        </Button>,
-      ]}
-      width={800}
-      style={{ maxHeight: "70vh" }}
-      bodyStyle={{ overflowY: "auto" }}
-    >
-      {/* Kiểm tra nếu selectedRole đã tồn tại */}
-      {!selectedRole ? (
-        <div style={{ marginBottom: "15px" }}>
-          <Select
-            placeholder="Chọn vai trò người dùng"
-            style={{ width: "100%" }}
-            onChange={(value) => {
-              dispatch(setRoleSelect(value));
-              setSelectedFile(null);
-              dispatch(setErrorFileUrl(null));
-              dispatch(clearGeneralError());
-              dispatch(clearErrorMessages());
-            }}
-            value={selectedRole}
-          >
-            {roles.map((role) => (
-              <Option key={role.id} value={role.id}>
-                {role.name}
-              </Option>
-            ))}
-          </Select>
-        </div>
-      ) : (
-        <div style={{ marginBottom: "15px" }}>
-          <p>Vai trò: {roles.find((r) => r.id === selectedRole)?.name}</p>
-        </div>
-      )}
+  // Cấu hình cột cho bảng hiển thị thay đổi lớp
+  const columns = [
+    {
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
+      align: "center",
+    },
+    {
+      title: "Họ tên",
+      dataIndex: "fullName",
+      key: "fullName",
+    },
+    {
+      title: "MSSV",
+      dataIndex: "rollNumber",
+      key: "rollNumber",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Lớp Hiện Tại",
+      dataIndex: "oldClassName",
+      key: "oldClassName",
+    },
+    {
+      title: "Lớp Mới",
+      dataIndex: "newClassName",
+      key: "newClassName",
+    },
+  ];
+  const countClassChanges = () => proposedClassChanges.length;
 
-      {selectedRole && (
-        <div
-          style={{
-            marginBottom: "15px",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
+  return (
+    <>
+      <Modal
+        title="Tải file người dùng"
+        visible={visible}
+        onCancel={onCancel}
+        footer={[
+          <Button key="back" onClick={onCancel}>
+            Hủy
+          </Button>,
           <Button
-            type="link"
-            icon={<DownloadOutlined />}
-            onClick={handleDownloadTemplate}
-            style={{ marginBottom: "15px" }}
+            key="upload"
+            type="primary"
+            onClick={handleUpload}
+            disabled={!selectedFile}
+            loading={isUploading}
           >
-            Tải mẫu Excel cho {roles.find((r) => r.id === selectedRole)?.name}
-          </Button>
-        </div>
-      )}
-      <Upload {...uploadProps}>
-        <Button icon={<UploadOutlined />}>Chọn file để tải lên</Button>
-      </Upload>
-    </Modal>
+            Tải lên
+          </Button>,
+        ]}
+        width={800}
+        style={{ maxHeight: "70vh" }}
+        bodyStyle={{ overflowY: "auto" }}
+      >
+        {/* Kiểm tra nếu selectedRole đã tồn tại */}
+        {!selectedRole ? (
+          <div style={{ marginBottom: "15px" }}>
+            <Select
+              placeholder="Chọn vai trò người dùng"
+              style={{ width: "100%" }}
+              onChange={(value) => {
+                dispatch(setRoleSelect(value));
+                setSelectedFile(null);
+                dispatch(setErrorFileUrl(null));
+                dispatch(clearGeneralError());
+                dispatch(clearErrorMessages());
+              }}
+              value={selectedRole}
+            >
+              {roles.map((role) => (
+                <Option key={role.id} value={role.id}>
+                  {role.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        ) : (
+          <div style={{ marginBottom: "15px" }}>
+            <p>Vai trò: {roles.find((r) => r.id === selectedRole)?.name}</p>
+          </div>
+        )}
+
+        {selectedRole && (
+          <div
+            style={{
+              marginBottom: "15px",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Button
+              type="link"
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadTemplate}
+              style={{ marginBottom: "15px" }}
+            >
+              Tải mẫu Excel cho {roles.find((r) => r.id === selectedRole)?.name}
+            </Button>
+          </div>
+        )}
+        <Upload {...uploadProps}>
+          <Button icon={<UploadOutlined />}>Chọn file để tải lên</Button>
+        </Upload>
+      </Modal>
+
+      {/* Modal xác nhận thay đổi lớp */}
+      <Modal
+        title="Xác Nhận Thay Đổi Lớp"
+        visible={isConfirmModalVisible}
+        onCancel={handleCancelConfirm}
+        footer={[
+          <Button key="cancel" onClick={handleCancelConfirm}>
+            Hủy
+          </Button>,
+          <Button
+            key="confirm"
+            type="primary"
+            onClick={handleConfirmChanges}
+            loading={isUploading}
+          >
+            Xác nhận
+          </Button>,
+        ]}
+        width={800}
+      >
+        <p>
+          Có tổng cộng <b style={{ color: "#3baeb6" }}>{countClassChanges()}</b>{" "}
+          sinh viên có sự thay đổi lớp. Bạn có muốn áp dụng các thay đổi này
+          không?
+        </p>
+        <Table
+          dataSource={proposedClassChanges}
+          columns={columns}
+          rowKey={(record) => record.userId}
+          pagination={{ pageSize: 5 }}
+        />
+      </Modal>
+    </>
   );
 };
 

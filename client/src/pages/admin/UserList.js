@@ -7,12 +7,9 @@ import {
   Select,
   Tag,
   Input,
-  Dropdown,
   Space,
-  Menu,
   Modal,
   message,
-  Badge,
 } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserAddModal from "../semester/semesterModel/UserAddModal";
@@ -22,14 +19,11 @@ import ErrorAlerts from "../semester/ErrorAlerts";
 import {
   setCounts,
   setDetailSemester,
-  setIsChangeSemester,
   setLoading,
   setSemesterName,
   setSid,
   setUsersInSmt,
 } from "../../redux/slice/semesterSlide";
-import TransferClassModal from "../semester/userModel/TransferClassModal";
-import SwapClassModal from "../semester/userModel/SwapClassModal";
 import {
   clearRoleSelect,
   setRecentlyUpdatedUsers,
@@ -51,6 +45,7 @@ const UserListSemester = () => {
   // 2 state này để edit
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState(null);
+  console.log("selectedUser", selectedUser);
 
   // click vào ( bật ắt modal )
   const handleUserClick = (user) => {
@@ -107,7 +102,8 @@ const UserListSemester = () => {
         user._id === selectedUser._id ? updatedUser : user
       );
       dispatch(setUsersInSmt(updatedUsers));
-
+      dispatch(setRecentlyUpdatedUsers(selectedUser._id));
+      fetchCurrentSemester();
       // Cập nhật thông tin người dùng hiện tại
       setSelectedUser(response.data);
       setIsUserModalVisible(false); // Đóng modal
@@ -149,15 +145,10 @@ const UserListSemester = () => {
   const { errorMessages, fullClassUsers, failedEmails } = useSelector(
     (state) => state.error
   );
-  const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
-  const [isSwapModalVisible, setIsSwapModalVisible] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
   useState(false);
   const [isSelectRoleModalVisible, setIsSelectRoleModalVisible] =
     useState(false);
-  const isSemesterListUserSemester = location.pathname.includes(
-    "semester-list/user-semester"
-  );
+
   const [hasOpenedModalFromAdmin, setHasOpenedModalFromAdmin] = useState(false);
 
   const jwt = localStorage.getItem("jwt");
@@ -171,13 +162,7 @@ const UserListSemester = () => {
   const handleTableChange = (pagination) => {
     setPagination(pagination);
   };
-  const roleCounts = usersInSmt.reduce(
-    (acc, user) => {
-      acc[user.role] = (acc[user.role] || 0) + 1;
-      return acc;
-    },
-    { 4: 0, 2: 0, 3: 0, 5: 0 } // Initialize counts for each role
-  );
+
   const roles = [
     { id: 4, name: "Sinh viên" },
     { id: 2, name: "Giáo viên" },
@@ -211,25 +196,6 @@ const UserListSemester = () => {
     setIsSelectRoleModalVisible(true); // Mở modal chọn phương thức thêm người dùng
   };
 
-  const handleTransferModal = (student) => {
-    setSelectedStudent(student);
-    setIsTransferModalVisible(true);
-  };
-
-  const handleSwapModal = (student) => {
-    setSelectedStudent(student);
-    setIsSwapModalVisible(true);
-  };
-
-  const closeTransferModal = () => {
-    setIsTransferModalVisible(false);
-    setSelectedStudent(null);
-  };
-
-  const closeSwapModal = () => {
-    setIsSwapModalVisible(false);
-    setSelectedStudent(null);
-  };
   const handleRoleSelectCancel = () => {
     setIsRoleSelectModalVisible(false);
     setSelectedUploadRole(null);
@@ -287,6 +253,12 @@ const UserListSemester = () => {
 
   const columns = [
     {
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
+      align: "center",
+    },
+    {
       title: "Tên",
       dataIndex: "username",
       key: "username",
@@ -338,10 +310,22 @@ const UserListSemester = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
-      ),
+      render: (status) => {
+        let color = "red";
+        let text = "Không hoạt động";
+
+        if (status === "Active") {
+          color = "green";
+          text = "Hoạt động";
+        } else if (status === "Pending") {
+          color = "orange";
+          text = "Chưa có lớp";
+        }
+
+        return <Tag color={color}>{text}</Tag>;
+      },
     },
+
     {
       title: "Vai trò",
       dataIndex: "role",
@@ -485,6 +469,22 @@ const UserListSemester = () => {
                       selectedUser.rollNumber || "Không có"
                     )}
                   </p>
+                  <p>
+                    <b>Chuyên Ngành:</b>{" "}
+                    {isEditMode ? (
+                      <Input
+                        value={editedUser.major || ""}
+                        onChange={(e) =>
+                          setEditedUser({
+                            ...editedUser,
+                            major: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      selectedUser.major || "Không có"
+                    )}
+                  </p>
                 </>
               )}
               {selectedUser.role === 2 && (
@@ -517,14 +517,26 @@ const UserListSemester = () => {
                     }
                     style={{ width: "100%" }}
                   >
-                    <Select.Option value="Active">Active</Select.Option>
-                    <Select.Option value="Inactive">Inactive</Select.Option>
+                    <Select.Option value="Active">Hoạt động</Select.Option>
+                    <Select.Option value="InActive">
+                      Không hoạt động
+                    </Select.Option>
                   </Select>
                 ) : (
                   <Tag
-                    color={selectedUser.status === "Active" ? "green" : "red"}
+                    color={
+                      selectedUser.status === "Active"
+                        ? "green"
+                        : selectedUser.status === "Pending"
+                        ? "orange"
+                        : "red"
+                    }
                   >
-                    {selectedUser.status}
+                    {selectedUser.status === "Active"
+                      ? "Hoạt động"
+                      : selectedUser.status === "Pending"
+                      ? "Chưa có lớp"
+                      : "Không hoạt động"}
                   </Tag>
                 )}
               </p>
@@ -734,19 +746,7 @@ const UserListSemester = () => {
               }}
               semesterId={semester._id}
             />
-            <TransferClassModal
-              visible={isTransferModalVisible}
-              onCancel={closeTransferModal}
-              student={selectedStudent}
-              refreshData={fetchCurrentSemester}
-              currentSemester={currentSemester}
-            />
-            <SwapClassModal
-              visible={isSwapModalVisible}
-              onCancel={closeSwapModal}
-              student={selectedStudent}
-              refreshData={fetchCurrentSemester}
-            />
+
             <Modal
               title="Chọn loại người dùng"
               open={isRoleSelectModalVisible}

@@ -6,8 +6,9 @@ import {
   clearErrorMessages,
   clearFullClassUsers,
   clearErrorFileUrl,
-  clearGeneralError, // Thêm action để clear generalError
+  clearGeneralError,
 } from "../../redux/slice/ErrorSlice";
+import { useState } from "react";
 
 const ErrorAlerts = ({
   fullClassUsers,
@@ -38,16 +39,20 @@ const ErrorAlerts = ({
       template: "/templatesExcel/other_user_template.xlsx",
     },
   ];
-  // Lấy errorFileUrl từ Redux Store
+
   const errorFileUrl = useSelector((state) => state.error.errorFileUrl);
   const generalError = useSelector((state) => state.error.generalError);
+
+  const [showFullClassUsers, setShowFullClassUsers] = useState(false);
+  const [showErrorMessages, setShowErrorMessages] = useState(false);
+  const [showFailedEmails, setShowFailedEmails] = useState(false);
 
   const handleCloseFullClassUsers = () => {
     dispatch(clearFullClassUsers());
   };
   const handleCloseErrorMessages = () => {
     dispatch(clearErrorMessages());
-    dispatch(clearErrorFileUrl()); // Xóa errorFileUrl khi đóng cảnh báo
+    dispatch(clearErrorFileUrl());
   };
   const handleCloseFailedEmails = () => {
     dispatch(clearFailedEmails());
@@ -59,7 +64,6 @@ const ErrorAlerts = ({
 
   const handleDownloadErrorFile = () => {
     if (errorFileUrl) {
-      // Tạo một liên kết tạm thời để tải file
       const link = document.createElement("a");
       link.href = errorFileUrl;
       link.download = "error_file.xlsx";
@@ -72,7 +76,6 @@ const ErrorAlerts = ({
   const handleDownloadTemplate = () => {
     const role = roles.find((r) => r.id === selectedRole);
     if (role) {
-      // Tải file mẫu bằng cách tạo một liên kết và click vào nó
       const link = document.createElement("a");
       link.href = role.template;
       link.download = `${role.name}_template.xlsx`;
@@ -117,14 +120,35 @@ const ErrorAlerts = ({
           <Alert
             message="Không thể thêm vào lớp"
             description={
-              <ul>
-                {fullClassUsers.map((user) => (
-                  <li key={user.email}>
-                    {user.username} ({user.email}) không thể thêm vào lớp vì lớp
-                    đã đầy.
-                  </li>
-                ))}
-              </ul>
+              <div>
+                <ul
+                  style={{
+                    maxHeight: showFullClassUsers ? "fit-content" : "100px",
+                    overflow: "hidden",
+                    marginBottom: "10px",
+                    listStyle: "none",
+                    transition: "max-height 0.3s ease-in-out",
+                  }}
+                >
+                  {(showFullClassUsers
+                    ? fullClassUsers
+                    : fullClassUsers.slice(0, 3)
+                  ).map((user) => (
+                    <li key={user.email}>
+                      {user.username} ({user.email}) không thể thêm vào lớp vì
+                      lớp đã đầy.
+                    </li>
+                  ))}
+                </ul>
+                {fullClassUsers.length > 3 && (
+                  <Button
+                    type="link"
+                    onClick={() => setShowFullClassUsers(!showFullClassUsers)}
+                  >
+                    {showFullClassUsers ? "Thu gọn" : "Xem thêm"}
+                  </Button>
+                )}
+              </div>
             }
             type="error"
             showIcon
@@ -140,8 +164,19 @@ const ErrorAlerts = ({
             message="Lỗi khi thêm người dùng"
             description={
               <div>
-                <ul>
-                  {errorMessages.map((err, index) => (
+                <ul
+                  style={{
+                    maxHeight: showErrorMessages ? "fit-content" : "100px",
+                    overflow: "hidden",
+                    marginBottom: "10px",
+                    listStyle: "none",
+                    transition: "max-height 0.3s ease-in-out",
+                  }}
+                >
+                  {(showErrorMessages
+                    ? errorMessages
+                    : errorMessages.slice(0, 3)
+                  ).map((err, index) => (
                     <li key={index}>
                       {err.rowNumber && <strong>Dòng {err.rowNumber}:</strong>}{" "}
                       {err.email && (
@@ -153,6 +188,14 @@ const ErrorAlerts = ({
                     </li>
                   ))}
                 </ul>
+                {errorMessages.length > 3 && (
+                  <Button
+                    type="link"
+                    onClick={() => setShowErrorMessages(!showErrorMessages)}
+                  >
+                    {showErrorMessages ? "Thu gọn" : "Xem thêm"}
+                  </Button>
+                )}
                 {errorFileUrl && (
                   <Button
                     type="primary"
@@ -178,11 +221,32 @@ const ErrorAlerts = ({
           <Alert
             message="Không thể gửi email"
             description={
-              <ul>
-                {failedEmails.map((email) => (
-                  <li key={email}>{email}</li>
-                ))}
-              </ul>
+              <div>
+                <ul
+                  style={{
+                    maxHeight: showFailedEmails ? "fit-content" : "100px",
+                    overflow: "hidden",
+                    marginBottom: "10px",
+                    listStyle: "none",
+                    transition: "max-height 0.3s ease-in-out",
+                  }}
+                >
+                  {(showFailedEmails
+                    ? failedEmails
+                    : failedEmails.slice(0, 3)
+                  ).map((email) => (
+                    <li key={email}>{email}</li>
+                  ))}
+                </ul>
+                {failedEmails.length > 3 && (
+                  <Button
+                    type="link"
+                    onClick={() => setShowFailedEmails(!showFailedEmails)}
+                  >
+                    {showFailedEmails ? "Thu gọn" : "Xem thêm"}
+                  </Button>
+                )}
+              </div>
             }
             type="error"
             showIcon

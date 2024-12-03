@@ -50,6 +50,7 @@ const updateGroupProject = async (req, res, io) => {
       professionId,
       specialtyIds
     );
+    const recipients = [teacherId];
 
     const notificationMessage = `Dự án nhóm ${group.name} đã cập nhật.`;
     const notifications = await notificationDAO.createNotifications({

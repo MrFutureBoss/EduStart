@@ -70,4 +70,10 @@ adminRouter.post(
   verifyRole([1]),
   adminController.swapStudentsController
 );
+adminRouter.post(
+  "/apply-class-changes",
+  verifyAccessToken,
+  verifyRole([1]),
+  adminController.applyClassChanges
+);
 export default adminRouter;
