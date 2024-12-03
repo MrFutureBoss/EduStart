@@ -50,7 +50,7 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
 
   const handleLogout = () => {
     navigate("/");
-    localStorage.removeItem("jwt");
+    localStorage.clear();
   };
 
   return (

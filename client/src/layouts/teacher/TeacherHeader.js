@@ -116,7 +116,7 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
 
   const handleLogout = () => {
     navigate("/");
-    localStorage.removeItem("jwt");
+    localStorage.clear();
     dispatch(setUserLogin(null)); // Reset user state
   };
 

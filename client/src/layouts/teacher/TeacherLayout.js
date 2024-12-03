@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import MainLayout from "../../components/Admin/AdminMain";
 import { Content } from "antd/es/layout/layout";
 import { Breadcrumb, Layout } from "antd";
 import TeacherHeader from "./TeacherHeader";
 import TeacherSider from "./TeacherSidebar";
 import { Outlet } from "react-router-dom";
-import TeacherDashBoardNotification from "../../notifications/TeacherDashBoardNotification";
 
 const TeacherLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
