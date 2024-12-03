@@ -59,7 +59,7 @@ const CustomCalendar = ({ selectedEvent }) => {
   const groups = useSelector((state) => state.matchedGroup.data || []);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedSlotInfo, setSelectedSlotInfo] = useState(null);
-
+  const [selectedRange, setSelectedRange] = useState({ start: null, end: null });
   const config = useMemo(
     () => ({
       headers: {
@@ -263,8 +263,6 @@ const CustomCalendar = ({ selectedEvent }) => {
   };
 
   const handleSlotClick = (slot) => {
-    const startMoment = moment(slot.start);
-    const endMoment = startMoment.clone().add(150, "minutes"); // Adding 2 hours and 30 minutes
     const now = new Date();
 
     if (slot.start < now) {
@@ -274,21 +272,68 @@ const CustomCalendar = ({ selectedEvent }) => {
 
     if (doesOverlapWithExistingEvents(slot)) {
       message.error(
-        "Không thể thêm lịch họp này vì đã vướng thời gian trước hoặc hoặc sau"
+        "Không thể thêm lịch họp này vì đã vướng thời gian trước hoặc sau"
       );
       return;
     }
+  
+
+    const startMoment = moment(slot.start);
+    const endMoment = startMoment.clone().add(150, "minutes"); 
+    setSelectedRange({
+      start: startMoment.toDate(),
+      end: endMoment.toDate(),
+    });
 
     openModalWithSlotInfo(slot);
-    setSelectedSlotInfo({
-      start: startMoment.format("dddd, DD-MM-YYYY HH:mm"),
-      end: endMoment.format("HH:mm"),
-    });
   };
+
+  const slotPropGetter = (date) => {
+    if (
+      selectedRange.start &&
+      selectedRange.end &&
+      date >= selectedRange.start &&
+      date < selectedRange.end
+    ) {
+      const isFirstSlot = date.getTime() === selectedRange.start.getTime();
+      const isLastSlot =
+        moment(date).add(10, "minutes").toDate().getTime() ===
+        selectedRange.end.getTime();
+      if (isFirstSlot) {
+        // If it's the first slot in the selected range
+        return {
+          style: {
+            backgroundColor: "rgba(0, 123, 255, 0.5)",
+            border: "1px solid #007bff",
+            borderBottom: "none", // Remove the bottom border
+          },
+        };
+      } else if (isLastSlot) {
+        return {
+          style: {
+            backgroundColor: "rgba(0, 123, 255, 0.5)",
+            border: "1px solid #007bff",
+            borderTop: "none",
+          },
+        };
+      } else {
+        return {
+          style: {
+            backgroundColor: "rgba(0, 123, 255, 0.5)",
+            border: "1px solid #007bff",
+            borderTop: "none",
+            borderBottom: "none",
+          },
+        };
+      }
+    }
+    return {};
+  };
+  
 
   const doesOverlapWithExistingEvents = (selectedSlot) => {
     const selectedStart = moment(selectedSlot.start);
-    const selectedEnd = moment(selectedSlot.start).add(150, "minutes"); // Add 2 hours and 30 minutes to get end time
+    const selectedEnd = moment(selectedSlot.start).add(150, "minutes");
 
     for (const event of events) {
       const eventStart = moment(event.start);
@@ -320,6 +365,7 @@ const CustomCalendar = ({ selectedEvent }) => {
       <CreateFastMeetingDay
         open={isModalVisible}
         close={closeModal}
+        selectedSlotInfo={selectedSlotInfo}
         content={
           selectedSlotInfo && (
             <div>
@@ -359,7 +405,7 @@ const CustomCalendar = ({ selectedEvent }) => {
           <DragAndDropCalendar
             localizer={localizer}
             events={events}
-            defaultView="week" // Hiển thị theo week
+            defaultView="week"  
             views={{
               week: true,
               month: true,
@@ -445,8 +491,9 @@ const CustomCalendar = ({ selectedEvent }) => {
             min={minTime}
             max={maxTime}
             resizable={false}
-            selectable={true}
+            selectable
             onSelectSlot={(slot) => handleSlotClick(slot)}
+            slotPropGetter={slotPropGetter}
             components={{
               event: CustomEvent,
               week: {

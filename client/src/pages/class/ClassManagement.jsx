@@ -45,24 +45,7 @@ const ClassManagement = () => {
   const userId = localStorage.getItem("userId");
   const [showUngropColumn, setShowUngropColumn] = useState(false);
   const [showEmptyColumn, setShowEmptygropColumn] = useState(false);
-  const gridCard = "50%";
-  const items = [
-    {
-      key: "1",
-      label: <p style={{ padding: "0px", margin: "0px" }}>Ẩn đi</p>,
-      icon: <EyeInvisibleOutlined />,
-    },
-    {
-      key: "2",
-      label: <p style={{ padding: "0px", margin: "0px" }}>Mở rộng</p>,
-      icon: <ArrowsAltOutlined />,
-    },
-    {
-      key: "3",
-      label: <p style={{ padding: "0px", margin: "0px" }}>Di chuyển</p>,
-      icon: <IoIosMove />,
-    },
-  ];
+
   const config = useMemo(
     () => ({
       headers: {
@@ -170,7 +153,6 @@ const ClassManagement = () => {
                       gap: "1rem",
                     }}
                   >
-                    {/* <h5><FilterOutlined />Lọc vấn đề</h5> */}
                     <Tooltip title="Làm mới bảng">
                       <Button
                         onClick={() => handleResetFilterTable()}
