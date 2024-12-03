@@ -30,7 +30,11 @@ import CustomButton from "../../components/Button/Button";
 import Search from "antd/es/input/Search";
 import TransferClassModal from "../semester/userModel/TransferClassModal";
 import SwapClassModal from "../semester/userModel/SwapClassModal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setIsChangeSemester,
+  setSemester,
+} from "../../redux/slice/semesterSlide";
 
 const { Header, Content } = Layout;
 const { Option } = Select;
@@ -47,7 +51,10 @@ const ClassDetail = () => {
   const [transferModalVisible, setTransferModalVisible] = useState(false); // Modal chuyển lớp
   const [swapModalVisible, setSwapModalVisible] = useState(false); // Modal hoán đổi lớp
   const [selectedStudent, setSelectedStudent] = useState(null); // Học sinh được chọn để xử lý
-  const { currentSemester } = useSelector((state) => state.semester);
+  const { currentSemester, semester, sid, isChangeSemester } = useSelector(
+    (state) => state.semester
+  );
+  const dispatch = useDispatch();
 
   const [form] = Form.useForm();
   const jwt = localStorage.getItem("jwt");
@@ -61,6 +68,11 @@ const ClassDetail = () => {
     }),
     [jwt]
   );
+  useEffect(() => {
+    if (isChangeSemester === true) {
+      navigate(-1);
+    }
+  }, [isChangeSemester]);
 
   // Fetch class details
   const fetchClassDetails = async () => {
@@ -77,15 +89,36 @@ const ClassDetail = () => {
     }
   };
 
-  // Fetch teachers list
-  const fetchTeachers = async () => {
-    try {
-      const response = await axios(`${BASE_URL}/admins/teachers-list`, config);
-      setTeachers(response.data.teachers || []);
-    } catch (error) {
-      console.error("Error fetching teachers:", error);
+  const handleFetchCurrentSemesters = async () => {
+    {
+      try {
+        const semester = await axios.get(
+          `${BASE_URL}/semester/current`,
+          config
+        );
+        const response = await axios(
+          `${BASE_URL}/admins/teachers-list/${semester.data?._id}`,
+          config
+        );
+        setTeachers(response.data.teachers || []);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
     }
   };
+
+  // // Fetch teachers list
+  // const fetchTeachers = async () => {
+  //   try {
+  //     const response = await axios(
+  //       `${BASE_URL}/admins/teachers-list/${semester?._id}`,
+  //       config
+  //     );
+  //     setTeachers(response.data.teachers || []);
+  //   } catch (error) {
+  //     console.error("Error fetching teachers:", error);
+  //   }
+  // };
 
   // Open modal and set initial form values
   const handleEdit = () => {
@@ -150,7 +183,8 @@ const ClassDetail = () => {
 
   useEffect(() => {
     fetchClassDetails();
-    fetchTeachers();
+    // fetchTeachers();
+    handleFetchCurrentSemesters();
   }, [id]);
 
   if (loading) {
@@ -198,51 +232,49 @@ const ClassDetail = () => {
       dataIndex: "major",
       key: "major",
     },
-    {
-      title: "Hành động",
-      key: "actions",
-      render: (text, record) => {
-        const menu = (
-          <Menu>
-            <Menu.Item
-              key="transfer"
-              onClick={() => {
-                setSelectedStudent(record);
-                setTransferModalVisible(true); // Hiển thị modal chuyển lớp
-              }}
-            >
-              Chuyển lớp
-            </Menu.Item>
-            <Menu.Item
-              key="swap"
-              onClick={() => {
-                setSelectedStudent(record);
-                setSwapModalVisible(true); // Hiển thị modal hoán đổi lớp
-              }}
-            >
-              Hoán đổi lớp
-            </Menu.Item>
-          </Menu>
-        );
-        return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <Button
-              style={{ marginLeft: "17px" }}
-              icon={<PlusCircleOutlined />}
-            />
-          </Dropdown>
-        );
-      },
-    },
+
+    ...(semester.status !== "Finished"
+      ? [
+          {
+            title: "Hành động",
+            key: "actions",
+            render: (text, record) => {
+              const menu = (
+                <Menu>
+                  <Menu.Item
+                    key="transfer"
+                    onClick={() => {
+                      setSelectedStudent(record);
+                      setTransferModalVisible(true); // Hiển thị modal chuyển lớp
+                    }}
+                  >
+                    Chuyển lớp
+                  </Menu.Item>
+                  <Menu.Item
+                    key="swap"
+                    onClick={() => {
+                      setSelectedStudent(record);
+                      setSwapModalVisible(true); // Hiển thị modal hoán đổi lớp
+                    }}
+                  >
+                    Hoán đổi lớp
+                  </Menu.Item>
+                </Menu>
+              );
+
+              return (
+                <Dropdown overlay={menu} trigger={["click"]}>
+                  <Button
+                    style={{ marginLeft: "17px" }}
+                    icon={<PlusCircleOutlined />}
+                  />
+                </Dropdown>
+              );
+            },
+          },
+        ]
+      : []), // Nếu kỳ học đã kết thúc, không thêm cột "Hành động"
   ];
-
-  const handleTransfer = (student) => {
-    console.log("Chuyển lớp:", student);
-  };
-
-  const handleSwap = (student) => {
-    console.log("Hoán đổi lớp:", student);
-  };
 
   return (
     <Layout>
@@ -293,44 +325,46 @@ const ClassDetail = () => {
               title="Thông tin lớp "
               extra={
                 <Tooltip title="Chỉnh sửa thông tin">
-                  <Button
-                    style={{
-                      width: 25,
-                      height: 25,
-                      margin: " 5px 0",
-                    }}
-                    onClick={handleEdit}
-                    icon={
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="16"
-                        height="16"
-                        color="#000000"
-                        fill="none"
-                      >
-                        <path
-                          d="M14.0737 3.88545C14.8189 3.07808 15.1915 2.6744 15.5874 2.43893C16.5427 1.87076 17.7191 1.85309 18.6904 2.39232C19.0929 2.6158 19.4769 3.00812 20.245 3.79276C21.0131 4.5774 21.3972 4.96972 21.6159 5.38093C22.1438 6.37312 22.1265 7.57479 21.5703 8.5507C21.3398 8.95516 20.9446 9.33578 20.1543 10.097L10.7506 19.1543C9.25288 20.5969 8.504 21.3182 7.56806 21.6837C6.63212 22.0493 5.6032 22.0224 3.54536 21.9686L3.26538 21.9613C2.63891 21.9449 2.32567 21.9367 2.14359 21.73C1.9615 21.5234 1.98636 21.2043 2.03608 20.5662L2.06308 20.2197C2.20301 18.4235 2.27297 17.5255 2.62371 16.7182C2.97444 15.9109 3.57944 15.2555 4.78943 13.9445L14.0737 3.88545Z"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M13 4L20 11"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M14 22L22 22"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
-                    }
-                  />
+                  {semester.status !== "Finished" && (
+                    <Button
+                      style={{
+                        width: 25,
+                        height: 25,
+                        margin: " 5px 0",
+                      }}
+                      onClick={handleEdit}
+                      icon={
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          color="#000000"
+                          fill="none"
+                        >
+                          <path
+                            d="M14.0737 3.88545C14.8189 3.07808 15.1915 2.6744 15.5874 2.43893C16.5427 1.87076 17.7191 1.85309 18.6904 2.39232C19.0929 2.6158 19.4769 3.00812 20.245 3.79276C21.0131 4.5774 21.3972 4.96972 21.6159 5.38093C22.1438 6.37312 22.1265 7.57479 21.5703 8.5507C21.3398 8.95516 20.9446 9.33578 20.1543 10.097L10.7506 19.1543C9.25288 20.5969 8.504 21.3182 7.56806 21.6837C6.63212 22.0493 5.6032 22.0224 3.54536 21.9686L3.26538 21.9613C2.63891 21.9449 2.32567 21.9367 2.14359 21.73C1.9615 21.5234 1.98636 21.2043 2.03608 20.5662L2.06308 20.2197C2.20301 18.4235 2.27297 17.5255 2.62371 16.7182C2.97444 15.9109 3.57944 15.2555 4.78943 13.9445L14.0737 3.88545Z"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M13 4L20 11"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M14 22L22 22"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      }
+                    />
+                  )}
                 </Tooltip>
               }
             >

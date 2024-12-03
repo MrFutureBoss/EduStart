@@ -72,7 +72,7 @@ const createSemester = async (req, res) => {
 const updateSemester = async (req, res) => {
   try {
     const { semesterId } = req.params;
-    const { name, startDate, endDate } = req.body;
+    const { name, startDate, endDate, status } = req.body;
 
     const nameFormat = /^(SP|SU|FA)\d{2}$/;
     if (!nameFormat.test(name)) {
@@ -141,14 +141,39 @@ const updateSemester = async (req, res) => {
       });
     }
 
+    if (status === "Ongoing") {
+      const ongoingSemester = await semesterDAO.getSemesterByStatus("Ongoing");
+      if (ongoingSemester && ongoingSemester._id.toString() !== semesterId) {
+        return res.status(400).json({
+          message: "Chỉ có thể có một kỳ học đang diễn ra tại một thời điểm!",
+        });
+      }
+    }
+
     const updatedSemester = await semesterDAO.updateSemester(semesterId, {
       name,
       startDate: start.toDate(),
       endDate: end.toDate(),
+      status,
     });
 
     if (!updatedSemester) {
       return res.status(404).json({ message: "Kỳ học không tồn tại!" });
+    }
+    if (status === "Upcoming") {
+      // Set all users and classes in this semester to "Inactive"
+      await semesterDAO.updateUserStatusBySemesterId(semesterId, "InActive");
+      await semesterDAO.updateClassStatusBySemesterId(semesterId, "InActive");
+    } else if (status === "Ongoing") {
+      // Set all users and classes in this semester to "Active"
+      await semesterDAO.updateUserStatusBySemesterId(semesterId, "Active");
+      await semesterDAO.updateClassStatusBySemesterId(semesterId, "Active");
+    } else if (status === "Finished") {
+      // Set all users and classes in this semester to "Inactive" or "Completed"
+      await semesterDAO.updateUserStatusBySemesterId(semesterId, "InActive");
+      await semesterDAO.updateClassStatusBySemesterId(semesterId, "Completed");
+    } else {
+      return res.status(400).json({ message: "Trạng thái không hợp lệ!" });
     }
 
     return res.status(200).json(updatedSemester);
@@ -177,6 +202,10 @@ const autoUpdateSemesterStatus = async () => {
           semester._id,
           "InActive"
         );
+        await semesterDAO.updateClassStatusBySemesterId(
+          semester._id,
+          "InActive"
+        );
       }
 
       if (
@@ -186,6 +215,7 @@ const autoUpdateSemesterStatus = async () => {
       ) {
         await semesterDAO.updateSemesterStatus(semester._id, "Ongoing");
         await semesterDAO.updateUserStatusBySemesterId(semester._id, "Active");
+        await semesterDAO.updateClassStatusBySemesterId(semester._id, "Active");
       }
 
       if (
@@ -196,6 +226,10 @@ const autoUpdateSemesterStatus = async () => {
         await semesterDAO.updateUserStatusBySemesterId(
           semester._id,
           "InActive"
+        );
+        await semesterDAO.updateClassStatusBySemesterId(
+          semester._id,
+          "Completed"
         );
       }
     }
@@ -288,10 +322,75 @@ const getCurrentSemesterController = async (req, res) => {
   }
 };
 
+const getSemesterDetail = async (req, res) => {
+  const { semesterId } = req.params; // Lấy semesterId từ body
+
+  try {
+    // Kiểm tra nếu không có semesterId
+    if (!semesterId) {
+      return res.status(400).json({ message: "Vui lòng cung cấp semesterId." });
+    }
+
+    // Lấy thông tin kỳ học từ cơ sở dữ liệu
+    const semester = await semesterDAO.getSemesterById(semesterId);
+    if (!semester) {
+      return res.status(404).json({ message: "Kỳ học không tồn tại." });
+    }
+
+    // Fetch counts for users and classes
+    const {
+      studentCount,
+      teacherCount,
+      mentorCount,
+      classCount,
+      studentsWithClass,
+      studentsWithoutClass,
+      teachersWithClassCount,
+      teachersWithoutClassCount,
+      classesWithStudentsCount,
+      classesWithoutStudentsCount,
+      classesWithStudentsList,
+      classesWithoutStudentsList,
+      teachersWithClasses,
+      teachersWithoutClasses,
+      mentorsWithMatch,
+      mentorsWithoutMatch,
+    } = await semesterDAO.getCountsForSemester(semester._id);
+
+    // Respond with semester data and counts
+    res.status(200).json({
+      ...semester.toObject(),
+      studentCount,
+      teacherCount,
+      mentorCount,
+      classCount,
+      studentsWithClass,
+      studentsWithoutClass,
+      teachersWithClassCount,
+      teachersWithoutClassCount,
+      classesWithStudentsCount,
+      classesWithoutStudentsCount,
+      details: {
+        classesWithStudentsList,
+        classesWithoutStudentsList,
+        teachersWithClasses,
+        teachersWithoutClasses,
+        mentorsWithMatch,
+        mentorsWithoutMatch,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getSemesterDetail:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const checkSemesterStatus = async (req, res) => {
+  let { semesterId } = req.params;
+
   try {
     // Kiểm tra kỳ học hiện tại
-    const currentSemester = await semesterDAO.getCurrentSemester();
+    const currentSemester = await semesterDAO.getSemesterById(semesterId);
 
     if (currentSemester) {
       return res.status(200).json({
@@ -330,17 +429,7 @@ const checkSemesterStatus = async (req, res) => {
 const checkTeachersInSemester = async (req, res) => {
   try {
     // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
-    let { semesterId } = req.query;
-
-    if (!semesterId) {
-      const currentSemester = await semesterDAO.getCurrentSemester();
-      if (!currentSemester) {
-        return res.status(404).json({
-          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
-        });
-      }
-      semesterId = currentSemester._id;
-    }
+    let { semesterId } = req.params;
 
     // Kiểm tra giáo viên trong kỳ học
     const teachers = await semesterDAO.findTeachersInSemester(semesterId);
@@ -367,17 +456,7 @@ const checkTeachersInSemester = async (req, res) => {
 const checkMentorsInSemester = async (req, res) => {
   try {
     // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
-    let { semesterId } = req.query;
-
-    if (!semesterId) {
-      const currentSemester = await semesterDAO.getCurrentSemester();
-      if (!currentSemester) {
-        return res.status(404).json({
-          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
-        });
-      }
-      semesterId = currentSemester._id;
-    }
+    let { semesterId } = req.params;
 
     // Kiểm tra giáo viên trong kỳ học
     const mentors = await semesterDAO.findMentorsInSemester(semesterId);
@@ -404,17 +483,7 @@ const checkMentorsInSemester = async (req, res) => {
 const checkStudentsInSemester = async (req, res) => {
   try {
     // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
-    let { semesterId } = req.query;
-
-    if (!semesterId) {
-      const currentSemester = await semesterDAO.getCurrentSemester();
-      if (!currentSemester) {
-        return res.status(404).json({
-          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
-        });
-      }
-      semesterId = currentSemester._id;
-    }
+    let { semesterId } = req.params;
 
     // Kiểm tra giáo viên trong kỳ học
     const students = await semesterDAO.findStudentsInSemester(semesterId);
@@ -441,17 +510,7 @@ const checkStudentsInSemester = async (req, res) => {
 const checkStudentsInSemesterStatus = async (req, res) => {
   try {
     // Lấy semesterId từ request, nếu không có thì lấy kỳ học hiện tại
-    let { semesterId } = req.query;
-
-    if (!semesterId) {
-      const currentSemester = await semesterDAO.getCurrentSemester();
-      if (!currentSemester) {
-        return res.status(404).json({
-          message: "Không có kỳ học hiện tại để kiểm tra giáo viên.",
-        });
-      }
-      semesterId = currentSemester._id;
-    }
+    let { semesterId } = req.params;
 
     // Kiểm tra giáo viên trong kỳ học
     const pendingStudents = await semesterDAO.findStudentsInSemesterStatus(
@@ -478,8 +537,10 @@ const checkStudentsInSemesterStatus = async (req, res) => {
 };
 
 const checkClassCapacity = async (req, res) => {
+  let { semesterId } = req.params;
+
   try {
-    const classesStatus = await semesterDAO.getClassCapacityStatus();
+    const classesStatus = await semesterDAO.getClassCapacityStatus(semesterId);
     res.status(200).json({
       message: "Kiểm tra tình trạng các lớp học thành công.",
       data: classesStatus,
@@ -494,11 +555,30 @@ const checkClassCapacity = async (req, res) => {
 };
 
 const getTeachersWithoutClass = async (req, res) => {
+  let { semesterId } = req.params;
   try {
-    const teachersWithoutClass = await semesterDAO.findTeachersWithoutClass();
+    const teachersWithoutClass = await semesterDAO.findTeachersWithoutClass(
+      semesterId
+    );
     res.status(200).json({
       message: "Danh sách giáo viên chưa có lớp học.",
       data: teachersWithoutClass,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Có lỗi xảy ra khi lấy danh sách giáo viên chưa có lớp.",
+      error: error.message,
+    });
+  }
+};
+
+const checkProfessionAndSpeciatyExit = async (req, res) => {
+  try {
+    const checkData = await semesterDAO.checkDataExistence();
+    res.status(200).json({
+      message: "Thông tin lĩnh vực và chuyên môn.",
+      data: checkData,
     });
   } catch (error) {
     console.error(error);
@@ -522,4 +602,6 @@ export default {
   checkStudentsInSemesterStatus,
   checkClassCapacity,
   getTeachersWithoutClass,
+  getSemesterDetail,
+  checkProfessionAndSpeciatyExit,
 };

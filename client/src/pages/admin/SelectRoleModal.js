@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 const roles = [
   { id: 4, name: "Sinh viên" },
   { id: 2, name: "Giáo viên" },
-  { id: 3, name: "Mentor" },
+  { id: 3, name: "Người hướng dẫn" },
   { id: 5, name: "Người dùng khác" },
 ];
 

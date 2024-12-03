@@ -21,6 +21,8 @@
   background-repeat: no-repeat;
   width: 105px;
   height: 48px;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .logo-title {

@@ -27,9 +27,11 @@ import AddNewProfession from "./AddNewProfession.jsx";
 import EditProfession from "./EditProfession.jsx";
 import "../../style/Admin/Profession.css";
 import UpdateButton from "../../components/Button/UpdateButton.jsx";
+import { useLocation } from "react-router-dom";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const professions = useSelector((state) => state.profession.professions.data);
   const specialties = useSelector(
     (state) => state.specialty.specialties.data || []
@@ -56,6 +58,12 @@ const ProfessionManagement = () => {
       })
       .catch((err) => console.log("Error fetching professions", err));
   }, [dispatch, currentPage, pageSize]);
+
+  useEffect(() => {
+    if (location.state?.admin) {
+      handleOpenModal();
+    }
+  }, [location.state]);
 
   const fetchSpecialties = async () => {
     try {

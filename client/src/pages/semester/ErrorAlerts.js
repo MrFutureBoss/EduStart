@@ -29,7 +29,7 @@ const ErrorAlerts = ({
     },
     {
       id: 3,
-      name: "Mentor",
+      name: "Người hướng dẫn",
       template: "/templatesExcel/mentor_template.xlsx",
     },
     {

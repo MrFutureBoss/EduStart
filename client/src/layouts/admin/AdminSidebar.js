@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import { GrGroup } from "react-icons/gr";
+import { useSelector } from "react-redux";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -23,6 +24,7 @@ const AppSider = ({
 }) => {
   const location = useLocation();
   const selectedKey = location.pathname.split("/")[2];
+  const { sid } = useSelector((state) => state.semester);
 
   return (
     <Sider
@@ -45,12 +47,8 @@ const AppSider = ({
             Dashboard
           </Link>
         </Menu.Item>
-        {currentSemester && (
-          <SubMenu
-            key="sub1"
-            icon={<ScheduleOutlined />}
-            title="Kỳ học hiện tại"
-          >
+        {sid && (
+          <>
             <Menu.Item
               key="current-semester"
               icon={
@@ -109,51 +107,7 @@ const AppSider = ({
                 Quản lý lớp học
               </Link>
             </Menu.Item>
-            <Menu.Item
-              key="list-request"
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  width="19"
-                  height="19"
-                  color="#000000"
-                  fill="none"
-                >
-                  <path
-                    d="M2 11C4.3317 8.55783 7.64323 8.44283 10 11M8.49509 4.5C8.49509 5.88071 7.37421 7 5.99153 7C4.60885 7 3.48797 5.88071 3.48797 4.5C3.48797 3.11929 4.60885 2 5.99153 2C7.37421 2 8.49509 3.11929 8.49509 4.5Z"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                  <path
-                    d="M14 22C16.3317 19.5578 19.6432 19.4428 22 22M20.4951 15.5C20.4951 16.8807 19.3742 18 17.9915 18C16.6089 18 15.488 16.8807 15.488 15.5C15.488 14.1193 16.6089 13 17.9915 13C19.3742 13 20.4951 14.1193 20.4951 15.5Z"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                  <path
-                    d="M3 14C3 17.87 6.13 21 10 21L9 19"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M15 3H21M15 6H21M15 9H18.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              }
-            >
-              <Link style={{ textDecoration: "none" }} to="list-request">
-                Yêu cầu hỗ trợ
-              </Link>
-            </Menu.Item>
-          </SubMenu>
+          </>
         )}
         <Menu.Item key="semester-list" icon={<UnorderedListOutlined />}>
           <Link style={{ textDecoration: "none" }} to="semester-list">

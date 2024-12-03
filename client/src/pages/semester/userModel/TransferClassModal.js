@@ -11,7 +11,7 @@ import {
 import axios from "axios";
 import { BASE_URL } from "../../../utilities/initalValue";
 import "./TransferClassModal.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setRecentlyUpdatedUsers } from "../../../redux/slice/UserSlice";
 import { updateTransferRequestStatus } from "../../../api";
 
@@ -35,8 +35,7 @@ const TransferClassModal = ({
   const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const jwt = localStorage.getItem("jwt");
-  console.log("student", student);
-  console.log(requestId);
+  const { sid } = useSelector((state) => state.semester);
 
   const config = {
     headers: {
@@ -56,8 +55,8 @@ const TransferClassModal = ({
     setLoading(true);
     try {
       const apiUrl = isHander
-        ? `${BASE_URL}/class/all-class/${currentSemester._id}`
-        : `${BASE_URL}/admins/${currentSemester?._id}/available/class`;
+        ? `${BASE_URL}/class/all-class/${sid}`
+        : `${BASE_URL}/admins/${sid}/available/class`;
 
       const response = await axios.get(apiUrl, config);
 

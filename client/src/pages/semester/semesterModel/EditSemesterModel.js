@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, DatePicker, Button } from "antd";
+import { Modal, Form, Input, DatePicker, Select, Button, message } from "antd";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
+
+const { Option } = Select;
 
 const EditSemesterModal = ({
   visible,
@@ -16,10 +18,10 @@ const EditSemesterModal = ({
 }) => {
   const [form] = Form.useForm();
 
-  // State để lưu dữ liệu ban đầu
+  // State to store initial values
   const [initialValues, setInitialValues] = useState({});
 
-  // State để kiểm soát việc có cho phép nhấn nút Lưu hay không
+  // State to control the Save button
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
   useEffect(() => {
@@ -28,13 +30,14 @@ const EditSemesterModal = ({
         name: semester.name,
         startDate: semester.startDate ? dayjs(semester.startDate) : null,
         endDate: semester.endDate ? dayjs(semester.endDate) : null,
+        status: semester.status || "Upcoming",
       };
       form.setFieldsValue(initialData);
       setInitialValues(initialData);
-      setIsSaveDisabled(true); // Disable save button khi load dữ liệu ban đầu
+      setIsSaveDisabled(true); // Disable save button when loading initial data
     } else {
       form.resetFields();
-      setIsSaveDisabled(true); // Disable save button khi không có dữ liệu
+      setIsSaveDisabled(true); // Disable save button when no data is present
     }
   }, [semester, form]);
 
@@ -48,35 +51,69 @@ const EditSemesterModal = ({
     }
   }, [apiErrors, form]);
 
-  // Xử lý khi người dùng ấn nút Lưu
+  // Handle Save button click
   const handleOk = () => {
     form
       .validateFields()
       .then((values) => {
+        // Check if changing to "Finished" status
+        if (values.status === "Finished") {
+          const endDate = values.endDate;
+          const today = dayjs();
+
+          // Calculate the difference between today and the end date
+          const daysDifference = today.diff(endDate, "day");
+
+          // If the difference is more than 5 days, prompt for confirmation
+          if (daysDifference > 5) {
+            Modal.confirm({
+              title: "Xác nhận thay đổi trạng thái kỳ học",
+              content: `Hiện tại chưa đến thời gian kỳ học kết thúc. Bạn có chắc chắn muốn thay đổi trạng thái kỳ học về "Đã kết thúc"?`,
+              okText: "Xác nhận",
+              cancelText: "Hủy",
+              onOk: () => {
+                // Proceed with updating the semester
+                onOk({
+                  ...semester,
+                  name: values.name,
+                  startDate: values.startDate.toISOString(),
+                  endDate: values.endDate.toISOString(),
+                  status: values.status,
+                });
+              },
+            });
+            return;
+          }
+        }
+
+        // Proceed with updating if no confirmation is needed
         onOk({
           ...semester,
           name: values.name,
           startDate: values.startDate.toISOString(),
           endDate: values.endDate.toISOString(),
+          status: values.status,
         });
       })
-      .catch((info) => {});
+      .catch((info) => {
+        message.error("Vui lòng kiểm tra lại thông tin đã nhập!");
+      });
   };
 
-  // Hàm kiểm tra nếu dữ liệu hiện tại khác với dữ liệu ban đầu
+  // Handle value changes
   const handleValuesChange = (changedValues, allValues) => {
     const isChanged =
       allValues.name !== initialValues.name ||
       !dayjs(allValues.startDate).isSame(initialValues.startDate, "day") ||
-      !dayjs(allValues.endDate).isSame(initialValues.endDate, "day");
-    setIsSaveDisabled(!isChanged); // Enable nút Lưu nếu có thay đổi
+      !dayjs(allValues.endDate).isSame(initialValues.endDate, "day") ||
+      allValues.status !== initialValues.status;
+    setIsSaveDisabled(!isChanged); // Enable Save button if any change is detected
   };
 
   return (
     <Modal
       title="Chỉnh sửa kỳ học"
       open={visible}
-      onOk={handleOk}
       onCancel={() => {
         onCancel();
         form.resetFields();
@@ -205,6 +242,18 @@ const EditSemesterModal = ({
           ]}
         >
           <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item
+          name="status"
+          label="Trạng thái"
+          rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
+        >
+          <Select placeholder="Chọn trạng thái">
+            <Option value="Upcoming">Sắp diễn ra</Option>
+            <Option value="Ongoing">Đang diễn ra</Option>
+            <Option value="Finished">Đã kết thúc</Option>
+          </Select>
         </Form.Item>
       </Form>
     </Modal>
