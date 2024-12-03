@@ -5,7 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "../../../style/Calendar/CustomCalendar.css";
-import { Button, message, Tag, Tooltip } from "antd";
+import { Button, message, Modal, Tag, Tooltip } from "antd";
 
 // Đặt ngôn ngữ là tiếng Việt cho Moment
 import "moment/locale/vi";
@@ -14,6 +14,7 @@ import { BASE_URL } from "../../../utilities/initalValue";
 import { setMatchedGroups } from "../../../redux/slice/MatchedGroupSlice";
 import axios from "axios";
 import MeetingTimeDetail from "./MeetingTimeDetail";
+import CreateFastMeetingDay from "./CreateFastMeetingDay";
 moment.locale("vi");
 
 const localizer = momentLocalizer(moment);
@@ -56,19 +57,8 @@ const CustomCalendar = ({ selectedEvent }) => {
   const [eventId, setEventId] = useState("");
   const [eventGroup, setEventGroup] = useState("");
   const groups = useSelector((state) => state.matchedGroup.data || []);
-  const groupColors = {};
-
-  const getRandomColor = () => {
-    const colors = ["#1890FF", "#B0B0B0", "#FFE4C4"]; // Blue (primary), Grey, Bisque
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
-
-  const assignGroupColor = (groupName) => {
-    if (!groupColors[groupName]) {
-      groupColors[groupName] = getRandomColor();
-    }
-    return groupColors[groupName];
-  };
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedSlotInfo, setSelectedSlotInfo] = useState(null);
 
   const config = useMemo(
     () => ({
@@ -272,8 +262,85 @@ const CustomCalendar = ({ selectedEvent }) => {
     );
   };
 
+  const handleSlotClick = (slot) => {
+    const startMoment = moment(slot.start);
+    const endMoment = startMoment.clone().add(150, "minutes"); // Adding 2 hours and 30 minutes
+    const now = new Date();
+
+    if (slot.start < now) {
+      message.warning("Không thể tạo lịch họp với thời gian đã qua");
+      return;
+    }
+
+    if (doesOverlapWithExistingEvents(slot)) {
+      message.error(
+        "Không thể thêm lịch họp này vì đã vướng thời gian trước hoặc hoặc sau"
+      );
+      return;
+    }
+
+    openModalWithSlotInfo(slot);
+    setSelectedSlotInfo({
+      start: startMoment.format("dddd, DD-MM-YYYY HH:mm"),
+      end: endMoment.format("HH:mm"),
+    });
+  };
+
+  const doesOverlapWithExistingEvents = (selectedSlot) => {
+    const selectedStart = moment(selectedSlot.start);
+    const selectedEnd = moment(selectedSlot.start).add(150, "minutes"); // Add 2 hours and 30 minutes to get end time
+
+    for (const event of events) {
+      const eventStart = moment(event.start);
+      const eventEnd = moment(event.end);
+
+      if (
+        selectedStart.isBetween(eventStart, eventEnd, null, "[)") ||
+        selectedEnd.isBetween(eventStart, eventEnd, null, "[)")
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const openModalWithSlotInfo = (slot) => {
+    setSelectedSlotInfo(slot);
+    setIsModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setSelectedSlotInfo(null);
+  };
+
   return (
     <div>
+      <CreateFastMeetingDay
+        open={isModalVisible}
+        close={closeModal}
+        content={
+          selectedSlotInfo && (
+            <div>
+              <p>
+                <strong>Ngày:</strong>{" "}
+                {moment(selectedSlotInfo.start).format("dddd, DD-MM-YYYY")}
+              </p>
+              <p>
+                <strong>Giờ Bắt Đầu:</strong>{" "}
+                {moment(selectedSlotInfo.start).format("HH:mm")}
+              </p>
+              <p>
+                <strong>Giờ Kết Thúc:</strong>{" "}
+                {moment(selectedSlotInfo.start)
+                  .add(2.5, "hours")
+                  .format("HH:mm")}
+              </p>
+            </div>
+          )
+        }
+      />
       <MeetingTimeDetail
         open={isScheduleOpen}
         close={HandleCloseSchedule}
@@ -354,7 +421,7 @@ const CustomCalendar = ({ selectedEvent }) => {
           <Calendar
             localizer={localizer}
             events={events}
-            defaultView="week" // Hiển thị theo week
+            defaultView="week"
             views={{
               week: true,
               month: true,
@@ -377,6 +444,9 @@ const CustomCalendar = ({ selectedEvent }) => {
             timeslots={6}
             min={minTime}
             max={maxTime}
+            resizable={false}
+            selectable={true}
+            onSelectSlot={(slot) => handleSlotClick(slot)}
             components={{
               event: CustomEvent,
               week: {

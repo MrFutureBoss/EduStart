@@ -116,11 +116,8 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
 
   const handleLogout = () => {
     navigate("/");
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("selectedClassId");
-    localStorage.removeItem("selectedProjectData");
-    localStorage.removeItem("selectedProject");
-    dispatch(setUserLogin(null));
+    localStorage.clear();
+    dispatch(setUserLogin(null)); // Reset user state
   };
 
   // Close dropdown when clicking outside

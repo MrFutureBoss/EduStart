@@ -9,7 +9,6 @@
   color: white;
   font-size: 14px !important;
   background: #149cdb;
-  padding: 0px !important;
 }
 
 .rbc-allday-cell {
@@ -116,3 +115,23 @@ div .rbc-event-content {
 .rbc-current-time-indicator {
   display: none;
 }
+
+.rbc-timeslot-group {
+  position: relative;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.rbc-day-slot .rbc-timeslot-group:hover {
+  border: 2px solid #1890ff;
+  animation: borderPulse 1s infinite alternate;
+}
+
+@keyframes borderPulse {
+  0% {
+    border-color: #1890ff;
+  }
+  100% {
+    border-color: #40a9ff; /* A slight variation of the original color for the animation */
+  }
+}
+

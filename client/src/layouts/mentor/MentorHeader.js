@@ -61,7 +61,7 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
 
   const handleLogout = () => {
     navigate("/");
-    localStorage.removeItem("jwt");
+    localStorage.clear();
   };
 
   useEffect(() => {

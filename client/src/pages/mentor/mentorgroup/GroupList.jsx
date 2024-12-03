@@ -932,8 +932,7 @@ const GroupList = () => {
                       width: "fit-content",
                     }}
                   >
-                    Lịch họp của {selectedGroup?.class.className} -{" "}
-                    {selectedGroup?.group.name}
+                    Lịch họp các nhóm
                   </h5>
                 }
                 extra={
