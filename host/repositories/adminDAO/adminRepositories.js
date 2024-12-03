@@ -208,6 +208,70 @@ const swapStudents = async (studentId1, studentId2) => {
   return { student1, student2 };
 };
 
+// Thêm semesterId cho người dùng
+const addSemesterToUser = async (userId, semesterId) => {
+  try {
+    await User.findByIdAndUpdate(userId, { $addToSet: { semesterId } });
+  } catch (error) {
+    console.error(
+      `Lỗi khi thêm semesterId cho người dùng ID: ${userId}`,
+      error
+    );
+    throw error;
+  }
+};
+
+// Tìm hoặc tạo lớp học và đếm số học sinh
+const findClassByNameAndSemester = async (className, semesterId) => {
+  return await Class.findOne({ className, semesterId });
+};
+
+// Tìm lớp theo ID
+const findClassById = async (classId) => {
+  return await Class.findById(classId);
+};
+
+// Đếm số học sinh trong lớp
+const countStudentsInClass = async (classId, semesterId) => {
+  return await User.countDocuments({
+    classId: classId,
+    semesterId: semesterId,
+    status: "Active",
+  });
+};
+
+// Tăng số lượng học sinh trong lớp (Nếu bạn lưu studentCount trong Class model)
+const incrementStudentCount = async (classId) => {
+  // Nếu không lưu studentCount trong Class model, có thể bỏ qua
+  // await Class.findByIdAndUpdate(classId, { $inc: { studentCount: 1 } });
+};
+
+// Giảm số lượng học sinh trong lớp (Nếu bạn lưu studentCount trong Class model)
+const decrementStudentCount = async (classId) => {
+  // Nếu không lưu studentCount trong Class model, có thể bỏ qua
+  // await Class.findByIdAndUpdate(classId, { $inc: { studentCount: -1 } });
+};
+
+// Thêm semesterId vào người dùng
+const addSemesterIdToUser = async (userId, semesterId) => {
+  try {
+    await User.findByIdAndUpdate(userId, { $addToSet: { semesterId } });
+  } catch (error) {
+    console.error(`Error adding semesterId to user: ${error.message}`);
+    throw new Error(error.message);
+  }
+};
+
+// Tìm người dùng theo ID và populate classId để lấy className
+const findUserById = async (userId) => {
+  try {
+    const user = await User.findById(userId).populate("classId").exec();
+    return user;
+  } catch (error) {
+    console.error(`Lỗi khi tìm kiếm người dùng theo ID: ${userId}`, error);
+    throw error;
+  }
+};
 export default {
   findTeacherByUsername,
   findOrCreateClass,
@@ -220,4 +284,12 @@ export default {
   createUser,
   transferStudent,
   swapStudents,
+  addSemesterToUser,
+  findClassByNameAndSemester,
+  addSemesterIdToUser,
+  decrementStudentCount,
+  incrementStudentCount,
+  countStudentsInClass,
+  findClassById,
+  findUserById,
 };

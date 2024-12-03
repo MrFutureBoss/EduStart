@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Profession from "../../models/professionModel.js";
-import Specialty from "../../models/SpecialtyModel.js";
+import Specialty from "../../models/specialtyModel.js";
 
 const getAllProfessions = async (status, skip, limit, search) => {
   try {
@@ -248,10 +248,12 @@ const deleteProfessionAndSpecialties = async (professionId) => {
 
 const getAllProfessionsWithSpecialties = async () => {
   try {
-    // Lấy tất cả các profession cùng với các specialty liên quan
-    const professions = await Profession.find({})
-      .populate("specialty") // Lấy các specialty liên quan
-      .sort({ name: 1 }) // Sắp xếp theo tên cho dễ chọn lựa (có thể bỏ nếu không cần)
+    const professions = await Profession.find({ status: true })
+      .populate({
+        path: "specialty",
+        match: { status: true },
+      })
+      .sort({ name: 1 })
       .exec();
 
     return professions;
@@ -261,6 +263,7 @@ const getAllProfessionsWithSpecialties = async () => {
     );
   }
 };
+
 export default {
   getAllProfessions,
   getProfessionById,

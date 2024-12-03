@@ -120,9 +120,20 @@ const ProjectUpdateModal = ({
     );
   };
 
-  const handleSpecialtyChange = (specId, checked) => {
+  const handleSpecialtyChange = (specId, checked, professionId) => {
     let nextSelectedSpecialties = [...selectedSpecialties];
     if (checked) {
+      const currentProfessionSpecs = nextSelectedSpecialties.filter((id) =>
+        specialtiesMap[professionId]?.some((spec) => spec._id === id)
+      );
+
+      if (currentProfessionSpecs.length >= 4) {
+        message.warning(
+          "Bạn chỉ có thể chọn tối đa 4 chuyên môn cho một lĩnh vực."
+        );
+        return;
+      }
+
       nextSelectedSpecialties.push(specId);
     } else {
       nextSelectedSpecialties = nextSelectedSpecialties.filter(
@@ -366,8 +377,13 @@ const ProjectUpdateModal = ({
                             <Tooltip title={spec.name}>
                               <CheckableTag
                                 checked={selectedSpecialties.includes(spec._id)}
-                                onChange={(checked) =>
-                                  handleSpecialtyChange(spec._id, checked)
+                                onChange={
+                                  (checked) =>
+                                    handleSpecialtyChange(
+                                      spec._id,
+                                      checked,
+                                      profId
+                                    ) // Truyền thêm professionId
                                 }
                                 style={{
                                   borderRadius: "6px",

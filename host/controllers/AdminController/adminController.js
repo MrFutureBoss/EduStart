@@ -236,60 +236,163 @@ const validateExcelStructure = (data, role, rowNumber, errorMessages) => {
 
 const insertListUsers = async (req, res, next) => {
   try {
-    const { semesterId, role } = req.body;
+    const { semesterId, role, confirmChanges } = req.body;
+    const file = req.file;
 
     // Kiểm tra thông tin cơ bản của request
     if (!semesterId) {
-      const error = new Error("Semester ID không tồn tại.");
-      error.statusCode = 400;
-      throw error;
+      return res.status(400).json({ error: "Semester ID không tồn tại." });
     }
     if (!role) {
-      const error = new Error("Role không tồn tại.");
-      error.statusCode = 400;
-      throw error;
+      return res.status(400).json({ error: "Role không tồn tại." });
     }
-
-    const file = req.file;
     if (!file) {
-      const error = new Error("File không tồn tại.");
-      error.statusCode = 400;
-      throw error;
+      return res.status(400).json({ error: "File không tồn tại." });
     }
 
-    const workbook = xlsx.read(file.buffer);
-    const sheet_name_list = workbook.SheetNames;
-    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {
+    // Đọc file Excel
+    const workbook = xlsx.read(file.buffer, { type: "buffer" });
+    const sheetNameList = workbook.SheetNames;
+    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]], {
       defval: "",
     });
 
     // Khai báo các biến để đếm và lưu trữ thông tin
     let totalUsersAdded = 0;
     let totalUsersUpdated = 0;
-    const errorMessages = []; // Mảng chứa các lỗi chi tiết
+    const errorMessages = [];
     const duplicateEmails = [];
     const duplicateRollNumbers = [];
     const duplicateMemberCodes = [];
     const usersToInsert = [];
     const usersToEmail = [];
-    const fullClassUsers = [];
-    const failedEmails = [];
     const existingUserName = [];
-    // Nhóm dữ liệu theo className (only role 4)
-    const classUsersMap = {}; // { className: [user1, user2, ...] }
+    const proposedClassChanges = [];
+
+    // Thêm các Set để theo dõi trùng lặp trong dữ liệu tải lên
+    const emailsInUpload = new Set();
+    const rollNumbersInUpload = new Set();
+    const memberCodesInUpload = new Set();
+
+    // Nhóm dữ liệu theo className (chỉ cho role 4)
+    const classUsersMap = {};
 
     try {
-      validateExcelStructure(data, role, 1, errorMessages); // Kiểm tra dòng 1 (tiêu đề)
+      validateExcelStructure(data, role, 1, errorMessages);
+
+      if (errorMessages.length > 0) {
+        throw new Error("Định dạng file không hợp lệ.");
+      }
     } catch (validationError) {
-      return res.status(400).json({ generalError: validationError.message }); // Trả về thông báo lỗi ngay lập tức nếu file sai định dạng
+      return res
+        .status(400)
+        .json({ generalError: validationError.message, errorMessages });
+    }
+
+    // Nếu đã xác nhận các thay đổi lớp, tiến hành cập nhật
+    if (confirmChanges && Array.isArray(confirmChanges)) {
+      for (const change of confirmChanges) {
+        const {
+          userId,
+          newClassId,
+          teacherUsername,
+          newClassName,
+          limitStudent,
+        } = change;
+        try {
+          const user = await adminsDAO.findUserById(userId);
+          if (user) {
+            // Kiểm tra lớp mới có tồn tại và còn chỗ không
+            let newClass = await adminsDAO.findClassById(newClassId);
+            if (!newClass) {
+              // Nếu lớp mới không tồn tại, tạo mới lớp
+              if (!teacherUsername || !newClassName) {
+                errorMessages.push({
+                  userId,
+                  message:
+                    "Thiếu thông tin teacherUsername hoặc newClassName để tạo lớp mới.",
+                });
+                continue;
+              }
+
+              const teacher = await adminsDAO.findTeacherByUsername(
+                teacherUsername,
+                semesterId
+              );
+              if (!teacher) {
+                errorMessages.push({
+                  userId,
+                  message: `Không tìm thấy giáo viên với username: ${teacherUsername} để tạo lớp mới.`,
+                });
+                continue;
+              }
+
+              // Tạo lớp mới
+              try {
+                newClass = await classDAO.createClass({
+                  className: newClassName,
+                  semesterId: semesterId,
+                  teacherId: teacher._id,
+                  limitStudent: limitStudent || 30, // Giá trị mặc định nếu không có
+                  status: "Active",
+                });
+
+                if (!newClass) {
+                  errorMessages.push({
+                    userId,
+                    message: `Không thể tạo lớp mới với tên: ${newClassName}`,
+                  });
+                  continue;
+                }
+              } catch (createClassError) {
+                errorMessages.push({
+                  userId,
+                  message: `Lỗi khi tạo lớp mới: ${createClassError.message}`,
+                });
+                continue;
+              }
+            }
+
+            // Đếm số học sinh hiện tại trong lớp mới
+            const studentCount = await adminsDAO.countStudentsInClass(
+              newClass._id,
+              semesterId
+            );
+
+            if (studentCount >= newClass.limitStudent) {
+              errorMessages.push({
+                userId,
+                message: `Lớp ${newClass.className} đã đầy.`,
+              });
+              continue;
+            }
+
+            // Chuyển học sinh sang lớp mới
+            await adminsDAO.transferStudent(userId, newClass._id);
+
+            totalUsersUpdated += 1;
+          }
+        } catch (error) {
+          errorMessages.push({
+            userId,
+            message: `Lỗi khi cập nhật lớp cho người dùng ID ${userId}: ${error.message}`,
+          });
+        }
+      }
+
+      return res.status(200).json({
+        success: totalUsersUpdated > 0,
+        message: `${totalUsersUpdated} người dùng đã được cập nhật lớp mới.`,
+        errorMessages,
+      });
     }
 
     // Chuẩn hóa và kiểm tra dữ liệu từ file
-    let rowNumber = 1; // Bắt đầu từ dòng 1 (tiêu đề)
+    let rowNumber = 1;
     for (const row of data) {
-      rowNumber++; // Tăng số dòng lên
+      rowNumber++;
       let user;
-      const rowErrors = []; // Mảng chứa các lỗi của dòng hiện tại
+      const rowErrors = [];
       try {
         user = normalizeUserData(row, role, "excel");
       } catch (error) {
@@ -300,6 +403,55 @@ const insertListUsers = async (req, res, next) => {
           message: `Lỗi dữ liệu trong file: ${error.message}`,
         });
         continue;
+      }
+
+      // Kiểm tra trùng lặp trong dữ liệu đang tải lên
+
+      // Kiểm tra email
+      if (emailsInUpload.has(user.email)) {
+        rowErrors.push(`Email trùng lặp trong file upload: ${user.email}`);
+        errorMessages.push({
+          email: user.email,
+          rowNumber,
+          message: `Email trùng lặp trong file upload: ${user.email}`,
+        });
+        continue;
+      } else {
+        emailsInUpload.add(user.email);
+      }
+
+      // Kiểm tra rollNumber
+      if (user.rollNumber) {
+        if (rollNumbersInUpload.has(user.rollNumber)) {
+          rowErrors.push(
+            `Mã số sinh viên trùng lặp trong file upload: ${user.rollNumber}`
+          );
+          errorMessages.push({
+            email: user.email,
+            rowNumber,
+            message: `Mã số sinh viên trùng lặp trong file upload: ${user.rollNumber}`,
+          });
+          continue;
+        } else {
+          rollNumbersInUpload.add(user.rollNumber);
+        }
+      }
+
+      // Kiểm tra memberCode
+      if (user.memberCode) {
+        if (memberCodesInUpload.has(user.memberCode)) {
+          rowErrors.push(
+            `Mã thành viên trùng lặp trong file upload: ${user.memberCode}`
+          );
+          errorMessages.push({
+            email: user.email,
+            rowNumber,
+            message: `Mã thành viên trùng lặp trong file upload: ${user.memberCode}`,
+          });
+          continue;
+        } else {
+          memberCodesInUpload.add(user.memberCode);
+        }
       }
 
       // Kiểm tra email hợp lệ cho role giáo viên (role 2) và mentor (role 3)
@@ -317,152 +469,357 @@ const insertListUsers = async (req, res, next) => {
         continue;
       }
 
-      // Kiểm tra xem email đã tồn tại chưa
+      // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
       const existingUser = await adminsDAO.findUserByEmail(user.email);
       if (existingUser) {
+        // Người dùng đã tồn tại
         // Kiểm tra xem người dùng đã tham gia vào kỳ học hiện tại chưa
-        const isInCurrentSemester =
-          Array.isArray(existingUser.semesterId) &&
-          existingUser.semesterId
-            .map((id) => id.toString())
-            .includes(semesterId);
+        const isInCurrentSemester = existingUser.semesterId
+          .map((id) => id.toString())
+          .includes(semesterId);
 
         if (isInCurrentSemester) {
-          duplicateEmails.push(user.email);
-          errorMessages.push({
-            email: user.email,
-            rowNumber,
-            message: `Email đã tồn tại trong kỳ học hiện tại.`,
-          });
-          continue;
-        } else {
-          // Kiểm tra các kỳ học trước đó của người dùng đã hoàn thành chưa
-          if (existingUser.semesterId.length > 0) {
-            const previousSemesters = await semesterDAO.findSemesterFinished(
-              existingUser.semesterId
-            );
+          // Kiểm tra lớp hiện tại của người dùng
+          const currentClassId = existingUser.classId
+            ? existingUser.classId.toString()
+            : null;
+          const newClassName = user.className;
 
-            if (previousSemesters.length !== existingUser.semesterId.length) {
+          // Tìm lớp mới dựa trên className và semesterId
+          let newClass = await adminsDAO.findClassByNameAndSemester(
+            newClassName,
+            semesterId
+          );
+
+          if (!newClass) {
+            // Nếu lớp mới không tồn tại, tạo mới lớp
+            const teacherUsername = user.teacherUsername;
+            if (!teacherUsername || !newClassName) {
+              rowErrors.push(
+                `Thiếu teacherUsername hoặc newClassName để tạo lớp mới: ${newClassName}`
+              );
               errorMessages.push({
                 email: user.email,
                 rowNumber,
-                message: `Người dùng có các kỳ học chưa hoàn thành.`,
+                message: `Thiếu teacherUsername hoặc newClassName để tạo lớp mới: ${newClassName}`,
               });
-              failedEmails.push(user.email);
+              continue;
+            }
+
+            const teacher = await adminsDAO.findTeacherByUsername(
+              teacherUsername,
+              semesterId
+            );
+            if (!teacher) {
+              rowErrors.push(
+                `Không tìm thấy giáo viên với username: ${teacherUsername} để tạo lớp mới: ${newClassName}`
+              );
+              errorMessages.push({
+                email: user.email,
+                rowNumber,
+                message: `Không tìm thấy giáo viên với username: ${teacherUsername} để tạo lớp mới: ${newClassName}`,
+              });
+              continue;
+            }
+
+            // Tạo lớp mới
+            try {
+              newClass = await classDAO.createClass({
+                className: newClassName,
+                semesterId: semesterId,
+                teacherId: teacher._id,
+                limitStudent: user.limitStudent || 30, // Giá trị mặc định nếu không có
+                status: "Active",
+              });
+
+              if (!newClass) {
+                rowErrors.push(
+                  `Không thể tạo lớp mới với tên: ${newClassName}`
+                );
+                errorMessages.push({
+                  email: user.email,
+                  rowNumber,
+                  message: `Không thể tạo lớp mới với tên: ${newClassName}`,
+                });
+                continue;
+              }
+            } catch (createClassError) {
+              rowErrors.push(
+                `Lỗi khi tạo lớp mới: ${createClassError.message}`
+              );
+              errorMessages.push({
+                email: user.email,
+                rowNumber,
+                message: `Lỗi khi tạo lớp mới: ${createClassError.message}`,
+              });
               continue;
             }
           }
 
-          // Cập nhật người dùng để thêm kỳ học mới
-          existingUser.semesterId.push(semesterId);
-          await existingUser.save();
+          const newClassId = newClass._id.toString();
+          console.log(existingUser);
 
-          // Thêm vào danh sách để gửi email thông báo
-          usersToEmail.push({
-            email: user.email,
-            password: null,
-            status: "Active",
-          });
+          if (currentClassId && currentClassId !== newClassId) {
+            const currentClass = await adminsDAO.findClassById(currentClassId);
+            const oldClassName = currentClass
+              ? currentClass.className
+              : "Unknown";
+            // Thêm vào danh sách thay đổi lớp đề xuất
+            proposedClassChanges.push({
+              userId: existingUser._id,
+              email: user.email,
+              oldClassId: currentClassId,
+              newClassId: newClassId,
+              oldClassName: oldClassName,
+              newClassName: newClassName,
+              rollNumber: existingUser.rollNumber,
+              fullName: existingUser.username,
+              rowNumber,
+            });
+            // Chuyển sang bản ghi tiếp theo
+            continue;
+          } else {
+            // Nếu lớp không thay đổi, không làm gì thêm
+            continue;
+          }
+        } else {
+          // Người dùng tồn tại nhưng không trong kỳ học hiện tại
+          // Thêm semesterId mới cho người dùng
+          await adminsDAO.addSemesterToUser(existingUser._id, semesterId);
+
+          // Nếu người dùng chưa có lớp, thêm họ vào lớp mới nếu có
+          if (!existingUser.classId) {
+            if (user.className) {
+              let newClass = await adminsDAO.findClassByNameAndSemester(
+                user.className,
+                semesterId
+              );
+
+              if (!newClass) {
+                // Nếu lớp mới không tồn tại, tạo mới lớp
+                const teacherUsername = user.teacherUsername;
+                if (!teacherUsername) {
+                  rowErrors.push(
+                    `Thiếu teacherUsername để tạo lớp mới: ${user.className}`
+                  );
+                  errorMessages.push({
+                    email: user.email,
+                    rowNumber,
+                    message: `Thiếu teacherUsername để tạo lớp mới: ${user.className}`,
+                  });
+                  continue;
+                }
+
+                const teacher = await adminsDAO.findTeacherByUsername(
+                  teacherUsername,
+                  semesterId
+                );
+                if (!teacher) {
+                  rowErrors.push(
+                    `Không tìm thấy giáo viên với username: ${teacherUsername} để tạo lớp mới: ${user.className}`
+                  );
+                  errorMessages.push({
+                    email: user.email,
+                    rowNumber,
+                    message: `Không tìm thấy giáo viên với username: ${teacherUsername} để tạo lớp mới: ${user.className}`,
+                  });
+                  continue;
+                }
+
+                // Tạo lớp mới
+                try {
+                  newClass = await classDAO.createClass({
+                    className: user.className,
+                    semesterId: semesterId,
+                    teacherId: teacher._id,
+                    limitStudent: user.limitStudent || 30, // Giá trị mặc định nếu không có
+                    status: "Active",
+                  });
+
+                  if (!newClass) {
+                    rowErrors.push(
+                      `Không thể tạo lớp mới với tên: ${user.className}`
+                    );
+                    errorMessages.push({
+                      email: user.email,
+                      rowNumber,
+                      message: `Không thể tạo lớp mới với tên: ${user.className}`,
+                    });
+                    continue;
+                  }
+                } catch (createClassError) {
+                  rowErrors.push(
+                    `Lỗi khi tạo lớp mới: ${createClassError.message}`
+                  );
+                  errorMessages.push({
+                    email: user.email,
+                    rowNumber,
+                    message: `Lỗi khi tạo lớp mới: ${createClassError.message}`,
+                  });
+                  continue;
+                }
+              }
+
+              const newClassId = newClass._id.toString();
+
+              const studentCount = await adminsDAO.countStudentsInClass(
+                newClassId,
+                semesterId
+              );
+
+              if (studentCount < newClass.limitStudent) {
+                await adminsDAO.transferStudent(existingUser._id, newClass._id);
+                totalUsersUpdated += 1;
+              } else {
+                // Lớp đã đầy, thêm vào danh sách Pending
+                errorMessages.push({
+                  email: user.email,
+                  rowNumber: rowNumber,
+                  message: `Lớp ${newClass.className} đã đầy. Học sinh được thêm với trạng thái "Chờ xếp lớp".`,
+                });
+              }
+            } else {
+              // Nếu không có className, thêm vào danh sách Pending
+              rowErrors.push(`Thiếu tên lớp cho người dùng không có lớp.`);
+              errorMessages.push({
+                email: user.email,
+                rowNumber: rowNumber,
+                message: `Thiếu tên lớp cho người dùng không có lớp.`,
+              });
+            }
+          }
 
           totalUsersUpdated += 1;
           continue;
         }
-      }
-
-      if (role == 4) {
-        // Kiểm tra sự trùng lặp của rollNumber và memberCode
-        const existingUserByRollNumber = await adminsDAO.findUserByRollNumber(
-          user.rollNumber
-        );
-        if (existingUserByRollNumber) {
-          duplicateRollNumbers.push(user.rollNumber);
-          rowErrors.push(`Mã số sinh viên đã tồn tại: ${user.rollNumber}`);
-          errorMessages.push({
-            email: user.email,
-            rowNumber,
-            message: `Mã số sinh viên đã tồn tại: ${user.rollNumber}`,
-          });
-        }
-
-        const existingUserByMemberCode = await adminsDAO.findUserByMemberCode(
-          user.memberCode
-        );
-        if (existingUserByMemberCode) {
-          duplicateMemberCodes.push(user.memberCode);
-          rowErrors.push(`Mã thành viên đã tồn tại: ${user.memberCode}`);
-          errorMessages.push({
-            email: user.email,
-            rowNumber,
-            message: `Mã thành viên đã tồn tại: ${user.memberCode}`,
-          });
-        }
-
-        if (rowErrors.length > 0) {
-          continue;
-        }
-
-        // Nhóm học sinh theo className
-        if (!classUsersMap[user.className]) {
-          classUsersMap[user.className] = [];
-        }
-        classUsersMap[user.className].push({ user, rowNumber });
-      } else if (role == 3) {
-        // Xử lý các role khác
-        const password = generateRandomPassword();
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        const userData = {
-          ...user,
-          password: hashedPassword,
-          semesterId: [semesterId],
-          status: "Active",
-        };
-
-        usersToInsert.push(userData);
-        usersToEmail.push({ email: user.email, password, status: "Active" });
-        totalUsersAdded += 1;
-      } else if (role == 2) {
-        const checkTeacherExist = await adminsDAO.findTeacherByUsername(
-          user.username,
-          semesterId
-        );
-        if (checkTeacherExist) {
-          existingUserName.push(user.username);
-          rowErrors.push(
-            `Tên giáo viên ${user.username} đã tồn tại trong hệ thống.`
-          );
-          errorMessages.push({
-            email: user.email,
-            rowNumber,
-            message: `Tên giáo viên ${user.username} đã tồn tại trong hệ thống.`,
-          });
-          continue;
-        }
-        const password = generateRandomPassword();
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        const userData = {
-          ...user,
-          password: hashedPassword,
-          semesterId: [semesterId],
-          status: "Active",
-        };
-
-        usersToInsert.push(userData);
-        usersToEmail.push({ email: user.email, password, status: "Active" });
-        totalUsersAdded += 1;
       } else {
-        rowErrors.push(`Role không hợp lệ.`);
-        errorMessages.push({
-          email: user.email,
-          rowNumber,
-          message: `Role không hợp lệ.`,
-        });
-        continue;
+        // Người dùng chưa tồn tại trong hệ thống
+
+        // Kiểm tra sự trùng lặp của rollNumber và memberCode trong cơ sở dữ liệu
+
+        if (role == 4) {
+          // Kiểm tra rollNumber
+          if (user.rollNumber) {
+            const existingUserByRollNumber =
+              await adminsDAO.findUserByRollNumber(user.rollNumber);
+            if (existingUserByRollNumber) {
+              duplicateRollNumbers.push(user.rollNumber);
+              rowErrors.push(
+                `Mã số sinh viên đã tồn tại trong hệ thống: ${user.rollNumber}`
+              );
+              errorMessages.push({
+                email: user.email,
+                rowNumber,
+                message: `Mã số sinh viên đã tồn tại trong hệ thống: ${user.rollNumber}`,
+              });
+              continue;
+            }
+          }
+
+          // Kiểm tra memberCode
+          if (user.memberCode) {
+            const existingUserByMemberCode =
+              await adminsDAO.findUserByMemberCode(user.memberCode);
+            if (existingUserByMemberCode) {
+              duplicateMemberCodes.push(user.memberCode);
+              rowErrors.push(
+                `Mã thành viên đã tồn tại trong hệ thống: ${user.memberCode}`
+              );
+              errorMessages.push({
+                email: user.email,
+                rowNumber,
+                message: `Mã thành viên đã tồn tại trong hệ thống: ${user.memberCode}`,
+              });
+              continue;
+            }
+          }
+
+          if (rowErrors.length > 0) {
+            continue;
+          }
+
+          // Nhóm học sinh theo className
+          if (!user.className) {
+            rowErrors.push(`Thiếu tên lớp cho học sinh.`);
+            errorMessages.push({
+              email: user.email,
+              rowNumber,
+              message: `Thiếu tên lớp cho học sinh.`,
+            });
+            continue;
+          }
+
+          if (!classUsersMap[user.className]) {
+            classUsersMap[user.className] = [];
+          }
+          classUsersMap[user.className].push({ user, rowNumber });
+        } else if (role == 3) {
+          // Xử lý các role khác (mentor, role 3)
+          const password = generateRandomPassword();
+          const hashedPassword = await bcrypt.hash(password, 12);
+
+          const userData = {
+            ...user,
+            password: hashedPassword,
+            semesterId: [semesterId],
+            status: "Active",
+          };
+
+          usersToInsert.push(userData);
+          usersToEmail.push({
+            email: user.email,
+            password,
+            status: "Active",
+          });
+          totalUsersAdded += 1;
+        } else if (role == 2) {
+          // Xử lý role giáo viên (role 2)
+          const checkTeacherExist = await adminsDAO.findTeacherByUsername(
+            user.username,
+            semesterId
+          );
+          if (checkTeacherExist) {
+            existingUserName.push(user.username);
+            rowErrors.push(
+              `Tên giáo viên ${user.username} đã tồn tại trong hệ thống.`
+            );
+            errorMessages.push({
+              email: user.email,
+              rowNumber,
+              message: `Tên giáo viên ${user.username} đã tồn tại trong hệ thống.`,
+            });
+            continue;
+          }
+          const password = generateRandomPassword();
+          const hashedPassword = await bcrypt.hash(password, 12);
+
+          const userData = {
+            ...user,
+            password: hashedPassword,
+            semesterId: [semesterId],
+            status: "Active",
+          };
+
+          usersToInsert.push(userData);
+          usersToEmail.push({
+            email: user.email,
+            password,
+            status: "Active",
+          });
+          totalUsersAdded += 1;
+        } else {
+          rowErrors.push(`Role không hợp lệ.`);
+          errorMessages.push({
+            email: user.email,
+            rowNumber,
+            message: `Role không hợp lệ.`,
+          });
+          continue;
+        }
       }
     }
 
-    // Xử lý từng lớp học (role == 4)
+    // Xử lý các lớp học (role == 4)
     for (const [className, userEntries] of Object.entries(classUsersMap)) {
       if (userEntries.length === 0) continue;
 
@@ -499,16 +856,24 @@ const insertListUsers = async (req, res, next) => {
       }
 
       // Tìm hoặc tạo lớp học với semesterId và teacherId
-      let { classData, studentCount } = await adminsDAO.findOrCreateClass(
-        className,
-        semesterId,
-        teacher._id
-      );
+      let classData, studentCount;
+      try {
+        ({ classData, studentCount } = await adminsDAO.findOrCreateClass(
+          className,
+          semesterId,
+          teacher._id
+        ));
+      } catch (error) {
+        errorMessages.push({
+          message: `Lỗi khi tìm hoặc tạo lớp ${className}: ${error.message}`,
+        });
+        continue;
+      }
 
       const remainingSlots = classData.limitStudent - studentCount;
 
       if (remainingSlots <= 0) {
-        // Lớp đã đầy, thêm học sinh vào danh sách fullClassUsers với trạng thái Pending
+        // Lớp đã đầy, thêm học sinh vào danh sách với trạng thái Pending
         for (const entry of userEntries) {
           const { user, rowNumber } = entry;
           const password = generateRandomPassword();
@@ -524,7 +889,6 @@ const insertListUsers = async (req, res, next) => {
 
           usersToInsert.push(userData);
           usersToEmail.push({ email: user.email, password, status: "Pending" });
-          fullClassUsers.push(userData);
 
           errorMessages.push({
             email: user.email,
@@ -558,7 +922,7 @@ const insertListUsers = async (req, res, next) => {
         totalUsersAdded += 1;
       }
 
-      // Thêm học sinh không thể thêm vào lớp vào danh sách fullClassUsers với trạng thái Pending
+      // Thêm học sinh không thể thêm vào lớp vào danh sách Pending
       for (const entry of usersCannotAdd) {
         const { user, rowNumber } = entry;
         const password = generateRandomPassword();
@@ -574,7 +938,6 @@ const insertListUsers = async (req, res, next) => {
 
         usersToInsert.push(userData);
         usersToEmail.push({ email: user.email, password, status: "Pending" });
-        fullClassUsers.push(userData);
 
         errorMessages.push({
           email: user.email,
@@ -588,8 +951,12 @@ const insertListUsers = async (req, res, next) => {
     let insertedUsers = [];
     if (usersToInsert.length > 0) {
       try {
-        insertedUsers = await adminsDAO.createListUsers(usersToInsert); // Danh sách người dùng với _id
+        insertedUsers = await adminsDAO.createListUsers(usersToInsert);
       } catch (insertError) {
+        console.error(
+          "Lỗi khi thêm người dùng vào cơ sở dữ liệu:",
+          insertError
+        );
         errorMessages.push({
           message: "Lỗi khi thêm người dùng vào cơ sở dữ liệu.",
           details: insertError.message,
@@ -600,7 +967,7 @@ const insertListUsers = async (req, res, next) => {
     // Cập nhật _id trong usersToInsert với các đối tượng trả về từ cơ sở dữ liệu
     usersToInsert.forEach((user, index) => {
       if (insertedUsers[index]) {
-        user._id = insertedUsers[index]._id; // Cập nhật _id cho người dùng vừa được thêm
+        user._id = insertedUsers[index]._id;
       }
     });
 
@@ -620,20 +987,22 @@ const insertListUsers = async (req, res, next) => {
 
     // Tính số lượng người dùng được thêm thành công
     const successCount = totalUsersAdded + totalUsersUpdated;
+    let success = successCount > 0 && proposedClassChanges.length === 0;
 
+    // Trả về phản hồi, bao gồm cả proposedClassChanges
     res.status(200).json({
-      success: successCount > 0,
+      success,
       message: "Đã xử lý xong tất cả người dùng.",
       successCount,
       duplicateEmails,
       duplicateRollNumbers,
       duplicateMemberCodes,
-      fullClassUsers,
-      failedEmails,
       errorMessages,
       usersToInsert,
+      proposedClassChanges, // Bao gồm các thay đổi lớp đề xuất
     });
   } catch (error) {
+    console.error("Lỗi trong insertListUsers:", error);
     next(error);
   }
 };
@@ -939,6 +1308,78 @@ const swapStudentsController = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+const applyClassChanges = async (req, res, next) => {
+  try {
+    const { classChanges, semesterId } = req.body; // Nhận danh sách thay đổi lớp và semesterId
+
+    if (!Array.isArray(classChanges) || classChanges.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "Không có thay đổi lớp nào để áp dụng." });
+    }
+
+    const errorMessages = [];
+    let changesApplied = 0;
+
+    for (const change of classChanges) {
+      const { userId, newClassId, oldClassId } = change;
+      try {
+        // Kiểm tra xem lớp mới có tồn tại và còn chỗ không
+        const newClass = await adminsDAO.findClassById(newClassId);
+        if (!newClass) {
+          errorMessages.push({
+            userId,
+            message: `Không tìm thấy lớp mới với ID: ${newClassId}`,
+          });
+          continue;
+        }
+
+        // Đếm số học sinh hiện tại trong lớp mới
+        const studentCount = await adminsDAO.countStudentsInClass(
+          newClassId,
+          semesterId
+        );
+
+        if (studentCount >= newClass.limitStudent) {
+          errorMessages.push({
+            userId,
+            message: `Lớp ${newClass.className} đã đầy.`,
+          });
+          continue;
+        }
+
+        // Cập nhật classId cho người dùng
+        await adminsDAO.transferStudent(userId, newClassId);
+
+        // Nếu có class cũ, cập nhật số lượng học sinh trong lớp cũ (giảm đi 1)
+        if (oldClassId) {
+          // Nếu bạn muốn giữ số lượng học sinh trong Class model, bạn có thể cập nhật ở đây
+          // Ví dụ:
+          // await adminsDAO.decrementStudentCount(oldClassId);
+        }
+
+        changesApplied += 1;
+      } catch (error) {
+        errorMessages.push({
+          userId,
+          message: `Lỗi khi cập nhật lớp cho người dùng ID ${userId}: ${error.message}`,
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: changesApplied > 0,
+      message: `${changesApplied} thay đổi lớp đã được áp dụng.`,
+      errorMessages,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { insertListUsers, applyClassChanges };
+
 export default {
   insertListUsers,
   getAvailableClasses,
@@ -950,4 +1391,5 @@ export default {
   fetchFullClasses,
   transferStudentController,
   swapStudentsController,
+  applyClassChanges,
 };

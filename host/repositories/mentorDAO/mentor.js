@@ -230,11 +230,13 @@ const getMentorsBySpecialty = async (professionId, specialtyId) => {
 const getMentorCategoryByUserId = async (userId) => {
   try {
     return await MentorCategory.findOne({ mentorId: new ObjectId(userId) })
-      .populate("mentorId", "username email") 
-      .populate("professionIds") 
+      .populate("mentorId", "username email")
+      .populate("professionIds")
       .populate("specialties.specialtyId");
   } catch (error) {
-    throw new Error(`Unable to find mentor category with userId ${userId}: ${error.message}`);
+    throw new Error(
+      `Unable to find mentor category with userId ${userId}: ${error.message}`
+    );
   }
 };
 
@@ -262,6 +264,7 @@ const removeMentorPreference = async (mentorId, projectIds) => {
 
 const getMentorDetailsById = async (mentorId) => {
   try {
+    // Tìm mentor trong User
     const mentor = await User.findOne({ _id: mentorId, role: 3 }).select(
       "username phoneNumber email"
     );
@@ -270,11 +273,12 @@ const getMentorDetailsById = async (mentorId) => {
       throw new Error("Không tìm thấy mentor với ID này");
     }
 
+    // Lấy thông tin từ MentorCategory
     const mentorCategory = await MentorCategory.findOne({ mentorId })
       .populate({
         path: "professionIds",
         model: "Profession",
-        select: "name",
+        select: "name specialty",
       })
       .populate({
         path: "specialties.specialtyId",
@@ -294,15 +298,31 @@ const getMentorDetailsById = async (mentorId) => {
 
     const { maxLoad, currentLoad, professionIds, specialties } = mentorCategory;
 
+    // Tạo map giữa specialtyId và professionName
+    const specialtyToProfessionMap = {};
+
+    for (const profession of professionIds) {
+      if (Array.isArray(profession.specialty)) {
+        for (const specialtyId of profession.specialty) {
+          specialtyToProfessionMap[specialtyId.toString()] = profession.name;
+        }
+      }
+    }
+
+    // Gắn professionName vào mỗi specialty
+    const specialtiesWithProfession = specialties.map((specialty) => ({
+      profession:
+        specialtyToProfessionMap[specialty.specialtyId?._id.toString()] ||
+        "N/A",
+      name: specialty.specialtyId?.name || "N/A",
+    }));
+
     return {
       ...mentor.toObject(),
       maxLoad,
       currentLoad,
       professions: professionIds.map((p) => p.name),
-      specialties: specialties.map((s) => ({
-        name: s.specialtyId ? s.specialtyId.name : null,
-        proficiencyLevel: s.proficiencyLevel,
-      })),
+      specialties: specialtiesWithProfession,
     };
   } catch (error) {
     throw new Error(`Lỗi khi lấy chi tiết mentor: ${error.message}`);

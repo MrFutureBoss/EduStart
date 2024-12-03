@@ -33,8 +33,8 @@ const ProfessionManagement = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const professions = useSelector((state) => state.profession.professions.data);
-  const specialties = useSelector(
-    (state) => state.specialty.specialties.data || []
+  const specialtiesData = useSelector(
+    (state) => state.profession.specialtiesData.data || []
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,9 +78,10 @@ const ProfessionManagement = () => {
   useEffect(() => {
     fetchSpecialties();
   }, [dispatch]);
+  console.log("dd", specialtiesData);
 
   const getSpecialtyNameById = (id) => {
-    const define = specialties.find((sp) => sp._id === id);
+    const define = specialtiesData.find((sp) => sp._id === id);
     return define ? define.name : "Unknown";
   };
 

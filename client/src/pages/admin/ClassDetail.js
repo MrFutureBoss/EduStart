@@ -208,6 +208,12 @@ const ClassDetail = () => {
 
   const columns = [
     {
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
+      align: "center",
+    },
+    {
       title: "MSSV",
       dataIndex: "rollNumber",
       key: "rollNumber",

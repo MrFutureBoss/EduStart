@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Form, Input } from "antd";
+import { Modal, Form, Input, Select } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../../../utilities/initalValue";
@@ -30,6 +30,7 @@ const UserAddModal = ({ visible, onOk, onCancel, semesterId }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const role = useSelector((state) => state.user.selectedRole); // Lấy role từ Redux
+  const [majorOptions, setMajorOptions] = React.useState([]);
 
   // Auto-fill email when memberCode changes
   const handleMemberCodeChange = (e) => {
@@ -40,6 +41,23 @@ const UserAddModal = ({ visible, onOk, onCancel, semesterId }) => {
     } else {
       form.setFieldsValue({ email: "" });
     }
+  };
+  const majorsByCode = {
+    HE: [
+      "Kỹ thuật phần mềm",
+      "Trí tuệ nhân tạo",
+      "An toàn thông tin",
+      "Thiết kế vi mạch bán dẫn",
+      "Thiết kế mỹ thuật số",
+    ],
+    SE: [
+      "Tài chính",
+      "Digital Marketing",
+      "Kinh doanh quốc tế",
+      "Quản trị khách sạn",
+    ],
+    GD: ["Truyền thông đa phương tiện", "Quan hệ công chúng"],
+    HA: ["Ngôn ngữ Anh", "Ngôn ngữ Nhật", "Ngôn ngữ Trung", "Ngôn ngữ Hàn"],
   };
 
   // Handle modal OK with confirmation
@@ -78,6 +96,7 @@ const UserAddModal = ({ visible, onOk, onCancel, semesterId }) => {
             memberCode: values.memberCode,
             Email: email,
             phoneNumber: values.phoneNumber,
+            major: values.major, // Thêm ngành học
           },
         },
         config
@@ -202,10 +221,14 @@ const UserAddModal = ({ visible, onOk, onCancel, semesterId }) => {
       return Promise.reject("Vui lòng nhập MSSV!");
     }
 
-    const isValid = /^HE\d{6}$|^HS\d{6}$|^HA\d{6}$/.test(value);
+    const isValid = /^HE\d{6}$|^SE\d{6}$|^GD\d{6}$|^HA\d{6}$/.test(value);
     if (!isValid) {
-      return Promise.reject("MSSV phải có định dạng HE/HS/HA + 6 chữ số");
+      return Promise.reject("MSSV phải có định dạng HE/SE/GD/HA + 6 chữ số");
     }
+
+    // Extract prefix to determine majors
+    const prefix = value.slice(0, 2);
+    setMajorOptions(majorsByCode[prefix] || []);
 
     return Promise.resolve();
   };
@@ -281,6 +304,20 @@ const UserAddModal = ({ visible, onOk, onCancel, semesterId }) => {
               hasFeedback
             >
               <Input />
+            </Form.Item>
+            <Form.Item
+              name="major"
+              label="Ngành học"
+              rules={[{ required: true, message: "Vui lòng chọn ngành học!" }]}
+              hasFeedback
+            >
+              <Select placeholder="Chọn ngành học">
+                {majorOptions.map((major) => (
+                  <Select.Option key={major} value={major}>
+                    {major}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
           </>
         ) : (
