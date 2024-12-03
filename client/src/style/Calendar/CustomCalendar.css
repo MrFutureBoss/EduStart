@@ -121,7 +121,7 @@ div .rbc-event-content {
   transition: border-color 0.3s ease-in-out;
 }
 
-.rbc-day-slot .rbc-timeslot-group:hover {
+.rbc-day-slot .rbc-timeslot-group .rbc-time-slot:hover {
   border: 2px solid #1890ff;
   animation: borderPulse 1s infinite alternate;
 }
@@ -134,4 +134,6 @@ div .rbc-event-content {
     border-color: #40a9ff; /* A slight variation of the original color for the animation */
   }
 }
+
+
 
