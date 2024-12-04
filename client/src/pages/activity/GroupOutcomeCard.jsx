@@ -29,6 +29,8 @@ const GroupOutcomeCard = ({ groupId, active }) => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [submittedFiles, setSubmittedFiles] = useState([]);
+  const [hasOpenedModal, setHasOpenedModal] = useState(false); // Thêm state này để kiểm soát việc mở modal
+
   const nowDate = moment();
   const { userLogin } = useSelector((state) => state.user);
   const role = userLogin?.role;
@@ -42,17 +44,25 @@ const GroupOutcomeCard = ({ groupId, active }) => {
   };
 
   useEffect(() => {
-    if (active) {
-      const firstIncompleteOutcome = outcomes.find(
-        (outcome) => !outcome.completed
-      );
-      if (firstIncompleteOutcome) {
-        openSubmitModal(firstIncompleteOutcome);
-      } else {
-        message.info("Không có Outcome nào chưa hoàn thành để nộp.");
+    if (active && !hasOpenedModal) {
+      // Kiểm tra thêm hasOpenedModal
+      const currentOutcome = outcomes.find((outcome) => {
+        if (!outcome.startDate || !outcome.deadline) return false;
+        const startDate = moment(outcome.startDate);
+        const deadline = moment(outcome.deadline);
+        return (
+          nowDate.isSameOrAfter(startDate) &&
+          nowDate.isSameOrBefore(deadline) &&
+          !outcome.completed
+        );
+      });
+
+      if (currentOutcome) {
+        openSubmitModal(currentOutcome);
+        setHasOpenedModal(true); // Đánh dấu đã mở modal để tránh mở lại nhiều lần
       }
     }
-  }, [active, outcomes]);
+  }, [active, outcomes, hasOpenedModal, nowDate]);
 
   useEffect(() => {
     const fetchOutcomes = async () => {

@@ -140,7 +140,7 @@ const Dashboard = () => {
           }; // Cam nếu chưa nộp
     } else {
       return {
-        backgroundColor: "#e6f7ff",
+        backgroundColor: "#f0f0f0",
         color: "black",
         icon: <ClockCircleOutlined style={{ color: "#5888cec2" }} />,
       }; // Xanh biển cho Upcoming
@@ -161,7 +161,7 @@ const Dashboard = () => {
     navigate(`/student/class`);
   };
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px", marginTop: 20 }}>
       <Row gutter={16}>
         {/* Phần bên trái: Timeline các giai đoạn */}
         <Col style={{ paddingRight: 20 }} xs={24} md={8}>
@@ -202,9 +202,12 @@ const Dashboard = () => {
                       color: "black",
                       border: "none",
                       marginBottom: "16px",
+                      height: 120,
                     }}
                   >
-                    <Text strong>{stage.title}</Text>
+                    <Text style={{ fontSize: 18, marginBottom: 10 }} strong>
+                      {stage.title}
+                    </Text>
                     <p>
                       {status === "completed"
                         ? `${stage.title} đã hoàn thành.`
@@ -295,7 +298,9 @@ const Dashboard = () => {
 
           {currentStage === 3 && (
             <>
-              <Title level={2}>Danh sách Outcomes</Title>
+              <Title style={{ marginBottom: 20 }} level={2}>
+                Danh sách Outcomes
+              </Title>
               <Timeline>
                 {outcomes.map((outcome) => {
                   const style = getOutcomeStyle(outcome);
