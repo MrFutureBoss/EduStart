@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 
-const GroupOutcomeCard = ({ groupId }) => {
+const GroupOutcomeCard = ({ groupId, active }) => {
   const [outcomes, setOutcomes] = useState([]);
   const [selectedOutcome, setSelectedOutcome] = useState(null);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
@@ -40,6 +40,19 @@ const GroupOutcomeCard = ({ groupId }) => {
       Authorization: `Bearer ${jwt}`,
     },
   };
+
+  useEffect(() => {
+    if (active) {
+      const firstIncompleteOutcome = outcomes.find(
+        (outcome) => !outcome.completed
+      );
+      if (firstIncompleteOutcome) {
+        openSubmitModal(firstIncompleteOutcome);
+      } else {
+        message.info("Không có Outcome nào chưa hoàn thành để nộp.");
+      }
+    }
+  }, [active, outcomes]);
 
   useEffect(() => {
     const fetchOutcomes = async () => {
@@ -421,6 +434,29 @@ const GroupOutcomeCard = ({ groupId }) => {
                       danger
                       onClick={() => removeFile(index)}
                     >
+
+                      {moment(outcome.deadline).format("DD/MM/YYYY")}
+                    </Tag>
+                  </p>
+                  <p>
+                    <Text strong>Trạng thái: </Text>
+                    <Tag color={outcome.completed ? "green" : "orange"}>
+                      {outcome.completed ? "Hoàn thành" : "Chưa hoàn thành"}
+                    </Tag>
+                  </p>
+                  {isNextOutcomeComingSoon && (
+                    <p>
+                      <ExclamationCircleOutlined
+                        style={{ color: "#faad14", marginRight: "8px" }}
+                      />
+                      <Text type="warning">
+                        Sắp tới thời gian {nextOutcome.name}, còn{" "}
+                        {daysUntilNextOutcome} ngày.
+                      </Text>
+                    </p>
+                  )}
+                </div>
+              }
                       Xóa
                     </Button>,
                   ]}

@@ -30,6 +30,7 @@ const DetailedSelection = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const teacherId = localStorage.getItem("userId");
 
   // Lấy dữ liệu từ Redux
   const projectData = useSelector((state) => state.matching.projectData);
@@ -37,7 +38,6 @@ const DetailedSelection = () => {
   const assignedMentorsMap = useSelector(
     (state) => state.matching.assignedMentorsMap
   );
-  const teacherId = localStorage.getItem("userId");
   const selectedClassId = useSelector(
     (state) => state.matching.selectedClassId
   );
@@ -220,7 +220,11 @@ const DetailedSelection = () => {
     setIsSaving(true);
 
     try {
-      await assignMentorToProject(project.groupId, assignedMentor.mentorId);
+      await assignMentorToProject(
+        project.groupId,
+        assignedMentor.mentorId,
+        teacherId
+      );
       message.success("Mentor đã được lưu vào dự án.");
       const projectResponse = await fetchProjectData(
         teacherId,

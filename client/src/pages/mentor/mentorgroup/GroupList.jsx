@@ -39,6 +39,7 @@ import CustomCalendar from "./MeetingSchedule";
 import moment from "moment";
 import TextArea from "antd/es/input/TextArea";
 import runes from "runes2";
+import { useLocation } from "react-router-dom";
 import { Tabs as AntTabs } from "antd";
 const { Text } = Typography;
 const { Search } = Input;
@@ -64,6 +65,7 @@ const GroupList = () => {
   const [currentMemberPage, setCurrentMemberPage] = useState(1);
   const pageMemberSize = 5;
   const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
   const [groupFilterKey, setGroupFilterKey] = useState("all");
 
   const groups = useSelector((state) => state.matchedGroup.data || []);
@@ -167,6 +169,14 @@ const GroupList = () => {
     () => groups.filter((group) => group.matchedDetails.status === "Pending"),
     [groups]
   );
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "pending") {
+      setActiveTab(tabParam);
+    }
+  }, [location]);
 
   useEffect(() => {
     if (activeTab === "myGroups" && myGroups.length > 0) {

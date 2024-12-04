@@ -9,7 +9,7 @@ import MentorProfile from "../../pages/mentor/MentorProfile";
 const MentorRouter = () => {
   return (
     <Route
-      path="/mentor-dashboard"
+      path="/mentor"
       element={
         <ProtectRoute allowedRoles={["3"]}>
           <MentorLayout />

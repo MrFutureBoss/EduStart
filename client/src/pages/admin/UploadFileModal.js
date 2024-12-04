@@ -140,7 +140,13 @@ const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
             duration: 10,
           });
         }
-
+        if (responseData.successCount === 0) {
+          // Xử lý lỗi định dạng file
+          notification.info({
+            message: "Không có thay đổi nào được cập nhật sau khi tải file",
+            duration: 10,
+          });
+        }
         if (
           responseData.errorMessages &&
           responseData.errorMessages.length > 0
@@ -204,7 +210,7 @@ const UploadFileModal = ({ visible, onCancel, semesterId, refreshData }) => {
       ) {
         notification.warning({
           message: "Có một số lỗi",
-          description: `${duplicateEmails.length} email trùng, ${duplicateRollNumbers.length} mã số sinh viên trùng, ${duplicateMemberCodes.length} mã thành viên trùng, ${fullClassUsers.length} người dùng không thể thêm vào lớp vì lớp đã đầy, và ${errorMessages.length} lỗi khác.`,
+          description: `${duplicateEmails.length} email trùng, ${duplicateRollNumbers.length} mã số sinh viên trùng, ${duplicateMemberCodes.length} mã thành viên trùng, ${fullClassUsers.length} người dùng không thể thêm vào lớp vì lớp đã đầy.`,
           duration: 10,
         });
 

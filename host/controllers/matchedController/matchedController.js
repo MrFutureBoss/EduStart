@@ -1,8 +1,11 @@
 import matchedDAO from "../../repositories/matchedDAO/index.js";
+import notificationDAO from "../../repositories/notificationDAO/index.js";
 
 const createMatchedHandler = async (req, res) => {
   try {
-    const { groupId, mentorId, status } = req.body;
+    const { groupId, mentorId, status, teacherId } = req.body;
+    console.log(teacherId);
+    console.log(groupId);
 
     // Kiểm tra các trường bắt buộc
     if (!groupId || !mentorId) {
@@ -10,6 +13,20 @@ const createMatchedHandler = async (req, res) => {
         .status(400)
         .json({ message: "groupId và mentorId là bắt buộc" });
     }
+    const recipients = [mentorId];
+
+    const notificationMessage = `Bạn đã được giáo viên ghép với một dự án. Hãy đi kiểm tra và xác nhận!`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "MatchedNotification",
+      recipients,
+      filters: { groupId: groupId },
+      senderId: teacherId,
+      audience: "Student",
+      groupByKey: `Group_${groupId}`,
+      io: req.io,
+    });
+
     // Tạo bản ghi Matched
     const matched = await matchedDAO.createMatched({
       groupId,
@@ -154,11 +171,18 @@ const updateTimeEventHandler = async (req, res) => {
   const updateData = req.body;
 
   try {
-    if (!updateData || typeof updateData !== "object" || Object.keys(updateData).length === 0) {
+    if (
+      !updateData ||
+      typeof updateData !== "object" ||
+      Object.keys(updateData).length === 0
+    ) {
       return res.status(400).json({ message: "No valid update data provided" });
     }
 
-    const updatedMatched = await matchedDAO.updateTimeEventById(eventId, updateData);
+    const updatedMatched = await matchedDAO.updateTimeEventById(
+      eventId,
+      updateData
+    );
 
     res.status(200).json({
       message: "Time event updated successfully",

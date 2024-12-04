@@ -51,11 +51,12 @@ const updateGroupProject = async (req, res, io) => {
       specialtyIds
     );
     const recipients = [teacherId];
+    console.log(recipients);
 
     const notificationMessage = `Dự án nhóm ${group.name} đã cập nhật.`;
-    const notifications = await notificationDAO.createNotifications({
+    await notificationDAO.createNotifications({
       message: notificationMessage,
-      type: "ProjectNotification",
+      type: "ProjectUpdate",
       recipients,
       filters: { groupId: group._id, groupName: group.name },
       senderId: group._id,
@@ -183,14 +184,12 @@ const reviseProject = async (req, res, io) => {
     );
     const recipients = [teacherId];
     const notificationMessage = `Dự án nhóm ${group.name} đã cập nhật lại.`;
-    const notifications = await notificationDAO.createNotifications({
+    await notificationDAO.createNotifications({
       message: notificationMessage,
-      type: "ProjectNotification",
+      type: "ProjectReUpdate",
       recipients,
       filters: { groupId: group._id, groupName: group.name },
       senderId: group._id,
-      audience: "Teacher",
-      groupByKey: `Project_${projectId}`,
       io: req.io,
     });
     // kết nối socket.io
