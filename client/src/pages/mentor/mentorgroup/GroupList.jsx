@@ -40,7 +40,7 @@ import moment from "moment";
 import TextArea from "antd/es/input/TextArea";
 import runes from "runes2";
 import { useLocation } from "react-router-dom";
-
+import { Tabs as AntTabs } from "antd";
 const { Text } = Typography;
 const { Search } = Input;
 
@@ -66,6 +66,8 @@ const GroupList = () => {
   const pageMemberSize = 5;
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
+  const [groupFilterKey, setGroupFilterKey] = useState("all");
+
   const groups = useSelector((state) => state.matchedGroup.data || []);
 
   const config = useMemo(
@@ -232,6 +234,26 @@ const GroupList = () => {
 
     return "Không có cuộc họp nào sắp tới";
   };
+
+  const filteredMyGroups = useMemo(() => {
+    if (groupFilterKey === "noMeeting") {
+      return myGroups.filter(
+        (group) =>
+          !group.matchedDetails.time || group.matchedDetails.time.length === 0
+      );
+    } else if (groupFilterKey === "hasMeeting") {
+      return myGroups.filter(
+        (group) =>
+          group.matchedDetails.time && group.matchedDetails.time.length > 0
+      );
+    }
+    return myGroups;
+  }, [myGroups, groupFilterKey]);
+
+  const paginatedFilteredMyGroups = useMemo(() => {
+    const start = (currentPageMyGroups - 1) * pageSize;
+    return filteredMyGroups.slice(start, start + pageSize);
+  }, [filteredMyGroups, currentPageMyGroups]);
 
   const handleApprove = async (matchedDetailsId) => {
     setLoading(true);
@@ -407,11 +429,100 @@ const GroupList = () => {
                     }}
                   >
                     <span>Nhóm của bạn</span>
-                    <Badge count={emptyTimeGroupsCount} />
+                    <Badge count={myGroups.length} />
                   </div>
                 </Tooltip>
               }
             >
+              {myGroups.filter(
+                (group) =>
+                  !group.matchedDetails.time ||
+                  group.matchedDetails.time.length === 0
+              ).length !== 0 ? (
+                <AntTabs
+                  defaultActiveKey="all"
+                  onChange={(key) => setGroupFilterKey(key)}
+                  style={{ marginBottom: "20px" }}
+                >
+                  <AntTabs.TabPane
+                    key="all"
+                    tab={
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span>Tất cả</span>
+                        <Badge count={myGroups.length} />
+                      </div>
+                    }
+                  />
+                  <AntTabs.TabPane
+                    key="hasMeeting"
+                    disabled={
+                      myGroups.filter(
+                        (group) =>
+                          group.matchedDetails.time &&
+                          group.matchedDetails.time.length > 0
+                      ).length === 0
+                    }
+                    tab={
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span>Đã có lịch họp</span>
+                        <Badge
+                          count={
+                            myGroups.filter(
+                              (group) =>
+                                group.matchedDetails.time &&
+                                group.matchedDetails.time.length > 0
+                            ).length
+                          }
+                        />
+                      </div>
+                    }
+                  />
+                  <AntTabs.TabPane
+                    key="noMeeting"
+                    disabled={
+                      myGroups.filter(
+                        (group) =>
+                          !group.matchedDetails.time ||
+                          group.matchedDetails.time.length === 0
+                      ).length === 0
+                    }
+                    tab={
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span>Chưa có lịch họp</span>
+                        <Badge
+                          count={
+                            myGroups.filter(
+                              (group) =>
+                                !group.matchedDetails.time ||
+                                group.matchedDetails.time.length === 0
+                            ).length
+                          }
+                        />
+                      </div>
+                    }
+                  />
+                </AntTabs>
+              ) : (
+                <></>
+              )}
               {isDetailOpen ? (
                 <Button
                   color="primary"
@@ -432,10 +543,7 @@ const GroupList = () => {
                   Xem thông tin nhóm
                 </Button>
               )}
-              <h6 style={{ marginTop: "1rem" }}>
-                Bạn có {myGroups.length} nhóm
-              </h6>
-              {paginatedMyGroups.map((group, index) => (
+              {paginatedFilteredMyGroups.map((group, index) => (
                 <Card
                   key={index}
                   bordered={false}
@@ -471,24 +579,10 @@ const GroupList = () => {
                         </Tag>
                       ))}
                     </p>
-                    {(!group.matchedDetails.time ||
-                      group.matchedDetails.time.length === 0) && (
-                      <p
-                        className="remove-default-style-p"
-                        style={{
-                          fontWeight: "500",
-                          fontSize: "0.8rem",
-                          marginBottom: "0.4rem",
-                          color: "red",
-                        }}
-                      >
-                        Nhóm chưa có lịch họp
-                      </p>
-                    )}
                     {group.matchedDetails.time &&
-                      group.matchedDetails.time.length > 0 &&
+                    group.matchedDetails.time.length > 0 ? (
                       getNextMeetingTime(group.matchedDetails.time) !==
-                        "Không có cuộc họp nào sắp tới" && (
+                      "Không có cuộc họp nào sắp tới" ? (
                         <p
                           className="remove-default-style-p"
                           style={{
@@ -501,15 +595,39 @@ const GroupList = () => {
                           Cuộc họp sắp tới:{" "}
                           {getNextMeetingTime(group.matchedDetails.time)}
                         </p>
-                      )}
+                      ) : (
+                        <p
+                          className="remove-default-style-p"
+                          style={{
+                            fontWeight: "500",
+                            fontSize: "0.8rem",
+                            marginBottom: "0.4rem",
+                            color: "red",
+                          }}
+                        >
+                          Nhóm chưa có buổi họp tiếp theo
+                        </p>
+                      )
+                    ) : (
+                      <p
+                        className="remove-default-style-p"
+                        style={{
+                          fontWeight: "500",
+                          fontSize: "0.8rem",
+                          marginBottom: "0.4rem",
+                          color: "red",
+                        }}
+                      >
+                        Nhóm chưa có lịch họp
+                      </p>
+                    )}
                   </div>
                 </Card>
               ))}
-
               <Pagination
                 current={currentPageMyGroups}
                 pageSize={pageSize}
-                total={myGroups.length}
+                total={filteredMyGroups.length}
                 onChange={(page) => setCurrentPageMyGroups(page)}
                 style={{ textAlign: "center", marginTop: "20px" }}
                 hideOnSinglePage
@@ -947,7 +1065,7 @@ const GroupList = () => {
                   </h5>
                 }
                 extra={
-                  <Tooltip title="Thêm cuộc hẹn mới">
+                  <Tooltip title="Thêm lịch họp mới">
                     <Button
                       style={{ marginRight: "20px", cursor: "pointer" }}
                       color="primary"
@@ -961,7 +1079,7 @@ const GroupList = () => {
                           color: "#FFF",
                         }}
                       />
-                      Thêm cuộc họp mới
+                      Thêm lịch họp mới
                     </Button>
                   </Tooltip>
                 }
@@ -1004,121 +1122,6 @@ const GroupList = () => {
                   closable
                 />
               </Card>
-              {/* <Card
-                title="Lịch họp của nhóm"
-                headStyle={{
-                  color: "#000",
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  fontSize: "18px",
-                }}
-                bodyStyle={{
-                  maxHeight: "400px",
-                  overflowY: "auto",
-                }}
-                extra={
-                  <Tooltip title="Thêm cuộc hẹn mới">
-                    <PlusOutlined
-                      onClick={() =>
-                        HandleOpenAddModal(selectedGroup?.matchedDetails?._id)
-                      }
-                      style={{
-                        fontSize: "1.4rem",
-                        color: "#1890FF",
-                        cursor: "pointer",
-                      }}
-                    />
-                  </Tooltip>
-                }
-                style={{
-                  padding: "16px",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "8px",
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                  marginBottom: "16px",
-                }}
-              >
-                {selectedGroup?.matchedDetails?.time.length > 0 ? (
-                  selectedGroup.matchedDetails.time.map((meet, index) => (
-                    <Card.Grid
-                      key={index}
-                      style={{
-                        marginBottom: "10px",
-                        backgroundColor: "#E6F7FF",
-                        padding: "10px",
-                        borderRadius: "5px",
-                        width: "100%",
-                      }}
-                    >
-                      <Row>
-                        <Col span={20} style={{ lineHeight: "1.5rem" }}>
-                          <p className="remove-default-style-p">
-                            <strong>
-                              <FaThumbtack
-                                style={{ color: "red", marginRight: "5px" }}
-                              />
-                              Buổi {index + 1}:
-                            </strong>{" "}
-                            {format(
-                              new Date(meet.start),
-                              "EEEE, dd'-'MM'-'yyyy",
-                              {
-                                locale: vi,
-                              }
-                            )}
-                          </p>
-                          <p className="remove-default-style-p">
-                            <strong>
-                              <FaClock style={{ marginRight: "5px" }} />
-                              Thời gian:
-                            </strong>{" "}
-                            {format(new Date(meet.start), "HH:mm", {
-                              locale: vi,
-                            })}{" "}
-                            -{" "}
-                            {format(new Date(meet.end), "HH:mm", {
-                              locale: vi,
-                            })}
-                          </p>
-                          <p className="remove-default-style-p">
-                            <strong>
-                              <BiDetail
-                                style={{
-                                  color: "#00BFFF",
-                                  marginRight: "5px",
-                                  fontSize: "1.1rem",
-                                }}
-                              />
-                              Nội dung cuộc họp:
-                            </strong>{" "}
-                            {meet.title}
-                          </p>
-                        </Col>
-                        <Col
-                          span={4}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Tooltip title="Chỉnh sửa">
-                            <TiEdit
-                              style={{
-                                color: "#1890FF",
-                                fontSize: "2rem",
-                                cursor: "pointer",
-                              }}
-                            />
-                          </Tooltip>
-                        </Col>
-                      </Row>
-                    </Card.Grid>
-                  ))
-                ) : (
-                  <Empty description="Chưa có lịch hãy vào lịch của các nhóm để tạo" />
-                )}
-              </Card> */}
             </Col>
           </Row>
         </Col>

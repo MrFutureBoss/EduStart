@@ -1,6 +1,7 @@
 import Group from "../../models/groupModel.js";
 import User from "../../models/userModel.js";
 import Project from "../../models/projectModel.js";
+import Matched from "../../models/matchedModel.js";
 import mongoose from "mongoose";
 import ProjectCategory from "../../models/projectCategoryModel.js";
 
@@ -255,7 +256,6 @@ const getProjectByGroupId = async (groupId) => {
 
 const getGroupsByClassId = async (classId) => {
   try {
-    // Validate the classId
     if (!mongoose.isValidObjectId(classId)) {
       throw new Error("Invalid classId format");
     }
@@ -279,9 +279,35 @@ const getGroupsByClassId = async (classId) => {
       throw new Error("No groups found for the provided classId");
     }
 
+    const populatedGroups = await Promise.all(
+      groups.map(async (group) => {
+        const users = await User.find({
+          classId: objectIdClassId,
+          groupId: group._id,
+          status: "Active",
+        }).select("-password");
+
+        const matched = await Matched.findOne({ groupId: group._id })
+          .populate({
+            path: "mentorId",
+            model: "User",
+            select: "username email degree phoneNumber status",
+          })
+          .exec();
+
+        const mentor = matched ? matched.mentorId : null;
+
+        return {
+          ...group._doc,
+          users,
+          mentor,
+        };
+      })
+    );
+
     return {
-      message: "Groups with project details fetched successfully",
-      groups,
+      message: "Groups with project, user, and mentor details fetched successfully",
+      groups: populatedGroups,
     };
   } catch (error) {
     console.error("Error fetching detailed groups by classId:", error);

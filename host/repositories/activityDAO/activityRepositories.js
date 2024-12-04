@@ -246,7 +246,18 @@ const findOutcomesByGroupId = async (groupId) => {
     console.error("Error in findOutcomesByGroupId:", error.message);
     throw error;
   }
+  
+const findUnsubmittedGroups = async (outcomeId, classId) => {
+  return Activity.find({
+    completed: false,
+    activityType: "outcome",
+    outcomeId,
+    classId,
+  })
+    .populate("groupId", "name")
+    .populate("classId", "className");
 };
+  
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -274,4 +285,5 @@ export default {
   getOutcomesBySemesterId,
   getGroupOutcomesByGroupId,
   findOutcomesByGroupId,
+  findUnsubmittedGroups,
 };

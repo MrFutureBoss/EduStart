@@ -14,13 +14,18 @@ const calculateStartdateAndEnddateOfOutcomes = (semesterStartDate, semesterEndDa
   // Allocate the remaining 8 parts for outcomes
   const outcomes = {};
   let currentStart = reservedEnd.clone().add(1, 'days');
+  let remainingDays = totalDuration - partDuration * 2; // 8 parts * 7 =56 days
+
   for (let i = 1; i <= outcomeCount; i++) {
-    const outcomeEnd = currentStart.clone().add(partDuration * (8 / outcomeCount) - 1, 'days');
+    // Distribute remainingDays as evenly as possible
+    const daysForThisOutcome = Math.ceil(remainingDays / (outcomeCount - i +1));
+    const outcomeEnd = currentStart.clone().add(daysForThisOutcome -1, 'days');
     outcomes[`outcome${i}`] = {
       startDate: currentStart.format("YYYY-MM-DD"),
       endDate: outcomeEnd.format("YYYY-MM-DD"),
     };
     currentStart = outcomeEnd.clone().add(1, 'days');
+    remainingDays -= daysForThisOutcome;
   }
 
   return outcomes;

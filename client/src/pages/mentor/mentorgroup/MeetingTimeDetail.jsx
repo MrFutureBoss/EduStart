@@ -9,12 +9,14 @@ import { setMatchedGroups } from "../../../redux/slice/MatchedGroupSlice";
 import axios from "axios";
 import { format } from "date-fns";
 import vi from "date-fns/locale/vi";
+import EditMeetingDay from "./EditMeetingDay";
 
 const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State để quản lý EditMeetingDay modal
   const config = useMemo(
     () => ({
       headers: {
@@ -93,9 +95,18 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
     }
   };
 
+  const openEditModal = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
   const isPastEvent = selectedEvent
     ? new Date() > new Date(selectedEvent.end)
     : false;
+
   const modalContent = (() => {
     let selectedEvent = null;
     let eventIndex = null;
@@ -104,16 +115,14 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
     for (let group of groups) {
       const { time } = group.matchedDetails;
 
-      // Tìm vị trí của event có _id trùng với eventId
       eventIndex = time.findIndex((meet) => meet._id === eventId);
 
       if (eventIndex !== -1) {
-        // Sắp xếp các thời gian theo thứ tự từ sớm đến muộn
         const sortedTimes = [...time].sort(
           (a, b) => new Date(a.start) - new Date(b.start)
         );
         selectedEvent = sortedTimes.find((meet) => meet._id === eventId);
-        eventIndex = sortedTimes.findIndex((meet) => meet._id === eventId) + 1; // Thứ tự buổi (1-based index)
+        eventIndex = sortedTimes.findIndex((meet) => meet._id === eventId) + 1;
 
         matchedGroup = group;
         break;
@@ -169,7 +178,11 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
         span={24}
         style={{ display: "flex", gap: "10px", justifyContent: "end" }}
       >
-        <ConfirmButton content="Chỉnh sửa" disabled={isPastEvent} />
+        <ConfirmButton
+          content="Chỉnh sửa"
+          disabled={isPastEvent}
+          onClick={openEditModal}
+        />
         <Popconfirm
           title="Bạn có chắc chắn muốn hủy bỏ cuộc họp này không?"
           onConfirm={handleDeleteEvent}
@@ -185,14 +198,22 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
   );
 
   return (
-    <SmallModal
-      title="Chi tiết cuộc họp"
-      content={modalContent}
-      footer={modalFooter}
-      isModalOpen={open}
-      closeable={true}
-      handleCancel={close}
-    />
+    <>
+      <SmallModal
+        title="Chi tiết cuộc họp"
+        content={modalContent}
+        footer={modalFooter}
+        isModalOpen={open}
+        closeable={true}
+        handleCancel={close}
+      />
+      <EditMeetingDay
+        open={isEditModalOpen}
+        close={closeEditModal}
+        eventId={eventId}
+        selectedEvent={selectedEvent}
+      />
+    </>
   );
 };
 

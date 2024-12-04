@@ -1,49 +1,60 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BASE_URL } from "../../utilities/initalValue";
-import SmallModal from "../../components/Modal/SmallModal";
+import SmallModal from "../../../components/Modal/SmallModal";
+import { BASE_URL } from "../../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { setLoading } from "../../redux/slice/ClassManagementSlice";
-import { setMatchedGroups } from "../../redux/slice/MatchedGroupSlice";
+import { setLoading } from "../../../redux/slice/ClassManagementSlice";
+import { setMatchedGroups } from "../../../redux/slice/MatchedGroupSlice";
 import {
   Col,
   Collapse,
   DatePicker,
   Form,
   Input,
-  InputNumber,
   message,
   Popconfirm,
   Row,
   Tooltip,
+  Typography,
 } from "antd";
-import ConfirmButton from "../../components/Button/ConfirmButton";
-import CancelButton from "../../components/Button/CancelButton";
+import ConfirmButton from "../../../components/Button/ConfirmButton";
+import CancelButton from "../../../components/Button/CancelButton";
 import moment from "moment";
 import dayjs from "dayjs";
 import { runes } from "runes2";
 import { CaretRightOutlined } from "@ant-design/icons";
-import "../../style/Mentor/GroupList.css";
+import "../../../style/Mentor/GroupList.css";
 
-const range = (start, end) => {
-  const result = [];
-  for (let i = start; i < end; i++) {
-    result.push(i);
-  }
-  return result;
-};
-
+const { Text } = Typography;
 const { Panel } = Collapse;
 
-const EditMeetingDay = ({ open, close, groupId }) => {
+const EditMeetingDay = ({ open, close, eventId, selectedEvent }) => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
   const [selectedDate, setSelectedDate] = useState(null);
   const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState("Chưa xác định");
-  const [duration, setDuration] = useState(90);
+  const [endTime, setEndTime] = useState("Chọn giờ bắt đầu trước");
   const [form] = Form.useForm();
+  const [conflictMessage, setConflictMessage] = useState("");
+  const [clientReady, setClientReady] = useState(false);
+
+  useEffect(() => {
+    setClientReady(true);
+    if (selectedEvent) {
+      const startMoment = moment(selectedEvent.start);
+      setSelectedDate(startMoment.clone().startOf("day"));
+      setStartTime(startMoment);
+      setEndTime(startMoment.clone().add(150, "minutes").format("HH:mm"));
+      form.setFieldsValue({
+        meetingContent: selectedEvent.title,
+        meetingDate: startMoment,
+        meetingStartTime: startMoment,
+      });
+    }
+  }, [selectedEvent]);
+
+  const groups = useSelector((state) => state.matchedGroup.data || []);
 
   const config = useMemo(
     () => ({
@@ -54,8 +65,6 @@ const EditMeetingDay = ({ open, close, groupId }) => {
     }),
     [jwt]
   );
-
-  const groups = useSelector((state) => state.matchedGroup.data || []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -80,20 +89,16 @@ const EditMeetingDay = ({ open, close, groupId }) => {
 
   const disabledDate = (current) => {
     const today = moment().startOf("day");
-    const month = today.month() + 1; // Tháng bắt đầu từ 0, nên cần cộng thêm 1
+    const month = today.month() + 1;
     let startMonth, endMonth;
 
-    // Xác định kỳ học hiện tại
     if (month >= 1 && month <= 4) {
-      // Kỳ học 1: Tháng 1, 2, 3, 4
       startMonth = 1;
       endMonth = 4;
     } else if (month >= 5 && month <= 8) {
-      // Kỳ học 2: Tháng 5, 6, 7, 8
       startMonth = 5;
       endMonth = 8;
     } else {
-      // Kỳ học 3: Tháng 9, 10, 11, 12
       startMonth = 9;
       endMonth = 12;
     }
@@ -111,27 +116,27 @@ const EditMeetingDay = ({ open, close, groupId }) => {
     );
   };
 
-  const disabledRangeTime = (start, end) => (selectedDate, type) => {
+  const disabledRangeTime = (selectedDate, type) => {
     const now = dayjs();
     const startHour = 7;
-    const endHour = 22;
+    const endHour = 20;
 
     if (!selectedDate) return {};
 
     if (type === "start") {
       return {
         disabledHours: () => {
-          const hours = range(0, 24);
+          const hours = Array.from({ length: 24 }, (_, i) => i);
           if (selectedDate.isSame(now, "day")) {
             return hours.filter(
-              (hour) => hour < now.hour() || hour < startHour
+              (hour) => hour < now.hour() || hour < startHour || hour > endHour
             );
           }
-          return hours.filter((hour) => hour < startHour || hour >= endHour);
+          return hours.filter((hour) => hour < startHour || hour > endHour);
         },
         disabledMinutes: (selectedHour) => {
           if (selectedDate.isSame(now, "day") && selectedHour === now.hour()) {
-            return range(0, now.minute() + 10);
+            return Array.from({ length: now.minute() + 10 }, (_, i) => i);
           }
           return [];
         },
@@ -141,88 +146,97 @@ const EditMeetingDay = ({ open, close, groupId }) => {
     return {};
   };
 
-  const formatDuration = (minutes) => {
-    if (minutes === null) return "";
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours > 0 ? `${hours} tiếng` : ""} ${
-      mins > 0 ? `${mins} phút` : ""
-    }`.trim();
-  };
-
-  const calculateEndTime = () => {
-    if (!startTime) return "";
-    return startTime.clone().add(duration, "minutes").format("HH:mm");
-  };
-
   useEffect(() => {
     if (startTime) {
-      setEndTime(startTime.clone().add(duration, "minutes").format("HH:mm"));
+      setEndTime(startTime.clone().add(150, "minutes").format("HH:mm"));
     }
-  }, [startTime, duration]);
+  }, [startTime]);
 
-  const handleMakeNewEvent = async () => {
+  const checkConflict = (selectedStart) => {
+    let conflict = "";
+    if (selectedDate && selectedStart) {
+      const selectedStartTime = selectedDate
+        .hour(selectedStart.hour())
+        .minute(selectedStart.minute());
+      const selectedEndTime = selectedStartTime.clone().add(150, "minutes");
+
+      groups.forEach((group) => {
+        group.matchedDetails?.time.forEach((meeting) => {
+          if (meeting._id === eventId) return;
+
+          const meetingStart = moment(meeting.start);
+          const meetingEnd = moment(meeting.end);
+
+          if (
+            (selectedStartTime.isBefore(meetingEnd) &&
+              selectedEndTime.isAfter(meetingStart)) ||
+            selectedStartTime.isSame(meetingStart) ||
+            selectedEndTime.isSame(meetingEnd)
+          ) {
+            conflict = `Trùng cuộc hẹn với lớp ${group.class.className} - ${
+              group.group.name
+            } vào ${meetingStart.format("DD-MM-YYYY")} từ ${meetingStart.format(
+              "HH:mm"
+            )} đến ${meetingEnd.format("HH:mm")}`;
+          }
+        });
+      });
+    }
+    setConflictMessage(conflict);
+  };
+
+  const handleUpdateEvent = async () => {
+    if (conflictMessage) {
+      message.error("Thời gian họp bị trùng, vui lòng chọn thời gian khác.");
+      return;
+    }
+
     try {
-      // Kiểm tra giá trị groupId
-      if (!groupId) {
-        message.error("Group ID không hợp lệ. Vui lòng kiểm tra lại.");
+      if (!eventId) {
+        message.error("ID không hợp lệ. Vui lòng kiểm tra lại.");
         return;
       }
 
-      const start = moment(selectedDate)
+      const start = selectedDate
         .hour(startTime.hour())
         .minute(startTime.minute())
         .second(0)
         .toISOString();
 
-      const end = moment(selectedDate)
+      const end = selectedDate
         .hour(startTime.hour())
-        .minute(startTime.minute() + duration)
+        .minute(startTime.minute() + 150)
         .second(0)
         .toISOString();
 
-      const newEvent = {
+      const updatedEvent = {
         title: form.getFieldValue("meetingContent") || "outcome",
         allDay: false,
         start: start,
         end: end,
       };
 
-      console.log("Group ID:", groupId);
-      console.log("New Event:", newEvent);
-
-      // Gửi request tới server
-      const response = await axios.post(
-        `${BASE_URL}/matched/time/${groupId}`,
-        { time: [newEvent] },
+      const response = await axios.patch(
+        `${BASE_URL}/matched/time/${eventId}`,
+        updatedEvent,
         config
       );
 
-      // Kiểm tra phản hồi từ server
       if (response.status === 200) {
-        const updatedGroups = groups.map((group) => {
-          if (group.matchedDetails._id === groupId) {
-            return {
-              ...group,
-              matchedDetails: {
-                ...group.matchedDetails,
-                time: [...(group.matchedDetails.time || []), newEvent], // Đảm bảo thêm sự kiện mới mà vẫn giữ các sự kiện cũ
-              },
-            };
-          }
-          return group;
-        });
+        const groupResponse = await axios.get(
+          `${BASE_URL}/matched/mentor/${userId}`,
+          config
+        );
 
-        dispatch(setMatchedGroups(updatedGroups));
+        dispatch(setMatchedGroups(groupResponse.data?.groups));
 
-        message.success("Lịch họp đã được tạo thành công!");
-        close(); // Đóng modal sau khi thành công
+        message.success("Cuộc họp đã được cập nhật thành công!");
+        close();
       } else {
         console.error("Error response:", response);
-        message.error("Có lỗi xảy ra khi tạo lịch họp. Vui lòng thử lại.");
+        message.error("Có lỗi xảy ra khi cập nhật cuộc họp. Vui lòng thử lại.");
       }
     } catch (error) {
-      // In chi tiết lỗi để hiểu rõ hơn
       if (error.response) {
         console.error("API Error:", error.response.data);
         message.error(
@@ -252,13 +266,7 @@ const EditMeetingDay = ({ open, close, groupId }) => {
         style={{ width: "380px" }}
       >
         <Form.Item
-          label={
-            <span
-              style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
-            >
-              Điền nội dung họp
-            </span>
-          }
+          label="Điền nội dung họp"
           name="meetingContent"
           rules={[{ required: true, message: "Vui lòng nhập nội dung họp" }]}
           labelCol={{ span: 24 }}
@@ -273,14 +281,8 @@ const EditMeetingDay = ({ open, close, groupId }) => {
         >
           <Input
             placeholder="VD: Outcome 1"
-            count={{
-              show: true,
-              max: 40,
-              strategy: (txt) => runes(txt).length,
-              exceedFormatter: (txt, { max }) =>
-                runes(txt).slice(0, max).join(""),
-            }}
-            style={{ width: "350px" }} // Đảm bảo input chiếm hết chiều ngang
+            maxLength={40}
+            style={{ width: "350px" }}
           />
         </Form.Item>
 
@@ -290,18 +292,15 @@ const EditMeetingDay = ({ open, close, groupId }) => {
             <span
               style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
             >
-              Chọn ngày họp
+              Ngày họp
             </span>
           }
           name="meetingDate"
-          rules={[
-            { required: true, message: "Vui lòng chọn ngày bắt đầu họp" },
-          ]}
         >
           <DatePicker
-            placeholder="Chọn ngày"
+            placeholder="Ngày họp"
             style={{ width: "150px" }}
-            disabledDate={disabledDate}
+            value={selectedDate}
             onChange={(value) => {
               setSelectedDate(value);
               if (startTime) {
@@ -311,45 +310,9 @@ const EditMeetingDay = ({ open, close, groupId }) => {
                 setStartTime(updatedStartTime);
               }
             }}
+            disabled
           />
         </Form.Item>
-        <Collapse
-          className="custom-panel-header"
-          bordered={false}
-          style={{
-            marginBottom: "16px",
-            width: "315px",
-          }}
-          expandIcon={({ isActive }) => (
-            <CaretRightOutlined rotate={isActive ? 90 : 0} />
-          )}
-        >
-          <Panel
-            header={
-              <p
-                className="remove-default-style-p"
-                style={{ fontSize: "0.8rem", fontWeight: "500", margin: 0 }}
-              >
-                Lưu ý về chọn ngày !
-              </p>
-            }
-            key="1"
-            style={{
-              background: "#f7f7f7",
-              borderRadius: "8px",
-              marginTop: "8px",
-              border: "1px solid #d9d9d9", // Thêm border để nhận biết cần chú ý
-            }}
-          >
-            <small style={{ fontSize: "12px" }}>
-              (*) Ví dụ nhập: 22-11-2024
-              <br />
-              (*) Chỉ được chọn ngày trong kỳ học hiện tại
-              <br />
-              (*) Lưu ý bạn không thể điền ngày đã qua
-            </small>
-          </Panel>
-        </Collapse>
 
         <Form.Item
           style={{ marginBottom: "0.6rem", marginTop: "24px" }}
@@ -357,169 +320,45 @@ const EditMeetingDay = ({ open, close, groupId }) => {
             <span
               style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
             >
-              Chọn giờ bắt đầu
+              Giờ bắt đầu
             </span>
           }
           name="meetingStartTime"
-          rules={[
-            { required: true, message: "Vui lòng chọn thời gian bắt đầu họp" },
-          ]}
-        >
-          <Tooltip
-            title={!selectedDate ? "Hãy chọn ngày trước khi chọn giờ" : ""}
-            placement="top"
-          >
-            <DatePicker
-              picker="time"
-              placeholder="Chọn giờ bắt đầu"
-              style={{ width: "150px" }}
-              disabledDate={disabledDate}
-              disabledTime={(date) =>
-                selectedDate
-                  ? disabledRangeTime(null, null)(selectedDate, "start")
-                  : {}
-              }
-              onChange={(value) => {
-                setStartTime(value);
-                if (value) {
-                  setEndTime(
-                    value.clone().add(duration, "minutes").format("HH:mm")
-                  );
-                } else {
-                  setEndTime("");
-                }
-              }}
-              showTime={{
-                hideDisabledOptions: true,
-                format: "HH:mm",
-              }}
-              format="HH:mm"
-              disabled={!selectedDate}
-            />
-          </Tooltip>
-        </Form.Item>
-        <Collapse
-          bordered={false}
-          style={{
-            marginBottom: "16px",
-            width: "315px",
-          }}
-          expandIcon={({ isActive }) => (
-            <CaretRightOutlined rotate={isActive ? 90 : 0} />
-          )}
-          className="custom-panel-header"
-        >
-          <Panel
-            header={
-              <p
-                className="remove-default-style-p"
-                style={{ fontSize: "0.8rem", fontWeight: "500", margin: 0 }}
-              >
-                Lưu ý về chọn giờ !
-              </p>
-            }
-            key="1"
-            style={{
-              background: "#f7f7f7",
-              borderRadius: "8px",
-              marginTop: "8px",
-              border: "1px solid #d9d9d9",
-            }}
-          >
-            <small style={{ fontSize: "12px" }}>
-              (*) Ví dụ nhập: 13:45
-              <br />
-              (*) Giới hạn chọn giờ bắt đầu từ 7h30 đến 22h
-              <br />
-              (*) Lưu ý bạn không thể điền giờ đã qua nếu chọn ngày hôm nay
-            </small>
-          </Panel>
-        </Collapse>
-
-        <Form.Item
-          style={{ marginBottom: "0.6rem", marginTop: "24px" }}
-          label={
-            <span
-              style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
-            >
-              Chọn thời lượng họp
-            </span>
-          }
-          name="meetingDuration"
-          rules={[{ required: true, message: "Vui lòng chọn thời lượng họp" }]}
           extra={
             <>
-              <span style={{ color: "#888", fontSize: "12px" }}>
-                Thời gian họp là: {formatDuration(duration)}
-              </span>{" "}
-              <br />
               <span style={{ color: "#888", fontSize: "12px" }}>
                 Giờ kết thúc: {endTime}
               </span>
             </>
           }
         >
-          <InputNumber
-            min={15}
-            max={180}
-            step={30}
-            defaultValue={90}
-            value={duration}
-            onChange={(value) => {
-              if (value >= 15) {
-                setDuration(value);
-              }
-            }}
-            onBlur={() => {
-              if (duration < 15) {
-                setDuration(15);
-              }
-            }}
-            placeholder="Điền phút"
+          <DatePicker
+            picker="time"
+            placeholder="Chọn giờ bắt đầu"
             style={{ width: "150px" }}
-            disabled={!selectedDate || !startTime}
-            changeOnWheel
+            value={startTime}
+            onChange={(value) => {
+              setStartTime(value);
+              if (value) {
+                setEndTime(
+                  value.clone().add(150, "minutes").format("HH:mm")
+                );
+              } else {
+                setEndTime("Chọn giờ bắt đầu trước");
+              }
+            }}
+            showTime={{
+              hideDisabledOptions: true,
+              format: "HH:mm",
+            }}
+            format="HH:mm"
           />
         </Form.Item>
-        <Collapse
-          className="custom-panel-header"
-          bordered={false}
-          style={{
-            marginBottom: "16px",
-            width: "315px",
-            backgroundColor: "#E6F4FF",
-          }}
-          expandIcon={({ isActive }) => (
-            <CaretRightOutlined rotate={isActive ? 90 : 0} />
-          )}
-        >
-          <Panel
-            header={
-              <p
-                className="remove-default-style-p"
-                style={{ fontSize: "0.8rem", fontWeight: "500", margin: 0 }}
-              >
-                Lưu ý về chọn thời lượng họp !
-              </p>
-            }
-            key="1"
-            style={{
-              background: "#f7f7f7",
-              borderRadius: "8px",
-              marginTop: "8px",
-              border: "1px solid #d9d9d9",
-            }}
-          >
-            <small style={{ fontSize: "12px" }}>
-              (*) Giới hạn chọn thời lượng cuộc họp ít nhất 15 phút và tối đa 3
-              tiếng
-            </small>
-            <br />
-            <small style={{ fontSize: "12px" }}>
-              (*) Thời gian kết thúc cuộc họp không quá 23h
-            </small>
-          </Panel>
-        </Collapse>
+        {conflictMessage && (
+          <Text type="danger" style={{ display: "block", marginTop: "10px" }}>
+            {conflictMessage}
+          </Text>
+        )}
       </Form>
     </div>
   );
@@ -531,24 +370,19 @@ const EditMeetingDay = ({ open, close, groupId }) => {
         style={{ display: "flex", gap: "10px", justifyContent: "end" }}
       >
         <Popconfirm
-          title="Bạn có chắc chắn muốn thêm lịch họp này không?"
-          onConfirm={handleMakeNewEvent}
+          title="Bạn có chắc chắn muốn cập nhật cuộc họp này không?"
+          onConfirm={handleUpdateEvent}
           okText="Đồng ý"
           cancelText="Hủy"
-          // disabled={
-          //   !form.isFieldsTouched(true) ||
-          //   form.getFieldsError().some(({ errors }) => errors.length)
-          // }
         >
           <ConfirmButton
-            content="Thêm vào"
-            // disabled={
-            //   !form.isFieldsTouched(true) ||
-            //   form.getFieldsError().some(({ errors }) => errors.length) ||
-            //   !selectedDate ||
-            //   !startTime ||
-            //   !duration
-            // }
+            content="Cập nhật"
+            disabled={
+              !clientReady ||
+              !!conflictMessage ||
+              !!form.getFieldsError().filter(({ errors }) => errors.length)
+                .length
+            }
           />
         </Popconfirm>
         <CancelButton content="Hủy" onClick={close} />
@@ -558,7 +392,7 @@ const EditMeetingDay = ({ open, close, groupId }) => {
 
   return (
     <SmallModal
-      title="Thêm cuộc họp mới"
+      title="Chỉnh sửa cuộc họp"
       content={modalContent}
       footer={modalFooter}
       closeable={true}

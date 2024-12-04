@@ -38,6 +38,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setClassInfoData } from "../../redux/slice/ClassManagementSlice";
 import calculateWeekAndPhase from "./calculateWeekAndPhase";
 import AssignOutcome from "../activity/AssignOutcome";
+import MonitorStep from "../activity/MonitorStep";
 
 const ClassManagement = () => {
   const dispatch = useDispatch();
@@ -45,24 +46,7 @@ const ClassManagement = () => {
   const userId = localStorage.getItem("userId");
   const [showUngropColumn, setShowUngropColumn] = useState(false);
   const [showEmptyColumn, setShowEmptygropColumn] = useState(false);
-  const gridCard = "50%";
-  const items = [
-    {
-      key: "1",
-      label: <p style={{ padding: "0px", margin: "0px" }}>Ẩn đi</p>,
-      icon: <EyeInvisibleOutlined />,
-    },
-    {
-      key: "2",
-      label: <p style={{ padding: "0px", margin: "0px" }}>Mở rộng</p>,
-      icon: <ArrowsAltOutlined />,
-    },
-    {
-      key: "3",
-      label: <p style={{ padding: "0px", margin: "0px" }}>Di chuyển</p>,
-      icon: <IoIosMove />,
-    },
-  ];
+
   const config = useMemo(
     () => ({
       headers: {
@@ -120,6 +104,12 @@ const ClassManagement = () => {
 
   return (
     <div>
+      <h5 style={{ textAlign: "center", marginBottom: "8px" }}>
+        Các giai đoạn Outcome
+      </h5>
+      <Row gutter={[32, 16]}>
+        <MonitorStep />
+      </Row>
       <Row gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={12} xl={16}>
           <Card
@@ -170,7 +160,6 @@ const ClassManagement = () => {
                       gap: "1rem",
                     }}
                   >
-                    {/* <h5><FilterOutlined />Lọc vấn đề</h5> */}
                     <Tooltip title="Làm mới bảng">
                       <Button
                         onClick={() => handleResetFilterTable()}

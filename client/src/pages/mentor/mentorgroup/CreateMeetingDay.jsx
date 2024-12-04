@@ -14,6 +14,7 @@ import {
   message,
   Popconfirm,
   Row,
+  Select,
   Tooltip,
   Typography,
 } from "antd";
@@ -24,6 +25,7 @@ import dayjs from "dayjs";
 import { runes } from "runes2";
 import { CaretRightOutlined } from "@ant-design/icons";
 import "../../../style/Mentor/GroupList.css";
+import { Option } from "antd/es/mentions";
 
 const { Text } = Typography;
 
@@ -37,7 +39,7 @@ const range = (start, end) => {
 
 const { Panel } = Collapse;
 
-const CreateMeetingDay = ({ open, close, groupId }) => {
+const CreateMeetingDay = ({ open, close }) => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
@@ -47,6 +49,8 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
   const [form] = Form.useForm();
   const [conflictMessage, setConflictMessage] = useState("");
   const [clientReady, setClientReady] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+
   useEffect(() => {
     setClientReady(true);
   }, []);
@@ -188,7 +192,7 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
     }
 
     try {
-      if (!groupId) {
+      if (!selectedGroupId) {
         message.error("Group ID không hợp lệ. Vui lòng kiểm tra lại.");
         return;
       }
@@ -213,11 +217,10 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/matched/time/${groupId}`,
+        `${BASE_URL}/matched/time/${selectedGroupId}`,
         { time: [newEvent] },
         config
       );
-
       if (response.status === 200) {
         const groupResponse = await axios.get(
           `${BASE_URL}/matched/mentor/${userId}`,
@@ -292,6 +295,40 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
             }}
             style={{ width: "350px" }}
           />
+        </Form.Item>
+
+        <Form.Item
+          label={
+            <span
+              style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
+            >
+              Chọn nhóm
+            </span>
+          }
+          name="selectedGroupId"
+          rules={[{ required: true, message: "Vui lòng chọn nhóm" }]}
+        >
+          <Select
+            showSearch
+            placeholder="Vui lòng chọn nhóm"
+            optionFilterProp="children"
+            onChange={(value) => setSelectedGroupId(value)}
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+            style={{ width: "12rem" }}
+          >
+            {groups
+              .filter((group) => group?.matchedDetails.status === "Accepted")
+              .map((group) => (
+                <Option
+                  key={group.matchedDetails._id}
+                  value={group.matchedDetails._id}
+                >
+                  {`${group.class.className} - ${group.group.name}`}
+                </Option>
+              ))}
+          </Select>
         </Form.Item>
 
         <Form.Item
@@ -477,6 +514,7 @@ const CreateMeetingDay = ({ open, close, groupId }) => {
             content="Thêm vào"
             disabled={
               !clientReady ||
+              !selectedGroupId ||
               !!conflictMessage ||
               !!form.getFieldsError().filter(({ errors }) => errors.length)
                 .length

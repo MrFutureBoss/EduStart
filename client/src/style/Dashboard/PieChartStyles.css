@@ -1,0 +1,71 @@
+.pie-chart-container {
+  background-color: #fff;
+  border-radius: 8px;
+  line-height: 1.4;
+}
+
+.chart-description h5 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  font-size: 13px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 5px 10px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.legend-text {
+  font-size: 13px;
+}
+
+.highlighted-section {
+  transform: scale(1.1);
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.custom-tooltip {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  /* padding: 5px; */
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.custom-tooltip .label {
+  font-weight: bold;
+  color: #333;
+}
+
+.custom-tooltip .intro {
+  color: #555;
+}
+
+.description-text-pie {
+  width: 180px;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.5;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 13px;
+}
