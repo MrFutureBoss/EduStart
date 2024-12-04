@@ -206,6 +206,16 @@ const getGroupOutcomesByGroupId = async (groupId) => {
   }
 };
 
+const findUnsubmittedGroups = async (outcomeId, classId) => {
+  return Activity.find({
+    completed: false,
+    activityType: "outcome",
+    outcomeId,
+    classId,
+  })
+    .populate("groupId", "name")
+    .populate("classId", "className");
+};
 const findOutcomesByGroupId = async (groupId) => {
   try {
     const activities = await Activity.find({
@@ -246,18 +256,8 @@ const findOutcomesByGroupId = async (groupId) => {
     console.error("Error in findOutcomesByGroupId:", error.message);
     throw error;
   }
-  
-const findUnsubmittedGroups = async (outcomeId, classId) => {
-  return Activity.find({
-    completed: false,
-    activityType: "outcome",
-    outcomeId,
-    classId,
-  })
-    .populate("groupId", "name")
-    .populate("classId", "className");
 };
-  
+
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -284,6 +284,6 @@ export default {
   getActivitiesByClassId,
   getOutcomesBySemesterId,
   getGroupOutcomesByGroupId,
-  findOutcomesByGroupId,
   findUnsubmittedGroups,
+  findOutcomesByGroupId,
 };
