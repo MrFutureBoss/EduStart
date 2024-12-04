@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  List,
-  Avatar,
-  Typography,
-  Badge,
-  message,
-} from "antd";
+import { Card, List, Avatar, Typography, Badge, message } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { StarOutlined, SettingOutlined } from "@ant-design/icons";
@@ -25,7 +18,6 @@ const socket = io(BASE_URL);
 const { Text, Title } = Typography;
 
 const GroupDetail = () => {
-  const { groupId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { group: groupDetails } = useSelector((state) => state.group);
@@ -87,7 +79,6 @@ const GroupDetail = () => {
       console.error("Error fetching data:", err);
     }
   };
-
 
   useEffect(() => {
     socket.emit("joinProject", userLogin?.projectInfo?.[0]?._id);
@@ -175,7 +166,6 @@ const GroupDetail = () => {
       }
     }
   }, [groupDetails]);
-
 
   const handleModalClose = () => {
     setIsModalVisible(false);

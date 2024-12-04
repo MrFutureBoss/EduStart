@@ -29,6 +29,8 @@ const GroupOutcomeCard = ({ groupId }) => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [submittedFiles, setSubmittedFiles] = useState([]);
+  const [hasOpenedModal, setHasOpenedModal] = useState(false); // Thêm state này để kiểm soát việc mở modal
+
   const nowDate = moment();
   const { userLogin } = useSelector((state) => state.user);
   const role = userLogin?.role;
@@ -42,6 +44,28 @@ const GroupOutcomeCard = ({ groupId }) => {
   };
 
   useEffect(() => {
+    if (active && !hasOpenedModal) {
+      // Kiểm tra thêm hasOpenedModal
+      const currentOutcome = outcomes.find((outcome) => {
+        if (!outcome.startDate || !outcome.deadline) return false;
+        const startDate = moment(outcome.startDate);
+        const deadline = moment(outcome.deadline);
+        return (
+          nowDate.isSameOrAfter(startDate) &&
+          nowDate.isSameOrBefore(deadline) &&
+          !outcome.completed
+        );
+      });
+
+      if (currentOutcome) {
+        openSubmitModal(currentOutcome);
+        setHasOpenedModal(true); // Đánh dấu đã mở modal để tránh mở lại nhiều lần
+      }
+    }
+  }, [active, outcomes, hasOpenedModal, nowDate]);
+
+  useEffect(() => {
+
     const fetchOutcomes = async () => {
       try {
         const response = await axios.get(
@@ -86,7 +110,6 @@ const GroupOutcomeCard = ({ groupId }) => {
         setOutcomes(outcomesWithDetails);
       } catch (error) {
         console.error("Error fetching outcomes:", error);
-        message.error("Không thể tải dữ liệu outcome.");
       }
     };
 
