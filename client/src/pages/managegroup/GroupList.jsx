@@ -2,7 +2,7 @@ import { UserOutlined } from "@ant-design/icons";
 import { Card, Col, Row, Typography } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { setAllGroupInClass } from "../../redux/slice/GroupSlice";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -15,7 +15,6 @@ const GroupList = () => {
   const jwt = localStorage.getItem("jwt");
   const { className } = useParams();
   const [classId, setClassId] = useState(null);
-  const [actionGroup, setGroupAction] = useState(1);
 
   const config = useMemo(
     () => ({
@@ -70,6 +69,13 @@ const GroupList = () => {
     navigate(`/teacher/group-detail/${groupId}`);
   };
 
+  const location = useLocation();
+  const filterByUnfinished =
+    new URLSearchParams(location.search).get("filter") === "unfinished";
+  const filteredGroupInClass = filterByUnfinished
+    ? groupInClass.filter((group) => !group.projectId || !group.projectId.name)
+    : groupInClass;
+    
   return (
     <Row gutter={[16, 16]}>
       <Col span={24} style={{ textAlign: "center", marginBottom: "16px" }}>
@@ -83,7 +89,7 @@ const GroupList = () => {
           Danh sách nhóm
         </h1>
       </Col>
-      {groupInClass.map((group) => (
+      {filteredGroupInClass.map((group) => (
         <Col key={group._id} xs={24} sm={24} md={12} lg={8}>
           <Card
             title={
@@ -128,12 +134,12 @@ const GroupList = () => {
             </div>
             <div style={{ padding: "0", textAlign: "left" }}>
               <Text style={{ fontSize: "14px", color: "#555" }}>
-                <b>Người hướng dẫn:</b> Chưa có
+                <b>Người hướng dẫn:</b> {group.mentor!== null ? (<span style={{ color: "#1890FF", fontWeight: "600" }}>{group.mentor?.username}</span>) : (<span>Chưa có</span>)}
               </Text>
             </div>
             <div style={{ padding: "0", textAlign: "left" }}>
               <Text style={{ fontSize: "14px", color: "#555" }}>
-                <b>Thành viên:</b> 5 <UserOutlined />
+                <b>Thành viên:</b> {group?.users.length} <UserOutlined />
               </Text>
             </div>
             <div style={{ textAlign: "center", marginTop: "12px" }}>

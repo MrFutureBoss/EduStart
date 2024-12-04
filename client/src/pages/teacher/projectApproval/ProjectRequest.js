@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+// ProjectRequest.jsx
+import React, { useEffect, useState } from "react"; 
 import { useDispatch, useSelector } from "react-redux";
 import {
   Tabs,
   Table,
-  Button,
   Modal,
   Input,
   message,
@@ -19,11 +19,13 @@ import {
   setSelectedProject,
   setDeclineMessage,
   removeProject,
+  clearSelectedProjectToTop
 } from "../../../redux/slice/ProjectSlice";
 import ConfirmButton from "../../../components/Button/ConfirmButton";
 import CancelButton from "../../../components/Button/CancelButton";
 import io from "socket.io-client";
 import { useLocation } from "react-router-dom";
+
 const socket = io(BASE_URL);
 
 const { confirm } = Modal;
@@ -35,13 +37,15 @@ const ProjectRequest = () => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
 
-  const { projects, selectedProject, declineMessage } = useSelector(
+  const { projects, selectedProject, declineMessage, selectedProjectToTop } = useSelector(
     (state) => state.project
   );
 
   const [isDeclineModalVisible, setIsDeclineModalVisible] = useState(false);
   const [changingProjects, setChangingProjects] = useState([]);
-  const [activeTab, setActiveTab] = useState("1"); // Biến trạng thái để lưu trữ tab hiện tại
+  const [activeTab, setActiveTab] = useState("1");
+  const [orderedProjects, setOrderedProjects] = useState([]);
+  const [orderedChangingProjects, setOrderedChangingProjects] = useState([]);
 
   useEffect(() => {
     if (userId) {
@@ -51,10 +55,8 @@ const ProjectRequest = () => {
   }, [dispatch, userId]);
 
   useEffect(() => {
-    // Tham gia room dựa trên userId
     socket.emit("joinRoom", userId);
 
-    // Lắng nghe sự kiện cập nhật dự án
     socket.on("projectUpdated", (data) => {
       fetchProjects();
       fetchChangingProjects();
@@ -64,6 +66,7 @@ const ProjectRequest = () => {
       socket.off("projectUpdated");
     };
   }, [userId]);
+
   const fetchProjects = async () => {
     try {
       const res = await axios.get(
@@ -75,7 +78,23 @@ const ProjectRequest = () => {
           },
         }
       );
-      dispatch(setProjects(res.data));
+
+      let projectsArray = [];
+      if (res.data.data && Array.isArray(res.data.data)) {
+        projectsArray = res.data.data;
+      } else if (Array.isArray(res.data)) {
+        projectsArray = res.data;
+      } else {
+        console.error("Unexpected project data structure:", res.data);
+        throw new Error("Invalid project data structure");
+      }
+
+      const projectsData = projectsArray.map((project) => ({
+        ...project,
+        projectId: project.projectId || project.id,
+      }));
+
+      dispatch(setProjects(projectsData));
     } catch (err) {
       message.error("Lỗi khi tải dữ liệu dự án!");
       console.error(err);
@@ -93,7 +112,21 @@ const ProjectRequest = () => {
           },
         }
       );
-      setChangingProjects(res.data);
+
+      let changingProjectsArray = [];
+      if (Array.isArray(res.data)) {
+        changingProjectsArray = res.data;
+      } else {
+        console.error("Unexpected changing projects data structure:", res.data);
+        throw new Error("Invalid changing projects data structure");
+      }
+
+      const changingProjectsData = changingProjectsArray.map((project) => ({
+        ...project,
+        projectId: project.projectId || project.id,
+      }));
+      setChangingProjects(Array.isArray(changingProjectsData) ? changingProjectsData : []);
+      setOrderedChangingProjects(Array.isArray(changingProjectsData) ? changingProjectsData : []);
     } catch (err) {
       message.error("Lỗi khi tải dữ liệu dự án cập nhật!");
       console.error(err);
@@ -114,7 +147,7 @@ const ProjectRequest = () => {
 
   const handleDecline = (projectId, projectName) => {
     dispatch(setSelectedProject({ projectId, projectName }));
-    dispatch(setDeclineMessage("")); // Reset decline message
+    dispatch(setDeclineMessage(""));
     setIsDeclineModalVisible(true);
   };
 
@@ -138,11 +171,11 @@ const ProjectRequest = () => {
 
   const handleDeclineCancel = () => {
     setIsDeclineModalVisible(false);
-    dispatch(setDeclineMessage("")); // Reset decline message
+    dispatch(setDeclineMessage(""));
   };
 
   const handleAction = (projectId, actionType) => {
-    const projectType = activeTab === "2" ? "changing" : "planning"; // Xác định loại dự án dựa trên tab đang chọn
+    const projectType = activeTab === "2" ? "changing" : "planning";
     const apiUrl = `${BASE_URL}/project/${actionType}/${projectType}/${projectId}`;
 
     const payload =
@@ -160,8 +193,14 @@ const ProjectRequest = () => {
           setChangingProjects((prevProjects) =>
             prevProjects.filter((proj) => proj.projectId !== projectId)
           );
+          setOrderedChangingProjects((prevProjects) =>
+            prevProjects.filter((proj) => proj.projectId !== projectId)
+          );
         } else {
           dispatch(removeProject(projectId));
+          setOrderedProjects((prevProjects) =>
+            prevProjects.filter((proj) => proj.projectId !== projectId)
+          );
         }
         message.success(
           actionType === "approve" ? `Đã duyệt dự án` : `Đã từ chối dự án`
@@ -190,20 +229,19 @@ const ProjectRequest = () => {
       key: "projectName",
       render: (text) => <Text>{text}</Text>,
     },
-
     {
       title: "Lĩnh vực",
       dataIndex: "profession",
       key: "profession",
       render: (profession) =>
-        profession.length > 0 ? profession.join(", ") : "Không có danh mục",
+        Array.isArray(profession) && profession.length > 0 ? profession.join(", ") : "Không có danh mục",
     },
     {
       title: "Chuyên môn",
       dataIndex: "specialties",
       key: "specialties",
       render: (specialties) =>
-        specialties.length > 0
+        Array.isArray(specialties) && specialties.length > 0
           ? specialties.join(", ")
           : "Không có chuyên ngành",
     },
@@ -216,28 +254,15 @@ const ProjectRequest = () => {
             content="Duyệt"
             onClick={() => handleApprove(record.projectId, record.projectName)}
           />
-          {/* <Button
-            type="primary"
-            onClick={() => handleApprove(record.projectId, record.projectName)}
-            style={{ backgroundColor: "#4caf50", borderColor: "#4caf50" }}
-          >
-            Duyệt
-          </Button> */}
           <CancelButton
             content="Từ chối"
             onClick={() => handleDecline(record.projectId, record.projectName)}
           />
-
-          {/* <Button
-            danger
-            onClick={() => handleDecline(record.projectId, record.projectName)}
-          >
-            Từ chối
-          </Button> */}
         </Space>
       ),
     },
   ];
+
   const location = useLocation();
 
   useEffect(() => {
@@ -247,12 +272,48 @@ const ProjectRequest = () => {
       setActiveTab(tabParam);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (Array.isArray(projects.data)) {
+      let newOrderedProjects = [...projects.data];
+      if (selectedProjectToTop && activeTab === "1") {
+        const { projectId } = selectedProjectToTop;
+        const projectIndex = newOrderedProjects.findIndex((p) => p.projectId === projectId);
+        if (projectIndex !== -1) {
+          const [selectedProj] = newOrderedProjects.splice(projectIndex, 1);
+          newOrderedProjects.unshift(selectedProj);
+        } else {
+          console.warn(`Project with ID ${projectId} not found in "Dự án cần duyệt".`);
+        }
+      }
+      setOrderedProjects(newOrderedProjects);
+    } else {
+      setOrderedProjects([]);
+    }
+  }, [projects.data, selectedProjectToTop, activeTab]);
+
+  useEffect(() => {
+    setOrderedChangingProjects(Array.isArray(changingProjects) ? changingProjects : []);
+    if (selectedProjectToTop && activeTab === "2") {
+      const { projectId } = selectedProjectToTop;
+      const projectIndex = changingProjects.findIndex((p) => p.projectId === projectId);
+      if (projectIndex !== -1) {
+        const reordered = [...changingProjects];
+        const [selectedProj] = reordered.splice(projectIndex, 1);
+        reordered.unshift(selectedProj);
+        setOrderedChangingProjects(reordered);
+      } else {
+        console.warn(`Project with ID ${projectId} not found in "Dự án cập nhật lại".`);
+      }
+    }
+  }, [changingProjects, selectedProjectToTop, activeTab]);
+
   return (
     <div style={{ padding: "24px" }}>
       <Tabs
-      activeKey={activeTab} // Tab hiện tại
+        activeKey={activeTab}
         defaultActiveKey="1"
-        onChange={(key) => setActiveTab(key)} // Cập nhật tab hiện tại khi thay đổi
+        onChange={(key) => setActiveTab(key)}
       >
         <TabPane
           tab={
@@ -270,10 +331,11 @@ const ProjectRequest = () => {
           <h4 style={{ marginBottom: 30 }}>Danh sách dự án cần duyệt</h4>
           <Table
             columns={columns}
-            dataSource={projects.data}
+            dataSource={Array.isArray(orderedProjects) ? orderedProjects : []}
             rowKey="projectId"
             pagination={{ pageSize: 10 }}
             locale={{ emptyText: "Chưa có dự án nào cần duyệt" }}
+            loading={false}
           />
         </TabPane>
 
@@ -293,16 +355,17 @@ const ProjectRequest = () => {
           <h4 style={{ marginBottom: 30 }}>Danh sách dự án cập nhật lại</h4>
           <Table
             columns={columns}
-            dataSource={changingProjects}
+            dataSource={Array.isArray(orderedChangingProjects) ? orderedChangingProjects : []}
             rowKey="projectId"
             pagination={{ pageSize: 10 }}
-            locale={{ emptyText: "Chưa có dự án nào cần duyệt" }}
+            locale={{ emptyText: "Chưa có dự án nào cần cập nhật lại" }}
+            loading={false}
           />
         </TabPane>
       </Tabs>
 
       <Modal
-        title={`Từ chối dự án: ${selectedProject.projectName}`}
+        title={`Từ chối dự án: ${selectedProject?.projectName || ""}`}
         open={isDeclineModalVisible}
         onOk={handleDeclineOk}
         onCancel={handleDeclineCancel}
