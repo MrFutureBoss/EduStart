@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Card, List, Avatar, Typography, Button, Badge, message } from "antd";
+import {
+  Card,
+  List,
+  Avatar,
+  Typography,
+  Badge,
+  message,
+} from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { StarOutlined, SettingOutlined } from "@ant-design/icons";
@@ -8,19 +15,25 @@ import Swal from "sweetalert2";
 import { BASE_URL } from "../../utilities/initalValue";
 import { setGroup, updateGroupLeader } from "../../redux/slice/GroupSlice";
 import { setUserLogin } from "../../redux/slice/UserSlice";
-import "../../style/Class/GroupMembersStyles.css";
-import GroupOutcomeCard from "../activity/GroupOutcomeCard";
+import "../group/GroupMembersStyles.css";
+import io from "socket.io-client";
 import CustomButton from "../../components/Button/Button";
+import GroupOutcomeCard from "../activity/GroupOutcomeCard";
+import { format } from "date-fns";
 
+const socket = io(BASE_URL);
 const { Text, Title } = Typography;
 
 const GroupDetail = () => {
-  const {groupId} = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const url = useLocation();
   const { group: groupDetails } = useSelector((state) => state.group);
   const { userLogin } = useSelector((state) => state.user);
+  const { groupId } = useParams();
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [projectData, setProjectData] = useState(null);
   const jwt = localStorage.getItem("jwt");
   const config = {
     headers: {
@@ -75,6 +88,16 @@ const GroupDetail = () => {
     }
   };
 
+  useEffect(() => {
+    socket.emit("joinProject", userLogin?.projectInfo?.[0]?._id);
+    socket.on("projectUpdated", (data) => {
+      fetchData();
+    });
+
+    return () => {
+      socket.off("projectUpdated");
+    };
+  }, [userLogin]);
 
   const updateProjectStatus = async () => {
     try {
@@ -119,6 +142,9 @@ const GroupDetail = () => {
       groupDetails?.project?.status === "InProgress" ||
       groupDetails?.project?.status === "Changing";
     localStorage.setItem("previousProject", JSON.stringify(groupDetails));
+    setIsUpdating(isPlanning);
+    setProjectData(groupDetails);
+    setIsModalVisible(true);
   };
 
   useEffect(() => {
@@ -149,6 +175,10 @@ const GroupDetail = () => {
     }
   }, [groupDetails]);
 
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setProjectData(null);
+  };
 
   const handleLeaderChange = (userId, userName) => {
     Swal.fire({
@@ -191,15 +221,14 @@ const GroupDetail = () => {
 
   return (
     <div>
-      <h3>Thông tin nhóm</h3>
-      <div>
+      <div className="group-members-container">
         <div className="group-members-content">
           {groupDetails?.project && (
             <Card
               title={
-                <Title level={4} className="group-members-project-title">
+                <h4 className="remove-default-style-p group-members-project-title">
                   Dự án: {groupDetails?.project?.name}
-                </Title>
+                </h4>
               }
               className="group-members-project-card"
               extra={
@@ -277,17 +306,14 @@ const GroupDetail = () => {
               extra={
                 userLogin?.role === 4 &&
                 userLogin?.isLeader && (
-                  <Button
-                    style={{
-                      backgroundColor: "rgb(135, 208, 104)",
-                      color: "white",
-                    }}
+                  <CustomButton
                     onClick={handleOpenModal}
-                  >
-                    {!groupDetails?.project?.status
-                      ? "Cập nhật dự án"
-                      : "Sửa lại dự án"}
-                  </Button>
+                    content={
+                      !groupDetails?.project?.status
+                        ? "Cập nhật dự án"
+                        : "Sửa lại dự án"
+                    }
+                  />
                 )
               }
             >
@@ -391,6 +417,85 @@ const GroupDetail = () => {
               </Card>
             </Badge.Ribbon>
           )}
+          {/* <Card
+            title="Lịch họp của nhóm"
+            headStyle={{
+              color: "#000",
+              fontWeight: "bold",
+              textAlign: "center",
+              fontSize: "18px",
+            }}
+            bodyStyle={{
+              maxHeight: "400px",
+              overflowY: "auto",
+            }}
+            style={{
+              padding: "16px",
+              backgroundColor: "#ffffff",
+              borderRadius: "8px",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              marginBottom: "16px",
+            }}
+          >
+            {selectedGroup?.matchedDetails?.time.length > 0 ? (
+              selectedGroup.matchedDetails.time.map((meet, index) => (
+                <Card.Grid
+                  key={index}
+                  style={{
+                    marginBottom: "10px",
+                    backgroundColor: "#E6F7FF",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    width: "100%",
+                  }}
+                >
+                  <Row>
+                    <Col span={24} style={{ lineHeight: "1.5rem" }}>
+                      <p className="remove-default-style-p">
+                        <strong>
+                          <FaThumbtack
+                            style={{ color: "red", marginRight: "5px" }}
+                          />
+                          Buổi {index + 1}:
+                        </strong>{" "}
+                        {format(new Date(meet.start), "EEEE, dd'-'MM'-'yyyy", {
+                          locale: vi,
+                        })}
+                      </p>
+                      <p className="remove-default-style-p">
+                        <strong>
+                          <FaClock style={{ marginRight: "5px" }} />
+                          Thời gian:
+                        </strong>{" "}
+                        {format(new Date(meet.start), "HH:mm", {
+                          locale: vi,
+                        })}{" "}
+                        -{" "}
+                        {format(new Date(meet.end), "HH:mm", {
+                          locale: vi,
+                        })}
+                      </p>
+                      <p className="remove-default-style-p">
+                        <strong>
+                          <BiDetail
+                            style={{
+                              color: "#00BFFF",
+                              marginRight: "5px",
+                              fontSize: "1.1rem",
+                            }}
+                          />
+                          Nội dung cuộc họp:
+                        </strong>{" "}
+                        {meet.title}
+                      </p>
+                    </Col>
+                  </Row>
+                </Card.Grid>
+              ))
+            ) : (
+              <Empty description="Chưa có lịch hãy vào lịch của các nhóm để tạo" />
+            )}
+          </Card> */}
           <GroupOutcomeCard groupId={groupId} />
         </div>
       </div>
