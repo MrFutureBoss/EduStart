@@ -8,6 +8,9 @@ import {
   Badge,
   message,
   Tag,
+  Row,
+  Col,
+  Empty,
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -22,6 +25,8 @@ import "./GroupMembersStyles.css";
 import io from "socket.io-client";
 import CustomButton from "../../components/Button/Button";
 import GroupOutcomeCard from "../activity/GroupOutcomeCard";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale/vi";
 
 const socket = io(BASE_URL);
 const { Text, Title } = Typography;
@@ -245,9 +250,14 @@ const GroupMembers = () => {
           {groupDetails?.project && (
             <Card
               title={
-                <Title level={4} className="group-members-project-title">
+                <span
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                  }}
+                >
                   Dự án: {groupDetails?.project?.name}
-                </Title>
+                </span>
               }
               className="group-members-project-card"
               extra={
@@ -387,56 +397,124 @@ const GroupMembers = () => {
         </div>
         <div className="group-members-mentor-section">
           {groupDetails?.mentors?.length > 0 && (
-            <Badge.Ribbon
-              text={
-                groupDetails.matched[0].status === "Pending"
-                  ? "Đang chờ duyệt"
-                  : null
-              }
-              color="rgb(98, 182, 203)"
-              placement="end"
-            >
+            <div>
               <Card
-                title="Thông tin Mentor"
-                className="group-members-mentor-card"
-                hoverable
-                onClick={() =>
-                  handleUserDetailClick(groupDetails.mentors[0]._id)
-                }
+                title="Lịch họp của nhóm"
+                headStyle={{
+                  color: "#000",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  fontSize: "18px",
+                }}
+                bodyStyle={{
+                  maxHeight: "400px",
+                  overflowY: "auto",
+                }}
+                style={{
+                  padding: "16px",
+                  backgroundColor: "#ffffff",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                  marginBottom: "16px",
+                }}
               >
-                <Avatar
-                  src={groupDetails?.mentors[0].image}
-                  size={80}
-                  style={{
-                    marginBottom: "8px",
-                    backgroundColor: "rgb(98, 182, 203)",
-                    fontSize: 30,
-                  }}
-                >
-                  {groupDetails?.mentors[0].username
-                    ? groupDetails?.mentors[0].username
-                        .split(" ")
-                        .pop()
-                        .charAt(0)
-                        .toUpperCase()
-                    : "?"}
-                </Avatar>
-                <Title level={5}>{groupDetails?.mentors[0].username}</Title>
-                <p>
-                  <Text type="secondary">{groupDetails?.mentors[0].email}</Text>
-                </p>
-                <p>{groupDetails?.mentors[0].phoneNumber}</p>
-                <p>
-                  <Text type="secondary">
-                    {groupDetails?.mentorCategoryDetails
-                      .map((c) => c.name)
-                      .join(", ")}
-                  </Text>
-                </p>
+                {groupDetails?.matched[0]?.time !== null ? (
+                  groupDetails?.matched[0]?.time.map((meet, index) => (
+                    <Card.Grid
+                      key={index}
+                      style={{
+                        marginBottom: "10px",
+                        backgroundColor: "#E6F7FF",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        width: "100%",
+                      }}
+                    >
+                      <Row>
+                        <Col span={24} style={{ lineHeight: "1.5rem" }}>
+                          <p className="remove-default-style-p">
+                            <strong>Buổi {index + 1}:</strong>{" "}
+                            {format(
+                              new Date(meet.start),
+                              "EEEE, dd'-'MM'-'yyyy",
+                              {
+                                locale: vi,
+                              }
+                            )}
+                          </p>
+                          <p className="remove-default-style-p">
+                            {format(new Date(meet.start), "HH:mm", {
+                              locale: vi,
+                            })}{" "}
+                            -{" "}
+                            {format(new Date(meet.end), "HH:mm", {
+                              locale: vi,
+                            })}
+                          </p>
+                          <p className="remove-default-style-p">
+                            <strong>Nội dung cuộc họp:</strong> {meet.title}
+                          </p>
+                        </Col>
+                      </Row>
+                    </Card.Grid>
+                  ))
+                ) : (
+                  <Empty description="Chưa có lịch hãy vào lịch của các nhóm để tạo" />
+                )}
               </Card>
-            </Badge.Ribbon>
+              <GroupOutcomeCard groupId={groupId} />
+              <Badge.Ribbon
+                text={
+                  groupDetails.matched[0].status === "Pending"
+                    ? "Đang chờ duyệt"
+                    : null
+                }
+                color="rgb(98, 182, 203)"
+                placement="end"
+              >
+                <Card
+                  title="Thông tin Mentor"
+                  className="group-members-mentor-card"
+                  hoverable
+                  onClick={() =>
+                    handleUserDetailClick(groupDetails.mentors[0]._id)
+                  }
+                >
+                  <Avatar
+                    src={groupDetails?.mentors[0].image}
+                    size={80}
+                    style={{
+                      marginBottom: "8px",
+                      backgroundColor: "rgb(98, 182, 203)",
+                      fontSize: 30,
+                    }}
+                  >
+                    {groupDetails?.mentors[0].username
+                      ? groupDetails?.mentors[0].username
+                          .split(" ")
+                          .pop()
+                          .charAt(0)
+                          .toUpperCase()
+                      : "?"}
+                  </Avatar>
+                  <Title level={5}>{groupDetails?.mentors[0].username}</Title>
+                  <p>
+                    <Text type="secondary">
+                      {groupDetails?.mentors[0].email}
+                    </Text>
+                  </p>
+                  <p>{groupDetails?.mentors[0].phoneNumber}</p>
+                  <p>
+                    <Text type="secondary">
+                      {groupDetails?.mentorCategoryDetails
+                        .map((c) => c.name)
+                        .join(", ")}
+                    </Text>
+                  </p>
+                </Card>
+              </Badge.Ribbon>
+            </div>
           )}
-          <GroupOutcomeCard groupId={groupId} active={isActive} />
         </div>
       </div>
       {isModalVisible && (

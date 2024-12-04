@@ -177,8 +177,6 @@ const ClassDetail = () => {
   );
 
   const deadline = filteredSettingCreateGroup[0]?.deadline;
-  const autoFinish = filteredSettingCreateGroup[0]?.autoFinish;
-  // const ruleJoin = filteredSettingCreateGroup[0]?.ruleJoin || [];
 
   const remainingTime = useMemo(() => {
     if (!deadline) return null;

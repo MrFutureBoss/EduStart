@@ -15,6 +15,7 @@ const GroupList = () => {
   const jwt = localStorage.getItem("jwt");
   const { className } = useParams();
   const [classId, setClassId] = useState(null);
+  const [actionGroup, setGroupAction] = useState(1);
 
   const config = useMemo(
     () => ({
@@ -134,12 +135,12 @@ const GroupList = () => {
             </div>
             <div style={{ padding: "0", textAlign: "left" }}>
               <Text style={{ fontSize: "14px", color: "#555" }}>
-                <b>Người hướng dẫn:</b> {group.mentor!== null ? (<span style={{ color: "#1890FF", fontWeight: "600" }}>{group.mentor?.username}</span>) : (<span>Chưa có</span>)}
+                <b>Người hướng dẫn:</b> Chưa có
               </Text>
             </div>
             <div style={{ padding: "0", textAlign: "left" }}>
               <Text style={{ fontSize: "14px", color: "#555" }}>
-                <b>Thành viên:</b> {group?.users.length} <UserOutlined />
+                <b>Thành viên:</b> 5 <UserOutlined />
               </Text>
             </div>
             <div style={{ textAlign: "center", marginTop: "12px" }}>

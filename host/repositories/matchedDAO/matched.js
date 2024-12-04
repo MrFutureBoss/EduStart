@@ -383,7 +383,6 @@ const deleteTimeEventById = async (eventId) => {
   }
 };
 
-
 export default {
   createMatched,
   updateMatchedById,

@@ -104,7 +104,9 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
     } catch (error) {
       if (error.response) {
         console.error("API Error:", error.response.data);
-        message.error(`Có lỗi xảy ra từ server: ${error.response.data.message}`);
+        message.error(
+          `Có lỗi xảy ra từ server: ${error.response.data.message}`
+        );
       } else {
         console.error("Error:", error.message);
         message.error("Có lỗi xảy ra khi kết nối với server.");
@@ -123,14 +125,16 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
             onChange={handleSelectChange}
             placeholder="Vui lòng chọn nhóm"
           >
-            {groups.map((group) => (
-              <Option
-                key={group.matchedDetails._id}
-                value={group.matchedDetails._id}
-              >
-                {`${group.class.className} - ${group.group.name}`}
-              </Option>
-            ))}
+            {groups
+              .filter((group) => group?.matchedDetails.status === "Accepted")
+              .map((group) => (
+                <Option
+                  key={group.matchedDetails._id}
+                  value={group.matchedDetails._id}
+                >
+                  {`${group.class.className} - ${group.group.name}`}
+                </Option>
+              ))}
           </Select>
         </div>
         <div style={{ marginBottom: "1rem", width: "fit-content" }}>
@@ -155,7 +159,9 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
               </p>
               <p>
                 <strong>Giờ Kết Thúc:</strong>{" "}
-                {moment(selectedSlotInfo.start).add(2.5, "hours").format("HH:mm")}
+                {moment(selectedSlotInfo.start)
+                  .add(2.5, "hours")
+                  .format("HH:mm")}
               </p>
             </div>
           )}

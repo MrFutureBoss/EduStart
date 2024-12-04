@@ -116,6 +116,15 @@ cron.schedule("0 * * * *", async () => {
   }
 });
 
+// cron.schedule("0 * * * *", async () => {
+//   try {
+//     await TempGroupController.autoFillGroupsOnDeadline();
+//     console.log(`[${new Date().toISOString()}] Auto-finish group.`);
+//   } catch (error) {
+//     console.error("Error in scheduled auto-assign:", error);
+//   }
+// });
+
 // cron.schedule("0 * * * *", () => {
 //   TempGroupController.autoFillGroupsOnDeadline();
 // });

@@ -49,6 +49,9 @@ const groupSlice = createSlice({
     setCurrentStage: (state, action) => {
       state.currentStage = action.payload;
     },
+    setAllGroupInClass: (state, action) => {
+      state.groupInClass = action.payload;
+    },
   },
 });
 
