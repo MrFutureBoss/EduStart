@@ -1,5 +1,8 @@
+import groupDAO from "../../repositories/groupDAO/index.js";
 import matchedDAO from "../../repositories/matchedDAO/index.js";
 import notificationDAO from "../../repositories/notificationDAO/index.js";
+import projectDAO from "../../repositories/projectDAO/index.js";
+
 
 const createMatchedHandler = async (req, res) => {
   try {
@@ -119,7 +122,6 @@ const patchMatched = async (req, res) => {
 
     // Call the DAO to update the record
     const updatedMatched = await matchedDAO.patchMatchedById(id, updateData);
-
     res.status(200).json({
       message: "Matched record updated successfully",
       matched: updatedMatched,
@@ -147,7 +149,39 @@ const createNewTimeEventsHandler = async (req, res) => {
       return res.status(400).json({ message: "No valid time data provided" });
     }
     const updatedMatched = await matchedDAO.createNewTimeEvents(id, time);
+    if (!updatedMatched) {
+      return res.status(404).json({ message: "Matched record not found" });
+    }
+    const groupId = updatedMatched.groupId;
+    const mentorId = updatedMatched.mentorId;
 
+    if (!groupId || !mentorId) {
+      return res
+        .status(400)
+        .json({ message: "Group ID or Mentor ID missing in Matched" });
+    }
+
+    const group = await projectDAO.findGroupById(groupId);
+    const groupMembers = await groupDAO.getGroupMembers(group._id);
+    const recipients = groupMembers.map((member) => member._id);
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+    const notificationMessage = `Người hướng dẫn của bạn đã thêm lịch họp mới.`;
+    await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "AddMeetingTimeNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: group._id,
+      io: req.io,
+    });
+    // kết nối socket.io
+    const io = req.io; // Lấy `io` từ req
+    io.to(`user:${mentorId}`).emit("newEventTime", {
+      message: "Add new event time",
+      groupId,
+    });
     res.status(200).json({
       message: "New time events added successfully",
       matched: updatedMatched,
@@ -207,7 +241,38 @@ const deleteTimeEventHandler = async (req, res) => {
 
   try {
     const updatedMatched = await matchedDAO.deleteTimeEventById(eventId);
+    const groupId = updatedMatched.groupId;
+    const mentorId = updatedMatched.mentorId;
+    const groupMembers = await groupDAO.getGroupMembers(group._id);
+    const recipients = groupMembers.map((member) => member._id);
 
+    if (!groupId || !mentorId) {
+      return res
+        .status(400)
+        .json({ message: "Group ID or Mentor ID missing in Matched" });
+    }
+
+    const group = await projectDAO.findGroupById(groupId);
+    if (!Array.isArray(updatedMatched.time)) {
+      return res
+        .status(400)
+        .json({ message: "Time array not found in Matched" });
+    }
+    const notificationMessage = `Người hướng dẫn của bạn đã hủy lịch họp`;
+    await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "DeleteMeetingTimeNotification",
+      recipients,
+      filters: { groupId: group._id, groupName: group.name },
+      senderId: group._id,
+      io: req.io,
+    });
+    // kết nối socket.io
+    const io = req.io; // Lấy `io` từ req
+    io.to(`user:${mentorId}`).emit("newEventTime", {
+      message: "Add new event time",
+      groupId,
+    });
     res.status(200).json({
       message: "Time event deleted successfully",
       matched: updatedMatched,

@@ -389,6 +389,7 @@ const GroupOutcomeCard = ({ groupId, active }) => {
             title={<h5>Nộp Outcome</h5>}
             onCancel={() => setIsSubmitModalVisible(false)}
             onOk={handleSubmit}
+
           >
             <p>
               <Text strong>Outcome: </Text>

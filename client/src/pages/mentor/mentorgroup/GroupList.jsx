@@ -158,13 +158,6 @@ const GroupList = () => {
       });
   }, [groups]);
 
-  const emptyTimeGroupsCount = useMemo(() => {
-    return myGroups.filter(
-      (group) =>
-        !group.matchedDetails.time || group.matchedDetails.time.length === 0
-    ).length;
-  }, [myGroups]);
-
   const pendingGroups = useMemo(
     () => groups.filter((group) => group.matchedDetails.status === "Pending"),
     [groups]
