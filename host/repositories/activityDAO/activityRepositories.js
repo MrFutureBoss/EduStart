@@ -204,6 +204,16 @@ const getGroupOutcomesByGroupId = async (groupId) => {
   }
 };
 
+const findUnsubmittedGroups = async (outcomeId, classId) => {
+  return Activity.find({
+    completed: false,
+    activityType: "outcome",
+    outcomeId,
+    classId,
+  })
+    .populate("groupId", "name")
+    .populate("classId", "className");
+};
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -230,4 +240,5 @@ export default {
   getActivitiesByClassId,
   getOutcomesBySemesterId,
   getGroupOutcomesByGroupId,
+  findUnsubmittedGroups,
 };

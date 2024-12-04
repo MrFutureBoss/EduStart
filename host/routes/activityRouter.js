@@ -8,7 +8,7 @@ const activityRouters = express.Router();
 activityRouters.get(
   "/",
   verifyAccessToken,
-  verifyRole([2]),
+  verifyRole([2, 4]),
   activityController.getActivities
 );
 
@@ -48,7 +48,7 @@ activityRouters.get(
 activityRouters.get(
   "/suggested-materials/:classId",
   verifyAccessToken,
-  verifyRole([2]),
+  verifyRole([2, 4]),
   activityController.getSuggestedMaterials
 );
 activityRouters.post(
@@ -58,10 +58,10 @@ activityRouters.post(
   activityController.sendReminder
 );
 activityRouters.post(
-"/assign-outcome-manual",
-verifyAccessToken,
-verifyRole([2]),
-activityController.assignOutcomeToAllGroupsManual
+  "/assign-outcome-manual",
+  verifyAccessToken,
+  verifyRole([2]),
+  activityController.assignOutcomeToAllGroupsManual
 );
 
 activityRouters.post(
@@ -88,6 +88,13 @@ activityRouters.get(
   verifyAccessToken,
   verifyRole([2, 4]),
   activityController.getGroupOutcomes
+);
+
+activityRouters.get(
+  "/unsubmitted-groups",
+  verifyAccessToken,
+  verifyRole([2, 4]),
+  activityController.getUnsubmittedGroups
 );
 //Outcome type
 activityRouters.get(

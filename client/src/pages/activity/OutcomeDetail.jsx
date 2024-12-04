@@ -79,15 +79,25 @@ const OutcomeDetail = () => {
         `${BASE_URL}/activity?activityType=outcome&classId=${classId}`,
         config
       );
+
       const outcomesData = Array.isArray(response.data)
         ? response.data
         : response.data.activities || [];
 
       const outcomesWithNames = await Promise.all(
         outcomesData.map(async (outcome) => {
+          if (outcome.activityType !== "outcome") {
+            return { ...outcome, name: "Not an Outcome" };
+          }
+
+          if (!outcome.outcomeId) {
+            console.warn(`Outcome missing outcomeId:`, outcome);
+            return { ...outcome, name: "Unknown Outcome" };
+          }
+
           try {
             const outcomeNameResponse = await axios.get(
-              `http://localhost:9999/activity/outcome-type/${outcome.outcomeId}`,
+              `${BASE_URL}/activity/outcome-type/${outcome.outcomeId}`,
               config
             );
             return {
@@ -95,7 +105,10 @@ const OutcomeDetail = () => {
               name: outcomeNameResponse.data.name || "Unknown Outcome",
             };
           } catch (error) {
-            console.error("Error fetching outcome name:", error);
+            console.error(
+              `Error fetching outcome name for outcomeId: ${outcome.outcomeId}`,
+              error
+            );
             return { ...outcome, name: "Unknown Outcome" };
           }
         })
@@ -196,6 +209,7 @@ const OutcomeDetail = () => {
         },
       });
     };
+
     return outcomesList.map((outcome, index) => {
       const deadline = moment(outcome.deadline, "YYYY-MM-DD");
       const now = moment();
@@ -225,7 +239,6 @@ const OutcomeDetail = () => {
               ? "4px solid #52c41a"
               : "4px solid #faad14",
             borderRadius: "8px",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
             cursor: "pointer",
           }}
         >
@@ -242,7 +255,10 @@ const OutcomeDetail = () => {
                 <Tooltip title="Edit deadline">
                   <EditOutlined
                     style={{ cursor: "pointer", color: "#1890ff" }}
-                    onClick={() => setEditDeadline(outcome)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Ngăn chặn sự kiện lan truyền lên Card.Grid
+                      setEditDeadline(outcome);
+                    }}
                   />
                 </Tooltip>
               )
@@ -294,8 +310,11 @@ const OutcomeDetail = () => {
                 >
                   <Tooltip title="Gửi lời nhắc">
                     <BellFilled
-                      onClick={() => handleSendReminder(outcome.groupName)}
-                      style={{ marginRight: "4px" }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Ngăn chặn sự kiện lan truyền
+                        handleSendReminder(outcome.groupName);
+                      }}
+                      style={{ marginRight: "4px", cursor: "pointer" }}
                     />
                   </Tooltip>
                   <span>Còn {daysUntilDeadline} ngày tới hạn nộp!</span>
@@ -365,7 +384,7 @@ const OutcomeDetail = () => {
           style={{
             border: "1px solid #e0e0e0",
             borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            // boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             padding: "0",
           }}
         >
@@ -373,9 +392,9 @@ const OutcomeDetail = () => {
             orientation="center"
             style={{
               fontSize: "18px",
-              backgroundColor: "#011936",
-              color: "#dad7cd",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              backgroundColor: "rgb(96, 178, 199)",
+              color: "black",
+              // boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
               padding: "8px",
               zIndex: "20",
               position: "relative",
@@ -394,7 +413,7 @@ const OutcomeDetail = () => {
                 height: "24px",
                 padding: "4px",
                 borderRadius: "50%",
-                backgroundColor: "red",
+                backgroundColor: "rgb(210, 41, 41)",
                 color: "white",
                 fontSize: "12px",
                 fontWeight: "bold",
@@ -404,9 +423,15 @@ const OutcomeDetail = () => {
             </span>
           </Divider>
           <Card bordered={false} style={{ backgroundColor: "#f5f5f5" }}>
-            {renderOutcomes(
-              outcomes.filter((o) => !o.completed),
-              false
+            {outcomes.every((o) => o.completed) ? (
+              <p style={{ textAlign: "center", fontSize: "16px" }}>
+                Tất cả các nhóm đã nộp
+              </p>
+            ) : (
+              renderOutcomes(
+                outcomes.filter((o) => !o.completed),
+                false
+              )
             )}
           </Card>
         </Col>
@@ -425,7 +450,7 @@ const OutcomeDetail = () => {
       </Button>
       {editDeadline && (
         <Modal
-          visible={true}
+          visible={true} // Hoặc open={true} nếu sử dụng Ant Design v5
           title={`Chỉnh sửa hạn nộp cho nhóm ${
             editDeadline.groupName || "Unnamed Group"
           }`}
