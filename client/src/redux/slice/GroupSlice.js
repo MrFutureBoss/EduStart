@@ -34,6 +34,9 @@ const groupSlice = createSlice({
         });
       }
     },
+    setAllGroupInClass: (state, action) => {
+      state.groupInClass = action.payload;
+    },
     setGroupStatus: (state, action) => {
       state.groupStatus = action.payload;
     },

@@ -109,7 +109,6 @@ const GroupOutcomeCard = ({ groupId, active }) => {
         setOutcomes(outcomesWithDetails);
       } catch (error) {
         console.error("Error fetching outcomes:", error);
-        message.error("Không thể tải dữ liệu outcome.");
       }
     };
 
@@ -444,29 +443,6 @@ const GroupOutcomeCard = ({ groupId, active }) => {
                       danger
                       onClick={() => removeFile(index)}
                     >
-
-                      {moment(outcome.deadline).format("DD/MM/YYYY")}
-                    </Tag>
-                  </p>
-                  <p>
-                    <Text strong>Trạng thái: </Text>
-                    <Tag color={outcome.completed ? "green" : "orange"}>
-                      {outcome.completed ? "Hoàn thành" : "Chưa hoàn thành"}
-                    </Tag>
-                  </p>
-                  {isNextOutcomeComingSoon && (
-                    <p>
-                      <ExclamationCircleOutlined
-                        style={{ color: "#faad14", marginRight: "8px" }}
-                      />
-                      <Text type="warning">
-                        Sắp tới thời gian {nextOutcome.name}, còn{" "}
-                        {daysUntilNextOutcome} ngày.
-                      </Text>
-                    </p>
-                  )}
-                </div>
-              }
                       Xóa
                     </Button>,
                   ]}
@@ -504,5 +480,4 @@ const GroupOutcomeCard = ({ groupId, active }) => {
     </>
   );
 };
-
 export default GroupOutcomeCard;

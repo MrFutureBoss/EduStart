@@ -18,7 +18,6 @@ const socket = io(BASE_URL);
 const { Text, Title } = Typography;
 
 const GroupDetail = () => {
-  const { groupId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { group: groupDetails } = useSelector((state) => state.group);
