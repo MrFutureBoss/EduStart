@@ -2,7 +2,7 @@ import { UserOutlined } from "@ant-design/icons";
 import { Card, Col, Row, Typography } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { setAllGroupInClass } from "../../redux/slice/GroupSlice";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -70,6 +70,13 @@ const GroupList = () => {
     navigate(`/teacher/group-detail/${groupId}`);
   };
 
+  const location = useLocation();
+  const filterByUnfinished =
+    new URLSearchParams(location.search).get("filter") === "unfinished";
+  const filteredGroupInClass = filterByUnfinished
+    ? groupInClass.filter((group) => !group.projectId || !group.projectId.name)
+    : groupInClass;
+    
   return (
     <Row gutter={[16, 16]}>
       <Col span={24} style={{ textAlign: "center", marginBottom: "16px" }}>
@@ -83,7 +90,7 @@ const GroupList = () => {
           Danh sách nhóm
         </h1>
       </Col>
-      {groupInClass.map((group) => (
+      {filteredGroupInClass.map((group) => (
         <Col key={group._id} xs={24} sm={24} md={12} lg={8}>
           <Card
             title={

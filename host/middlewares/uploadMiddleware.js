@@ -30,19 +30,31 @@ const upload = multer({
 
 export const downloadFile = (req, res) => {
   const { filename } = req.params;
+
+  // Tính đường dẫn file
   const filePath = path.join(__dirname, '../uploads/materials', filename);
 
+  // Log để debug
+  console.log('Received request to download file:', filename);
+  console.log('Computed file path:', filePath);
+
+  // Kiểm tra file tồn tại
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
-      return res.status(404).json({ message: "File not found" });
+      console.error('File not found:', filePath);
+      return res.status(404).json({ message: "File not found", filePath });
     }
 
+    // Nếu file tồn tại, gửi file xuống
     res.download(filePath, filename, (downloadErr) => {
       if (downloadErr) {
-        res.status(500).json({ 
-          message: "Failed to download file", 
-          error: downloadErr.message 
+        console.error('Error during file download:', downloadErr.message);
+        return res.status(500).json({
+          message: "Failed to download file",
+          error: downloadErr.message,
         });
+      } else {
+        console.log('File downloaded successfully:', filePath);
       }
     });
   });

@@ -786,6 +786,36 @@ const getGroupOutcomes = async (req, res) => {
   }
 };
 
+const getUnsubmittedGroups = async (req, res) => {
+  try {
+    const { outcomeId, classId } = req.query;
+
+    if (!outcomeId || !classId) {
+      return res.status(400).json({ message: "Missing outcomeId or classId" });
+    }
+
+    const activities = await activityDAO.findUnsubmittedGroups(outcomeId, classId);
+
+    if (!activities.length) {
+      return res.status(404).json({ message: "No unsubmitted groups found" });
+    }
+
+    const groupedByClass = activities.reduce((acc, activity) => {
+      const className = activity.classId.className || "Unknown Class";
+      const groupName = activity.groupId?.name || "No Group Assigned";
+
+      if (!acc[className]) acc[className] = [];
+      if (!acc[className].includes(groupName)) acc[className].push(groupName);
+
+      return acc;
+    }, {});
+
+    return res.status(200).json(groupedByClass);
+  } catch (error) {
+    console.error("Error fetching unsubmitted groups:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 export default {
   createActivity,
   getActivities,
@@ -807,4 +837,5 @@ export default {
   autoAssignOutcomes,
   getGroupOutcomes,
   assignOutcomeToAllGroupsManual,
+  getUnsubmittedGroups,
 };
