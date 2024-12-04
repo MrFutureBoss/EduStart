@@ -30,7 +30,6 @@ const GroupDetail = () => {
   const navigate = useNavigate();
   const { group: groupDetails } = useSelector((state) => state.group);
   const { userLogin } = useSelector((state) => state.user);
-  const { groupId } = useParams();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);

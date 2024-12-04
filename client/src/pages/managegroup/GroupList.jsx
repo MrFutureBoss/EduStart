@@ -15,6 +15,7 @@ const GroupList = () => {
   const jwt = localStorage.getItem("jwt");
   const { className } = useParams();
   const [classId, setClassId] = useState(null);
+  const [actionGroup, setGroupAction] = useState(1);
 
   const config = useMemo(
     () => ({
@@ -52,9 +53,9 @@ const GroupList = () => {
         const response = await axios.get(`${BASE_URL}/group/class/${classId}`, {
           ...config,
         });
-        dispatch(setAllGroupInClass(response.data.groups));
+        dispatch(setAllGroupInClass(response.data?.groups));
       } catch (error) {
-        console.error(
+        console.log(
           error.response ? error.response.data.message : error.message
         );
       }
@@ -124,36 +125,43 @@ const GroupList = () => {
                   {" "}
                   {group.projectId ? (
                     group.projectId.name
-
                   ) : (
-                    <span>Chưa có</span>
+                    <Text type="secondary" style={{ fontStyle: "italic" }}>
+                      Chưa chốt
+                    </Text>
                   )}
-                </Text>
-              </div>
-              <div style={{ padding: "0", textAlign: "left" }}>
-                <Text style={{ fontSize: "14px", color: "#555" }}>
-                  <b>Thành viên:</b> {group?.users.length} <UserOutlined />
-                </Text>
-              </div>
-              <div style={{ textAlign: "center", marginTop: "12px" }}>
-                <Link
-                  onClick={() => handleMGroupDetail(group._id)}
-                  style={{
-                    padding: "6px 12px",
-                    backgroundColor: "#1890ff",
-                    color: "#fff",
-                    borderRadius: "6px",
-                    textDecoration: "none",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                  }}
-                >
-                  Xem chi tiết nhóm
-                </Link>
-              </div>
-            </Card>
-          </Col>
-        ))}
+                </span>
+              </Text>
+            </div>
+            <div style={{ padding: "0", textAlign: "left" }}>
+              <Text style={{ fontSize: "14px", color: "#555" }}>
+                <b>Người hướng dẫn:</b> Chưa có
+              </Text>
+            </div>
+            <div style={{ padding: "0", textAlign: "left" }}>
+              <Text style={{ fontSize: "14px", color: "#555" }}>
+                <b>Thành viên:</b> 5 <UserOutlined />
+              </Text>
+            </div>
+            <div style={{ textAlign: "center", marginTop: "12px" }}>
+              <Link
+                onClick={() => handleMGroupDetail(group._id)}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#1890ff",
+                  color: "#fff",
+                  borderRadius: "6px",
+                  textDecoration: "none",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                }}
+              >
+                Xem chi tiết nhóm
+              </Link>
+            </div>
+          </Card>
+        </Col>
+      ))}
     </Row>
   );
 };
