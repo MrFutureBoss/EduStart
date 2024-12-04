@@ -210,8 +210,8 @@ const GroupOutcomeCard = ({ groupId }) => {
     return startDate.isAfter(nowDate);
   });
   const daysUntilNextOutcome = nextOutcome
-  ? moment(nextOutcome.startDate).diff(nowDate, "days")
-  : null;
+    ? moment(nextOutcome.startDate).diff(nowDate, "days")
+    : null;
   const isNextOutcomeComingSoon =
     nextOutcome &&
     moment(nextOutcome.startDate).diff(nowDate, "days") <= 3 &&
@@ -225,7 +225,7 @@ const GroupOutcomeCard = ({ groupId }) => {
       }
       className="group-outcomes-card"
       hoverable
-      style={{ marginTop: "40px" }}
+      style={{ marginTop: "20px", marginBottom: "20px" }}
       extra={
         role === 4 &&
         isLeader &&
@@ -288,7 +288,8 @@ const GroupOutcomeCard = ({ groupId }) => {
                         style={{ color: "#faad14", marginRight: "8px" }}
                       />
                       <Text type="warning">
-                        Sắp tới thời gian {nextOutcome.name}, còn {daysUntilNextOutcome} ngày.
+                        Sắp tới thời gian {nextOutcome.name}, còn{" "}
+                        {daysUntilNextOutcome} ngày.
                       </Text>
                     </p>
                   )}

@@ -52,9 +52,9 @@ const GroupList = () => {
         const response = await axios.get(`${BASE_URL}/group/class/${classId}`, {
           ...config,
         });
-        dispatch(setAllGroupInClass(response.data?.groups));
+        dispatch(setAllGroupInClass(response.data.groups));
       } catch (error) {
-        console.log(
+        console.error(
           error.response ? error.response.data.message : error.message
         );
       }
@@ -69,6 +69,8 @@ const GroupList = () => {
     navigate(`/teacher/group-detail/${groupId}`);
   };
 
+  console.log(groupInClass);
+
   return (
     <Row gutter={[16, 16]}>
       <Col span={24} style={{ textAlign: "center", marginBottom: "16px" }}>
@@ -82,78 +84,88 @@ const GroupList = () => {
           Danh sách nhóm
         </h1>
       </Col>
-      {groupInClass.map((group) => (
-        <Col key={group._id} xs={24} sm={24} md={12} lg={8}>
-          <Card
-            title={
-              <span
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  color: group.status === "InActive" ? "#FFF" : "#FFF",
-                }}
-              >
-                {group.name}{" "}
-                {group.status === "InActive" ? "- Đã giải tán" : ""}
-              </span>
-            }
-            bordered={false}
-            style={{
-              borderRadius: "12px",
-              overflow: "hidden",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-              backgroundColor: "#fff",
-            }}
-            headStyle={{
-              backgroundColor: group.status === "InActive" ? "grey" : "#60B2C7",
-              textAlign: "center",
-            }}
-            className="manage-group-card"
-          >
-            <div style={{ padding: "0", textAlign: "left" }}>
-              <Text style={{ fontSize: "14px", color: "#555" }}>
-                <b>Tên đề tài:</b>{" "}
-                <span style={{ color: "#1890FF", fontWeight: "600" }}>
-                  {" "}
-                  {group.projectId ? (
-                    group.projectId.name
-                  ) : (
-                    <Text type="secondary" style={{ fontStyle: "italic" }}>
-                      Chưa chốt
-                    </Text>
-                  )}
+      {groupInClass
+        .filter((group) => group.classId && group.classId._id === classId)
+        .map((group) => (
+          <Col key={group._id} xs={24} sm={24} md={12} lg={8}>
+            <Card
+              title={
+                <span
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    color: group.status === "InActive" ? "#FFF" : "#FFF",
+                  }}
+                >
+                  {group._id}{group.name}
+                  {group.status === "InActive" ? "- Đã giải tán" : ""}
                 </span>
-              </Text>
-            </div>
-            <div style={{ padding: "0", textAlign: "left" }}>
-              <Text style={{ fontSize: "14px", color: "#555" }}>
-                <b>Người hướng dẫn:</b> {group.mentor!== null ? (<span style={{ color: "#1890FF", fontWeight: "600" }}>{group.mentor?.username}</span>) : (<span>Chưa có</span>)}
-              </Text>
-            </div>
-            <div style={{ padding: "0", textAlign: "left" }}>
-              <Text style={{ fontSize: "14px", color: "#555" }}>
-                <b>Thành viên:</b> {group?.users.length} <UserOutlined />
-              </Text>
-            </div>
-            <div style={{ textAlign: "center", marginTop: "12px" }}>
-              <Link
-                onClick={() => handleMGroupDetail(group._id)}
-                style={{
-                  padding: "6px 12px",
-                  backgroundColor: "#1890ff",
-                  color: "#fff",
-                  borderRadius: "6px",
-                  textDecoration: "none",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                }}
-              >
-                Xem chi tiết nhóm
-              </Link>
-            </div>
-          </Card>
-        </Col>
-      ))}
+              }
+              bordered={false}
+              style={{
+                borderRadius: "12px",
+                overflow: "hidden",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                backgroundColor: "#fff",
+              }}
+              headStyle={{
+                backgroundColor:
+                  group.status === "InActive" ? "grey" : "#60B2C7",
+                textAlign: "center",
+              }}
+              className="manage-group-card"
+            >
+              <div style={{ padding: "0", textAlign: "left" }}>
+                <Text style={{ fontSize: "14px", color: "#555" }}>
+                  <b>Tên đề tài:</b>{" "}
+                  <span style={{ color: "#1890FF", fontWeight: "600" }}>
+                    {" "}
+                    {group.projectId ? (
+                      group.projectId.name
+                    ) : (
+                      <Text type="secondary" style={{ fontStyle: "italic" }}>
+                        Chưa chốt
+                      </Text>
+                    )}
+                  </span>
+                </Text>
+              </div>
+              <div style={{ padding: "0", textAlign: "left" }}>
+                <Text style={{ fontSize: "14px", color: "#555" }}>
+                  <b>Người hướng dẫn:</b>{" "}
+                  {group.mentor !== null ? (
+                    <span style={{ color: "#1890FF", fontWeight: "600" }}>
+                      {group.mentor?.username}
+                    </span>
+                  ) : (
+                    <span>Chưa có</span>
+                  )}
+                </Text>
+              </div>
+              <div style={{ padding: "0", textAlign: "left" }}>
+                <Text style={{ fontSize: "14px", color: "#555" }}>
+                  <b>Thành viên:</b> {group?.users.length} <UserOutlined />
+                </Text>
+              </div>
+              <div style={{ textAlign: "center", marginTop: "12px" }}>
+                <Link
+                  onClick={() => handleMGroupDetail(group._id)}
+                  style={{
+                    padding: "6px 12px",
+                    backgroundColor: "#1890ff",
+                    color: "#fff",
+                    borderRadius: "6px",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                  }}
+                >
+                  Xem chi tiết nhóm
+                </Link>
+              </div>
+            </Card>
+          </Col>
+        ))}
     </Row>
   );
 };

@@ -183,7 +183,7 @@ const reviseProject = async (req, res, io) => {
     );
     const recipients = [teacherId];
     const notificationMessage = `Dự án nhóm ${group.name} đã cập nhật lại.`;
-    const notifications = await notificationDAO.createNotifications({
+    await notificationDAO.createNotifications({
       message: notificationMessage,
       type: "ProjectNotification",
       recipients,
