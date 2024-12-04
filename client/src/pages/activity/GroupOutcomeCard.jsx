@@ -21,7 +21,7 @@ import { useSelector } from "react-redux";
 
 const { Text } = Typography;
 
-const GroupOutcomeCard = ({ groupId }) => {
+const GroupOutcomeCard = ({ groupId, active }) => {
   const [outcomes, setOutcomes] = useState([]);
   const [selectedOutcome, setSelectedOutcome] = useState(null);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
@@ -39,6 +39,19 @@ const GroupOutcomeCard = ({ groupId }) => {
       Authorization: `Bearer ${jwt}`,
     },
   };
+
+  useEffect(() => {
+    if (active) {
+      const firstIncompleteOutcome = outcomes.find(
+        (outcome) => !outcome.completed
+      );
+      if (firstIncompleteOutcome) {
+        openSubmitModal(firstIncompleteOutcome);
+      } else {
+        message.info("Không có Outcome nào chưa hoàn thành để nộp.");
+      }
+    }
+  }, [active, outcomes]);
 
   useEffect(() => {
     const fetchOutcomes = async () => {
@@ -210,8 +223,8 @@ const GroupOutcomeCard = ({ groupId }) => {
     return startDate.isAfter(nowDate);
   });
   const daysUntilNextOutcome = nextOutcome
-  ? moment(nextOutcome.startDate).diff(nowDate, "days")
-  : null;
+    ? moment(nextOutcome.startDate).diff(nowDate, "days")
+    : null;
   const isNextOutcomeComingSoon =
     nextOutcome &&
     moment(nextOutcome.startDate).diff(nowDate, "days") <= 3 &&
@@ -288,7 +301,8 @@ const GroupOutcomeCard = ({ groupId }) => {
                         style={{ color: "#faad14", marginRight: "8px" }}
                       />
                       <Text type="warning">
-                        Sắp tới thời gian {nextOutcome.name}, còn {daysUntilNextOutcome} ngày.
+                        Sắp tới thời gian {nextOutcome.name}, còn{" "}
+                        {daysUntilNextOutcome} ngày.
                       </Text>
                     </p>
                   )}

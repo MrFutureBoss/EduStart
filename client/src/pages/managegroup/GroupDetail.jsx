@@ -15,7 +15,7 @@ import CustomButton from "../../components/Button/Button";
 const { Text, Title } = Typography;
 
 const GroupDetail = () => {
-  const {groupId} = useParams();
+  const { groupId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const url = useLocation();
@@ -75,7 +75,6 @@ const GroupDetail = () => {
     }
   };
 
-
   const updateProjectStatus = async () => {
     try {
       const previousProject = JSON.parse(
@@ -122,7 +121,7 @@ const GroupDetail = () => {
   };
 
   useEffect(() => {
-    if (groupDetails) {
+    if (groupDetails && userLogin?.role === 4 && userLogin.isLeader === true) {
       if (groupDetails.project?.status === "Decline") {
         Swal.fire({
           title: "Dự án bị từ chối",
@@ -149,8 +148,9 @@ const GroupDetail = () => {
     }
   }, [groupDetails]);
 
-
   const handleLeaderChange = (userId, userName) => {
+    console.log("userId:", userId); // Log để kiểm tra giá trị userId
+
     Swal.fire({
       title: `Bạn muốn đổi ${userName} thành trưởng nhóm không?`,
       icon: "question",
@@ -171,7 +171,7 @@ const GroupDetail = () => {
         axios
           .patch(
             `${BASE_URL}/user/update_leader`,
-            { _id: userId, isLeader: true },
+            { _id: userId, isLeader: true, teacherId: userLogin?._id, groupId },
             config
           )
           .then(() => {

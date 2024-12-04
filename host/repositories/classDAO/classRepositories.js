@@ -8,6 +8,7 @@ import ProjectCategory from "../../models/projectCategoryModel.js";
 import Semester from "../../models/semesterModel.js";
 import CreateGroupSetting from "../../models/CreateGroupSettingModel.js";
 import classDAO from "./classRepositories.js";
+import notificationDAO from "../notificationDAO/index.js";
 const getStudentCountByClassId = async (classId, semesterId) => {
   try {
     const count = await User.countDocuments({
@@ -77,7 +78,16 @@ const createClass = async ({
     semesterId,
     status: "Active",
   });
-
+  //kết nối socket
+  const recipients = [teacherId];
+  const notificationMessage = `Bạn đã được phân công lớp ${className}`;
+  const notifications = await notificationDAO.createNotifications({
+    message: notificationMessage,
+    type: "classAssignment",
+    recipients,
+    audience: "Teacher",
+    io: req.io,
+  });
   // Save the new class
   return await newClass.save();
 };

@@ -77,7 +77,7 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
     fetchNotifications();
 
     if (userLogin && userLogin._id) {
-      socket.emit("joinRoom", `user:${userLogin._id}`);
+      socket.emit("joinRoom", `${userLogin._id}`);
 
       socket.on("notification", (data) => {
         fetchNotifications();
@@ -136,9 +136,20 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
       return false;
     });
   }, [notificationData, userLogin]);
+
+  const getLastName = (fullName) => {
+    if (!fullName || typeof fullName !== "string") {
+      return "N/A"; // Trả về mặc định nếu không hợp lệ
+    }
+    const nameParts = fullName.trim().split(" ");
+    return nameParts[nameParts.length - 1]; // Lấy phần cuối của mảng
+  };
+  const clickLogo = () => {
+    navigate("/mentor/dashboard");
+  };
   return (
     <div className="navbar">
-      <div className="logo">
+      <div onClick={clickLogo} className="logo">
         <p className="logo-title">EduStart</p>
       </div>
       <Menu mode="horizontal" className="menu" style={{ height: "100%" }}>
@@ -160,7 +171,8 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
               />
               <span style={{ lineHeight: "1rem" }}>
                 Xin chào Mentor!
-                <br /> {userLogin?.username}
+                <br />{" "}
+                {userLogin?.username ? getLastName(userLogin.username) : "N/A"}
               </span>
             </div>
           }

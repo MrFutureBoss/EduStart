@@ -82,7 +82,7 @@ export const fetchMentorsTempMatching = (classId, teacherId) => {
   return axios.post(`${BASE_URL}/tempMatching/recommend`, data, config);
 };
 // api để gán mentor được chọn cho nhóm
-export const assignMentorToProject = async (groupId, mentorId) => {
+export const assignMentorToProject = async (groupId, mentorId, teacherId) => {
   const config = {
     ...getConfig(),
   };
@@ -90,6 +90,7 @@ export const assignMentorToProject = async (groupId, mentorId) => {
   const data = {
     groupId,
     mentorId,
+    teacherId,
   };
   return axios.post(`${BASE_URL}/matched/add-matched`, data, config);
 };

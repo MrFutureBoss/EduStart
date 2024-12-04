@@ -70,7 +70,7 @@ const StudentHeader = () => {
     fetchNotifications();
 
     if (userLogin && userLogin._id) {
-      socket.emit("joinRoom", `user:${userLogin._id}`);
+      socket.emit("joinRoom", `${userLogin._id}`);
 
       socket.on("notification", (data) => {
         fetchNotifications();
@@ -121,21 +121,35 @@ const StudentHeader = () => {
     if (!userLogin) return []; // Nếu userLogin chưa sẵn sàng, trả về mảng rỗng
 
     return notificationData.filter((notification) => {
+      console.log(notification);
       const filters = notification.filters || {}; // Đảm bảo filters không phải undefined/null
       if (userLogin?.role === 4) {
         // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
-        return filters.classId != null || filters.groupId != null;
-      } else if (userLogin?.role === 2) {
-        // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
-        return filters.groupId != null;
+        return (
+          filters.classId ||
+          filters.groupId != null ||
+          notification.type === "classAssignment"
+        );
       }
       return false;
     });
   }, [notificationData, userLogin]);
 
+  const getLastName = (fullName) => {
+    if (!fullName || typeof fullName !== "string") {
+      return "N/A"; // Trả về mặc định nếu không hợp lệ
+    }
+    const nameParts = fullName.trim().split(" ");
+    return nameParts[nameParts.length - 1]; // Lấy phần cuối của mảng
+  };
+  const clickLogo = () => {
+    navigate("/student/dashboard");
+  };
   return (
     <div className="navbar">
-      <div className="logo"></div>
+      <div onClick={clickLogo} className="logo">
+        <p className="logo-title">EduStart</p>
+      </div>
       <Menu mode="horizontal" defaultSelectedKeys={["4"]} className="menu">
         <SubMenu
           key="sub1"
@@ -154,9 +168,9 @@ const StudentHeader = () => {
                 className="user-circle-icon"
               />
               <span style={{ lineHeight: "1.2rem", marginTop: 4 }}>
-                Xin chào {userLogin?.role === 4 ? "Sinh Viên" : "Giáo Viên"}!
+                Chào Sinh Viên!
                 <br />
-                {userLogin?.username || "N/A"}
+                {userLogin?.username ? getLastName(userLogin.username) : "N/A"}
               </span>
             </div>
           }

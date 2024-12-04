@@ -95,7 +95,7 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
     fetchNotifications();
 
     if (userLogin && userLogin._id) {
-      socket.emit("joinRoom", `user:${userLogin._id}`);
+      socket.emit("joinRoom", userLogin._id);
       socket.on("connect", () => console.log("Socket connected"));
       socket.on("notification", (data) => {
         console.log("Received notification:", data);
@@ -149,20 +149,23 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
 
     return notificationData.filter((notification) => {
       const filters = notification.filters || {};
-      if (userLogin.role === 4) {
-        // Sinh viên: Chỉ hiển thị thông báo liên quan đến lớp hoặc nhóm
-        return filters.classId || filters.groupId;
-      } else if (userLogin.role === 2) {
+      if (userLogin?.role === 2) {
         // Giáo viên: Chỉ hiển thị thông báo liên quan đến dự án
-        return filters.groupId;
+        return (
+          notification.type === "ProjectUpdate" ||
+          notification.type === "classAssignment" ||
+          notification.type === "ProjectReUpdate"
+        );
       }
       return false;
     });
   }, [notificationData, userLogin]);
-
+  const clickLogo = () => {
+    navigate("/teacher/dashboard");
+  };
   return (
     <div className="navbar">
-      <div className="logo">
+      <div onClick={clickLogo} className="logo">
         <p className="logo-title">EduStart</p>
       </div>
       <Menu mode="horizontal" className="menu" style={{ height: "100%" }}>

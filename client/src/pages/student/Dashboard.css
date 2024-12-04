@@ -1,0 +1,19 @@
+/* Dashboard.css */
+
+/* Hiệu ứng nhấp nháy cho Alert cảnh báo */
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.custum-timeline .ant-timeline-item-head-blue {
+  background-color: rgb(245, 245, 245);
+  font-size: 20px;
+}

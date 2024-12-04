@@ -72,9 +72,9 @@ function SignIn() {
             navigation("/teacher/dashboard");
             dispatch(triggerTeacherDashboardNotification());
           } else if (userRole === 4) {
-            navigation("/student-dashboard/group-detail"); // Nếu là học sinh
+            navigation("/student"); // Nếu là học sinh
           } else if (userRole === 3) {
-            navigation("/mentor-dashboard"); // Nếu là mentor
+            navigation("/mentor"); // Nếu là mentor
           } else {
             navigation("/");
           }

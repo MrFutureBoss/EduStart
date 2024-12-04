@@ -208,6 +208,14 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
   const clickLogo = () => {
     navigate("/admin/dashboard");
   };
+
+  const getLastName = (fullName) => {
+    if (!fullName || typeof fullName !== "string") {
+      return "N/A"; // Trả về mặc định nếu không hợp lệ
+    }
+    const nameParts = fullName.trim().split(" ");
+    return nameParts[nameParts.length - 1]; // Lấy phần cuối của mảng
+  };
   return (
     <div className="navbar">
       <div onClick={clickLogo} className="logo">
@@ -316,7 +324,7 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
                 <ImProfile className={toggleCollapse ? "" : "custom-icon"} />
               }
             >
-              <Link style={{ textDecoration: "none" }} to="profile">
+              <Link style={{ textDecoration: "none" }} to="/admin/profile">
                 Thông tin của bạn
               </Link>
             </Menu.Item>

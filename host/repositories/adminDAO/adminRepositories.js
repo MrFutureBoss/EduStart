@@ -1,5 +1,6 @@
 import User from "../../models/userModel.js";
 import Class from "../../models/classModel.js";
+import notificationDAO from "../notificationDAO/index.js";
 
 // tìm giáo viên theo userName và role = 2
 const findTeacherByUsername = async (username, semesterId) => {
@@ -44,7 +45,7 @@ const findOrCreateClass = async (className, semesterId, teacherId) => {
         semesterId,
         teacherId: teacherId,
         limitStudent: 30,
-        status: "InActive",
+        status: "Active",
       });
       await classData.save();
     }
@@ -66,6 +67,7 @@ const findOrCreateClass = async (className, semesterId, teacherId) => {
 const createListUsers = async (listData) => {
   try {
     const users = await User.insertMany(listData);
+
     return users;
   } catch (error) {
     console.error(`Error creating list of users: ${error.message}`);
