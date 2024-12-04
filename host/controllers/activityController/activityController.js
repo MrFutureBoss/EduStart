@@ -872,4 +872,5 @@ export default {
   assignOutcomeToAllGroupsManual,
   getGroupUpcomingOutcomes,
   getUnsubmittedGroups,
+  getUnsubmittedGroups,
 };

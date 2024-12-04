@@ -257,6 +257,7 @@ const findOutcomesByGroupId = async (groupId) => {
     throw error;
   }
 };
+
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
