@@ -3,6 +3,7 @@ import { Layout, Menu } from "antd";
 import { DashboardOutlined } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import "../../style/Layouts/TeacherLayout.css";
+import { GrGroup } from "react-icons/gr";
 
 const { Sider } = Layout;
 
@@ -25,20 +26,20 @@ const StudentSidebar = ({ collapsed, toggleCollapse }) => {
         // theme="dark"
         mode="inline"
         selectedKeys={[selectedKey]}
-        defaultOpenKeys={["teacher-dashboard"]}
+        defaultOpenKeys={["dashboard"]}
         style={{
           height: "100%",
           borderRight: 0,
           padding: 10,
         }}
       >
-        <Menu.Item key="teacher-dashboard" icon={<DashboardOutlined />}>
-          <Link style={{ textDecoration: "none" }} to="teacher-dashboard">
+        <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
+          <Link style={{ textDecoration: "none" }} to="dashboard">
             Trang chủ
           </Link>
         </Menu.Item>
         <Menu.Item
-          key="5"
+          key="class"
           style={{ marginLeft: 2 }}
           icon={
             <svg
@@ -104,19 +105,12 @@ const StudentSidebar = ({ collapsed, toggleCollapse }) => {
             Lớp của bạn
           </Link>
         </Menu.Item>
-        <Menu.Item key="6">
+        <Menu.Item
+          key="group-detail"
+          icon={<GrGroup className="custom-icon" />}
+        >
           <Link style={{ textDecoration: "none" }} to="group-detail">
             Nhóm
-          </Link>
-        </Menu.Item>
-        <Menu.Item key="7">
-          <Link
-            style={{
-              textDecoration: "none",
-            }}
-            to="contact"
-          >
-            Liên hệ
           </Link>
         </Menu.Item>
       </Menu>

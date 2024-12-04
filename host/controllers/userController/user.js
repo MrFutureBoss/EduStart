@@ -4,6 +4,9 @@ import { sendEmail } from "../../utilities/email.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import notificationDAO from "../../repositories/notificationDAO/index.js";
+import groupDAO from "../../repositories/groupDAO/index.js";
+import TempGroupDAO from "../../repositories/tempGroupDAO/index.js";
 
 const getUserLogin = async (req, res, next) => {
   try {
@@ -147,7 +150,6 @@ const updateUser = async (req, res) => {
   }
 };
 
-
 const getAllStudentByClassId = async (req, res) => {
   const { classId } = req.params;
   const limit = req.query.limit ? parseInt(req.query.limit) : null;
@@ -225,7 +227,66 @@ const editUserProfile = async (req, res) => {
   }
 };
 
+const updateLeaderByTeacher = async (req, res) => {
+  const { _id, isLeader, groupId, teacherId } = req.body;
+  const groupMembers = await groupDAO.getGroupMembers(groupId);
 
+  const recipients = groupMembers.map((member) => member._id);
+
+  try {
+    // Cập nhật thông tin leader
+    const updatedUser = await userDAO.updateUserLeaderStatus(_id, isLeader);
+
+    // Tạo thông báo thay đổi leader cho nhóm
+    const notificationMessage = `Nhóm của bạn đã cập nhật lại nhóm trưởng.`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "ChangeLeader",
+      recipients,
+      filters: { groupId: groupId },
+      senderId: teacherId,
+      io: req.io,
+    });
+    res.json({ message: "Leader updated successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const checkUserGroup = async (req, res) => {
+  const userId = req.user._id; // ID người dùng từ token
+
+  try {
+    // Kiểm tra người dùng có nhóm chưa
+    const user = await userDAO.findUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    console.log(user);
+
+    const tempGroup = await TempGroupDAO.findTempGroupByClassId(user.classId);
+
+    if (tempGroup) {
+      // Giáo viên đã tạo nhóm cho lớp
+      return res.status(200).json({
+        type: "teacherCreatedGroup",
+        message: "Giáo viên đã tạo nhóm cho lớp này",
+        user,
+      });
+    } else {
+      // Giáo viên chưa tạo nhóm
+      return res.status(200).json({
+        type: "noGroup",
+        message: "Giáo viên chưa tạo nhóm cho lớp này",
+      });
+    }
+  } catch (error) {
+    console.error("Error in checkClassGroup:", error.message);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+};
 
 export default {
   getUserLogin,
@@ -238,4 +299,6 @@ export default {
   getAllStudentByClassId,
   patchUser,
   editUserProfile,
+  updateLeaderByTeacher,
+  checkUserGroup,
 };

@@ -4,6 +4,7 @@ import semesterDAO from "../../repositories/semesterDAO/index.js";
 import classDAO from "../../repositories/classDAO/index.js";
 import moment from "moment";
 import { calculateStartdateAndEnddateOfOutcomes } from "../../utilities/calculateStartdateAndEnddateOfOutcomes.js";
+import userDAO from "../../repositories/userDAO/index.js";
 
 const createActivity = async (req, res) => {
   try {
@@ -776,16 +777,74 @@ const getGroupOutcomes = async (req, res) => {
     const outcomes = await activityDAO.getGroupOutcomesByGroupId(groupId);
 
     if (!outcomes || outcomes.length === 0) {
-      return res.status(404).json({ message: "No outcomes found for this group." });
+      return res
+        .status(404)
+        .json({ message: "No outcomes found for this group." });
     }
 
     res.status(200).json(outcomes);
   } catch (error) {
-    console.error(`[GroupOutcomeController] Error fetching group outcomes: ${error.message}`);
+    console.error(
+      `[GroupOutcomeController] Error fetching group outcomes: ${error.message}`
+    );
     res.status(500).json({ message: "Error fetching group outcomes." });
   }
 };
 
+const getGroupUpcomingOutcomes = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const user = await userDAO.findUserById(userId);
+
+    const outcomes = await activityDAO.findOutcomesByGroupId(user.groupId);
+
+    if (outcomes.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "No outcomes found for this group." });
+    }
+
+    res.status(200).json({
+      totalOutcomes: outcomes.length,
+      upcomingOutcomes: outcomes,
+    });
+  } catch (error) {
+    console.error("Error in getGroupUpcomingOutcomes:", error.message);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
+const getUnsubmittedGroups = async (req, res) => {
+  try {
+    const { outcomeId, classId } = req.query;
+
+    if (!outcomeId || !classId) {
+      return res.status(400).json({ message: "Missing outcomeId or classId" });
+    }
+
+    const activities = await activityDAO.findUnsubmittedGroups(outcomeId, classId);
+
+    if (!activities.length) {
+      return res.status(404).json({ message: "No unsubmitted groups found" });
+    }
+
+    const groupedByClass = activities.reduce((acc, activity) => {
+      const className = activity.classId.className || "Unknown Class";
+      const groupName = activity.groupId?.name || "No Group Assigned";
+
+      if (!acc[className]) acc[className] = [];
+      if (!acc[className].includes(groupName)) acc[className].push(groupName);
+
+      return acc;
+    }, {});
+
+    return res.status(200).json(groupedByClass);
+  } catch (error) {
+    console.error("Error fetching unsubmitted groups:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 export default {
   createActivity,
   getActivities,
@@ -807,4 +866,6 @@ export default {
   autoAssignOutcomes,
   getGroupOutcomes,
   assignOutcomeToAllGroupsManual,
+  getGroupUpcomingOutcomes,
+  getUnsubmittedGroups,
 };

@@ -10,6 +10,7 @@ const initialValue = {
     projectName: "",
   },
   declineMessage: "",
+  selectedProjectToTop: null,
 };
 
 const projectSlice = createSlice({
@@ -33,6 +34,12 @@ const projectSlice = createSlice({
       );
       state.projects.total -= 1; // Giảm tổng số dự án
     },
+    setSelectedProjectToTop: (state, action) => {
+      state.selectedProjectToTop = action.payload;
+    },
+    clearSelectedProjectToTop: (state) => {
+      state.selectedProjectToTop = null;
+    },
   },
 });
 
@@ -41,5 +48,7 @@ export const {
   setSelectedProject,
   setDeclineMessage,
   removeProject,
+  setSelectedProjectToTop,
+  clearSelectedProjectToTop,
 } = projectSlice.actions;
 export default projectSlice.reducer;

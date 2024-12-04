@@ -75,8 +75,6 @@ const AssignOutcome = ({ onAssigned }) => {
           `${BASE_URL}/semester/current`,
           config
         );
-        console.log(semesterResponse.data);
-
         const fetchedSemester = semesterResponse.data;
         setSemester(fetchedSemester);
         setSemesterId(fetchedSemester._id);

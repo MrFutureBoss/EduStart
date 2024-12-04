@@ -256,6 +256,7 @@ const MentorDropZone = ({
   mentors,
   activeId,
   onMentorAssigned,
+  teacherId,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `project-${projectId}`,
@@ -293,7 +294,7 @@ const MentorDropZone = ({
   const handleConfirmMentor = () => {
     const mentor = assignedMentors[0];
     if (mentor) {
-      assignMentorToProject(groupId, mentor.mentorId)
+      assignMentorToProject(groupId, mentor.mentorId, teacherId)
         .then(() => {
           message.success("Gán mentor thành công!");
           // Gọi hàm reloadProjectData sau khi gán mentor thành công
@@ -519,16 +520,19 @@ const MentorDropZone = ({
 
       {/* Nút xác nhận mentor đã được gán */}
       {assignedMentors.length > 0 && (
-        <Button
-          style={{
-            marginLeft: "91%",
-            width: 25,
-            height: 25,
-            borderRadius: "30px",
-          }}
-          icon={<CheckOutlined />}
-          onClick={handleConfirmMentor}
-        ></Button>
+        <Tooltip title="Lưu gợi ý">
+          <Button
+            className="button-select-mentor-not-matched"
+            style={{
+              marginLeft: "91%",
+              width: 25,
+              height: 25,
+              borderRadius: "30px",
+            }}
+            icon={<CheckOutlined />}
+            onClick={handleConfirmMentor}
+          ></Button>
+        </Tooltip>
       )}
     </div>
   );
@@ -961,6 +965,7 @@ const ProjectCardMain = () => {
                       mentors={mentorsData[project._id]}
                       activeId={activeId}
                       onMentorAssigned={reloadProjectData}
+                      teacherId={teacherId}
                     />
                     <h6 className="view-more-suggest">
                       <p

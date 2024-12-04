@@ -5,6 +5,10 @@ const initialValue = {
   group: {},
   allGroups: [],
   groupInClass: [],
+  projectStatus: [],
+  outcomes: [],
+  groupStatus: [],
+  currentStage: 1,
 };
 const groupSlice = createSlice({
   name: "group",
@@ -30,8 +34,17 @@ const groupSlice = createSlice({
         });
       }
     },
-    setAllGroupInClass: (state, action) => {
-      state.groupInClass = action.payload;
+    setGroupStatus: (state, action) => {
+      state.groupStatus = action.payload;
+    },
+    setProjectStatus: (state, action) => {
+      state.projectStatus = action.payload;
+    },
+    setOutcomes: (state, action) => {
+      state.outcomes = action.payload;
+    },
+    setCurrentStage: (state, action) => {
+      state.currentStage = action.payload;
     },
   },
 });
@@ -44,5 +57,9 @@ export const {
   setAllGroup,
   updateGroupLeader,
   setAllGroupInClass,
+  setGroupStatus,
+  setProjectStatus,
+  setOutcomes,
+  setCurrentStage,
 } = actions;
 export default reducer;

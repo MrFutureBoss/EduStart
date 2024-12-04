@@ -199,11 +199,65 @@ const getGroupOutcomesByGroupId = async (groupId) => {
   try {
     return await Activity.find({ groupId, activityType: "outcome" }).lean();
   } catch (error) {
-    console.error(`[GroupOutcomeRepository] Error fetching group outcomes: ${error.message}`);
+    console.error(
+      `[GroupOutcomeRepository] Error fetching group outcomes: ${error.message}`
+    );
     throw new Error("Failed to fetch group outcomes.");
   }
 };
 
+const findOutcomesByGroupId = async (groupId) => {
+  try {
+    const activities = await Activity.find({
+      groupId: groupId,
+      activityType: "outcome",
+    })
+      .populate("outcomeId", "name description") // Populate outcome details
+      .select(
+        "description startDate deadline completed outcomeId classId groupId"
+      );
+
+    if (!activities || activities.length === 0) return [];
+
+    const currentDate = new Date();
+
+    // Categorize outcomes
+    const groupOutcomes = activities.map((activity) => {
+      const isUpcoming = activity.startDate > currentDate;
+      const isPast = activity.deadline < currentDate;
+      const status = activity.completed ? "Completed" : "Incomplete";
+
+      return {
+        outcomeId: activity.outcomeId?._id,
+        outcomeName: activity.outcomeId?.name || "N/A",
+        description: activity.description,
+        startDate: activity.startDate,
+        deadline: activity.deadline,
+        completed: activity.completed,
+        status,
+        category: isUpcoming ? "Upcoming" : isPast ? "Past" : "Ongoing",
+        classId: activity.classId,
+        groupId: activity.groupId,
+      };
+    });
+
+    return groupOutcomes;
+  } catch (error) {
+    console.error("Error in findOutcomesByGroupId:", error.message);
+    throw error;
+  }
+  
+const findUnsubmittedGroups = async (outcomeId, classId) => {
+  return Activity.find({
+    completed: false,
+    activityType: "outcome",
+    outcomeId,
+    classId,
+  })
+    .populate("groupId", "name")
+    .populate("classId", "className");
+};
+  
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -230,4 +284,6 @@ export default {
   getActivitiesByClassId,
   getOutcomesBySemesterId,
   getGroupOutcomesByGroupId,
+  findOutcomesByGroupId,
+  findUnsubmittedGroups,
 };

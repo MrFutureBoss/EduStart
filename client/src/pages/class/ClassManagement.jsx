@@ -38,6 +38,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setClassInfoData } from "../../redux/slice/ClassManagementSlice";
 import calculateWeekAndPhase from "./calculateWeekAndPhase";
 import AssignOutcome from "../activity/AssignOutcome";
+import MonitorStep from "../activity/MonitorStep";
 
 const ClassManagement = () => {
   const dispatch = useDispatch();
@@ -103,6 +104,12 @@ const ClassManagement = () => {
 
   return (
     <div>
+      <h5 style={{ textAlign: "center", marginBottom: "8px" }}>
+        Các giai đoạn Outcome
+      </h5>
+      <Row gutter={[32, 16]}>
+        <MonitorStep />
+      </Row>
       <Row gutter={[32, 16]}>
         <Col xs={24} sm={24} md={24} lg={12} xl={16}>
           <Card

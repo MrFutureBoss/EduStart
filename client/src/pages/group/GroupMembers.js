@@ -34,10 +34,11 @@ const { Text, Title } = Typography;
 const GroupMembers = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const url = useLocation();
+  const location = useLocation();
   const { group: groupDetails } = useSelector((state) => state.group);
   const { userLogin } = useSelector((state) => state.user);
   const groupId = userLogin?.groupId;
+  const [isActive, setIsActive] = useState(false);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -101,7 +102,10 @@ const GroupMembers = () => {
     socket.on("projectUpdated", (data) => {
       fetchData();
     });
-
+    socket.emit("joinRoom", `${userLogin?._id}`);
+    socket.on("notification", (data) => {
+      fetchData();
+    });
     return () => {
       socket.off("projectUpdated");
     };
@@ -156,7 +160,7 @@ const GroupMembers = () => {
   };
 
   useEffect(() => {
-    if (groupDetails) {
+    if (groupDetails && userLogin?.role === 4 && userLogin.isLeader === true) {
       if (groupDetails.project?.status === "Decline") {
         Swal.fire({
           title: "Dự án bị từ chối",
@@ -226,6 +230,17 @@ const GroupMembers = () => {
   const handleUserDetailClick = (userId) => {
     navigate(`/user/${userId}/profile`);
   };
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get("tab");
+    console.log(tabParam);
+
+    if (tabParam === "update-project") {
+      handleOpenModal();
+    } else if (tabParam === "update-outcome") {
+      setIsActive(true);
+    }
+  }, [location]);
 
   return (
     <div>

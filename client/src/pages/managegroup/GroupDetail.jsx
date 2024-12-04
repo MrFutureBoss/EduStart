@@ -25,6 +25,7 @@ const socket = io(BASE_URL);
 const { Text, Title } = Typography;
 
 const GroupDetail = () => {
+  const { groupId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { group: groupDetails } = useSelector((state) => state.group);
@@ -88,6 +89,7 @@ const GroupDetail = () => {
     }
   };
 
+
   useEffect(() => {
     socket.emit("joinProject", userLogin?.projectInfo?.[0]?._id);
     socket.on("projectUpdated", (data) => {
@@ -148,7 +150,7 @@ const GroupDetail = () => {
   };
 
   useEffect(() => {
-    if (groupDetails) {
+    if (groupDetails && userLogin?.role === 4 && userLogin.isLeader === true) {
       if (groupDetails.project?.status === "Decline") {
         Swal.fire({
           title: "Dự án bị từ chối",
@@ -175,12 +177,15 @@ const GroupDetail = () => {
     }
   }, [groupDetails]);
 
+
   const handleModalClose = () => {
     setIsModalVisible(false);
     setProjectData(null);
   };
 
   const handleLeaderChange = (userId, userName) => {
+    console.log("userId:", userId); // Log để kiểm tra giá trị userId
+
     Swal.fire({
       title: `Bạn muốn đổi ${userName} thành trưởng nhóm không?`,
       icon: "question",
@@ -201,7 +206,7 @@ const GroupDetail = () => {
         axios
           .patch(
             `${BASE_URL}/user/update_leader`,
-            { _id: userId, isLeader: true },
+            { _id: userId, isLeader: true, teacherId: userLogin?._id, groupId },
             config
           )
           .then(() => {

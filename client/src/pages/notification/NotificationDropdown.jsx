@@ -16,6 +16,7 @@ import {
 } from "../../api";
 import { setNotificationData } from "../../redux/slice/NotificationSlice";
 import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
 
 const NotificationDropdown = ({ notifications, onClose }) => {
   const [filterType, setFilterType] = useState("all");
@@ -55,6 +56,7 @@ const NotificationDropdown = ({ notifications, onClose }) => {
       <Menu.Item key="2">Cài đặt</Menu.Item>
     </Menu>
   );
+  console.log();
 
   const getNotificationType = (filters) => {
     if (filters.groupId)
@@ -79,10 +81,39 @@ const NotificationDropdown = ({ notifications, onClose }) => {
   const handleNotificationClick = async (notification) => {
     const filters = notification.filters || {};
     let navigateTo = "/notification";
+    console.log("notification", notification);
 
-    if (filters.groupId) {
+    if (filters.groupId && userLogin?.role === 4) {
       navigateTo = `group-detail`;
     } else if (filters.classId) {
+      navigateTo = `class`;
+    } else if (
+      filters.groupId &&
+      userLogin?.role === 2 &&
+      notification.type === "ProjectUpdate"
+    ) {
+      navigateTo = `project-request?tab=1`;
+    } else if (
+      filters.groupId &&
+      userLogin?.role === 2 &&
+      notification.type === "ProjectReUpdate"
+    ) {
+      navigateTo = `project-request?tab=2`;
+    } else if (
+      filters.groupId &&
+      userLogin?.role === 3 &&
+      notification.type === "MatchedNotification"
+    ) {
+      navigateTo = `managegroup?tab=pending`;
+    } else if (
+      userLogin?.role === 2 &&
+      notification.type === "classAssignment"
+    ) {
+      navigateTo = `class`;
+    } else if (
+      userLogin?.role === 4 &&
+      notification.type === "classAssignment"
+    ) {
       navigateTo = `class`;
     }
 
@@ -111,6 +142,7 @@ const NotificationDropdown = ({ notifications, onClose }) => {
       : filterType === "other"
       ? otherNotifications
       : notifications;
+  console.log("filteredNotifications", filteredNotifications);
 
   return (
     <motion.div
@@ -148,12 +180,26 @@ const NotificationDropdown = ({ notifications, onClose }) => {
         >
           <p className="filter-button-text">Tất cả</p>
         </button>
-        <button
-          className={`filter-button ${filterType === "class" ? "active" : ""}`}
-          onClick={() => setFilterType("class")}
-        >
-          <p className="filter-button-text">Lớp</p>
-        </button>
+        {userLogin.role === 2 && (
+          <button
+            className={`filter-button ${
+              filterType === "class" ? "active" : ""
+            }`}
+            onClick={() => setFilterType("class")}
+          >
+            <p className="filter-button-text">Lớp</p>
+          </button>
+        )}
+        {userLogin?.role === 4 && (
+          <button
+            className={`filter-button ${
+              filterType === "class" ? "active" : ""
+            }`}
+            onClick={() => setFilterType("class")}
+          >
+            <p className="filter-button-text">Lớp</p>
+          </button>
+        )}
         <button
           className={`filter-button ${filterType === "group" ? "active" : ""}`}
           onClick={() => setFilterType("group")}
@@ -164,7 +210,7 @@ const NotificationDropdown = ({ notifications, onClose }) => {
           className={`filter-button ${filterType === "other" ? "active" : ""}`}
           onClick={() => setFilterType("other")}
         >
-          <p className="filter-button-text">Khác</p>
+          <p className="filter-button-text">Hệ Thống</p>
         </button>
       </div>
 
@@ -191,6 +237,9 @@ const NotificationDropdown = ({ notifications, onClose }) => {
                   )}
                 </div>
                 <p>{notification.message}</p>
+                <p style={{ fontSize: 13 }}>
+                  {moment(notification.updatedAt).format("DD/MM/YYYY HH:mm:ss")}
+                </p>
               </div>
             );
           })

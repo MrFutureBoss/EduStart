@@ -5,6 +5,7 @@ import classDAO from "../../repositories/classDAO/index.js";
 import nodemailer from "nodemailer";
 import semesterDAO from "../../repositories/semesterDAO/index.js";
 import { sendEmailToUser } from "../../utilities/email.js";
+import notificationDAO from "../../repositories/notificationDAO/index.js";
 
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -557,10 +558,10 @@ const insertListUsers = async (req, res, next) => {
           }
 
           const newClassId = newClass._id.toString();
-          console.log(existingUser);
 
           if (currentClassId && currentClassId !== newClassId) {
             const currentClass = await adminsDAO.findClassById(currentClassId);
+
             const oldClassName = currentClass
               ? currentClass.className
               : "Unknown";
@@ -863,6 +864,16 @@ const insertListUsers = async (req, res, next) => {
           semesterId,
           teacher._id
         ));
+        //kết nối socket
+        const recipients = [teacher._id];
+        const notificationMessage = `Bạn đã được phân công lớp ${className}`;
+        const notifications = await notificationDAO.createNotifications({
+          message: notificationMessage,
+          type: "classAssignment",
+          recipients,
+          audience: "Teacher",
+          io: req.io,
+        });
       } catch (error) {
         errorMessages.push({
           message: `Lỗi khi tìm hoặc tạo lớp ${className}: ${error.message}`,
@@ -893,7 +904,7 @@ const insertListUsers = async (req, res, next) => {
           errorMessages.push({
             email: user.email,
             rowNumber,
-            message: `Lớp ${className} đã đầy. Học sinh được thêm với trạng thái Pending.`,
+            message: `Lớp ${className} đã đầy. Học sinh được thêm với trạng thái "Chờ xếp lớp".`,
           });
         }
         continue;
@@ -942,13 +953,14 @@ const insertListUsers = async (req, res, next) => {
         errorMessages.push({
           email: user.email,
           rowNumber,
-          message: `Lớp ${className} đã đầy. Học sinh được thêm với trạng thái Pending.`,
+          message: `Lớp ${className} đã đầy. Học sinh được thêm với trạng thái "Chờ xếp lớp".`,
         });
       }
     }
 
     // Thực hiện insert danh sách người dùng
     let insertedUsers = [];
+
     if (usersToInsert.length > 0) {
       try {
         insertedUsers = await adminsDAO.createListUsers(usersToInsert);
@@ -970,7 +982,17 @@ const insertListUsers = async (req, res, next) => {
         user._id = insertedUsers[index]._id;
       }
     });
-
+    console.log(usersToInsert);
+    //kết nối socket
+    const recipients = usersToInsert.map((member) => member._id);
+    const notificationMessage = `Bạn đã được xếp vào lớp. Chúc bạn học tập thật tốt!`;
+    const notifications = await notificationDAO.createNotifications({
+      message: notificationMessage,
+      type: "classAssignment",
+      filters: { classId: usersToInsert[0]?.classId },
+      recipients,
+      io: req.io,
+    });
     // Gửi email cho các người dùng đã được thêm thành công
     for (const user of usersToEmail) {
       try {

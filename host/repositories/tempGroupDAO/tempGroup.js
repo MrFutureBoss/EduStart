@@ -332,16 +332,16 @@ const allStudentInClassHasGroup = async (classId) => {
       });
 
       if (!group) {
-        return { 
-          message: `No matching Group found for TempGroup with groupName ${tempGroup.groupName} and classId ${tempGroup.classId}` 
+        return {
+          message: `No matching Group found for TempGroup with groupName ${tempGroup.groupName} and classId ${tempGroup.classId}`,
         };
       }
 
       const userIds = tempGroup.userIds;
 
       if (userIds.length === 0) {
-        return { 
-          message: `TempGroup ${tempGroup.groupName} has no users.` 
+        return {
+          message: `TempGroup ${tempGroup.groupName} has no users.`,
         };
       }
 
@@ -361,8 +361,8 @@ const allStudentInClassHasGroup = async (classId) => {
         );
 
         if (!user) {
-          return { 
-            message: `Failed to update user with _id ${userId}. User may not exist.` 
+          return {
+            message: `Failed to update user with _id ${userId}. User may not exist.`,
           };
         }
 
@@ -384,7 +384,11 @@ const allStudentInClassHasGroup = async (classId) => {
   }
 };
 
-
+const findTempGroupByClassId = async (classId) => {
+  return await TempGroup.findOne({ classId }).select(
+    "groupName status maxStudent userIds"
+  );
+};
 export default {
   getAllTempGroups,
   getTempGroupById,
@@ -397,4 +401,5 @@ export default {
   fillGroupsByClassId,
   makeOfficalGroupByClassId,
   allStudentInClassHasGroup,
+  findTempGroupByClassId,
 };
