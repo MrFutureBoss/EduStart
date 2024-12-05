@@ -1,80 +1,313 @@
 [{
   "_id": {
-    "$oid": "6715dd20e3b96d4ba609da61"
+    "$oid": "67493c53aaadcd780f3be86a"
   },
   "mentorId": {
-    "$oid": "6715dd20e3b96d4ba609da5b"
+    "$oid": "674930f940b65c51e85ff0d4"
   },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-11-29T04:01:04.576Z"
+  },
+  "currentLoad": 4,
+  "maxLoad": 5,
   "professionIds": [
     {
-      "$oid": "6715dd20e3b96d4ba609da54"
+      "$oid": "67493ae5f0cf740bf4028dcf"
     },
     {
-      "$oid": "6715dd20e3b96d4ba609da56"
+      "$oid": "674ec656d46ab84a34eb7906"
     }
   ],
   "specialties": [
     {
       "specialtyId": {
-        "$oid": "6715dd20e3b96d4ba609da4e"
+        "$oid": "67493ae5f0cf740bf4028dcb"
       },
-      "proficiencyLevel": 5
+      "_id": {
+        "$oid": "674f130a5a048de4ae49d51b"
+      }
     },
     {
       "specialtyId": {
-        "$oid": "6715dd20e3b96d4ba609da53"
+        "$oid": "67493ae5f0cf740bf4028dcc"
       },
-      "proficiencyLevel": 5
+      "_id": {
+        "$oid": "674f130a5a048de4ae49d51c"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b0bf0cf740bf4028e1f"
+      },
+      "_id": {
+        "$oid": "674f130a5a048de4ae49d51d"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b2bf0cf740bf4028e34"
+      },
+      "_id": {
+        "$oid": "674f130a5a048de4ae49d51e"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b3ff0cf740bf4028e44"
+      },
+      "_id": {
+        "$oid": "674f130a5a048de4ae49d51f"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "674ec656d46ab84a34eb7900"
+      },
+      "_id": {
+        "$oid": "674f130a5a048de4ae49d520"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "674ec656d46ab84a34eb7901"
+      },
+      "_id": {
+        "$oid": "674f130a5a048de4ae49d521"
+      }
     }
   ],
-  "maxLoad": 8,
-  "currentLoad": 3,
-  "createdAt": {
-    "$date": "2024-10-21T04:48:32.337Z"
-  },
   "updatedAt": {
-    "$date": "2024-10-21T04:48:32.337Z"
+    "$date": "2024-12-04T11:13:38.158Z"
   }
 },
 {
   "_id": {
-    "$oid": "673d06f3d1043af664f64da8"
+    "$oid": "67511cefaaadcd780f3be8a2"
   },
   "mentorId": {
-    "$oid": "673cef10d1043af664f64d90"
+    "$oid": "674930f940b65c51e85ff0d7"
   },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-05T03:24:57.157Z"
+  },
+  "currentLoad": 0,
+  "maxLoad": 3,
   "professionIds": [
     {
-      "$oid": "6702db8d694a3a03a306e326"
-    },
-    {
-      "$oid": "670974aff61773522abe6f36"
+      "$oid": "674ec656d46ab84a34eb7906"
     }
   ],
   "specialties": [
     {
       "specialtyId": {
-        "$oid": "6710069550b43dfad026530e"
+        "$oid": "674ec656d46ab84a34eb7901"
       },
       "_id": {
-        "$oid": "6746eeb0fc5f5ad10f95f161"
+        "$oid": "67511fda0ef62309e75186d7"
+      }
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T03:36:58.287Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67511e1daaadcd780f3be8a3"
+  },
+  "mentorId": {
+    "$oid": "67511d1741cd9c672a4127bd"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-05T03:29:07.806Z"
+  },
+  "currentLoad": 0,
+  "maxLoad": 3,
+  "professionIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7906"
+    }
+  ],
+  "specialties": [
+    {
+      "specialtyId": {
+        "$oid": "67493ae5f0cf740bf4028dcc"
+      },
+      "_id": {
+        "$oid": "67511e0341cd9c672a412934"
       }
     },
     {
       "specialtyId": {
-        "$oid": "670974aff61773522abe6f30"
+        "$oid": "67493b0bf0cf740bf4028e1f"
       },
       "_id": {
-        "$oid": "6746eeb0fc5f5ad10f95f162"
+        "$oid": "67511e0341cd9c672a412935"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493ae5f0cf740bf4028dcb"
+      },
+      "_id": {
+        "$oid": "67511e0341cd9c672a412936"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "674ec656d46ab84a34eb7900"
+      },
+      "_id": {
+        "$oid": "67511e0341cd9c672a412937"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "674ec656d46ab84a34eb7901"
+      },
+      "_id": {
+        "$oid": "67511e0341cd9c672a412938"
       }
     }
   ],
-  "maxLoad": 7,
-  "currentLoad": 8,
-  "createdAt": {
-    "$date": "2024-10-21T04:48:32.337Z"
-  },
   "updatedAt": {
-    "$date": "2024-11-27T10:04:50.412Z"
+    "$date": "2024-12-05T03:29:07.806Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67511e5daaadcd780f3be8a4"
+  },
+  "mentorId": {
+    "$oid": "67511d1741cd9c672a4127be"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-05T03:30:12.611Z"
+  },
+  "currentLoad": 0,
+  "maxLoad": 3,
+  "professionIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7906"
+    }
+  ],
+  "specialties": [
+    {
+      "specialtyId": {
+        "$oid": "67493ae5f0cf740bf4028dcc"
+      },
+      "_id": {
+        "$oid": "67511e4441cd9c672a41298d"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b0bf0cf740bf4028e1f"
+      },
+      "_id": {
+        "$oid": "67511e4441cd9c672a41298e"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b2bf0cf740bf4028e34"
+      },
+      "_id": {
+        "$oid": "67511e4441cd9c672a41298f"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "674ec656d46ab84a34eb7900"
+      },
+      "_id": {
+        "$oid": "67511e4441cd9c672a412990"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "674ec656d46ab84a34eb7901"
+      },
+      "_id": {
+        "$oid": "67511e4441cd9c672a412991"
+      }
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T03:30:12.611Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67511e82aaadcd780f3be8a5"
+  },
+  "mentorId": {
+    "$oid": "67511d1741cd9c672a4127bf"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-05T03:30:49.300Z"
+  },
+  "currentLoad": 0,
+  "maxLoad": 1,
+  "professionIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    }
+  ],
+  "specialties": [
+    {
+      "specialtyId": {
+        "$oid": "67493ae5f0cf740bf4028dcb"
+      },
+      "_id": {
+        "$oid": "67511f4841cd9c672a412b32"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b0bf0cf740bf4028e1f"
+      },
+      "_id": {
+        "$oid": "67511f4841cd9c672a412b33"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493ae5f0cf740bf4028dcc"
+      },
+      "_id": {
+        "$oid": "67511f4841cd9c672a412b34"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b3ff0cf740bf4028e44"
+      },
+      "_id": {
+        "$oid": "67511f4841cd9c672a412b35"
+      }
+    },
+    {
+      "specialtyId": {
+        "$oid": "67493b2bf0cf740bf4028e34"
+      },
+      "_id": {
+        "$oid": "67511f4841cd9c672a412b36"
+      }
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T03:34:32.039Z"
   }
 }]
