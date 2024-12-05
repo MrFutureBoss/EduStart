@@ -263,6 +263,48 @@ const getAllProfessionsWithSpecialties = async () => {
     );
   }
 };
+const createMultipleProfessions = async (professionsData) => {
+  try {
+    const createdProfessions = [];
+
+    for (const professionData of professionsData) {
+      const { name, specialties = [], status } = professionData;
+
+      // Kiểm tra profession đã tồn tại
+      const existingProfession = await Profession.findOne({ name });
+      if (existingProfession) {
+        throw new Error(`Profession "${name}" đã tồn tại.`);
+      }
+
+      // Tạo specialties nếu có
+      const specialtyIds = await Promise.all(
+        specialties.map(async (specialty) => {
+          const existingSpecialty = await Specialty.findOne({
+            name: specialty.name,
+          });
+          if (existingSpecialty) {
+            return existingSpecialty._id; // Sử dụng specialty đã tồn tại
+          }
+          const newSpecialty = await Specialty.create(specialty);
+          return newSpecialty._id;
+        })
+      );
+
+      // Tạo profession
+      const newProfession = await Profession.create({
+        name,
+        status,
+        specialty: specialtyIds,
+      });
+
+      createdProfessions.push(newProfession);
+    }
+
+    return createdProfessions;
+  } catch (error) {
+    throw new Error(`Error creating professions: ${error.message}`);
+  }
+};
 
 export default {
   getAllProfessions,
@@ -276,4 +318,5 @@ export default {
   deleteProfessionAndSpecialties,
   patchProfession,
   getAllProfessionsWithSpecialties,
+  createMultipleProfessions,
 };

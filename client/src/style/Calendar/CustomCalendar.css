@@ -83,6 +83,11 @@ div .rbc-event-content {
 
 .rbc-time-content {
   overflow-y: auto !important;
+  max-height: 500px;
+}
+
+.rbc-time-view{
+  max-height: 600px;
 }
 
 /* .rbc-time-slot {
@@ -124,6 +129,7 @@ div .rbc-event-content {
 .rbc-day-slot .rbc-timeslot-group .rbc-time-slot:hover {
   border: 2px solid #1890ff;
   animation: borderPulse 1s infinite alternate;
+  cursor: pointer !important;
 }
 
 @keyframes borderPulse {

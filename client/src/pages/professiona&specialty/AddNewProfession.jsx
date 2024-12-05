@@ -16,8 +16,8 @@ import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfessions } from "../../redux/slice/ProfessionSlice.js";
 import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
-import AddButton from "../../components/Button/AddButton.jsx";
 import ConfirmButton from "../../components/Button/ConfirmButton.jsx";
+import CancelButton from "../../components/Button/CancelButton.jsx";
 
 const AddNewProfession = ({ show, close }) => {
   const dispatch = useDispatch();
@@ -393,7 +393,7 @@ const AddNewProfession = ({ show, close }) => {
   const modalHeader = (
     <>
       <h3 style={{ color: "#FFF", padding: "0px", margin: "0" }}>
-        Thêm lĩnh vực mới
+        Thêm lĩnh vực và chuyên môn mới
       </h3>
     </>
   );
@@ -648,14 +648,12 @@ const AddNewProfession = ({ show, close }) => {
   //Footer button
   const modalFooter = (
     <>
-      <AddButton
+      <ConfirmButton
         content="Thêm Vào"
         onClick={handleConfirmSubmit}
         disabled={!isFormValid}
       />
-      <Button variant="danger" onClick={handleClose}>
-        Thoát
-      </Button>
+      <CancelButton  content="Thoát" onClick={handleClose}/>
     </>
   );
 
