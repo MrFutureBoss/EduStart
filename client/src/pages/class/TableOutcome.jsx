@@ -250,7 +250,9 @@ const TableOutcome = ({ classList, semesterId }) => {
         <Spin size="large" tip="Loading data..." />
       ) : (
         <>
-          <h5>Tiến độ {currentOutcomeType}</h5>
+          <p style={{ fontSize: "15px", fontWeight: "600" }}>
+            Tiến độ {currentOutcomeType}
+          </p>
           <Table
             columns={columns}
             dataSource={filteredData}
