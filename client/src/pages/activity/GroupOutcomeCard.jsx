@@ -164,9 +164,7 @@ const GroupOutcomeCard = ({ groupId }) => {
   const handleDownload = async (materialUrl) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/activity/download?filename=${materialUrl
-          .split("/")
-          .pop()}`,
+        `${BASE_URL}/submission/download/${materialUrl.split("/").pop()}`,
         {
           headers: { Authorization: `Bearer ${jwt}` },
           responseType: "blob",
@@ -181,9 +179,10 @@ const GroupOutcomeCard = ({ groupId }) => {
       link.click();
       link.remove();
     } catch (error) {
-      message.error("Không thể tải xuống tệp.");
+      message.error("Error downloading the file.");
     }
   };
+
   const openSubmitModal = (outcome) => {
     setSelectedOutcome(outcome);
     setSubmittedFiles(outcome.files || []);
@@ -196,9 +195,14 @@ const GroupOutcomeCard = ({ groupId }) => {
         `${BASE_URL}/submission/submitId/${outcome._id}`,
         config
       );
+
       const submissionData = response.data;
 
-      setSelectedOutcome(outcome);
+      setSelectedOutcome({
+        ...outcome,
+        submissionId: submissionData._id,
+      });
+
       setSubmittedFiles(submissionData.files || []);
       setIsEditModalVisible(true);
     } catch (error) {
@@ -206,32 +210,28 @@ const GroupOutcomeCard = ({ groupId }) => {
       message.error("Không thể tải thông tin bài nộp.");
     }
   };
+
   const handleEditSubmit = async () => {
     try {
+      if (!selectedOutcome?.submissionId) {
+        message.error("Không thể xác định bài nộp để cập nhật.");
+        return;
+      }
+
       const formData = new FormData();
 
-      submittedFiles.forEach((file) => {
-        if (file.originFileObj) {
-          formData.append("files", file.originFileObj);
-        }
-      });
-
-      const existingFiles = submittedFiles
-        .filter((file) => !file.originFileObj && file.url)
-        .map((file) => file.url);
-
-      if (existingFiles.length > 0) {
-        formData.append("existingFiles", JSON.stringify(existingFiles));
-      } else {
-        formData.append("existingFiles", JSON.stringify([]));
+      if (fileList.length > 0) {
+        fileList.forEach((file) => {
+          formData.append("files", file.originFileObj || file);
+        });
       }
+
+      formData.append("existingFiles", JSON.stringify(submittedFiles));
 
       formData.append("description", "Updated submission description");
 
-      console.log("FormData Content:", Array.from(formData.entries()));
-
       const response = await axios.patch(
-        `${BASE_URL}/submission/${selectedOutcome._id}`,
+        `${BASE_URL}/submission/${selectedOutcome.submissionId}`,
         formData,
         {
           headers: {
@@ -242,18 +242,30 @@ const GroupOutcomeCard = ({ groupId }) => {
       );
 
       message.success("Cập nhật bài nộp thành công!");
+
+      setOutcomes((prev) =>
+        prev.map((outcome) =>
+          outcome._id === selectedOutcome._id
+            ? { ...outcome, files: response.data.submission.files }
+            : outcome
+        )
+      );
+
+      setFileList([]);
+      setSubmittedFiles(response.data.submission.files || []);
       setIsEditModalVisible(false);
     } catch (error) {
-      console.error("Error updating submission:", error);
-      message.error("Đã xảy ra lỗi khi cập nhật bài nộp.");
+      console.error(
+        "Error updating submission:",
+        error.response || error.message
+      );
+      message.error(
+        error.response?.data?.message || "Đã xảy ra lỗi khi cập nhật bài nộp."
+      );
     }
   };
 
-  const removeFile = (fileIndex) => {
-    if (submittedFiles.length <= 1) {
-      message.warning("Phải có ít nhất một tệp.");
-      return;
-    }
+  const handleRemoveExistingFile = (fileIndex) => {
     setSubmittedFiles((prev) => prev.filter((_, index) => index !== fileIndex));
   };
 
@@ -353,9 +365,9 @@ const GroupOutcomeCard = ({ groupId }) => {
                                 color: "black",
                                 cursor: "pointer",
                               }}
-                              onClick={() =>
-                                handleDownload(material.materialUrl)
-                              }
+                              onClick={() => {
+                                handleDownload(material.materialUrl);
+                              }}
                               onMouseEnter={(e) => {
                                 e.currentTarget.style.color = "#1890ff";
                               }}
@@ -410,13 +422,26 @@ const GroupOutcomeCard = ({ groupId }) => {
             <Upload
               fileList={fileList}
               beforeUpload={(file) => {
-                setFileList([file]);
+                setFileList((prev) => [...prev, file]);
                 return false;
               }}
-              onRemove={() => setFileList([])}
+              onRemove={(file) => {
+                setFileList((prev) =>
+                  prev.filter((item) => item.uid !== file.uid)
+                );
+              }}
+              multiple
             >
               <Button icon={<UploadOutlined />}>Tải tệp lên</Button>
             </Upload>
+            <List
+              dataSource={fileList}
+              renderItem={(file, index) => (
+                <List.Item key={index}>
+                  <a>{file.name}</a>
+                </List.Item>
+              )}
+            />
           </Modal>
 
           {/* Edit Modal */}
@@ -424,14 +449,14 @@ const GroupOutcomeCard = ({ groupId }) => {
             visible={isEditModalVisible}
             title={<h5>Chỉnh sửa bài nộp</h5>}
             onCancel={() => setIsEditModalVisible(false)}
-            onOk={handleEditSubmit} // Nút xác nhận sửa bài nộp
+            onOk={handleEditSubmit}
           >
             <p>
-              <Text strong>Loại: </Text>
+              <Text strong>Loại Outcome: </Text>
               {selectedOutcome?.name}
             </p>
             <p>
-              <Text strong>Tệp đã nộp: </Text>
+              <Text strong>Tệp hiện tại: </Text>
             </p>
             <List
               dataSource={submittedFiles}
@@ -442,38 +467,53 @@ const GroupOutcomeCard = ({ groupId }) => {
                     <Button
                       type="link"
                       danger
-                      onClick={() => removeFile(index)}
+                      onClick={() => handleRemoveExistingFile(index)}
                     >
                       Xóa
                     </Button>,
                   ]}
                 >
-                  <a
-                    href={`${BASE_URL}${file}`}
-                    target="_blank"
-                    rel="noreferrer"
+                  <Link
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const fileName = file.name || file.split("/").pop();
+                      handleDownload(fileName);
+                    }}
+                    style={{
+                      marginRight: "8px",
+                      textDecoration: "none",
+                      color: "black",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#1890ff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "black";
+                    }}
                   >
                     {file.name || file.split("/").pop()}
-                  </a>
+                  </Link>
                 </List.Item>
               )}
             />
             <p style={{ marginTop: "20px" }}>
-              <Text strong>Thêm tệp mới:</Text>
+              <Text strong>Thay thế tệp mới:</Text>
             </p>
             <Upload
               fileList={fileList}
               beforeUpload={(file) => {
-                setFileList((prev) => [...prev, file]);
+                setFileList((prev) => [...prev, file]); // Thêm file mới
                 return false;
               }}
               onRemove={(file) => {
                 setFileList((prev) =>
                   prev.filter((item) => item.uid !== file.uid)
-                );
+                ); // Xóa file khỏi danh sách tải lên mới
               }}
+              multiple
             >
-              <Button icon={<UploadOutlined />}>Tải tệp lên</Button>
+              <Button icon={<UploadOutlined />}>Tải tệp mới</Button>
             </Upload>
           </Modal>
         </Card>

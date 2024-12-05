@@ -344,7 +344,7 @@ const PostActivity = () => {
   const handleDownload = async (materialUrl) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/activity/download?filename=${materialUrl}`,
+        `${BASE_URL}/activity/download/${materialUrl}`,
         {
           headers: { Authorization: `Bearer ${jwt}` },
           responseType: "blob",

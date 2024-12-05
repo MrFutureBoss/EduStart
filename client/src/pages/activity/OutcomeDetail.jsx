@@ -24,7 +24,7 @@ import { BASE_URL } from "../../utilities/initalValue";
 import axios from "axios";
 import { setClassList } from "../../redux/slice/ClassSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import moment from "moment";
 import { IoChevronBackOutline } from "react-icons/io5";
 
@@ -162,7 +162,50 @@ const OutcomeDetail = () => {
         })
       );
 
-      setOutcomes(outcomesWithGroups);
+      const outcomesWithDetails = await Promise.all(
+        outcomesWithGroups.map(async (outcome) => {
+          let groupName = "Unknown Group";
+          if (outcome.groupId) {
+            try {
+              const groupResponse = await axios.get(
+                `${BASE_URL}/group/group-infor/${outcome.groupId}`,
+                config
+              );
+              groupName = groupResponse.data[0]?.name || "Unknown Group";
+            } catch (error) {
+              console.error(
+                `Error fetching group name for groupId: ${outcome.groupId}`,
+                error
+              );
+            }
+          }
+
+          // Gọi API để lấy file đã nộp
+          let files = [];
+          try {
+            const submissionResponse = await axios.get(
+              `${BASE_URL}/submission/group/${outcome.groupId}`,
+              config
+            );
+            files = submissionResponse.data
+              .map((submission) => submission.files)
+              .flat();
+          } catch (error) {
+            console.error(
+              `Error fetching submissions for groupId: ${outcome.groupId}`,
+              error
+            );
+          }
+
+          return {
+            ...outcome,
+            groupName,
+            files, // Bổ sung thông tin file vào outcome
+          };
+        })
+      );
+
+      setOutcomes(outcomesWithDetails);
     } catch (error) {
       console.error("Error fetching outcomes:", error);
       message.error("Failed to fetch outcomes for this class.");
@@ -256,7 +299,7 @@ const OutcomeDetail = () => {
                   <EditOutlined
                     style={{ cursor: "pointer", color: "#1890ff" }}
                     onClick={(e) => {
-                      e.stopPropagation(); // Ngăn chặn sự kiện lan truyền lên Card.Grid
+                      e.stopPropagation();
                       setEditDeadline(outcome);
                     }}
                   />
@@ -311,7 +354,7 @@ const OutcomeDetail = () => {
                   <Tooltip title="Gửi lời nhắc">
                     <BellFilled
                       onClick={(e) => {
-                        e.stopPropagation(); // Ngăn chặn sự kiện lan truyền
+                        e.stopPropagation();
                         handleSendReminder(outcome.groupName);
                       }}
                       style={{ marginRight: "4px", cursor: "pointer" }}
@@ -326,7 +369,27 @@ const OutcomeDetail = () => {
       );
     });
   };
+  const handleDownload = async (materialUrl) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/submission/download/${materialUrl.split("/").pop()}`,
+        {
+          headers: { Authorization: `Bearer ${jwt}` },
+          responseType: "blob",
+        }
+      );
 
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", materialUrl.split("/").pop());
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      message.error("Error downloading the file.");
+    }
+  };
   return (
     <Layout style={{ padding: "0", minHeight: "83vh" }}>
       <Divider
@@ -348,31 +411,70 @@ const OutcomeDetail = () => {
           <span style={{ color: "#1890ff" }}>{outcomes.length}</span> nhóm chưa
           nộp
         </p>
-        <Tooltip
-          title={
-            outcomes
-              .filter((o) => o.completed)
-              .map((outcome) => outcome.groupName || "Unnamed Group")
-              .join(", ") || "Chưa có nhóm nào nộp"
-          }
-        >
-          <p style={{ fontSize: "15px", fontWeight: "bold" }}>
-            Các nhóm đã nộp ({outcomes.filter((o) => o.completed).length}):{" "}
-            {outcomes.filter((o) => o.completed).length > 0
-              ? outcomes
-                  .filter((o) => o.completed)
-                  .map((outcome, index) => (
+        <p style={{ fontSize: "15px", fontWeight: "bold" }}>
+          Các nhóm đã nộp ({outcomes.filter((o) => o.completed).length}):{" "}
+          {outcomes.filter((o) => o.completed).length > 0
+            ? outcomes
+                .filter((o) => o.completed)
+                .map((outcome, index) => (
+                  <Tooltip
+                    key={index}
+                    title={
+                      <div>
+                        {outcome.files && outcome.files.length > 0 ? (
+                          <p style={{ margin: 0 }}>
+                            Tệp đã nộp:{" "}
+                            {Array.isArray(outcome.files)
+                              ? outcome.files
+                                  .map((file) => (
+                                    <Link
+                                      key={file}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        const fileName =
+                                          file.name || file.split("/").pop();
+                                        handleDownload(fileName);
+                                      }}
+                                      style={{
+                                        marginRight: "8px",
+                                        textDecoration: "none",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.boxShadow =
+                                          "0 4px 12px rgba(0, 0, 0, 0.2)";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.boxShadow =
+                                          "none";
+                                      }}
+                                    >
+                                      {file.split("/").pop()}
+                                    </Link>
+                                  ))
+                                  .reduce((prev, curr) => [prev, ", ", curr])
+                              :
+                                outcome.files.split("/").pop()}
+                          </p>
+                        ) : (
+                          <p style={{ margin: 0 }}>Không có tệp đã nộp</p>
+                        )}
+                      </div>
+                    }
+                  >
                     <Tag
                       color="green"
-                      key={index}
-                      style={{ marginBottom: "5px" }}
+                      style={{
+                        marginBottom: "5px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => navigate(`/teacher/group-detail/${outcome.groupId}`)}
                     >
                       {outcome.groupName || "Unnamed Group"}
                     </Tag>
-                  ))
-              : ""}
-          </p>
-        </Tooltip>
+                  </Tooltip>
+                ))
+            : ""}
+        </p>
       </div>
       <Row gutter={[16, 16]} style={{ padding: "0" }}>
         <Col

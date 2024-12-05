@@ -39,6 +39,7 @@ import { setClassInfoData } from "../../redux/slice/ClassManagementSlice";
 import calculateWeekAndPhase from "./calculateWeekAndPhase";
 import AssignOutcome from "../activity/AssignOutcome";
 import MonitorStep from "../activity/MonitorStep";
+import TableIssueDashboard from "./TableIssueDashboard";
 
 const ClassManagement = () => {
   const dispatch = useDispatch();
@@ -110,29 +111,21 @@ const ClassManagement = () => {
       <Row gutter={[32, 16]}>
         <MonitorStep />
       </Row>
+      <br />
       <Row gutter={[32, 16]}>
-        <Col xs={24} sm={24} md={24} lg={12} xl={16}>
-          <Card
-            bordered={true}
-            title={
-              <h5 style={{ padding: "0px", margin: "0px" }}>
-                Việc cần giải quyết
-              </h5>
-            }
-            bodyStyle={{ padding: "20px" }}
-          >
-            <TeacherTask />
-          </Card>
+        <Col xs={24} sm={24} md={24} lg={9} xl={9}>
+          <TableIssueDashboard userId={userId} jwt={jwt} />
         </Col>
-      </Row>
-      <Row style={{ marginTop: "40px" }} gutter={[32, 16]}>
-        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-          <Tabs defaultActiveKey="1">
+        <Col xs={24} sm={24} md={24} lg={15} xl={15}>
+          <Tabs
+            defaultActiveKey="1"
+            style={{ backgroundColor: "white", borderRadius: "8px" }}
+          >
             <Tabs.TabPane
               tab={
                 <span
                   style={{
-                    fontSize: "22px",
+                    fontSize: "17px",
                     fontWeight: "bold",
                   }}
                 >
@@ -141,14 +134,7 @@ const ClassManagement = () => {
               }
               key="1"
             >
-              <Card
-                bordered={true}
-                title={
-                  <h5 style={{ padding: "0px", margin: "0px" }}>
-                    Danh sách lớp học đang quản lý
-                  </h5>
-                }
-              >
+              <Card bordered={true}>
                 <Row style={{ width: "100%", marginBottom: "1rem" }}>
                   <Col
                     lg={24}
@@ -237,7 +223,7 @@ const ClassManagement = () => {
               tab={
                 <span
                   style={{
-                    fontSize: "22px",
+                    fontSize: "17px",
                     fontWeight: "bold",
                   }}
                 >
@@ -246,15 +232,7 @@ const ClassManagement = () => {
               }
               key="2"
             >
-              <Card
-                bordered={true}
-                title={
-                  <h5 style={{ padding: "0px", margin: "0px" }}>
-                    Theo dõi tiến độ Outcome
-                  </h5>
-                }
-                bodyStyle={{ padding: "20px" }}
-              >
+              <Card bordered={true} bodyStyle={{ padding: "20px" }}>
                 <AssignOutcome />
               </Card>
             </Tabs.TabPane>
