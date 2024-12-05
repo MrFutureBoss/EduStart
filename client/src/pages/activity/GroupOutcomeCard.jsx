@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 
-const GroupOutcomeCard = ({ groupId }) => {
+const GroupOutcomeCard = ({ groupId, active }) => {
   const [outcomes, setOutcomes] = useState([]);
   const [selectedOutcome, setSelectedOutcome] = useState(null);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
@@ -65,7 +65,6 @@ const GroupOutcomeCard = ({ groupId }) => {
   }, [active, outcomes, hasOpenedModal, nowDate]);
 
   useEffect(() => {
-
     const fetchOutcomes = async () => {
       try {
         const response = await axios.get(

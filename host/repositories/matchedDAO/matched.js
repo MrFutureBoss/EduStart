@@ -11,25 +11,25 @@ import User from "../../models/userModel.js";
 // hàm để tạo matched chờ xác nhận
 const createMatched = async (data) => {
   try {
-    // Tạo mới một bản ghi Matched
+    // Create a new Matched record
     const matched = new Matched({
       groupId: data.groupId,
       mentorId: data.mentorId,
       status: data.status || "Pending",
     });
 
-    // Tăng currentLoad ngay khi tạo matched
-    const mentorCategory = await MentorCategory.findOneAndUpdate(
-      { mentorId: data.mentorId },
-      { $inc: { currentLoad: 1 } },
-      { new: true }
-    );
+    // Count the number of Matched records for the mentor
+    const currentLoad = await Matched.countDocuments({
+      mentorId: data.mentorId,
+    });
 
-    // Kiểm tra nếu mentor đạt giới hạn maxLoad trong TemporaryMatching và xóa khỏi gợi ý nếu cần
-    if (
-      mentorCategory &&
-      mentorCategory.currentLoad >= mentorCategory.maxLoad
-    ) {
+    // Retrieve the mentor's maxLoad
+    const mentorCategory = await MentorCategory.findOne({
+      mentorId: data.mentorId,
+    });
+
+    if (mentorCategory && currentLoad >= mentorCategory.maxLoad) {
+      // Remove the mentor from all suggestions in TemporaryMatching
       await TemporaryMatching.updateMany(
         {
           $or: [
@@ -48,7 +48,7 @@ const createMatched = async (data) => {
       );
     }
 
-    // Lưu bản ghi matched mới
+    // Save the new matched record
     const savedMatched = await matched.save();
     return savedMatched;
   } catch (error) {

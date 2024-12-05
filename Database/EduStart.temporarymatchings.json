@@ -1,110 +1,2280 @@
 [{
   "_id": {
-    "$oid": "6737fc6c0017e64c6e97cdc4"
+    "$oid": "67493ce7aaadcd780f3be86b"
   },
   "groupId": {
-    "$oid": "6735fcc15b00d998a817ab4f"
+    "$oid": "674938f1f0cf740bf4028b4e"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-16T01:59:43.423Z"
+    "$date": "2024-11-29T04:03:33.195Z"
   },
-  "matchingMentors": [],
+  "matchingMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 3
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bd"
+      },
+      "username": "Lê Minh Hưng",
+      "email": "hunglm35@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        }
+      ],
+      "matchCount": 3
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127be"
+      },
+      "username": "Lưu Quang Triệu",
+      "email": "trieulq3@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bf"
+      },
+      "username": "Nguyễn Hồng Quang",
+      "email": "quangnh45@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "maxLoad": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        }
+      ],
+      "matchCount": 3
+    }
+  ],
   "mentorPreferred": [],
   "status": "Pending",
   "teacherId": {
-    "$oid": "670bb3642eb65e19740ca591"
+    "$oid": "6749305840b65c51e85fee6c"
   },
-  "teacherPreferredMentors": [],
+  "teacherPreferredMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "priority": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 3
+    }
+  ],
   "updatedAt": {
-    "$date": "2024-11-27T10:04:52.077Z"
+    "$date": "2024-12-05T03:39:47.588Z"
   }
 },
 {
   "_id": {
-    "$oid": "673d0c6bd1043af664f64dcd"
+    "$oid": "67493ce8aaadcd780f3be86c"
   },
   "groupId": {
-    "$oid": "6735fcc15b00d998a817ab4d"
+    "$oid": "674938f1f0cf740bf4028b50"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-16T01:59:43.423Z"
+    "$date": "2024-11-29T04:03:33.361Z"
   },
-  "matchingMentors": [],
+  "matchingMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bd"
+      },
+      "username": "Lê Minh Hưng",
+      "email": "hunglm35@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        }
+      ],
+      "matchCount": 1
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127be"
+      },
+      "username": "Lưu Quang Triệu",
+      "email": "trieulq3@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bf"
+      },
+      "username": "Nguyễn Hồng Quang",
+      "email": "quangnh45@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "maxLoad": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "matchCount": 2
+    }
+  ],
   "mentorPreferred": [],
   "status": "Pending",
   "teacherId": {
-    "$oid": "670bb3642eb65e19740ca591"
+    "$oid": "6749305840b65c51e85fee6c"
   },
-  "teacherPreferredMentors": [],
+  "teacherPreferredMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "priority": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bd"
+      },
+      "username": "Lê Minh Hưng",
+      "email": "hunglm35@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "priority": 2,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        }
+      ],
+      "matchCount": 1
+    }
+  ],
   "updatedAt": {
-    "$date": "2024-11-27T10:04:51.836Z"
+    "$date": "2024-12-05T03:39:48.278Z"
   }
 },
 {
   "_id": {
-    "$oid": "673f4d8545b4942d2b997dc0"
+    "$oid": "67493ce8aaadcd780f3be86d"
   },
   "groupId": {
-    "$oid": "6735fcc15b00d998a817ab4b"
+    "$oid": "674938f1f0cf740bf4028b52"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-21T15:10:55.642Z"
+    "$date": "2024-11-29T04:03:33.491Z"
   },
   "matchingMentors": [],
   "mentorPreferred": [],
   "status": "Pending",
   "teacherId": {
-    "$oid": "670bb3642eb65e19740ca591"
+    "$oid": "6749305840b65c51e85fee6c"
   },
   "teacherPreferredMentors": [],
   "updatedAt": {
-    "$date": "2024-11-27T10:04:51.593Z"
+    "$date": "2024-12-05T03:39:48.592Z"
   }
 },
 {
   "_id": {
-    "$oid": "67429cffaaadcd780f3be809"
+    "$oid": "674e714aaaadcd780f3be883"
   },
   "groupId": {
-    "$oid": "6735fcc15b00d998a817ab47"
+    "$oid": "674938f1f0cf740bf4028b56"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-24T03:27:39.548Z"
+    "$date": "2024-12-03T02:47:37.498Z"
   },
-  "matchingMentors": [],
+  "matchingMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bd"
+      },
+      "username": "Lê Minh Hưng",
+      "email": "hunglm35@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127be"
+      },
+      "username": "Lưu Quang Triệu",
+      "email": "trieulq3@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bf"
+      },
+      "username": "Nguyễn Hồng Quang",
+      "email": "quangnh45@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "maxLoad": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        }
+      ],
+      "matchCount": 2
+    }
+  ],
   "mentorPreferred": [],
   "status": "Pending",
   "teacherId": {
-    "$oid": "670bb3642eb65e19740ca591"
+    "$oid": "6749305840b65c51e85fee6c"
   },
-  "teacherPreferredMentors": [],
+  "teacherPreferredMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "priority": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bd"
+      },
+      "username": "Lê Minh Hưng",
+      "email": "hunglm35@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "priority": 2,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 2
+    }
+  ],
   "updatedAt": {
-    "$date": "2024-11-27T10:04:51.458Z"
+    "$date": "2024-12-05T03:39:49.821Z"
   }
 },
 {
   "_id": {
-    "$oid": "6746ed77aaadcd780f3be842"
+    "$oid": "674f1e47aaadcd780f3be887"
   },
   "groupId": {
-    "$oid": "6735fcc15b00d998a817ab51"
+    "$oid": "6749391df0cf740bf4028c52"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-27T09:59:57.523Z"
+    "$date": "2024-12-03T15:05:21.521Z"
   },
-  "matchingMentors": [],
+  "matchingMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 1
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bd"
+      },
+      "username": "Lê Minh Hưng",
+      "email": "hunglm35@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 1
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127be"
+      },
+      "username": "Lưu Quang Triệu",
+      "email": "trieulq3@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 1
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bf"
+      },
+      "username": "Nguyễn Hồng Quang",
+      "email": "quangnh45@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "maxLoad": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 1
+    }
+  ],
   "mentorPreferred": [],
   "status": "Pending",
   "teacherId": {
-    "$oid": "670bb3642eb65e19740ca591"
+    "$oid": "6749305840b65c51e85fee6c"
   },
-  "teacherPreferredMentors": [],
+  "teacherPreferredMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "priority": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 1
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bf"
+      },
+      "username": "Nguyễn Hồng Quang",
+      "email": "quangnh45@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "maxLoad": 1,
+      "priority": 2,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        }
+      ],
+      "matchCount": 1
+    }
+  ],
   "updatedAt": {
-    "$date": "2024-11-27T10:04:52.312Z"
+    "$date": "2024-12-05T03:35:26.230Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "674f1e47aaadcd780f3be888"
+  },
+  "groupId": {
+    "$oid": "6749391df0cf740bf4028c5a"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-03T15:05:22.109Z"
+  },
+  "matchingMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127be"
+      },
+      "username": "Lưu Quang Triệu",
+      "email": "trieulq3@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "matchCount": 1
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bf"
+      },
+      "username": "Nguyễn Hồng Quang",
+      "email": "quangnh45@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "maxLoad": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "matchCount": 2
+    }
+  ],
+  "mentorPreferred": [],
+  "status": "Pending",
+  "teacherId": {
+    "$oid": "6749305840b65c51e85fee6c"
+  },
+  "teacherPreferredMentors": [
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127be"
+      },
+      "username": "Lưu Quang Triệu",
+      "email": "trieulq3@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "priority": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "matchCount": 1
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T03:35:27.151Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "675038f9aaadcd780f3be896"
+  },
+  "groupId": {
+    "$oid": "674938f1f0cf740bf4028b54"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-04T11:12:45.515Z"
+  },
+  "matchingMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        }
+      ],
+      "matchCount": 2
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bd"
+      },
+      "username": "Lê Minh Hưng",
+      "email": "hunglm35@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 3,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        }
+      ],
+      "matchCount": 1
+    },
+    {
+      "mentorId": {
+        "$oid": "67511d1741cd9c672a4127bf"
+      },
+      "username": "Nguyễn Hồng Quang",
+      "email": "quangnh45@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        }
+      ],
+      "maxLoad": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        }
+      ],
+      "matchCount": 2
+    }
+  ],
+  "mentorPreferred": [],
+  "status": "Pending",
+  "teacherId": {
+    "$oid": "6749305840b65c51e85fee6c"
+  },
+  "teacherPreferredMentors": [
+    {
+      "mentorId": {
+        "$oid": "674930f940b65c51e85ff0d4"
+      },
+      "username": "Lâm Đức Dương",
+      "email": "duongld11@fe.edu.vn",
+      "score": 0,
+      "isPreferredGroup": false,
+      "professions": [
+        {
+          "professionId": {
+            "$oid": "67493ae5f0cf740bf4028dcf"
+          },
+          "name": "Công Nghệ Thông Tin"
+        }
+      ],
+      "specialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcc"
+          },
+          "name": "An Ninh Mạng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b0bf0cf740bf4028e1f"
+          },
+          "name": "Công Nghệ Blockchain"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b2bf0cf740bf4028e34"
+          },
+          "name": "Thương Mại Điện Tử"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7900"
+          },
+          "name": "Kinh Doanh Quốc Tê"
+        },
+        {
+          "specialtyId": {
+            "$oid": "674ec656d46ab84a34eb7901"
+          },
+          "name": "Maketing"
+        }
+      ],
+      "maxLoad": 5,
+      "priority": 1,
+      "matchedSpecialties": [
+        {
+          "specialtyId": {
+            "$oid": "67493ae5f0cf740bf4028dcb"
+          },
+          "name": "Phát Triển Phần Mềm"
+        },
+        {
+          "specialtyId": {
+            "$oid": "67493b3ff0cf740bf4028e44"
+          },
+          "name": "Lập Trình Nhúng"
+        }
+      ],
+      "matchCount": 2
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T03:39:49.149Z"
   }
 }]
