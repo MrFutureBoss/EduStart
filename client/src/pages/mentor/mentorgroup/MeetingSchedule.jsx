@@ -59,7 +59,10 @@ const CustomCalendar = ({ selectedEvent }) => {
   const groups = useSelector((state) => state.matchedGroup.data || []);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedSlotInfo, setSelectedSlotInfo] = useState(null);
-  const [selectedRange, setSelectedRange] = useState({ start: null, end: null });
+  const [selectedRange, setSelectedRange] = useState({
+    start: null,
+    end: null,
+  });
   const config = useMemo(
     () => ({
       headers: {
@@ -158,6 +161,10 @@ const CustomCalendar = ({ selectedEvent }) => {
     setIsScheduleOpen(false);
     setEventId("");
     setEventGroup("");
+    setSelectedRange({
+      start: null,
+      end: null,
+    });
   };
 
   const truncateText = (text, maxLength) => {
@@ -270,16 +277,25 @@ const CustomCalendar = ({ selectedEvent }) => {
       return;
     }
 
+    // Kiểm tra nếu thời gian kết thúc vượt qua 23:59
+    const selectedEndTime = moment(slot.start).add(150, "minutes");
+    const endOfDay = moment(slot.start).endOf("day");
+    if (selectedEndTime.isAfter(endOfDay)) {
+      message.error(
+        "Không thể tạo lịch họp kéo dài sang ngày hôm sau. Vui lòng chọn lại thời gian!"
+      );
+      return;
+    }
+
     if (doesOverlapWithExistingEvents(slot)) {
       message.error(
         "Không thể thêm lịch họp này vì đã vướng thời gian trước hoặc sau"
       );
       return;
     }
-  
 
     const startMoment = moment(slot.start);
-    const endMoment = startMoment.clone().add(150, "minutes"); 
+    const endMoment = startMoment.clone().add(150, "minutes");
     setSelectedRange({
       start: startMoment.toDate(),
       end: endMoment.toDate(),
@@ -329,7 +345,6 @@ const CustomCalendar = ({ selectedEvent }) => {
     }
     return {};
   };
-  
 
   const doesOverlapWithExistingEvents = (selectedSlot) => {
     const selectedStart = moment(selectedSlot.start);
@@ -358,6 +373,10 @@ const CustomCalendar = ({ selectedEvent }) => {
   const closeModal = () => {
     setIsModalVisible(false);
     setSelectedSlotInfo(null);
+    setSelectedRange({
+      start: null,
+      end: null,
+    });
   };
 
   return (
@@ -400,12 +419,12 @@ const CustomCalendar = ({ selectedEvent }) => {
       >
         {isDragAndDropEnabled ? "Bật chế độ kéo thả" : "Tắt chế độ kéo thả"}
       </Button>
-      <div style={{ height: "700px" }}>
+      <div style={{ height: "600px" }}>
         {isDragAndDropEnabled ? (
           <DragAndDropCalendar
             localizer={localizer}
             events={events}
-            defaultView="week"  
+            defaultView="week"
             views={{
               week: true,
               month: true,

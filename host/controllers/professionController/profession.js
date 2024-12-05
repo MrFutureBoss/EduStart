@@ -158,6 +158,34 @@ const getProfessionsAndSpecialties = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const createProfessionsInBulk = async (req, res, next) => {
+  try {
+    const professionsData = req.body;
+
+    // Kiểm tra dữ liệu đầu vào
+    if (!Array.isArray(professionsData) || professionsData.length === 0) {
+      return res.status(400).json({
+        message:
+          "Dữ liệu không hợp lệ. Hãy cung cấp một danh sách các professions.",
+      });
+    }
+
+    // Tạo professions và specialties
+    const createdProfessions = await professionDAO.createMultipleProfessions(
+      professionsData
+    );
+
+    res.status(201).json({
+      message: "Đã tạo professions thành công.",
+      data: createdProfessions,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: `Có lỗi xảy ra khi tạo professions: ${error.message}`,
+    });
+  }
+};
+
 export default {
   getAllProfessions,
   getProfessionById,
@@ -170,4 +198,5 @@ export default {
   deleteProfessionAndSpecialties,
   patchProfession,
   getProfessionsAndSpecialties,
+  createProfessionsInBulk,
 };

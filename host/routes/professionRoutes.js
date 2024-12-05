@@ -26,6 +26,7 @@ professionRouters.put(
   professionController.updateProfessionAndSpecialty
 );
 professionRouters.post("/", professionController.createNewProfession);
+professionRouters.post("/bulk", professionController.createProfessionsInBulk);
 professionRouters.patch("/:id", professionController.updateProfession);
 professionRouters.delete(
   "/:id",

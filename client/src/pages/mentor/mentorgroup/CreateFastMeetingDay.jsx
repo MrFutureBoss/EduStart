@@ -191,7 +191,7 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
 
   return (
     <SmallModal
-      title="Thêm cuộc họp nhanh"
+      title="Thêm lịch họp mới"
       content={modalContent}
       footer={modalFooter}
       closeable={true}

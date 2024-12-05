@@ -1096,14 +1096,17 @@ const GroupList = () => {
                       >
                         Giải thích các thẻ màu:{" "}
                         <Tag color="#bdd8ee" style={{ color: "#000" }}>
-                          Cuộc họp với nhóm bạn chọn
+                          Lịch họp với nhóm bạn chọn
                         </Tag>
                         <Tag color="#e4e0c2" style={{ color: "#000" }}>
-                          Cuộc họp với các nhóm khác
+                          Lịch họp với các nhóm khác
                         </Tag>
                         <Tag color="#808080" style={{ color: "#000" }}>
-                          Cuộc họp đã qua
+                          Lịch họp đã qua
                         </Tag>
+                      </p>
+                      <p style={{ fontWeight: "500", marginBottom: "0.8rem" }}>
+                        Bấm vào ô trắng trước ngày hiện tại là tạo nhanh lịch họp
                       </p>
                       <p style={{ fontWeight: "500" }}>
                         Bấm vào thẻ để xem chi tiết và chỉnh sửa cuộc họp

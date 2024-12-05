@@ -13,6 +13,8 @@ import {
   UnlockOutlined,
   LockOutlined,
   PlusCircleOutlined,
+  UploadOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import {
   Table,
@@ -22,12 +24,17 @@ import {
   Pagination,
   Empty,
   Typography,
+  Tooltip,
+  Dropdown,
+  Menu,
+  Space,
 } from "antd";
 import AddNewProfession from "./AddNewProfession.jsx";
 import EditProfession from "./EditProfession.jsx";
 import "../../style/Admin/Profession.css";
 import UpdateButton from "../../components/Button/UpdateButton.jsx";
 import { useLocation } from "react-router-dom";
+import ImportNewProfession from "./ImportNewProfession.jsx";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
@@ -38,11 +45,13 @@ const ProfessionManagement = () => {
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalImportFileOpen, setIsModalImportFileOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [professionId, setProfessionId] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [pageSize, setPageSize] = useState(6);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     axios
@@ -85,6 +94,11 @@ const ProfessionManagement = () => {
     return define ? define.name : "Unknown";
   };
 
+  const getSpecialtyStatusById = (id) => {
+    const define = specialtiesData.find((sp) => sp._id === id);
+    return define ? define.status : "false";
+  };
+
   const toggleStatus = (id, currentStatus) => {
     const updatedStatus = { status: !currentStatus };
 
@@ -115,6 +129,14 @@ const ProfessionManagement = () => {
     setIsModalOpen(false);
   };
 
+  const handleOpenImportFileModal = () => {
+    setIsModalImportFileOpen(true);
+  };
+
+  const handleCloseImportFileModal = () => {
+    setIsModalImportFileOpen(false);
+  };
+
   const handleOpenEditModal = (id) => {
     setProfessionId(id);
     setIsEditModalOpen(true);
@@ -130,22 +152,49 @@ const ProfessionManagement = () => {
       title: "STT",
       key: "index",
       render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+      width: "10%",
     },
     {
       title: "Tên lĩnh vực",
       dataIndex: "name",
       key: "name",
+      width: "20%",
     },
     {
       title: "Tên chuyên môn",
       dataIndex: "specialty",
       key: "specialty",
-      render: (specialty) =>
-        specialty.length > 0 ? (
-          specialty.map((sp) => <Tag key={sp}>{getSpecialtyNameById(sp)}</Tag>)
-        ) : (
-          <Tag>Chưa có chuyên môn nào</Tag>
-        ),
+      render: (specialty) => {
+        const handleToggle = () => setExpanded((prev) => !prev);
+
+        return (
+          <div>
+            {specialty.slice(0, expanded ? specialty.length : 5).map((sp) => (
+              <Tooltip
+                title={
+                  getSpecialtyStatusById(sp)
+                    ? "Đang hoạt động"
+                    : "Dừng hoạt động"
+                }
+                key={sp}
+              >
+                <Tag
+                  style={{ marginBottom: "0.3rem" }}
+                  color={getSpecialtyStatusById(sp) ? "green" : "red"}
+                >
+                  {getSpecialtyNameById(sp)}
+                </Tag>
+              </Tooltip>
+            ))}
+            {specialty.length > 5 && (
+              <Typography.Link onClick={handleToggle}>
+                {expanded ? "Thu gọn" : "Xem thêm"}
+              </Typography.Link>
+            )}
+          </div>
+        );
+      },
+      width: "40%",
     },
     {
       title: "Trạng thái",
@@ -160,21 +209,46 @@ const ProfessionManagement = () => {
             cancelText="Hủy"
           >
             {status ? (
-              <UnlockOutlined
-                style={{
-                  fontSize: "1.2rem",
-                  color: "green",
-                  cursor: "pointer",
-                }}
-              />
+              <div>
+                <UnlockOutlined
+                  style={{
+                    fontSize: "1.2rem",
+                    color: "green",
+                    cursor: "pointer",
+                  }}
+                />
+                <span
+                  style={{
+                    color: "green",
+                    cursor: "pointer",
+                  }}
+                >
+                  Hoạt động
+                </span>
+              </div>
             ) : (
-              <LockOutlined
-                style={{ fontSize: "1.2rem", color: "red", cursor: "pointer" }}
-              />
+              <div>
+                <LockOutlined
+                  style={{
+                    fontSize: "1.2rem",
+                    color: "red",
+                    cursor: "pointer",
+                  }}
+                />
+                <span
+                  style={{
+                    color: "red",
+                    cursor: "pointer",
+                  }}
+                >
+                  Dừng hoạt động
+                </span>
+              </div>
             )}
           </Popconfirm>
         </Popover>
       ),
+      width: "15%",
     },
     {
       title: "Hành động",
@@ -186,12 +260,36 @@ const ProfessionManagement = () => {
           icon={<EditOutlined />}
         />
       ),
+      width: "15%",
+    },
+  ];
+
+  const items = [
+    {
+      key: "1",
+      label: (
+        <div style={{ width: "100%" }} onClick={handleOpenModal}>
+          <PlusCircleOutlined /> Thêm thủ công
+        </div>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <div style={{ width: "100%" }} onClick={handleOpenImportFileModal}>
+          <UploadOutlined /> Thêm bằng file xlsx
+        </div>
+      ),
     },
   ];
 
   return (
     <Container fluid style={{ marginTop: "3rem" }}>
       <AddNewProfession show={isModalOpen} close={handleCloseModal} />
+      <ImportNewProfession
+        open={isModalImportFileOpen}
+        close={handleCloseImportFileModal}
+      />
       <EditProfession
         _id={professionId}
         show={isEditModalOpen}
@@ -199,13 +297,20 @@ const ProfessionManagement = () => {
       />
       <Row style={{ marginBottom: "10px" }}>
         <Col>
-          <Button
-            variant="primary"
-            onClick={handleOpenModal}
-            icon={<PlusCircleOutlined />}
+          <Dropdown
+            menu={{
+              items,
+            }}
+            placement="bottomRight"
+            arrow
+            trigger={["click"]}
           >
-            Thêm lĩnh vực
-          </Button>
+            <Button type="primary">
+              <Space>
+                <PlusCircleOutlined /> Thêm lĩnh vực & chuyên môn
+              </Space>
+            </Button>
+          </Dropdown>
         </Col>
       </Row>
       <Row>
@@ -228,6 +333,7 @@ const ProfessionManagement = () => {
           total={totalItems}
           onChange={onPageChange}
           style={{ marginTop: "20px", textAlign: "center" }}
+          hideOnSinglePage
         />
       </Row>
     </Container>

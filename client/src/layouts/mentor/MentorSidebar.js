@@ -83,7 +83,7 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
         selectedKeys={[selectedKey]}
         style={{ height: "100%", borderRight: 0, padding: 10 }}
       >
-        <Menu.Item key="mentor-dashboard" icon={<DashboardOutlined />}>
+        {/* <Menu.Item key="mentor-dashboard" icon={<DashboardOutlined />}>
           <Link
             onClick={checkUpdate}
             style={{ textDecoration: "none" }}
@@ -91,9 +91,9 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
           >
             Dashboard
           </Link>
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item
-          key="managegroup"
+          key=""
           style={{ marginLeft: 2 }}
           icon={
             <svg
@@ -152,7 +152,7 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
           <Link
             onClick={checkUpdate}
             style={{ textDecoration: "none" }}
-            to="managegroup"
+            to=""
           >
             Quản lý nhóm
           </Link>

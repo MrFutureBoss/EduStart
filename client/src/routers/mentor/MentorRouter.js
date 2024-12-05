@@ -16,7 +16,7 @@ const MentorRouter = () => {
         </ProtectRoute>
       }
     >
-      <Route path="managegroup" element={<GroupList />} />
+      <Route path="" element={<GroupList />} />
       <Route path="project-suggest" element={<ProjectsList />} />
       <Route path="mentor-profile" element={<MentorProfile />} />
     </Route>
