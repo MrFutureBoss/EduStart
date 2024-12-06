@@ -16,6 +16,7 @@ import { AnimatePresence } from "framer-motion";
 import { getAllNotification } from "../../api";
 import { setNotificationData } from "../../redux/slice/NotificationSlice";
 import io from "socket.io-client"; // Import Socket.IO client
+import { setGroup } from "../../redux/slice/GroupSlice";
 
 const socket = io(BASE_URL);
 
@@ -92,6 +93,7 @@ const StudentHeader = () => {
     navigate("/");
     localStorage.clear();
     dispatch(setUserLogin(null)); // Reset user state
+    dispatch(setGroup([]));
   };
 
   // Close dropdown when clicking outside

@@ -90,7 +90,6 @@ const MentorSuggestionSchema = new Schema(
       type: [SpecialtySubSchema],
       default: [],
     },
-    currentLoad: Number,
     maxLoad: Number,
     priority: Number,
     matchedSpecialties: [MatchedSpecialtySchema],

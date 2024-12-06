@@ -1,68 +1,12 @@
 [{
   "_id": {
-    "$oid": "673d1626a4c9ea8d813edcb9"
+    "$oid": "67493d1ff0cf740bf4029076"
   },
   "groupId": {
-    "$oid": "6735fcc15b00d998a817ab4b"
+    "$oid": "674938f1f0cf740bf4028b4e"
   },
   "mentorId": {
-    "$oid": "673cef10d1043af664f64d90"
-  },
-  "status": "Accepted",
-  "time": [],
-  "createdAt": {
-    "$date": "2024-11-19T22:50:14.167Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-27T11:43:07.174Z"
-  },
-  "__v": 0,
-  "declineMessage": ""
-},
-{
-  "_id": {
-    "$oid": "673d47aed1043af664f64e19"
-  },
-  "groupId": {
-    "$oid": "6735fcc15b00d998a817ab4d"
-  },
-  "mentorId": {
-    "$oid": "673cef10d1043af664f64d90"
-  },
-  "status": "Accepted",
-  "time": [
-    {
-      "title": "Outcome 1",
-      "allDay": false,
-      "start": {
-        "$date": "2024-11-29T04:06:00.000Z"
-      },
-      "end": {
-        "$date": "2024-11-29T06:36:00.000Z"
-      },
-      "_id": {
-        "$oid": "6747ee406bbf9ec5d7548ca6"
-      }
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-11-19T22:50:14.167Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-28T04:14:56.784Z"
-  },
-  "__v": 0,
-  "declineMessage": ""
-},
-{
-  "_id": {
-    "$oid": "67429d46377fba891e00df8b"
-  },
-  "groupId": {
-    "$oid": "6735fcc15b00d998a817ab47"
-  },
-  "mentorId": {
-    "$oid": "673cef10d1043af664f64d90"
+    "$oid": "674930f940b65c51e85ff0d4"
   },
   "status": "Accepted",
   "declineMessage": "",
@@ -71,63 +15,111 @@
       "title": "Outcome 1",
       "allDay": false,
       "start": {
-        "$date": "2024-11-28T07:00:00.000Z"
+        "$date": "2024-11-30T03:00:00.000Z"
       },
       "end": {
-        "$date": "2024-11-28T09:30:00.000Z"
+        "$date": "2024-11-30T05:30:00.000Z"
       },
       "_id": {
-        "$oid": "6747ef9b6bbf9ec5d7548e35"
+        "$oid": "67493df7f0cf740bf40291c2"
+      }
+    },
+    {
+      "title": "lol",
+      "allDay": false,
+      "start": {
+        "$date": "2024-12-05T01:00:00.000Z"
+      },
+      "end": {
+        "$date": "2024-12-05T03:30:00.000Z"
+      },
+      "_id": {
+        "$oid": "67504dd27b780adf25a06f71"
       }
     }
   ],
   "createdAt": {
-    "$date": "2024-11-24T03:28:06.580Z"
+    "$date": "2024-11-29T04:03:43.039Z"
   },
   "updatedAt": {
-    "$date": "2024-11-28T04:20:43.320Z"
+    "$date": "2024-12-05T04:24:05.586Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "67429d60377fba891e00dfd8"
+    "$oid": "674e7196cb0f56d3b5378bc7"
   },
   "groupId": {
-    "$oid": "6735fcc15b00d998a817ab4f"
+    "$oid": "674938f1f0cf740bf4028b50"
   },
   "mentorId": {
-    "$oid": "673cef10d1043af664f64d90"
+    "$oid": "674930f940b65c51e85ff0d4"
+  },
+  "status": "Accepted",
+  "declineMessage": "",
+  "time": [],
+  "createdAt": {
+    "$date": "2024-12-03T02:48:54.625Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-05T04:23:22.884Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "674f26f6dd463efd4e0df218"
+  },
+  "groupId": {
+    "$oid": "6749391df0cf740bf4028c5a"
+  },
+  "mentorId": {
+    "$oid": "674930f940b65c51e85ff0d4"
+  },
+  "status": "Accepted",
+  "declineMessage": "",
+  "time": [
+    {
+      "title": "lol",
+      "allDay": false,
+      "start": {
+        "$date": "2024-12-04T12:00:00.000Z"
+      },
+      "end": {
+        "$date": "2024-12-04T14:30:00.000Z"
+      },
+      "_id": {
+        "$oid": "675012fc3cf7f400780cb39a"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-12-03T15:42:46.883Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T11:01:08.232Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67503962f08df26f0d162951"
+  },
+  "groupId": {
+    "$oid": "674938f1f0cf740bf4028b54"
+  },
+  "mentorId": {
+    "$oid": "674930f940b65c51e85ff0d4"
   },
   "status": "Pending",
   "declineMessage": "",
   "time": [],
   "createdAt": {
-    "$date": "2024-11-24T03:28:32.160Z"
+    "$date": "2024-12-04T11:13:38.188Z"
   },
   "updatedAt": {
-    "$date": "2024-11-28T03:14:06.983Z"
+    "$date": "2024-12-04T11:13:38.188Z"
   },
   "__v": 0
-},
-{
-  "_id": {
-    "$oid": "6746eec2fc5f5ad10f95f1cc"
-  },
-  "groupId": {
-    "$oid": "6735fcc15b00d998a817ab51"
-  },
-  "mentorId": {
-    "$oid": "673cef10d1043af664f64d90"
-  },
-  "status": "Accepted",
-  "declineMessage": "",
-  "createdAt": {
-    "$date": "2024-11-27T10:04:50.377Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-28T04:57:15.789Z"
-  },
-  "__v": 0,
-  "time": []
 }]

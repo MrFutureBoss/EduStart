@@ -82,11 +82,7 @@ const Dashboard = () => {
           if (projectInfo && projectInfo.length > 0) {
             dispatch(setProjectStatus(projectInfo[0].status));
             // Giả sử các trạng thái dự án có thể là "InProgress", "Changing", "Planning", "Decline", "Completed", vv.
-            if (
-              projectInfo[0].status === "InProgress" ||
-              projectInfo[0].status === "Changing" ||
-              projectInfo[0].status === "Planning"
-            ) {
+            if (projectInfo[0].status === "InProgress") {
               dispatch(setCurrentStage(3)); // Chuyển sang giai đoạn 3 nếu đã cập nhật dự án
             }
 
@@ -107,7 +103,7 @@ const Dashboard = () => {
       .catch((error) => {
         message.error("Không thể kiểm tra trạng thái nhóm");
       });
-  }, []);
+  }, [userLogin]);
 
   const getOutcomeStyle = (outcome) => {
     if (outcome.category === "Past") {
@@ -140,7 +136,7 @@ const Dashboard = () => {
           }; // Cam nếu chưa nộp
     } else {
       return {
-        backgroundColor: "#e6f7ff",
+        backgroundColor: "#f0f0f0",
         color: "black",
         icon: <ClockCircleOutlined style={{ color: "#5888cec2" }} />,
       }; // Xanh biển cho Upcoming
@@ -161,7 +157,7 @@ const Dashboard = () => {
     navigate(`/student/class`);
   };
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px", marginTop: 20 }}>
       <Row gutter={16}>
         {/* Phần bên trái: Timeline các giai đoạn */}
         <Col style={{ paddingRight: 20 }} xs={24} md={8}>
@@ -202,10 +198,15 @@ const Dashboard = () => {
                       color: "black",
                       border: "none",
                       marginBottom: "16px",
+                      height: 120,
+                      paddingLeft: 11,
+                      paddingTop: 12,
                     }}
                   >
-                    <Text strong>{stage.title}</Text>
-                    <p>
+                    <Text style={{ fontSize: 18 }} strong>
+                      {stage.title}
+                    </Text>
+                    <p style={{ marginTop: 4 }}>
                       {status === "completed"
                         ? `${stage.title} đã hoàn thành.`
                         : status === "current"
@@ -229,31 +230,54 @@ const Dashboard = () => {
             <>
               <Title level={4}>Vào nhóm</Title>
               {groupStatus === "teacherCreatedGroup" ? (
-                <Alert
+                <Card
                   onClick={handleNavigateGroup}
-                  message="Giáo viên đã tạo nhóm, hãy ấn vào để chọn nhóm."
-                  type="info"
-                  showIcon
+                  className="blinking-card"
+                  hoverable
                   style={{
                     marginTop: "10px",
                     backgroundColor: "#ffecb3",
                     borderColor: "#ffc107",
-                    animation: "blink 1s infinite",
                     cursor: "pointer",
                   }}
-                />
+                >
+                  <Row align="middle">
+                    <ExclamationCircleOutlined
+                      style={{
+                        color: "#ffc107",
+                        fontSize: "24px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    <Text strong>
+                      Giáo viên đã tạo nhóm, hãy ấn vào để chọn nhóm.
+                    </Text>
+                  </Row>
+                </Card>
               ) : (
-                <Alert
-                  message="Giáo viên chưa tạo nhóm, hãy chờ giáo viên tạo nhóm để tiếp tục!."
-                  type="info"
-                  showIcon
+                <Card
+                  className="blinking-card"
+                  hoverable
                   style={{
                     marginTop: "10px",
                     backgroundColor: "#ffecb3",
                     borderColor: "#ffc107",
-                    animation: "blink 1s infinite",
                   }}
-                />
+                >
+                  <Row align="middle">
+                    <ExclamationCircleOutlined
+                      style={{
+                        color: "#ffc107",
+                        fontSize: "24px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    <Text strong>
+                      Giáo viên chưa tạo nhóm, hãy chờ giáo viên tạo nhóm để
+                      tiếp tục!
+                    </Text>
+                  </Row>
+                </Card>
               )}
             </>
           )}
@@ -261,43 +285,62 @@ const Dashboard = () => {
           {currentStage === 2 && (
             <>
               <Title level={4}>Cập nhật dự án</Title>
-              {projectStatus === "InProgress" ||
-              projectStatus === "Changing" ||
-              projectStatus === "Planning" ? (
-                <Alert
-                  message="Nhóm của bạn đã cập nhật dự án."
-                  type="success"
-                  showIcon
+              {projectStatus === "Changing" || projectStatus === "Planning" ? (
+                <Card
+                  hoverable
                   style={{
                     marginTop: "10px",
-                    backgroundColor: "#ffecb3",
-                    borderColor: "#ffc107",
-                    animation: "blink 1s infinite",
+                    backgroundColor: "#d4edda",
+                    borderColor: "#c3e6cb",
                   }}
-                />
+                >
+                  <Row align="middle">
+                    <CheckCircleOutlined
+                      style={{
+                        color: "green",
+                        fontSize: "24px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    <Text strong>
+                      Nhóm của bạn đã cập nhật dự án và đang chờ giáo viên duyệt
+                    </Text>
+                  </Row>
+                </Card>
               ) : (
-                <Alert
+                <Card
                   onClick={handleNavigate}
-                  message="Nhóm của bạn chưa cập nhật dự án."
-                  type="warning"
-                  showIcon
+                  className="blinking-card"
+                  hoverable
                   style={{
                     marginTop: "10px",
                     backgroundColor: "#ffecb3",
                     borderColor: "#ffc107",
-                    animation: "blink 1s infinite",
                     cursor: "pointer",
                   }}
-                />
+                >
+                  <Row align="middle">
+                    <ExclamationCircleOutlined
+                      style={{
+                        color: "#ffc107",
+                        fontSize: "24px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    <Text strong>Nhóm của bạn chưa cập nhật dự án.</Text>
+                  </Row>
+                </Card>
               )}
             </>
           )}
 
           {currentStage === 3 && (
             <>
-              <Title level={2}>Danh sách Outcomes</Title>
+              <Title style={{ marginBottom: 20 }} level={3}>
+                Danh sách Outcomes
+              </Title>
               <Timeline>
-                {outcomes.map((outcome) => {
+                {outcomes?.map((outcome) => {
                   const style = getOutcomeStyle(outcome);
                   return (
                     <Timeline.Item
@@ -342,17 +385,27 @@ const Dashboard = () => {
                         </p>
                         {outcome.category === "Ongoing" &&
                           !outcome.completed && (
-                            <Alert
-                              message="Bạn có một bài tập đang diễn ra chưa nộp"
-                              type="warning"
-                              showIcon
+                            <Card
+                              className="blinking-card"
                               style={{
                                 marginTop: "10px",
                                 backgroundColor: "#ffecb3",
                                 borderColor: "#ffc107",
-                                animation: "blink 1s infinite",
                               }}
-                            />
+                            >
+                              <Row align="middle">
+                                <ExclamationCircleOutlined
+                                  style={{
+                                    color: "#ffc107",
+                                    fontSize: "24px",
+                                    marginRight: "10px",
+                                  }}
+                                />
+                                <Text strong>
+                                  Bạn có một bài tập đang diễn ra chưa nộp
+                                </Text>
+                              </Row>
+                            </Card>
                           )}
                       </Card>
                     </Timeline.Item>

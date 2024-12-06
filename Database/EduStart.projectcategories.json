@@ -1,143 +1,444 @@
 [{
   "_id": {
-    "$oid": "6737fb7d0017e64c6e978a6f"
+    "$oid": "67493b06aaadcd780f3be867"
   },
   "projectId": {
-    "$oid": "6737fba00b39dadb6261a2c2"
+    "$oid": "67493b069dde94710ec1610e"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-16T01:55:44.364Z"
+    "$date": "2024-11-29T03:54:46.097Z"
   },
   "professionId": [
     {
-      "$oid": "6702db8d694a3a03a306e326"
+      "$oid": "67493ae5f0cf740bf4028dcf"
     },
     {
-      "$oid": "67096033f61773522abe6736"
+      "$oid": "674ec656d46ab84a34eb7906"
     }
   ],
   "specialtyIds": [
     {
-      "$oid": "67096033f61773522abe6734"
+      "$oid": "67493ae5f0cf740bf4028dcb"
     },
     {
-      "$oid": "6710069550b43dfad026530e"
+      "$oid": "67493ae5f0cf740bf4028dcc"
+    },
+    {
+      "$oid": "67493b0bf0cf740bf4028e1f"
     }
   ],
   "updatedAt": {
-    "$date": "2024-11-18T14:28:20.174Z"
+    "$date": "2024-12-05T04:34:21.693Z"
   }
 },
 {
   "_id": {
-    "$oid": "673d031445b4942d2b997db7"
+    "$oid": "67493b86aaadcd780f3be868"
   },
   "projectId": {
-    "$oid": "673d0336cf3cbc126ed87a9f"
+    "$oid": "67493b869dde94710ec16138"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-19T21:29:27.071Z"
+    "$date": "2024-11-29T03:56:54.403Z"
   },
   "professionId": [
     {
-      "$oid": "6702db8d694a3a03a306e326"
-    },
-    {
-      "$oid": "6706a7584a9a02e60c8ec67d"
+      "$oid": "67493ae5f0cf740bf4028dcf"
     }
   ],
   "specialtyIds": [
     {
-      "$oid": "6710069550b43dfad026530e"
+      "$oid": "67493ae5f0cf740bf4028dcc"
+    },
+    {
+      "$oid": "67493b2bf0cf740bf4028e34"
+    },
+    {
+      "$oid": "67493b0bf0cf740bf4028e1f"
     }
   ],
   "updatedAt": {
-    "$date": "2024-11-19T21:29:27.071Z"
+    "$date": "2024-12-05T04:35:01.176Z"
   }
 },
 {
   "_id": {
-    "$oid": "673d475645b4942d2b997db8"
+    "$oid": "67493bf3aaadcd780f3be869"
   },
   "projectId": {
-    "$oid": "673d4778c980e7599ecff788"
+    "$oid": "67493bf29dde94710ec16161"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-20T02:20:40.733Z"
+    "$date": "2024-11-29T03:58:42.597Z"
   },
   "professionId": [
     {
-      "$oid": "6715dd20e3b96d4ba609da55"
+      "$oid": "6751267ca6096827699fc5e8"
     },
     {
-      "$oid": "67097cdff61773522abe715d"
+      "$oid": "674ec656d46ab84a34eb7906"
     }
   ],
   "specialtyIds": [
     {
-      "$oid": "6715dd20e3b96d4ba609da4f"
-    },
-    {
-      "$oid": "6715dd20e3b96d4ba609da50"
+      "$oid": "674ec656d46ab84a34eb7902"
     }
   ],
   "updatedAt": {
-    "$date": "2024-11-20T02:20:40.733Z"
+    "$date": "2024-12-05T04:35:36.046Z"
   }
 },
 {
   "_id": {
-    "$oid": "67429c58aaadcd780f3be808"
+    "$oid": "67493fcfaaadcd780f3be86e"
   },
   "projectId": {
-    "$oid": "67429c83377fba891e00dea9"
+    "$oid": "67493fce9dde94710ec16287"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-24T03:24:51.828Z"
+    "$date": "2024-11-29T04:15:10.495Z"
   },
   "professionId": [
     {
-      "$oid": "6702db8d694a3a03a306e326"
-    },
-    {
-      "$oid": "671546a64d0d2f0baa0b006f"
+      "$oid": "67493ae5f0cf740bf4028dcf"
     }
   ],
   "specialtyIds": [
     {
-      "$oid": "6710069550b43dfad026530e"
+      "$oid": "67493ae5f0cf740bf4028dcc"
+    },
+    {
+      "$oid": "67493b0bf0cf740bf4028e1f"
     }
   ],
   "updatedAt": {
-    "$date": "2024-11-24T03:25:07.693Z"
+    "$date": "2024-12-03T16:23:50.184Z"
   }
 },
 {
   "_id": {
-    "$oid": "6746ed07aaadcd780f3be841"
+    "$oid": "67494015aaadcd780f3be86f"
   },
   "projectId": {
-    "$oid": "6746ed2efc5f5ad10f95ea07"
+    "$oid": "674940149dde94710ec162b0"
   },
   "__v": 0,
   "createdAt": {
-    "$date": "2024-11-27T09:58:06.372Z"
+    "$date": "2024-11-29T04:16:20.978Z"
   },
   "professionId": [
     {
-      "$oid": "670974aff61773522abe6f36"
+      "$oid": "67493ae5f0cf740bf4028dcf"
     }
   ],
   "specialtyIds": [
     {
-      "$oid": "670974aff61773522abe6f30"
+      "$oid": "67493b0bf0cf740bf4028e1f"
     }
   ],
   "updatedAt": {
-    "$date": "2024-11-27T09:58:10.945Z"
+    "$date": "2024-11-29T04:16:20.978Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "674d8600aaadcd780f3be880"
+  },
+  "projectId": {
+    "$oid": "674d860003ca626c686df781"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-02T10:03:44.445Z"
+  },
+  "professionId": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7906"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493b2bf0cf740bf4028e34"
+    },
+    {
+      "$oid": "67493b3ff0cf740bf4028e44"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T04:16:38.673Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6750389baaadcd780f3be895"
+  },
+  "projectId": {
+    "$oid": "675038cff08df26f0d16278d"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-04T11:11:11.468Z"
+  },
+  "professionId": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcb"
+    },
+    {
+      "$oid": "67493b3ff0cf740bf4028e44"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-04T11:11:11.468Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "675063a3aaadcd780f3be898"
+  },
+  "projectId": {
+    "$oid": "6750638ccf290098d6f12866"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-04T14:13:32.879Z"
+  },
+  "professionId": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7906"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcb"
+    },
+    {
+      "$oid": "67493b3ff0cf740bf4028e44"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7900"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7901"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-04T14:13:32.879Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6750a68daaadcd780f3be899"
+  },
+  "projectId": {
+    "$oid": "6750a6766c00fdde9ced1489"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-04T18:59:02.795Z"
+  },
+  "professionId": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7906"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493b0bf0cf740bf4028e1f"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7901"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-04T18:59:02.795Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6750ab4faaadcd780f3be89a"
+  },
+  "projectId": {
+    "$oid": "6750ab386c00fdde9ced183d"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-04T19:19:20.299Z"
+  },
+  "professionId": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcc"
+    },
+    {
+      "$oid": "67493b0bf0cf740bf4028e1f"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-04T19:19:20.299Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6750ac5baaadcd780f3be89b"
+  },
+  "projectId": {
+    "$oid": "6750ac446c00fdde9ced18d3"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-04T19:23:48.795Z"
+  },
+  "professionId": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcc"
+    },
+    {
+      "$oid": "67493b0bf0cf740bf4028e1f"
+    },
+    {
+      "$oid": "67493b2bf0cf740bf4028e34"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-04T19:32:46.401Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6750aef3aaadcd780f3be89c"
+  },
+  "projectId": {
+    "$oid": "6750aedc6c00fdde9ced1afa"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-04T19:34:52.825Z"
+  },
+  "professionId": [
+    {
+      "$oid": "674ec656d46ab84a34eb7906"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "674ec656d46ab84a34eb7901"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7902"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-04T19:43:11.083Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "675128fbaaadcd780f3be8ac"
+  },
+  "projectId": {
+    "$oid": "675128f819fc59897605cd53"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-05T04:15:52.412Z"
+  },
+  "professionId": [
+    {
+      "$oid": "674ec656d46ab84a34eb7906"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "674ec656d46ab84a34eb7902"
+    },
+    {
+      "$oid": "674ec656d46ab84a34eb7901"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T04:15:52.412Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67512963aaadcd780f3be8ad"
+  },
+  "projectId": {
+    "$oid": "6751296019fc59897605ce38"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-05T04:17:36.102Z"
+  },
+  "professionId": [
+    {
+      "$oid": "6751267ca6096827699fc5e8"
+    },
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcb"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T04:17:36.102Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67512cedaaadcd780f3be8ae"
+  },
+  "projectId": {
+    "$oid": "67512cea19fc59897605d31b"
+  },
+  "__v": 0,
+  "createdAt": {
+    "$date": "2024-12-05T04:32:43.017Z"
+  },
+  "professionId": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcf"
+    }
+  ],
+  "specialtyIds": [
+    {
+      "$oid": "67493ae5f0cf740bf4028dcb"
+    },
+    {
+      "$oid": "67493ae5f0cf740bf4028dcc"
+    }
+  ],
+  "updatedAt": {
+    "$date": "2024-12-05T04:32:43.017Z"
   }
 }]

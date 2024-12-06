@@ -233,32 +233,32 @@ const TableClass = ({ ungroup, emptygroup }) => {
         );
       },
     },
-    {
-      title: "Vấn đề cần giải quyết",
-      dataIndex: "tempGroupId",
-      key: "issues",
-      render: (tempGroupId) => {
-        const incompleteCount = tempGroupId.filter(
-          (group) => !group.status
-        ).length;
-        const totalGroups = tempGroupId.length;
+    // {
+    //   title: "Vấn đề cần giải quyết",
+    //   dataIndex: "tempGroupId",
+    //   key: "issues",
+    //   render: (tempGroupId) => {
+    //     const incompleteCount = tempGroupId.filter(
+    //       (group) => !group.status
+    //     ).length;
+    //     const totalGroups = tempGroupId.length;
 
-        return (
-          <div>
-            {totalGroups === 0 ? (
-              <Tag color="red">Chưa có nhóm cần tạo nhóm</Tag>
-            ) : incompleteCount > 0 ? (
-              <Tag color="orange">
-                {incompleteCount} nhóm chưa chốt đủ thành viên
-              </Tag>
-            ) : (
-              <Tag color="green">Hiện tại chưa có</Tag>
-            )}
-          </div>
-        );
-      },
-      width: "15%",
-    },
+    //     return (
+    //       <div>
+    //         {totalGroups === 0 ? (
+    //           <Tag color="red">Chưa có nhóm cần tạo nhóm</Tag>
+    //         ) : incompleteCount > 0 ? (
+    //           <Tag color="orange">
+    //             {incompleteCount} nhóm chưa chốt đủ thành viên
+    //           </Tag>
+    //         ) : (
+    //           <Tag color="green">Hiện tại chưa có</Tag>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    //   width: "15%",
+    // },
     {
       title: "Hành động",
       key: "action",

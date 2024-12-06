@@ -1,326 +1,122 @@
 [{
   "_id": {
-    "$oid": "6702db8d694a3a03a306e326"
-  },
-  "name": "Kinh doanh",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "6710069550b43dfad026530e"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-06T18:48:45.940Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-16T20:12:49.054Z"
-  },
-  "__v": 1
-},
-{
-  "_id": {
-    "$oid": "6702dbf6694a3a03a306e331"
-  },
-  "name": "Dược phẩm",
-  "status": true,
-  "specialty": [],
-  "createdAt": {
-    "$date": "2024-10-06T18:50:30.216Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-09T15:58:46.471Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "6706886c7b32bfe6f4810294"
-  },
-  "name": "Game",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "6706886c7b32bfe6f481028e"
-    },
-    {
-      "$oid": "6706886c7b32bfe6f481028f"
-    },
-    {
-      "$oid": "6706886c7b32bfe6f4810290"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-09T13:43:08.891Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-09T15:58:44.449Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "6706a7584a9a02e60c8ec67d"
-  },
-  "name": "Sale",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "6706a7584a9a02e60c8ec679"
-    },
-    {
-      "$oid": "6706a7584a9a02e60c8ec67a"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-09T15:55:04.052Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-16T20:12:46.295Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67094faff61773522abe62ca"
-  },
-  "name": "Cơ khí học",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "67094faff61773522abe62c6"
-    },
-    {
-      "$oid": "67094faff61773522abe62c7"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-11T16:17:51.770Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-11T18:36:39.877Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67096033f61773522abe6736"
-  },
-  "name": "Sức khỏe",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "67096033f61773522abe6734"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-11T17:28:19.697Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-16T19:05:05.487Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67096fdbf61773522abe6e67"
-  },
-  "name": "Ngôn Ngữ Học",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "67096fdbf61773522abe6e61"
-    },
-    {
-      "$oid": "67096fdbf61773522abe6e62"
-    },
-    {
-      "$oid": "67096fdbf61773522abe6e63"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-11T18:35:07.749Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-11T18:35:07.749Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "670974aff61773522abe6f36"
-  },
-  "name": "Thể thao",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "670974aff61773522abe6f30"
-    },
-    {
-      "$oid": "670974aff61773522abe6f31"
-    },
-    {
-      "$oid": "670974aff61773522abe6f32"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-11T18:55:43.718Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-12T14:07:46.848Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "67097cdff61773522abe715d"
-  },
-  "name": "Khoa học máy tính",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "67097cdff61773522abe715b"
-    }
-  ],
-  "createdAt": {
-    "$date": "2024-10-11T19:30:39.770Z"
-  },
-  "updatedAt": {
-    "$date": "2024-10-16T20:15:00.276Z"
-  },
-  "__v": 4
-},
-{
-  "_id": {
-    "$oid": "670a4dc8848ecbceaddccb26"
+    "$oid": "67493ae5f0cf740bf4028dcf"
   },
   "name": "Công Nghệ Thông Tin",
   "status": true,
   "specialty": [
     {
-      "$oid": "670ffafe50b43dfad02650c7"
+      "$oid": "67493ae5f0cf740bf4028dcb"
     },
     {
-      "$oid": "671005fd50b43dfad0265153"
+      "$oid": "67493ae5f0cf740bf4028dcc"
+    },
+    {
+      "$oid": "67493b0bf0cf740bf4028e1f"
+    },
+    {
+      "$oid": "67493b2bf0cf740bf4028e34"
+    },
+    {
+      "$oid": "67493b3ff0cf740bf4028e44"
     }
   ],
   "createdAt": {
-    "$date": "2024-10-12T10:22:00.400Z"
+    "$date": "2024-11-29T03:54:13.234Z"
   },
   "updatedAt": {
-    "$date": "2024-10-16T19:04:59.132Z"
+    "$date": "2024-12-05T02:56:07.607Z"
   },
-  "__v": 10
+  "__v": 5
 },
 {
   "_id": {
-    "$oid": "671546a64d0d2f0baa0b006f"
+    "$oid": "674ec62cd46ab84a34eb7890"
   },
-  "name": "An Toàn Thực Phẩm",
-  "status": true,
-  "specialty": [],
+  "name": "Khoa Học ",
+  "status": false,
+  "specialty": [
+    {
+      "$oid": "674ec62cd46ab84a34eb788c"
+    },
+    {
+      "$oid": "674ec62cd46ab84a34eb788d"
+    }
+  ],
   "createdAt": {
-    "$date": "2024-10-20T18:06:30.888Z"
+    "$date": "2024-12-03T08:49:48.551Z"
   },
   "updatedAt": {
-    "$date": "2024-10-20T18:06:30.888Z"
+    "$date": "2024-12-03T08:51:05.828Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "6715dd20e3b96d4ba609da54"
+    "$oid": "674ec656d46ab84a34eb7906"
   },
-  "name": "Web Development",
+  "name": "Kinh Doanh",
   "status": true,
   "specialty": [
     {
-      "$oid": "6715dd20e3b96d4ba609da4d"
+      "$oid": "674ec656d46ab84a34eb7900"
     },
     {
-      "$oid": "6715dd20e3b96d4ba609da4e"
+      "$oid": "674ec656d46ab84a34eb7901"
     },
     {
-      "$oid": "6715dd20e3b96d4ba609da51"
-    },
-    {
-      "$oid": "6715dd20e3b96d4ba609da52"
-    }
-  ]
-},
-{
-  "_id": {
-    "$oid": "6715dd20e3b96d4ba609da55"
-  },
-  "name": "Data Engineering",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "6715dd20e3b96d4ba609da4f"
-    },
-    {
-      "$oid": "6715dd20e3b96d4ba609da50"
-    }
-  ]
-},
-{
-  "_id": {
-    "$oid": "6715dd20e3b96d4ba609da56"
-  },
-  "name": "DevOps Engineering",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "6715dd20e3b96d4ba609da53"
-    },
-    {
-      "$oid": "6715dd20e3b96d4ba609da4e"
-    }
-  ]
-},
-{
-  "_id": {
-    "$oid": "671d0e7d24ce3a79ec2dd481"
-  },
-  "name": "Khoa Học ",
-  "status": true,
-  "specialty": [
-    {
-      "$oid": "671d0f5224ce3a79ec2dd601"
-    },
-    {
-      "$oid": "671d0f5224ce3a79ec2dd603"
+      "$oid": "674ec656d46ab84a34eb7902"
     }
   ],
   "createdAt": {
-    "$date": "2024-10-26T15:45:01.913Z"
+    "$date": "2024-12-03T08:50:30.634Z"
   },
   "updatedAt": {
-    "$date": "2024-10-26T15:48:34.616Z"
+    "$date": "2024-12-03T12:36:35.544Z"
   },
-  "__v": 1
+  "__v": 0
 },
 {
   "_id": {
-    "$oid": "671d0f2d24ce3a79ec2dd5ae"
+    "$oid": "6751267ca6096827699fc5e8"
   },
-  "name": "Khoa Học 1",
+  "name": "Y tế",
   "status": true,
   "specialty": [
     {
-      "$oid": "671d0f2d24ce3a79ec2dd5a8"
+      "$oid": "6751267ca6096827699fc5e6"
     },
     {
-      "$oid": "671d0f2d24ce3a79ec2dd5a9"
-    },
-    {
-      "$oid": "671d0f2d24ce3a79ec2dd5aa"
+      "$oid": "6751267ca6096827699fc5e4"
     }
   ],
   "createdAt": {
-    "$date": "2024-10-26T15:47:57.802Z"
+    "$date": "2024-12-05T04:05:16.431Z"
   },
   "updatedAt": {
-    "$date": "2024-11-24T10:36:28.827Z"
+    "$date": "2024-12-05T04:05:43.215Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6751267ca6096827699fc5f1"
+  },
+  "name": "Giáo dục",
+  "status": true,
+  "specialty": [
+    {
+      "$oid": "6751267ca6096827699fc5ef"
+    },
+    {
+      "$oid": "6751267ca6096827699fc5ed"
+    }
+  ],
+  "createdAt": {
+    "$date": "2024-12-05T04:05:16.536Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-05T04:05:45.071Z"
   },
   "__v": 0
 }]
