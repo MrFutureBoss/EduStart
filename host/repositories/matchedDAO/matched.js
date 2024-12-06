@@ -11,7 +11,14 @@ import User from "../../models/userModel.js";
 // hàm để tạo matched chờ xác nhận
 const createMatched = async (data) => {
   try {
-    // Create a new Matched record
+    
+    // Kiểm tra giá trị hợp lệ của status
+    const validStatuses = ["Pending", "Accepted", "Rejected"];
+    if (data.status && !validStatuses.includes(data.status)) {
+      throw new Error("Giá trị của status không hợp lệ");
+    }
+
+    // Tạo mới một bản ghi Matched
     const matched = new Matched({
       groupId: data.groupId,
       mentorId: data.mentorId,
@@ -55,6 +62,7 @@ const createMatched = async (data) => {
     throw error;
   }
 };
+
 
 // Hàm cập nhật matched
 const updateMatchedById = async (id, updateData) => {
