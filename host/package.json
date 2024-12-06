@@ -5,7 +5,7 @@
   "type": "module",
   "main": "sever.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "nodemon --inspect server.js"
   },
   "repository": {
@@ -35,7 +35,12 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "babel-jest": "^29.7.0",
     "eslint": "^9.11.0",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.7"
   }
 }

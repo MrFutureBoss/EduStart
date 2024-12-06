@@ -62,45 +62,37 @@ const getSubmissions = async (req, res) => {
 const updateSubmissionById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("[DEBUG] ID Received:", id);
-    console.log("[DEBUG] Update Data Received:", req.body);
-    console.log("[DEBUG] Files Received:", req.files);
 
     if (!id) {
       return res.status(400).json({
         success: false,
-        message: "Submission ID is required.",
+        message: 'Submission ID is required.',
       });
     }
 
-    // Lấy dữ liệu từ req.body
-    const updateData = req.body;
+    const existingSubmission = await submissionDAO.getSubmissionById(id);
+    if (!existingSubmission) {
+      return res.status(404).json({
+        success: false,
+        message: 'Submission not found.',
+      });
+    }
 
-    // Xử lý file mới
     const newFiles = req.files
       ? req.files.map((file) => `/uploads/materials/${file.filename}`)
       : [];
 
-    // Xử lý file cũ
-    const existingFiles = updateData.existingFiles
-      ? JSON.parse(updateData.existingFiles).filter((file) => file) // Lọc bỏ giá trị null hoặc không hợp lệ
-      : [];
+    const existingFiles = req.body.existingFiles
+      ? JSON.parse(req.body.existingFiles)
+      : existingSubmission.files;
 
-    // Gộp file cũ và file mới
-    updateData.files = [...existingFiles, ...newFiles];
+    const updatedFiles = [...existingFiles, ...newFiles];
 
-    // Cập nhật cơ sở dữ liệu
     const updatedSubmission = await submissionDAO.updateSubmissionById(
       id,
-      updateData
+      { files: updatedFiles, description: req.body.description || existingSubmission.description },
+      { new: true }
     );
-
-    if (!updatedSubmission) {
-      return res.status(404).json({
-        success: false,
-        message: "Submission not found.",
-      });
-    }
 
     return res.status(200).json({
       success: true,
@@ -110,7 +102,7 @@ const updateSubmissionById = async (req, res) => {
     console.error(`[updateSubmissionById] Error: ${error.message}`);
     return res.status(500).json({
       success: false,
-      message: "An error occurred while updating the submission.",
+      message: 'An error occurred while updating the submission.',
     });
   }
 };
@@ -147,6 +139,22 @@ const getSubmissionBySubmitId = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
+const fetchSubmissionsByGroupId = async (req, res) => {
+  const { groupId } = req.params;
+
+  try {
+    const submissions = await submissionDAO.getSubmissionsByGroupId(groupId);
+
+    if (!submissions.length) {
+      return res.status(404).json({ message: "No submissions found for this group." });
+    }
+
+    res.status(200).json(submissions);
+  } catch (error) {
+    res.status(500).json({ message: `Error fetching submissions: ${error.message}` });
+  }
+};
 export default {
   createSubmission,
   getSubmissionById,
@@ -154,4 +162,5 @@ export default {
   updateSubmissionById,
   deleteSubmissionById,
   getSubmissionBySubmitId,
+  fetchSubmissionsByGroupId,
 };

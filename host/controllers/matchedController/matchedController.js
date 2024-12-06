@@ -241,38 +241,32 @@ const deleteTimeEventHandler = async (req, res) => {
 
   try {
     const updatedMatched = await matchedDAO.deleteTimeEventById(eventId);
-    const groupId = updatedMatched.groupId;
-    const mentorId = updatedMatched.mentorId;
-    const groupMembers = await groupDAO.getGroupMembers(group._id);
-    const recipients = groupMembers.map((member) => member._id);
+    // const groupId = updatedMatched.groupId;
+    // const mentorId = updatedMatched.mentorId;
+    // const groupMembers = await groupDAO.getGroupMembers(group._id);
+    // const recipients = groupMembers.map((member) => member._id);
 
-    if (!groupId || !mentorId) {
-      return res
-        .status(400)
-        .json({ message: "Group ID or Mentor ID missing in Matched" });
-    }
+    // if (!groupId || !mentorId) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Group ID or Mentor ID missing in Matched" });
+    // }
 
-    const group = await projectDAO.findGroupById(groupId);
-    if (!Array.isArray(updatedMatched.time)) {
-      return res
-        .status(400)
-        .json({ message: "Time array not found in Matched" });
-    }
-    const notificationMessage = `Người hướng dẫn của bạn đã hủy lịch họp`;
-    await notificationDAO.createNotifications({
-      message: notificationMessage,
-      type: "DeleteMeetingTimeNotification",
-      recipients,
-      filters: { groupId: group._id, groupName: group.name },
-      senderId: group._id,
-      io: req.io,
-    });
-    // kết nối socket.io
-    const io = req.io; // Lấy `io` từ req
-    io.to(`user:${mentorId}`).emit("newEventTime", {
-      message: "Add new event time",
-      groupId,
-    });
+    // const group = await projectDAO.findGroupById(groupId);
+    // if (!Array.isArray(updatedMatched.time)) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Time array not found in Matched" });
+    // }
+    // const notificationMessage = `Người hướng dẫn của bạn đã hủy lịch họp`;
+    // await notificationDAO.createNotifications({
+    //   message: notificationMessage,
+    //   type: "DeleteMeetingTimeNotification",
+    //   recipients,
+    //   filters: { groupId: group._id, groupName: group.name },
+    //   senderId: group._id,
+    //   io: req.io,
+    // });
     res.status(200).json({
       message: "Time event deleted successfully",
       matched: updatedMatched,
