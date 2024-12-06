@@ -26,7 +26,11 @@
 }
 
 .single-project-row.grid-layout {
-  width: calc(33.33% - 20px); /* 3 cards per row */
+  padding: 20px;
+  display: flex;
+  background-color: #e4eff3;
+  border-radius: 15px;
+  margin-bottom: 30px;
 }
 
 .single-project-row.suggestion-layout {
@@ -233,4 +237,23 @@
   margin-top: -19px;
   margin-bottom: 0;
   font-size: 14px;
+}
+.assigned-mentors {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.assigned-mentors .assigned-mentor {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.rejected-group {
+  margin-top: 10px;
+}
+
+.assigned-mentor span {
+  margin-left: 5px;
 }

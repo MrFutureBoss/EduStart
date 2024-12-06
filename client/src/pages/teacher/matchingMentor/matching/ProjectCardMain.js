@@ -10,6 +10,8 @@ import {
   Tooltip,
   Badge,
   Progress,
+  Card,
+  Tabs,
 } from "antd";
 import "../../teacherCSS/ProjectCardMain.css";
 import {
@@ -52,6 +54,7 @@ import {
   updateAssignedMentorsMap,
   setMentorsData,
 } from "../../../../redux/slice/MatchingSlice";
+import TabPane from "antd/es/tabs/TabPane";
 
 const { Option } = Select;
 
@@ -609,6 +612,7 @@ const ProjectCardMain = () => {
       const projectResponse = await fetchProjectData(teacherId, classId);
       const projects = projectResponse.data.projects;
       dispatch(setProjectData(projects));
+
       const response = await fetchClassSummaryData(teacherId);
       const {
         classSummaries: fetchedClassSummaries,
@@ -628,14 +632,21 @@ const ProjectCardMain = () => {
           ),
         }))
         .filter((classItem) => classItem.pendingGroups.length > 0);
-      // Dispatch toàn bộ dữ liệu lên Redux
+      // Dispatch all data to Redux
       dispatch(setClassSummaries(fetchedClassSummaries));
       dispatch(setCounts({ totalClasses }));
       dispatch(setMatchedClasses(matchedClasses));
       dispatch(setNotMatchedClasses(notMatchedClasses));
       dispatch(setEmptyClasses(emptyClasses));
       dispatch(setPendingGroups(pendingGroupsByClass));
-      fetchSuggestedMentors(classId, projects);
+
+      // Filter unmatched projects
+      const unmatchedProjects = projects.filter(
+        (project) => !project.isMatched
+      );
+
+      // Fetch mentor suggestions only for unmatched projects
+      fetchSuggestedMentors(classId, unmatchedProjects);
     } catch (error) {
       console.error("Error reloading project data:", error);
       message.error("Lỗi khi tải lại dữ liệu dự án.");
@@ -792,9 +803,8 @@ const ProjectCardMain = () => {
     // Navigate to DetailedSelection page
     navigate(`detailed-selection/${projectId}`);
   };
-
+  const matchedProjects = projectData.filter((project) => project.isMatched);
   const unmatchedProjects = projectData.filter((project) => !project.isMatched);
-  console.log(classSummaries);
 
   return (
     <DndContext
@@ -830,7 +840,7 @@ const ProjectCardMain = () => {
                 className="class-select"
               >
                 {classSummaries.map((classItem) => {
-                  // Đếm số nhóm có isMatched: true và isProjectUpdated: true
+                  // Count matched groups (isMatched: true and isProjectUpdated: true)
                   const matchedGroupsCount = classItem.groupDetails
                     ? classItem.groupDetails.filter(
                         (group) =>
@@ -877,109 +887,238 @@ const ProjectCardMain = () => {
         >
           {loadingProjects ? (
             <Spin />
-          ) : unmatchedProjects.length > 0 ? (
-            unmatchedProjects.map((project) => (
-              <div
-                className={`single-project-row ${
-                  showSuggestions ? "suggestion-layout" : "grid-layout"
-                }`}
-                key={project._id}
+          ) : projectData.length > 0 ? (
+            <Tabs defaultActiveKey="1" style={{ width: "100%" }}>
+              <TabPane
+                tab={`Chưa chọn mentor (${unmatchedProjects.length})`}
+                key="1"
               >
-                <div className="project-card-wrapper">
-                  <h6 className="main-title-suggest">Lựa Chọn Nhanh</h6>
-                  <ProjectCard
-                    project={project}
-                    assignedMentors={assignedMentorsMap[project._id] || []}
-                  />
-                </div>
-
-                {showSuggestions && mentorsData[project._id] && (
-                  <div className="suggestions-and-drop-zone">
-                    <div className="mentor-suggestions-wrapper">
-                      <MentorSuggestionRow
-                        title="Mentor Ưu Tiên Nhóm:"
-                        mentors={mentorsData[project._id].mentorPreferred}
+                {unmatchedProjects.map((project) => (
+                  <div
+                    className={`single-project-row ${
+                      showSuggestions && !project.isMatched
+                        ? "suggestion-layout"
+                        : "grid-layout"
+                    }`}
+                    key={project._id}
+                  >
+                    <div className="project-card-wrapper">
+                      <h6 className="main-title-suggest">Lựa Chọn Nhanh</h6>
+                      <ProjectCard
+                        project={project}
                         assignedMentors={assignedMentorsMap[project._id] || []}
-                        projectId={project._id}
-                        existingMentorIds={new Set()}
-                        colorClass="mentor-preferred-card"
-                        teacherPreferredMentors={
-                          mentorsData[project._id].teacherPreferredMentors
-                        }
-                      />
-                      <MentorSuggestionRow
-                        title="Mentor Bạn Ưu Tiên:"
-                        mentors={
-                          mentorsData[project._id].teacherPreferredMentors
-                        }
-                        projectId={project._id}
-                        assignedMentors={assignedMentorsMap[project._id] || []}
-                        existingMentorIds={
-                          new Set(
-                            mentorsData[project._id].mentorPreferred.map(
-                              (m) => m.mentorId
-                            )
-                          )
-                        }
-                        colorClass="teacher-preferred-card"
-                        teacherPreferredMentors={
-                          mentorsData[project._id].teacherPreferredMentors
-                        }
-                      />
-
-                      <MentorSuggestionRow
-                        title="Mentor Phù Hợp:"
-                        mentors={mentorsData[project._id].matchingMentors}
-                        assignedMentors={assignedMentorsMap[project._id] || []}
-                        projectId={project._id}
-                        existingMentorIds={
-                          new Set([
-                            ...mentorsData[project._id].mentorPreferred.map(
-                              (m) => m.mentorId
-                            ),
-                            ...mentorsData[
-                              project._id
-                            ].teacherPreferredMentors.map((m) => m.mentorId),
-                          ])
-                        }
-                        colorClass="matching-mentors-card"
-                        teacherPreferredMentors={
-                          mentorsData[project._id].teacherPreferredMentors
-                        }
                       />
                     </div>
-                    <MentorDropZone
-                      projectId={project._id}
-                      groupId={project.groupId}
-                      assignedMentors={
-                        assignedMentorsMap[project._id]?.map((mentor) => ({
-                          ...mentor,
-                          isTeacherPreferred: mentorsData[
-                            project._id
-                          ].teacherPreferredMentors.some(
-                            (teacherPreferred) =>
-                              teacherPreferred.mentorId === mentor.mentorId
-                          ),
-                        })) || []
-                      }
-                      mentors={mentorsData[project._id]}
-                      activeId={activeId}
-                      onMentorAssigned={reloadProjectData}
-                      teacherId={teacherId}
-                    />
-                    <h6 className="view-more-suggest">
-                      <p
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleViewDetailSelection(project._id)}
-                      >
-                        <SelectOutlined /> Lựa Chọn Chi Tiết
-                      </p>
-                    </h6>
+
+                    {/* Mentor suggestions and drop zone */}
+                    {showSuggestions && mentorsData[project._id] && (
+                      <div className="suggestions-and-drop-zone">
+                        <div className="mentor-suggestions-wrapper">
+                          <MentorSuggestionRow
+                            title="Mentor Ưu Tiên Nhóm:"
+                            mentors={mentorsData[project._id].mentorPreferred}
+                            assignedMentors={
+                              assignedMentorsMap[project._id] || []
+                            }
+                            projectId={project._id}
+                            existingMentorIds={new Set()}
+                            colorClass="mentor-preferred-card"
+                            teacherPreferredMentors={
+                              mentorsData[project._id].teacherPreferredMentors
+                            }
+                          />
+                          <MentorSuggestionRow
+                            title="Mentor Bạn Ưu Tiên:"
+                            mentors={
+                              mentorsData[project._id].teacherPreferredMentors
+                            }
+                            projectId={project._id}
+                            assignedMentors={
+                              assignedMentorsMap[project._id] || []
+                            }
+                            existingMentorIds={
+                              new Set(
+                                mentorsData[project._id].mentorPreferred.map(
+                                  (m) => m.mentorId
+                                )
+                              )
+                            }
+                            colorClass="teacher-preferred-card"
+                            teacherPreferredMentors={
+                              mentorsData[project._id].teacherPreferredMentors
+                            }
+                          />
+
+                          <MentorSuggestionRow
+                            title="Mentor Phù Hợp:"
+                            mentors={mentorsData[project._id].matchingMentors}
+                            assignedMentors={
+                              assignedMentorsMap[project._id] || []
+                            }
+                            projectId={project._id}
+                            existingMentorIds={
+                              new Set([
+                                ...mentorsData[project._id].mentorPreferred.map(
+                                  (m) => m.mentorId
+                                ),
+                                ...mentorsData[
+                                  project._id
+                                ].teacherPreferredMentors.map(
+                                  (m) => m.mentorId
+                                ),
+                              ])
+                            }
+                            colorClass="matching-mentors-card"
+                            teacherPreferredMentors={
+                              mentorsData[project._id].teacherPreferredMentors
+                            }
+                          />
+                        </div>
+                        <MentorDropZone
+                          projectId={project._id}
+                          groupId={project.groupId}
+                          assignedMentors={
+                            assignedMentorsMap[project._id]?.map((mentor) => ({
+                              ...mentor,
+                              isTeacherPreferred: mentorsData[
+                                project._id
+                              ].teacherPreferredMentors.some(
+                                (teacherPreferred) =>
+                                  teacherPreferred.mentorId === mentor.mentorId
+                              ),
+                            })) || []
+                          }
+                          mentors={mentorsData[project._id]}
+                          activeId={activeId}
+                          onMentorAssigned={reloadProjectData}
+                          teacherId={teacherId}
+                        />
+                        <h6 className="view-more-suggest">
+                          <p
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              handleViewDetailSelection(project._id)
+                            }
+                          >
+                            <SelectOutlined /> Lựa Chọn Chi Tiết
+                          </p>
+                        </h6>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))
+                ))}
+              </TabPane>
+
+              <TabPane
+                tab={`Đã chọn mentor (${matchedProjects.length})`}
+                key="2"
+              >
+                <Badge count={matchedProjects.length}></Badge>
+                {matchedProjects.map((project) => (
+                  <div
+                    className={`single-project-row grid-layout`}
+                    key={project._id}
+                  >
+                    <div className="project-card-wrapper">
+                      <h6 className="main-title-suggest">
+                        {project.status === "Rejected"
+                          ? "Nhóm đã bị từ chối"
+                          : "Đã lựa chọn"}
+                      </h6>
+                      <ProjectCard
+                        project={project}
+                        assignedMentors={assignedMentorsMap[project._id] || []}
+                      />
+                    </div>
+
+                    {/* Display assigned mentors */}
+                    {assignedMentorsMap[project._id]?.length > 0 && (
+                      <div className="assigned-mentors">
+                        {assignedMentorsMap[project._id].map((mentor) => (
+                          <div
+                            key={mentor.mentorId}
+                            className="elevated-card"
+                            style={{
+                              boxShadow: "rgb(135, 186, 207) 0px 2px 6px",
+                              borderRadius: 20,
+                              border: "none",
+                              backgroundColor: "#c2e1eb",
+                              padding: 7,
+                              marginBottom: 10, // Add margin for spacing
+                            }}
+                          >
+                            <strong
+                              style={{
+                                fontSize: "0.7rem",
+                                padding: "4px 10px",
+                                boxShadow: "0 2px 6px #87bacf",
+                                backgroundColor: "#62b6cb",
+                                fontWeight: "bold",
+                                border: "none",
+                                color: "#f0f8fa",
+                                borderRadius: "12px",
+                              }}
+                            >
+                              Mentor Đã Chọn
+                            </strong>
+                            <div
+                              style={{
+                                borderRadius: 17,
+                                padding: 16,
+                                backgroundColor: "white",
+                              }}
+                            >
+                              <Card.Meta
+                                description={
+                                  <>
+                                    <p
+                                      style={{
+                                        marginBottom: 2,
+                                        fontSize: "0.8rem",
+                                      }}
+                                    >
+                                      <strong>Tên: </strong>
+                                      {mentor?.username}
+                                    </p>
+                                    <p
+                                      style={{
+                                        marginBottom: 2,
+                                        fontSize: "0.8rem",
+                                      }}
+                                    >
+                                      <strong>Email: </strong>
+                                      {mentor?.email}
+                                    </p>
+                                    <p
+                                      style={{
+                                        marginBottom: 2,
+                                        fontSize: "0.8rem",
+                                      }}
+                                    >
+                                      <strong>Số điện thoại: </strong>
+                                      {mentor?.phoneNumber}
+                                    </p>
+                                  </>
+                                }
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* If project is matched and status is Rejected */}
+                    {project.status === "Rejected" && (
+                      <div className="rejected-group">
+                        <Tag color="red">Nhóm đã bị từ chối</Tag>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </TabPane>
+            </Tabs>
           ) : selectedClassId ? (
+            // Existing conditional rendering if no projects
             (() => {
               const selectedClass = classSummaries.find(
                 (cls) => cls.classId === selectedClassId
