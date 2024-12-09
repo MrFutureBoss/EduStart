@@ -32,7 +32,7 @@ const SelectRoleModal = ({ visible, onManualAdd, onFileUpload, onCancel }) => {
           Thêm thủ công
         </Button>
         <Button key="upload" icon={<UploadOutlined />} onClick={onFileUpload}>
-          Tải file
+          Tải file lên
         </Button>
       </div>
     </Modal>

@@ -1,8 +1,7 @@
 import groupDAO from "../../repositories/groupDAO/index.js";
 import matchedDAO from "../../repositories/matchedDAO/index.js";
-import notificationDAO from "../../repositories/notificationDAO/index.js";
+import notificationDAO from "../../repositories/mentorDAO/notificationDAO/index.js";
 import projectDAO from "../../repositories/projectDAO/index.js";
-
 
 const createMatchedHandler = async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import notificationDAO from "../../repositories/notificationDAO/index.js";
+import notificationDAO from "../../repositories/mentorDAO/notificationDAO/index.js";
 
 const fetchNotifications = async (req, res) => {
   try {

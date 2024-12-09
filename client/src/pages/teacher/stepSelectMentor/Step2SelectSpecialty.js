@@ -2,6 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSpecialty } from "../../../redux/slice/SelectMentorSlice";
 import { List, Button, Typography } from "antd";
+import CustomButton from "../../../components/Button/Button";
 
 const { Title } = Typography;
 
@@ -43,12 +44,11 @@ const Step2SelectSpecialty = ({ onNext }) => {
           renderItem={(specialty) => (
             <List.Item
               actions={[
-                <Button
+                <CustomButton
                   type="primary"
                   onClick={() => handleSelectSpecialty(specialty)}
-                >
-                  Chọn
-                </Button>,
+                  content={"Chọn Mentor trong chuyên môn này"}
+                />,
               ]}
             >
               <List.Item.Meta

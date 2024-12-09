@@ -264,7 +264,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
               style={{ textDecoration: "none" }}
               to="choose-mentor"
             >
-              Lựa Chọn Độ Ưu Tiên
+              Chọn Độ Ưu Tiên Mentor
             </Link>
           </Menu.Item>
         </SubMenu>

@@ -666,6 +666,8 @@ const ClassManager = () => {
       if (errors.length > 0) {
         // Nếu có lỗi, áp dụng lỗi vào các trường tương ứng trên form
         errors.forEach((error) => {
+          console.log(error.message);
+
           if (error.field) {
             form.setFields([
               {
@@ -675,7 +677,7 @@ const ClassManager = () => {
             ]);
           }
         });
-        throw new Error("Có lỗi xảy ra khi tạo lớp mới.");
+        throw new Error(`Có lỗi xảy ra khi tạo lớp mới.${errors}`);
       }
 
       message.success("Tạo lớp mới thành công.");
