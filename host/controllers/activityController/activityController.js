@@ -754,7 +754,6 @@ const autoAssignOutcomes = async (req, res) => {
       )
     );
 
-    console.log("[AUTO-ASSIGN OUTCOMES] Outcomes assigned successfully.");
     if (res && res.status)
       res.status(200).json({ message: "Outcomes assigned automatically." });
   } catch (error) {
