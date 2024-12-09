@@ -72,11 +72,6 @@ const MentorSuggestionSchema = new Schema(
       type: String,
       required: true,
     },
-    score: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
     isPreferredGroup: {
       type: Boolean,
       required: true,

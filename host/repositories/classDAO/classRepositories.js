@@ -8,7 +8,7 @@ import ProjectCategory from "../../models/projectCategoryModel.js";
 import Semester from "../../models/semesterModel.js";
 import CreateGroupSetting from "../../models/CreateGroupSettingModel.js";
 import classDAO from "./classRepositories.js";
-import notificationDAO from "../notificationDAO/index.js";
+import notificationDAO from "../mentorDAO/notificationDAO/index.js";
 const getStudentCountByClassId = async (classId, semesterId) => {
   try {
     const count = await User.countDocuments({
@@ -70,6 +70,7 @@ const createClass = async ({
   teacherId,
   semesterId,
   status,
+  req,
 }) => {
   const newClass = new Class({
     className,

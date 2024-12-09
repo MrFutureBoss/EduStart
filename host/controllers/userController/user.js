@@ -4,7 +4,7 @@ import { sendEmail } from "../../utilities/email.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import notificationDAO from "../../repositories/notificationDAO/index.js";
+import notificationDAO from "../../repositories/mentorDAO/notificationDAO/index.js";
 import groupDAO from "../../repositories/groupDAO/index.js";
 import TempGroupDAO from "../../repositories/tempGroupDAO/index.js";
 

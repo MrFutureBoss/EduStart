@@ -403,11 +403,11 @@ const MentorDropZone = ({
                       {draggedMentor.email}
                     </p>
                     <Tooltip
-                      title={`${draggedMentor.currentLoad}/${draggedMentor.maxLoad}`}
+                      title={`${draggedMentor.matchCount}/${draggedMentor.maxLoad}`}
                     >
                       <Progress
                         percent={
-                          (draggedMentor.currentLoad / draggedMentor.maxLoad) *
+                          (draggedMentor.matchCount / draggedMentor.maxLoad) *
                           100
                         }
                         size="small"

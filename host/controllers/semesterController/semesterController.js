@@ -122,7 +122,7 @@ const updateSemester = async (req, res) => {
     if (durationInMonths > 4) {
       return res
         .status(400)
-        .json({ message: "Kỳ học không thể kéo dài hơn 12 tháng!" });
+        .json({ message: "Kỳ học không thể kéo dài hơn 4 tháng!" });
     }
 
     const overlappingSemesters = await semesterDAO.getOverlappingSemester(

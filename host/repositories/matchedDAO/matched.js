@@ -11,7 +11,6 @@ import User from "../../models/userModel.js";
 // hàm để tạo matched chờ xác nhận
 const createMatched = async (data) => {
   try {
-    
     // Kiểm tra giá trị hợp lệ của status
     const validStatuses = ["Pending", "Accepted", "Rejected"];
     if (data.status && !validStatuses.includes(data.status)) {
@@ -62,7 +61,6 @@ const createMatched = async (data) => {
     throw error;
   }
 };
-
 
 // Hàm cập nhật matched
 const updateMatchedById = async (id, updateData) => {
@@ -198,7 +196,9 @@ const getMatchedInfoByGroupId = async (groupId) => {
     return { ...matchedInfo.toObject(), projectCategory };
   } catch (error) {
     console.error("Chi tiết lỗi khi lấy thông tin matched từ database:", error);
-    throw new Error("Lỗi khi lấy thông tin matched từ database.");
+    throw new Error(
+      error.message || "Lỗi khi lấy thông tin matched từ database."
+    );
   }
 };
 

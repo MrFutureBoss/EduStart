@@ -1,9 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Layout, Menu, message, Modal } from "antd";
-import {
-  BookOutlined,
-  DashboardOutlined,
-} from "@ant-design/icons";
+import { BookOutlined, DashboardOutlined } from "@ant-design/icons";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -64,6 +61,7 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
   const checkUpdate = () => {
     setHasShownWarning(false);
   };
+
   return (
     <Sider
       width={270}
@@ -149,16 +147,12 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
             </svg>
           }
         >
-          <Link
-            onClick={checkUpdate}
-            style={{ textDecoration: "none" }}
-            to=""
-          >
+          <Link onClick={checkUpdate} style={{ textDecoration: "none" }} to="">
             Quản lý nhóm
           </Link>
         </Menu.Item>
         <Menu.Item
-          key="6"
+          key="project-suggest"
           style={{ marginLeft: 2 }}
           icon={
             <svg

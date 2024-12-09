@@ -7,20 +7,32 @@ import MentorCategory from "../../models/mentorCategoryModel.js";
 import User from "../../models/userModel.js";
 import Profession from "../../models/professionModel.js";
 import Specialty from "../../models/specialtyModel.js";
+import Matched from "../../models/matchedModel.js";
 
 // Hàm để tìm các mentor đã chọn nhóm này (theo groupId)
-export const findMentorPreferencesByGroupId = async (groupId) => {
+const findMentorPreferencesByGroupId = async (groupId) => {
   const preferences = await MentorPreference.find({ groupIds: groupId })
     .populate({
       path: "mentorId",
       model: "User",
-      select: "username email degree phoneNumber", // Chỉ lấy các trường từ User cần thiết
+      select: "username email degree phoneNumber", // Chỉ lấy các trường cần thiết từ User
     })
     .lean();
 
-  // Với mỗi mentor trong danh sách preferences, lấy MentorCategory và bổ sung các trường còn thiếu
+  // Với mỗi mentor trong danh sách preferences, lấy MentorCategory và bổ sung trường còn thiếu
   const enhancedPreferences = await Promise.all(
     preferences.map(async (preference) => {
+      // Kiểm tra chắc chắn preference.mentorId tồn tại
+      if (!preference.mentorId || !preference.mentorId._id) {
+        return null; // Hoặc bạn có thể xử lý khác nếu mentorId không hợp lệ
+      }
+
+      // Đếm số matched documents cho mentor này
+      const currentLoad = await Matched.countDocuments({
+        mentorId: preference.mentorId._id,
+      });
+
+      // Tìm MentorCategory
       const mentorCategory = await MentorCategory.findOne({
         mentorId: preference.mentorId._id,
       })
@@ -35,6 +47,7 @@ export const findMentorPreferencesByGroupId = async (groupId) => {
           select: "name",
         })
         .lean();
+
       if (mentorCategory) {
         return {
           mentorId: preference.mentorId._id,
@@ -42,9 +55,9 @@ export const findMentorPreferencesByGroupId = async (groupId) => {
           email: preference.mentorId.email,
           degree: preference.mentorId.degree,
           phoneNumber: preference.mentorId.phoneNumber,
-          currentLoad: mentorCategory.currentLoad,
+          currentLoad: currentLoad,
           maxLoad: mentorCategory.maxLoad,
-          isPreferredGroup: true, // Gán `isPreferredGroup` là true vì mentor đã chọn nhóm này
+          isPreferredGroup: true, // mentor đã chọn nhóm này
           professions: (mentorCategory.professionIds || []).map(
             (profession) => ({
               professionId: profession._id,
@@ -58,13 +71,14 @@ export const findMentorPreferencesByGroupId = async (groupId) => {
           })),
         };
       } else {
+        // Không có MentorCategory, trả về dữ liệu tối giản
         return {
           mentorId: preference.mentorId._id,
           username: preference.mentorId.username,
           email: preference.mentorId.email,
           degree: preference.mentorId.degree,
           phoneNumber: preference.mentorId.phoneNumber,
-          isPreferredGroup: true, // Gán `isPreferredGroup` là true vì mentor đã chọn nhóm này
+          isPreferredGroup: true, // mentor đã chọn nhóm này
           professions: [],
           specialties: [],
         };
@@ -72,7 +86,8 @@ export const findMentorPreferencesByGroupId = async (groupId) => {
     })
   );
 
-  return enhancedPreferences;
+  // Lọc bỏ các phần tử null nếu có
+  return enhancedPreferences.filter((item) => item !== null);
 };
 
 // Hàm để tìm các mentor được giáo viên ưu tiên (theo teacherId, professionId và specialtyIds)
@@ -91,7 +106,7 @@ export const findPreferredMentorsByTeacher = async (
 };
 
 // Hàm để tìm các mentor trùng profession và specialty và lấy đầy đủ thông tin
-export const findMentorCategoriesByProfessionsAndSpecialties = async (
+const findMentorCategoriesByProfessionsAndSpecialties = async (
   professionIds,
   specialtyIds
 ) => {
@@ -120,7 +135,7 @@ export const findMentorCategoriesByProfessionsAndSpecialties = async (
 };
 
 // Hàm để lấy MentorCategory cho một mentor cụ thể
-export const findMentorCategoryByMentorId = async (mentorId) => {
+const findMentorCategoryByMentorId = async (mentorId) => {
   return await MentorCategory.findOne({ mentorId })
     .populate({
       path: "professionIds",
@@ -153,20 +168,22 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
     // 1. Mentor đã chọn nhóm này
     const preferredMentors = await findMentorPreferencesByGroupId(group._id);
 
-    const structuredPreferredMentors = preferredMentors
-      .filter((mentor) => mentor.currentLoad < mentor.maxLoad) // Loại bỏ mentor đạt maxLoad
-      .map((mentor) => ({
-        mentorId: mentor.mentorId,
-        username: mentor.username,
-        email: mentor.email,
-        degree: mentor.degree,
-        phoneNumber: mentor.phoneNumber,
-        currentLoad: mentor.currentLoad,
-        maxLoad: mentor.maxLoad,
-        isPreferredGroup: mentor.isPreferredGroup || false,
-        professions: mentor.professions || [],
-        specialties: mentor.specialties || [],
-      }));
+    const structuredPreferredMentors = await Promise.all(
+      preferredMentors
+        .filter((mentor) => mentor.mentorId) // Loại bỏ mentor không hợp lệ
+        .map(async (mentor) => {
+          const currentLoad = await Matched.countDocuments({
+            mentorId: mentor.mentorId,
+          });
+          return {
+            ...mentor,
+            currentLoad,
+          };
+        })
+    ).then(
+      (mentors) =>
+        mentors.filter((mentor) => mentor.currentLoad < mentor.maxLoad) // Loại bỏ mentor đạt maxLoad
+    );
 
     // 2. Mentor được giáo viên ưu tiên trong lĩnh vực
     const teacherPreferredMentorsRaw = await findPreferredMentorsByTeacher(
@@ -184,11 +201,14 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
         const mentorCategory = await findMentorCategoryByMentorId(
           preferredMentorData.mentorId
         );
-        if (
-          !mentorCategory ||
-          mentorCategory.currentLoad >= mentorCategory.maxLoad
-        )
-          continue; // Loại bỏ mentor đạt maxLoad
+
+        if (!mentorCategory) continue;
+
+        const currentLoad = await Matched.countDocuments({
+          mentorId: preferredMentorData.mentorId,
+        });
+
+        if (currentLoad >= mentorCategory.maxLoad) continue; // Loại bỏ mentor đạt maxLoad
 
         const matchedProfessions = (mentorCategory.professionIds || [])
           .filter((profession) =>
@@ -213,12 +233,6 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
             proficiencyLevel: specialty.proficiencyLevel,
           }));
 
-        const specialties = mentorCategory.specialties.map((specialty) => ({
-          specialtyId: specialty.specialtyId._id,
-          name: specialty.specialtyId.name,
-          proficiencyLevel: specialty.proficiencyLevel,
-        }));
-
         teacherPreferredMentors.push({
           mentorId: preferredMentorData.mentorId,
           priority: preferredMentorData.priority,
@@ -229,9 +243,8 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
           email: preferredMentorData.mentorId.email,
           degree: preferredMentorData.mentorId.degree,
           phoneNumber: preferredMentorData.mentorId.phoneNumber,
-          currentLoad: mentorCategory.currentLoad,
+          currentLoad,
           maxLoad: mentorCategory.maxLoad,
-          specialties,
         });
       }
     }
@@ -243,11 +256,14 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
         specialtyIds
       );
 
-    const filteredMatchingMentors = matchingMentors
-      .filter(
-        (mentor) => mentor.mentorId && mentor.currentLoad < mentor.maxLoad
-      ) // Loại bỏ mentor đạt maxLoad
-      .map((mentor) => {
+    const filteredMatchingMentors = await Promise.all(
+      matchingMentors.map(async (mentor) => {
+        const currentLoad = await Matched.countDocuments({
+          mentorId: mentor.mentorId._id,
+        });
+
+        if (currentLoad >= mentor.maxLoad) return null; // Loại bỏ mentor đạt maxLoad
+
         const matchedSpecialties = (mentor.specialties || [])
           .filter((specialty) =>
             specialtyIds
@@ -259,12 +275,6 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
             name: specialty.specialtyId.name,
             proficiencyLevel: specialty.proficiencyLevel,
           }));
-
-        const specialties = mentor.specialties.map((specialty) => ({
-          specialtyId: specialty.specialtyId._id,
-          name: specialty.specialtyId.name,
-          proficiencyLevel: specialty.proficiencyLevel,
-        }));
 
         const matchedProfessions = (mentor.professionIds || [])
           .filter((profession) =>
@@ -282,18 +292,19 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
           matchedSpecialties,
           matchCount: matchedSpecialties.length,
           professions: matchedProfessions,
-          specialties,
           username: mentor.mentorId.username,
           email: mentor.mentorId.email,
           degree: mentor.mentorId.degree,
           phoneNumber: mentor.mentorId.phoneNumber,
-          currentLoad: mentor.currentLoad,
+          currentLoad,
           maxLoad: mentor.maxLoad,
         };
-      });
+      })
+    );
 
     const finalMatchingMentors = filteredMatchingMentors.filter(
       (mentor) =>
+        mentor &&
         !structuredPreferredMentors.some(
           (pref) => pref.mentorId.toString() === mentor.mentorId.toString()
         ) &&
@@ -323,5 +334,8 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
 };
 
 export default {
+  findMentorPreferencesByGroupId,
+  findMentorCategoriesByProfessionsAndSpecialties,
+  findMentorCategoryByMentorId,
   recommendAndSaveMentorsForClassGroups,
 };

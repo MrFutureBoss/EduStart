@@ -36,9 +36,9 @@ const MentorCard = ({
   // Chỉ tạo menu nếu showMenu là true
   const menu = showMenu ? (
     <Menu onClick={handleMenuClick}>
-      {!isSelected && <Menu.Item key="select">Chọn vào vị trí</Menu.Item>}
+      {!isSelected && <Menu.Item key="select">Chọn độ ưu tiên</Menu.Item>}
       {isSelected && (
-        <Menu.Item key="changePosition">Thay đổi vị trí</Menu.Item>
+        <Menu.Item key="changePosition">Thay đổi độ ưu tiên</Menu.Item>
       )}
     </Menu>
   ) : null;
@@ -163,6 +163,7 @@ MentorCard.defaultProps = {
   isSelected: false,
   index: undefined,
   showMenu: true,
+  setHasChanges: () => {},
 };
 
 export default MentorCard;

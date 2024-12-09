@@ -1,5 +1,5 @@
 import groupDAO from "../../repositories/groupDAO/index.js";
-import notificationDAO from "../../repositories/notificationDAO/index.js";
+import notificationDAO from "../../repositories/mentorDAO/notificationDAO/index.js";
 import projectDAO from "../../repositories/projectDAO/index.js";
 import mongoose from "mongoose";
 
