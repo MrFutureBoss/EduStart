@@ -1,6 +1,6 @@
 import User from "../../models/userModel.js";
 import Class from "../../models/classModel.js";
-import notificationDAO from "../notificationDAO/index.js";
+import notificationDAO from "../mentorDAO/notificationDAO/index.js";
 
 // tìm giáo viên theo userName và role = 2
 const findTeacherByUsername = async (username, semesterId) => {

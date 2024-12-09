@@ -650,7 +650,7 @@ const MentorSelection = forwardRef(
         </Button>
         {/* Modal để thay đổi vị trí */}
         <Modal
-          title="Chọn vị trí"
+          title="Chọn mức độ ưu tiên"
           visible={isModalVisible}
           onOk={handleModalOk}
           onCancel={handleModalCancel}

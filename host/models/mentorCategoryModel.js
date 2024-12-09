@@ -28,7 +28,6 @@ const mentorCategorySchema = new Schema(
       },
     ],
     maxLoad: { type: Number, required: true },
-    currentLoad: { type: Number, default: 0 },
   },
   {
     timestamps: true,

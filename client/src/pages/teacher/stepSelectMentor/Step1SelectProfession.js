@@ -7,6 +7,7 @@ import {
   setStepCheck,
 } from "../../../redux/slice/SelectMentorSlice";
 import { List, Button, Typography, Spin } from "antd";
+import CustomButton from "../../../components/Button/Button";
 
 const Step1SelectProfession = ({ onNext }) => {
   const dispatch = useDispatch();
@@ -80,12 +81,11 @@ const Step1SelectProfession = ({ onNext }) => {
             return (
               <List.Item
                 actions={[
-                  <Button
+                  <CustomButton
                     type="primary"
                     onClick={() => handleSelectProfession(profession)}
-                  >
-                    Chọn
-                  </Button>,
+                    content={"Chọn Mentor trong lĩnh vực này"}
+                  />,
                 ]}
               >
                 <List.Item.Meta
@@ -93,7 +93,7 @@ const Step1SelectProfession = ({ onNext }) => {
                   description={
                     <span style={{ color: descriptionColor }}>
                       ({professionCountInfo.updatedSpecialtyCount}/
-                      {professionCountInfo.totalSpecialties})
+                      {professionCountInfo.totalSpecialties}) chuyên môn đã chọn
                     </span>
                   }
                 />

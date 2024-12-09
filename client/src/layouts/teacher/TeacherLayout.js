@@ -20,7 +20,7 @@ const TeacherLayout = () => {
           style={{
             padding: "0px",
             backgroundColor: "#F5F5F5",
-            overflow: "auto",
+            overflow: "hidden",
           }}
         >
           {/* <TeacherDashBoardNotification></TeacherDashBoardNotification> */}

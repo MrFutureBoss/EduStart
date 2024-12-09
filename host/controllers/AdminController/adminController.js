@@ -5,7 +5,7 @@ import classDAO from "../../repositories/classDAO/index.js";
 import nodemailer from "nodemailer";
 import semesterDAO from "../../repositories/semesterDAO/index.js";
 import { sendEmailToUser } from "../../utilities/email.js";
-import notificationDAO from "../../repositories/notificationDAO/index.js";
+import notificationDAO from "../../repositories/mentorDAO/notificationDAO/index.js";
 
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1296,6 +1296,7 @@ const createClass = async (req, res) => {
       teacherId,
       semesterId,
       status: "Active",
+      req,
     });
     res.status(201).json(savedClass);
   } catch (error) {

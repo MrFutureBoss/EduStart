@@ -5,6 +5,7 @@ import Step2SelectSpecialty from "./Step2SelectSpecialty";
 import MentorSelection from "../chooseMentor/MentorSelection";
 import { Steps, Button } from "antd";
 import { useSelector } from "react-redux";
+import CustomButton from "../../../components/Button/Button";
 
 const { Step } = Steps;
 
@@ -101,13 +102,12 @@ const MainStep = () => {
                 Vui lòng chọn chuyên môn trước khi tiếp tục.
               </span>
             )}{" "}
-            <Button
+            <CustomButton
               type="primary"
               onClick={handleNext}
               disabled={isNextDisabled()}
-            >
-              Tiếp theo
-            </Button>
+              content={"Tiếp theo"}
+            />
             {currentStep === 0 && !selectedProfessionId && (
               <span style={{ marginLeft: 10, color: "red" }}>
                 Vui lòng chọn lĩnh vực trước khi tiếp tục.
