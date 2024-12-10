@@ -1,0 +1,16 @@
+@startuml
+actor Admin as Actor
+participant UserList
+participant AdminController
+participant AdminRepositories
+participant Database
+
+Admin as Actor -> UserList : Access user list
+UserList -> AdminController : getUserList()
+AdminController -> AdminRepositories : findUsersBySemester(semesterId)
+AdminRepositories -> Database : Query user list
+Database --> AdminRepositories : Return user list
+AdminRepositories --> AdminController : User data
+AdminController --> UserList : User list data
+UserList --> Admin as Actor : Display user list
+@enduml

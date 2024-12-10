@@ -1,0 +1,23 @@
+@startuml
+actor Admin as Actor
+participant SelectRoleModal
+participant ManualAddForm
+participant AdminController
+participant AdminRepositories
+participant Database
+
+Admin as Actor -> SelectRoleModal : Select role for user
+SelectRoleModal -> ManualAddForm : Show manual add form
+Admin as Actor -> ManualAddForm : Fill user details and submit
+ManualAddForm -> AdminController : insertUserByHand(userData, role, semesterId)
+AdminController -> AdminController : normalizeUserData(row, role)
+AdminController -> AdminRepositories : findUserByEmail(email)
+AdminRepositories -> Database : Query user by email
+Database --> AdminRepositories : Return user or null
+AdminController -> AdminRepositories : createUser(userData)
+AdminRepositories -> Database : Insert new user
+Database --> AdminRepositories : Return created user
+AdminRepositories --> AdminController : Success response
+AdminController --> ManualAddForm : Success or error message
+ManualAddForm --> Admin as Actor : Display success message
+@enduml

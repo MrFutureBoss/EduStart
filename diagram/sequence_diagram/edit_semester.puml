@@ -1,0 +1,30 @@
+@startuml
+actor Admin as Actor
+participant SemesterForm
+participant SemesterController
+participant SemesterRepositories
+participant Database
+
+ Admin as Actor -> SemesterForm : Open edit semester form
+SemesterForm -> SemesterController : getSemesterDetail(semesterId)
+SemesterController -> SemesterRepositories : Fetch semester details
+SemesterRepositories -> Database : Query semester by ID
+Database --> SemesterRepositories : Return semester details
+SemesterRepositories --> SemesterController : Semester details
+SemesterController --> SemesterForm : Fill form with current data
+
+ Admin as Actor -> SemesterForm : Edit semester details
+SemesterForm -> SemesterController : updateSemester(semesterData)
+SemesterController -> SemesterRepositories : Check for overlapping dates
+SemesterRepositories -> Database : Query overlapping semesters
+Database --> SemesterRepositories : Return overlapping data
+SemesterController -> SemesterRepositories : Check for duplicate name
+SemesterRepositories -> Database : Query semester by name
+Database --> SemesterRepositories : Return duplicate name data
+SemesterController -> SemesterRepositories : Update semester
+SemesterRepositories -> Database : Update semester data
+Database --> SemesterRepositories : Update confirmation
+SemesterRepositories --> SemesterController : Update success
+SemesterController --> SemesterForm : Success response
+SemesterForm -->  Admin as Actor : Display success message
+@enduml

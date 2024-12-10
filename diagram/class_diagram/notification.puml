@@ -1,0 +1,42 @@
+@startuml
+class NotificationDropdown {
+    +fetchNotifications(): Promise<void>
+    +markNotificationAsRead(notificationId: String): Promise<void>
+    +markAllAsRead(): Promise<void>
+}
+
+class Notification {
+    +message: String
+    +type: String
+    +recipient: String
+    +isRead: Boolean
+    +createdAt: Date
+    +filters: Object
+    +save(): Notification
+}
+
+class NotificationDAO {
+    +createNotification(data: Object): Notification
+    +getNotificationsByRecipient(userId: String, options: Object): Object
+    +markNotificationAsRead(notificationId: String): Notification
+    +markAllNotificationsAsRead(userId: String): void
+}
+
+class NotificationController {
+    +fetchNotifications(req, res): Promise<void>
+    +markNotificationAsReadHandler(req, res): Promise<void>
+    +markAllNotificationsAsRead(req, res): Promise<void>
+}
+
+
+class Database {
+    <<Database>>
+    +Query(filters: Object): Object
+    +Insert(notification: Object): Object
+}
+
+NotificationDropdown --> NotificationController : Calls API
+NotificationController --> NotificationDAO : Handles Data
+NotificationDAO --> Notification : Creates and Updates
+NotificationDAO --> Database : Interacts with
+@enduml

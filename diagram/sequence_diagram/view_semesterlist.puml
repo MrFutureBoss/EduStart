@@ -1,0 +1,25 @@
+@startuml
+actor Admin as Actor
+participant SemesterList
+participant SemesterController
+participant SemesterRepositories
+participant Database
+
+Admin as Actor -> SemesterList : Access semester list
+SemesterList -> SemesterController : getAllSemesters()
+SemesterController -> SemesterRepositories : Fetch all semesters
+SemesterRepositories -> Database : Query semesters
+Database --> SemesterRepositories : Return semester data
+SemesterRepositories --> SemesterController : Semesters with counts
+SemesterController --> SemesterList : Semester list
+
+Admin as Actor -> SemesterList : Select a semester
+SemesterList -> SemesterController : getUsersBySemester(semesterId)
+SemesterController -> SemesterRepositories : Fetch users for semester
+SemesterRepositories -> Database : Query users
+Database --> SemesterRepositories : Return user data
+SemesterRepositories --> SemesterController : Users with details
+SemesterController --> SemesterList : User details
+
+SemesterList --> Admin as Actor : Display updated semester view
+@enduml

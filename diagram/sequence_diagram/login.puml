@@ -1,0 +1,21 @@
+@startuml
+actor User as Actor
+participant Frontend
+participant UserController
+participant UserDAO
+participant Database
+participant JWT
+participant Bcrypt
+
+Actor -> Frontend : Submits login credentials
+Frontend -> UserController : Sends {email, password}
+UserController -> UserDAO : loginUser({email, password})
+UserDAO -> Database : Query({email})
+Database --> UserDAO : User data
+UserDAO -> Bcrypt : compare(plainPassword, hashedPassword)
+Bcrypt --> UserDAO : Validation result
+UserDAO -> UserController : JWT token and User details
+UserController -> JWT : sign({userId, role})
+JWT --> UserController : Token
+UserController --> Frontend : {token, user}
+@enduml

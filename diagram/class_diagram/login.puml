@@ -1,0 +1,42 @@
+@startuml
+class User {
+    +username: String
+    +email: String
+    +password: String
+    +role: Number
+    +classId: ObjectId
+    +groupId: ObjectId
+    +status: String
+    +isLeader: Boolean
+    +timestamps: Boolean
+}
+
+class UserDAO {
+    +loginUser(credentials: {email: String, password: String}): String
+    +findUserByEmail(email: String): User
+}
+
+class UserController {
+    +getUserLogin(req: Request, res: Response, next: Function): Promise<void>
+}
+
+class JWT {
+    +sign(payload: Object, secret: String, options: Object): String
+    +verify(token: String, secret: String): Object
+}
+
+class Bcrypt {
+    +compare(plainPassword: String, hashedPassword: String): Boolean
+}
+
+class Database {
+    <<Database>>
+    +Query(query: Object): Object
+}
+
+UserController --> UserDAO : Uses
+UserDAO --> User : Interacts with
+UserDAO --> Database : Queries
+UserController --> JWT : Generates Tokens
+UserController --> Bcrypt : Validates Passwords
+@enduml

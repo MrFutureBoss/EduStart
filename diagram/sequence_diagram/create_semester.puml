@@ -1,0 +1,22 @@
+@startuml
+actor Admin as Actor
+participant SemesterForm
+participant SemesterController
+participant SemesterRepositories
+participant Database
+
+Admin as Actor -> SemesterForm : Fill semester details
+SemesterForm -> SemesterController : createSemester(semesterData)
+SemesterController -> SemesterRepositories : Check for overlapping semesters
+SemesterRepositories -> Database : Query overlapping semesters
+Database --> SemesterRepositories : Return overlapping data
+SemesterController -> SemesterRepositories : Check for existing semester name
+SemesterRepositories -> Database : Query semester by name
+Database --> SemesterRepositories : Return existing semester
+SemesterController -> SemesterRepositories : Create semester
+SemesterRepositories -> Database : Insert semester data
+Database --> SemesterRepositories : Save confirmation
+SemesterRepositories --> SemesterController : Semester created
+SemesterController --> SemesterForm : Success response
+SemesterForm --> Admin as Actor : Display success message
+@enduml

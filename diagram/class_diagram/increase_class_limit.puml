@@ -1,0 +1,22 @@
+@startuml
+class ClassManager {
+    +fetchClasses(semesterId: String): Promise<[Class]>
+    +handleIncreaseLimit(classId: String, increment: Number): Promise<void>
+}
+
+class Class {
+    +_id: String
+    +className: String
+    +currentLimit: Number
+    +newLimit: Number
+    +status: String # Active, Inactive
+}
+
+class AdminAPI {
+    +getClasses(semesterId: String): Promise<[Class]>
+    +increaseClassLimit(classId: String, increment: Number): Promise<void>
+}
+
+ClassManager --> AdminAPI : Calls API
+AdminAPI --> Class : Updates Limit
+@enduml

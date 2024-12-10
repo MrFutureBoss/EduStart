@@ -1,0 +1,31 @@
+@startuml
+class SemesterForm {
+    +createSemester(semesterData): Promise<void>
+}
+
+class Semester {
+    +name: String
+    +status: String
+    +startDate: Date
+    +endDate: Date
+    +studentCount: Number
+    +teacherCount: Number
+    +mentorCount: Number
+    +classCount: Number
+}
+
+class SemesterController {
+    +createSemester(req, res): Promise<void>
+    +getAllSemesters(req, res): Promise<void>
+}
+
+class SemesterRepositories {
+    +createSemester(semesterData): Semester
+    +getOverlappingSemester(startDate: Date, endDate: Date): [Semester]
+    +getSemesterByName(name: String): Semester
+}
+
+SemesterForm --> SemesterController : Calls API
+SemesterController --> SemesterRepositories : Creates Semester
+SemesterRepositories --> Semester : Manages Data
+@enduml

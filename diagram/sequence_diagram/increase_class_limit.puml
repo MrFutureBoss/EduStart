@@ -1,0 +1,20 @@
+@startuml
+actor Admin as Actor
+participant ClassManager
+participant AdminAPI
+participant Database
+
+Admin as Actor -> ClassManager : View classes
+ClassManager -> AdminAPI : getClasses(semesterId)
+AdminAPI -> Database : Query classes for semester
+Database --> AdminAPI : Return class list
+AdminAPI --> ClassManager : Class data
+ClassManager --> Actor : Display classes
+
+Admin as Actor -> ClassManager : Increase class limit
+ClassManager -> AdminAPI : increaseClassLimit(classId, increment)
+AdminAPI -> Database : Update class limit
+Database --> AdminAPI : Confirmation
+AdminAPI --> ClassManager : Success response
+ClassManager --> Admin as Actor : Display updated limit
+@enduml

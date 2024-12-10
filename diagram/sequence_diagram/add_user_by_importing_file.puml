@@ -1,0 +1,24 @@
+@startuml
+actor Admin as Actor
+participant UploadFileModal
+participant AdminController
+participant AdminRepositories
+participant Database
+
+Admin as Actor -> UploadFileModal : Upload file
+UploadFileModal -> AdminController : insertListUsers(file, role, semesterId)
+AdminController -> AdminController : validateExcelStructure(file)
+AdminController -> AdminController : normalizeUserData(row, role)
+AdminController -> AdminRepositories : findUserByEmail(email)
+AdminRepositories -> Database : Query user by email
+Database --> AdminRepositories : Return user or null
+AdminController -> AdminRepositories : findClassByNameAndSemester(className, semesterId)
+AdminRepositories -> Database : Query class by name and semester
+Database --> AdminRepositories : Return class or null
+AdminController -> AdminRepositories : createListUsers(listData)
+AdminRepositories -> Database : Insert users
+Database --> AdminRepositories : Return inserted users
+AdminRepositories --> AdminController : Return result
+AdminController --> UploadFileModal : Success or error response
+UploadFileModal --> Admin as Actor : Display results
+@enduml

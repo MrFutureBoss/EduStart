@@ -1,0 +1,27 @@
+@startuml
+actor Admin as Actor
+participant ClassManager
+participant AdminAPI
+participant Database
+
+Admin as Actor -> ClassManager : Trigger student-class suggestions
+ClassManager -> AdminAPI : fetchPendingStudents(semesterId)
+AdminAPI -> Database : Query pending students
+Database --> AdminAPI : Return pending students
+AdminAPI --> ClassManager : Pending students
+
+ClassManager -> AdminAPI : fetchClasses(semesterId)
+AdminAPI -> Database : Query classes
+Database --> AdminAPI : Return classes
+AdminAPI --> ClassManager : Class details
+
+ClassManager -> ClassManager : suggestStudentsForClasses()
+
+loop For each class with available slots
+    ClassManager -> AdminAPI : assignStudent(studentId, classId)
+    AdminAPI -> Database : Update student assignment
+    Database --> AdminAPI : Success response
+end
+
+ClassManager --> Admin as Actor : Display suggestion results
+@enduml

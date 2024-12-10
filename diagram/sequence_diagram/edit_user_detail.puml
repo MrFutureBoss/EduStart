@@ -1,0 +1,16 @@
+@startuml
+actor Admin as Actor
+participant UserProfile
+participant UserController
+participant UserDAO
+participant Database
+
+Admin as Actor -> UserProfile : Edit user details
+UserProfile -> UserController : submitEditForm(updateData)
+UserController -> UserDAO : updateUserById(userId, updateData)
+UserDAO -> Database : Update user details
+Database --> UserDAO : Update result
+UserDAO --> UserController : Updated user data
+UserController --> UserProfile : Success response
+UserProfile --> Admin as Actor : Show success message
+@enduml

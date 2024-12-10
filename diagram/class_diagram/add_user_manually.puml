@@ -1,0 +1,35 @@
+@startuml
+class SelectRoleModal {
+    +handleSelectRole(roleId): void
+    +showManualAddForm(): void
+}
+
+class ManualAddForm {
+    +handleSubmit(userData): Promise<void>
+    +validateInput(userData): Boolean
+}
+
+class AdminController {
+    +insertUserByHand(req, res): Promise<void>
+    +normalizeUserData(row, role): Object
+}
+
+class AdminRepositories {
+    +findUserByEmail(email: String): User
+    +createUser(userData: Object): User
+}
+
+class User {
+    +email: String
+    +username: String
+    +role: Number
+    +classId: ObjectId
+    +semesterId: ObjectId
+    +status: String
+}
+
+SelectRoleModal --> ManualAddForm : Opens Form
+ManualAddForm --> AdminController : Submits User Data
+AdminController --> AdminRepositories : Validates and Inserts
+AdminRepositories --> User : Manages User Data
+@enduml

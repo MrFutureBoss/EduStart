@@ -1,0 +1,31 @@
+@startuml
+actor User as Actor
+participant NotificationDropdown
+participant NotificationController
+participant NotificationDAO
+participant Database
+
+User as Actor -> NotificationDropdown : View Notifications
+NotificationDropdown -> NotificationController : fetchNotifications()
+NotificationController -> NotificationDAO : getNotificationsByRecipient(userId, options)
+NotificationDAO -> Database : Query notifications
+Database --> NotificationDAO : Return notifications
+NotificationDAO --> NotificationController : Notifications data
+NotificationController --> NotificationDropdown : Notifications data
+
+User as Actor -> NotificationDropdown : Mark a notification as read
+NotificationDropdown -> NotificationController : markNotificationAsRead(notificationId)
+NotificationController -> NotificationDAO : markNotificationAsRead(notificationId)
+NotificationDAO -> Database : Update notification
+Database --> NotificationDAO : Update result
+NotificationDAO --> NotificationController : Updated notification
+NotificationController --> NotificationDropdown : Update confirmation
+
+User as Actor -> NotificationDropdown : Mark all as read
+NotificationDropdown -> NotificationController : markAllNotificationsAsRead(userId)
+NotificationController -> NotificationDAO : markAllNotificationsAsRead(userId)
+NotificationDAO -> Database : Update all unread notifications
+Database --> NotificationDAO : Update result
+NotificationDAO --> NotificationController : Update confirmation
+NotificationController --> NotificationDropdown : Success message
+@enduml

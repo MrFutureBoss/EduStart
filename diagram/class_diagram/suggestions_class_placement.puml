@@ -1,0 +1,42 @@
+
+@startuml
+class ClassManager {
+    +fetchPendingStudents(semesterId: String): Promise<[Student]>
+    +fetchClasses(semesterId: String): Promise<[Class]>
+    +suggestStudentsForClasses(): void
+    +assignStudentToClass(studentId: String, classId: String): void
+}
+
+class Class {
+    +_id: String
+    +className: String
+    +teacher: Teacher
+    +studentCount: Number
+    +limitStudent: Number
+    +suggestedStudents: [Student]
+}
+
+class Student {
+    +_id: String
+    +username: String
+    +rollNumber: String
+    +status: String # Unassigned, Assigned
+}
+
+class Teacher {
+    +_id: String
+    +username: String
+    +email: String
+}
+
+class AdminAPI {
+    +getPendingStudents(semesterId: String): Promise<[Student]>
+    +getClasses(semesterId: String): Promise<[Class]>
+    +assignStudent(studentId: String, classId: String): Promise<void>
+    +increaseClassLimit(classId: String, increment: Number): Promise<void>
+}
+
+ClassManager --> AdminAPI : Calls API
+Class --> Student : Contains Students
+Class --> Teacher : Linked Teacher
+@enduml

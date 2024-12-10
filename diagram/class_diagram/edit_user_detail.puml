@@ -1,0 +1,32 @@
+@startuml
+class UserProfile {
+    +fetchUserDetails(userId: String): Promise<User>
+    +submitEditForm(updateData: Object): Promise<void>
+}
+
+class User {
+    +username: String
+    +email: String
+    +rollNumber: Number
+    +semesterId: ObjectId
+    +status: String
+    
+}
+
+class UserController {
+    +findUserById(req, res): Promise<void>
+    +updateUser(req, res): Promise<void>
+    +patchUser(req, res): Promise<void>
+    +editUserProfile(req, res): Promise<void>
+}
+
+class UserDAO {
+    +findUserById(userId: String): Promise<User>
+    +updateUserById(userId: String, updateData: Object): Promise<User>
+    +updateInfoUserById(userId: String, updateData: Object): Promise<User>
+}
+
+UserProfile --> UserController : Calls API
+UserController --> UserDAO : Handles Data
+UserDAO --> User : Accesses User Data
+@enduml

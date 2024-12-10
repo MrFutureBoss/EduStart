@@ -1,0 +1,21 @@
+@startuml
+actor Admin as Actor
+participant ClassManager
+participant ClassAPI
+participant AdminController
+participant AdminRepository
+participant Database
+
+Admin as Actor -> ClassManager : Open create class modal
+ClassManager -> ClassAPI : createClass(classData)
+ClassAPI -> AdminController : createClass(req, res)
+AdminController -> AdminRepository : findOrCreateClass(className, semesterId, teacherId)
+AdminRepository -> Database : Check if class exists
+Database --> AdminRepository : Return existing class or null
+AdminRepository -> Database : Save new class if not exists
+Database --> AdminRepository : Confirmation
+AdminRepository --> AdminController : Class data
+AdminController --> ClassAPI : Success response
+ClassAPI --> ClassManager : Confirmation
+ClassManager --> Admin as Actor : Display success message
+@enduml

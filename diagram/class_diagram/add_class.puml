@@ -1,0 +1,35 @@
+@startuml
+class ClassManager {
+    +fetchClasses(): Promise<void>
+    +showCreateClassModal(): void
+    +handleCreateClass(classData: Object): Promise<void>
+    +handleCancelCreateClass(): void
+}
+
+class Class {
+    +_id: String
+    +className: String
+    +teacherId: String
+    +limitStudent: Number
+    +semesterId: String
+    +status: String
+}
+
+class ClassAPI {
+    +fetchClasses(semesterId: String): Promise<[Class]>
+    +createClass(classData: Object): Promise<Class>
+}
+
+class AdminController {
+    +createClass(req, res): Promise<void>
+}
+
+class AdminRepository {
+    +findOrCreateClass(className: String, semesterId: String, teacherId: String): Promise<Class>
+}
+
+ClassManager --> ClassAPI : Calls API
+ClassAPI --> Class : Manages Class Data
+AdminController --> AdminRepository : Interacts with Repository
+AdminRepository --> Class : Creates or Fetches Class
+@enduml

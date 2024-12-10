@@ -1,0 +1,29 @@
+@startuml
+actor Admin as Actor
+participant AdminDashboard
+participant AdminDashboardAPI
+participant SemesterController
+participant SemesterRepositories
+participant Database
+
+Admin as Actor -> AdminDashboard : Access dashboard
+AdminDashboard -> AdminDashboardAPI : fetchCurrentSemester()
+AdminDashboardAPI -> SemesterController : getCurrentSemester()
+SemesterController -> SemesterRepositories : getCountsForSemester()
+SemesterRepositories -> Database : Query semester data
+Database --> SemesterRepositories : Return semester data
+SemesterRepositories --> SemesterController : Semester details with counts
+SemesterController --> AdminDashboardAPI : Semester details
+AdminDashboardAPI --> AdminDashboard : Semester details
+
+AdminDashboard -> AdminDashboardAPI : checkClassStatus(semesterId)
+AdminDashboardAPI -> SemesterController : checkClassStatus()
+SemesterController -> SemesterRepositories : getClassCapacityStatus()
+SemesterRepositories -> Database : Query classes
+Database --> SemesterRepositories : Return class statuses
+SemesterRepositories --> SemesterController : Class statuses
+SemesterController --> AdminDashboardAPI : Class statuses
+AdminDashboardAPI --> AdminDashboard : Class statuses
+
+AdminDashboard --> Admin as Actor : Display updated dashboard
+@enduml

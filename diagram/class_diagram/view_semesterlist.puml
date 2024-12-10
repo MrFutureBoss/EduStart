@@ -1,0 +1,47 @@
+@startuml
+class SemesterList {
+    +handleSelectSemester(semester): Promise<void>
+    +handleEditSemester(): void
+    +handleCreateModalOk(newSemester): Promise<void>
+    +refreshSemesters(): Promise<void>
+}
+
+class Semester {
+    +name: String
+    +status: String
+    +startDate: Date
+    +endDate: Date
+    +studentCount: Number
+    +teacherCount: Number
+    +mentorCount: Number
+    +classCount: Number
+}
+
+class SemesterController {
+    +createSemester(req, res): Promise<void>
+    +updateSemester(req, res): Promise<void>
+    +getAllSemesters(req, res): Promise<void>
+    +getUsersBySemester(req, res): Promise<void>
+}
+
+class SemesterRepositories {
+    +createSemester(semesterData): Semester
+    +getAllSemesters(): [Semester]
+    +updateSemester(semesterId, updateData): Semester
+    +getUsersBySemesterId(semesterId): [User]
+}
+
+class User {
+    +username: String
+    +email: String
+    +role: Number
+    +classId: ObjectId
+    +semesterId: ObjectId
+}
+
+SemesterList --> Semester : Uses
+SemesterList --> SemesterController : API Calls
+SemesterController --> SemesterRepositories : Queries
+SemesterRepositories --> Semester : Data Management
+SemesterRepositories --> User : Retrieves Associated Users
+@enduml

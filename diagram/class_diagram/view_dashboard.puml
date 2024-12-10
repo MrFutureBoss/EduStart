@@ -1,0 +1,50 @@
+@startuml
+class AdminDashboard {
+    +fetchCurrentSemester(): Promise<void>
+    +processTasks(): Array<Object>
+    +handleCreateSemester(semesterData): Promise<void>
+    +handleEditSemester(semesterId): Promise<void>
+}
+
+class Semester {
+    +name: String
+    +status: String
+    +startDate: Date
+    +endDate: Date
+    +studentCount: Number
+    +teacherCount: Number
+    +mentorCount: Number
+    +classCount: Number
+    +studentsWithClass: Number
+    +studentsWithoutClass: Number
+    +teachersWithClassCount: Number
+    +teachersWithoutClassCount: Number
+    +classesWithStudentsCount: Number
+    +classesWithoutStudentsCount: Number
+}
+
+class AdminDashboardAPI {
+    +checkSemesterStatus(semesterId: String): Promise<Object>
+    +checkTeachersInSemester(semesterId: String): Promise<Object>
+    +checkMentorsInSemester(semesterId: String): Promise<Object>
+    +checkStudentsInSemester(semesterId: String): Promise<Object>
+    +checkClassStatus(semesterId: String): Promise<Object>
+}
+
+class SemesterController {
+    +getCurrentSemester(req, res): Promise<Object>
+    +checkTeachersInSemester(req, res): Promise<Object>
+    +checkStudentsInSemester(req, res): Promise<Object>
+}
+
+class SemesterRepositories {
+    +getCountsForSemester(semesterId: String): Object
+    +getClassCapacityStatus(semesterId: String): Array<Object>
+    +findTeachersWithoutClass(semesterId: String): Array<Object>
+}
+
+AdminDashboard --> AdminDashboardAPI : API Calls
+AdminDashboardAPI --> SemesterController : Calls Controller
+SemesterController --> SemesterRepositories : Uses Repository
+SemesterRepositories --> Semester : Fetches Data
+@enduml

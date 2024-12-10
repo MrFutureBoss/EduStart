@@ -1,0 +1,39 @@
+
+@startuml
+class UserList {
+    +fetchUsers(): Promise<void>
+    +filterUsers(searchText: String, role: Number): Array<Object>
+    +displayUsers(): void
+}
+
+class User {
+    +username: String
+    +email: String
+    +role: Number
+    +status: String
+    +classId: ObjectId
+    +semesterId: ObjectId
+    +createdAt: Date
+    +updatedAt: Date
+}
+
+class AdminController {
+    +getUserList(req, res): Promise<Object>
+    +getPendingUsers(req, res): Promise<Object>
+}
+
+class AdminRepositories {
+    +findUsersBySemester(semesterId: String): Array<User>
+    +findPendingUsers(semesterId: String): Array<User>
+}
+
+class Database {
+    <<Database>>
+    +Query(criteria: Object): Object
+}
+
+UserList --> AdminController : API Calls
+AdminController --> AdminRepositories : Fetches User Data
+AdminRepositories --> User : Handles User Data
+AdminRepositories --> Database : Direct Queries
+@enduml
