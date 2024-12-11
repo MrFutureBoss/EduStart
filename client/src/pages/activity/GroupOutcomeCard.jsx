@@ -292,8 +292,8 @@ const GroupOutcomeCard = ({ groupId, active }) => {
       {filteredOutcomes.length > 0 && (
         <Card
           title={
-            <span style={{ fontSize: "20px", fontWeight: "bold" }}>
-              Tiến độ outcome
+            <span style={{ fontSize: "16px", fontWeight: "700" }}>
+              Outcome của nhóm
             </span>
           }
           className="group-outcomes-card"
@@ -337,9 +337,12 @@ const GroupOutcomeCard = ({ groupId, active }) => {
             renderItem={(outcome) => (
               <List.Item key={outcome._id} style={{ padding: "10px" }}>
                 <List.Item.Meta
-                  title={<Text strong>Loại: {outcome.name}</Text>}
                   description={
                     <div>
+                      <p>
+                        {" "}
+                        <Text strong>Loại: {outcome.name}</Text>
+                      </p>
                       <p>
                         <Text strong>Deadline: </Text>
                         <Tag

@@ -6,7 +6,9 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const PieChartDashboard = ({ classData, onSectionClick }) => {
   const [highlightedClass, setHighlightedClass] = useState(null);
-
+  if (!classData || classData.length <= 1) {
+    return null;
+  }
   const pieChartData = (classData || []).map((cls) => ({
     name: cls.className,
     value: cls.totalIssues,

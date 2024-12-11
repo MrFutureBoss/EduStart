@@ -464,6 +464,7 @@ const TableIssueDashboard = ({ userId, jwt }) => {
       render: (_, __, index) => (
         <span style={{ fontSize: "13.5px" }}>{index + 1}</span>
       ),
+      width: "5%"
     },
     {
       title: (
@@ -475,10 +476,10 @@ const TableIssueDashboard = ({ userId, jwt }) => {
       key: "className",
       render: (text) => (
         <span style={{ fontSize: "13.5px" }}>
-          <SolutionOutlined style={{ marginRight: 8 }} />
           {text}
         </span>
       ),
+      width: "25%"
     },
     {
       title: (
@@ -487,6 +488,7 @@ const TableIssueDashboard = ({ userId, jwt }) => {
           )
         </span>
       ),
+      width: "70%",
       dataIndex: "issues",
       key: "issues",
       render: (issues, record) => {
@@ -507,90 +509,90 @@ const TableIssueDashboard = ({ userId, jwt }) => {
               isGroup = true;
             }
 
-            const tooltipContent = issue.items.map((item, index) => (
-              <span key={item.projectId || item.groupId}>
-                <Link
-                  to={item.link}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleProjectClick(
-                      isGroup ? item.className : item.projectId || item.groupId,
-                      tab,
-                      isGroup,
-                      isGroup
-                    );
-                  }}
-                >
-                  {item.name}
-                </Link>
+            const groupList = issue.items.map((item, index) => (
+              <Link
+                key={item.projectId || item.groupId}
+                to={
+                  issue.type === "Dự án cần duyệt"
+                    ? `/project-approval/${tab}`
+                    : issue.type === "Dự án cập nhật lại"
+                    ? `/project-update/${tab}`
+                    : isGroup
+                    ? `/group-details/${record.className}`
+                    : `/issue-detail/${issue.id}`
+                }
+                style={{
+                  marginRight: "4px",
+                  textDecoration: "none",
+                  color: "black",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = "#60b2c7";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = "black";
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleProjectClick(
+                    isGroup ? item.className : item.projectId || item.groupId,
+                    tab,
+                    isGroup,
+                    isGroup
+                  );
+                }}
+              >
+                {item.name}
                 {index < issue.items.length - 1 && ", "}
-              </span>
+              </Link>
             ));
 
             return (
               <div key={issue.type} style={{ marginBottom: "8px" }}>
-                <span style={{ fontSize: "13.5px" }}>{issue.type} :</span>
-                {issue.items.length === 1 ? (
-                  <Tag
-                    color="red"
-                    key={issue.items[0].projectId || issue.items[0].groupId}
-                    style={{
-                      marginRight: 4,
-                      marginTop: 4,
-                      cursor: "pointer",
-                    }}
-                    onClick={() =>
-                      handleProjectClick(
-                        isGroup
-                          ? issue.items[0].className
-                          : issue.items[0].projectId || issue.items[0].groupId,
-                        tab,
-                        isGroup,
-                        isGroup
-                      )
-                    }
-                  >
-                    {issue.items[0].name}
-                  </Tag>
-                ) : (
-                  <Tooltip
-                    title={
-                      <div
+                <span style={{ fontSize: "13.5px", fontWeight: "600" }}>
+                  {issue.type}{" "}
+                  {issue.items.length > 1 ? (
+                    <Tooltip
+                      title={
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "4px",
+                            maxWidth: "300px",
+                          }}
+                        >
+                          {issue.items.map((item) => item.name).join(", ")}
+                        </div>
+                      }
+                    >
+                      <Link
+                        to={
+                          issue.type === "Dự án cần duyệt"
+                            ? `/project-approval/${tab}`
+                            : issue.type === "Dự án cập nhật lại"
+                            ? `/project-update/${tab}`
+                            : isGroup
+                            ? `/group-details/${record.className}`
+                            : `/issue-detail/${issue.id}`
+                        }
                         style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: "4px",
-                          maxWidth: "300px",
+                          cursor: "pointer",
+                          textDecoration: "none",
+                          color: "#60b2c7",
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleIssueClick(issue.type, record.className);
                         }}
                       >
-                        {tooltipContent}
-                      </div>
-                    }
-                  >
-                    <Link
-                      to={
-                        issue.type === "Dự án cần duyệt"
-                          ? `/project-approval/${tab}`
-                          : issue.type === "Dự án cập nhật lại"
-                          ? `/project-update/${tab}`
-                          : isGroup
-                          ? `/group-details/${record.className}`
-                          : `/issue-detail/${issue.id}`
-                      }
-                      style={{
-                        cursor: "pointer",
-                        textDecoration: "none",
-                        color: "red",
-                      }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleIssueClick(issue.type, record.className);
-                      }}
-                    >
-                      {issue.items.length}
-                    </Link>
-                  </Tooltip>
-                )}
+                        ({issue.items.length})
+                      </Link>
+                    </Tooltip>
+                  ) : null}
+                  :
+                </span>
+                <span style={{ marginLeft: "8px" }}>{groupList}</span>
               </div>
             );
           }

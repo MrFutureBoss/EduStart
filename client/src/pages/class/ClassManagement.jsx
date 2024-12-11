@@ -105,9 +105,6 @@ const ClassManagement = () => {
 
   return (
     <div>
-      <h5 style={{ textAlign: "center", marginBottom: "8px" }}>
-        Các giai đoạn Outcome
-      </h5>
       <Row gutter={[32, 16]}>
         <MonitorStep />
       </Row>

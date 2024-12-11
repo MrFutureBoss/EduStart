@@ -341,8 +341,49 @@ const OutcomeDetail = () => {
                   <Tooltip title="Deadline đã quá hạn">
                     <BellFilled style={{ marginRight: "4px" }} />
                   </Tooltip>
-                  <span>Nộp muộn {daysLate} ngày!</span>
+                  <span>
+                    Đã quá hạn nộp {Math.abs(deadline.diff(now, "hours"))} giờ!
+                  </span>
                 </div>
+              ) : daysUntilDeadline < 1 ? (
+                deadline.diff(now, "hours") <= 0 ? (
+                  <div
+                    style={{
+                      color: "red",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tooltip title="Deadline đã quá hạn">
+                      <BellFilled style={{ marginRight: "4px" }} />
+                    </Tooltip>
+                    <span>
+                      Đã quá hạn nộp {Math.abs(deadline.diff(now, "hours"))}{" "}
+                      giờ!
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      color: "orange",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tooltip title="Deadline sắp đến">
+                      <BellFilled
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSendReminder(outcome.groupName);
+                        }}
+                        style={{ marginRight: "4px", cursor: "pointer" }}
+                      />
+                    </Tooltip>
+                    <span>
+                      Còn {deadline.diff(now, "hours")} giờ tới hạn nộp!
+                    </span>
+                  </div>
+                )
               ) : isNearDeadline ? (
                 <div
                   style={{
@@ -452,8 +493,7 @@ const OutcomeDetail = () => {
                                     </Link>
                                   ))
                                   .reduce((prev, curr) => [prev, ", ", curr])
-                              :
-                                outcome.files.split("/").pop()}
+                              : outcome.files.split("/").pop()}
                           </p>
                         ) : (
                           <p style={{ margin: 0 }}>Không có tệp đã nộp</p>
@@ -467,7 +507,9 @@ const OutcomeDetail = () => {
                         marginBottom: "5px",
                         cursor: "pointer",
                       }}
-                      onClick={() => navigate(`/teacher/group-detail/${outcome.groupId}`)}
+                      onClick={() =>
+                        navigate(`/teacher/group-detail/${outcome.groupId}`)
+                      }
                     >
                       {outcome.groupName || "Unnamed Group"}
                     </Tag>
@@ -562,7 +604,7 @@ const OutcomeDetail = () => {
           }
         >
           <DatePicker
-            defaultValue={moment(editDeadline.deadline, "YYYY-MM-DD")}
+            // value={moment(editDeadline.deadline, "YYYY-MM-DD")}
             onChange={(date) => {
               setEditDeadline((prev) => ({
                 ...prev,

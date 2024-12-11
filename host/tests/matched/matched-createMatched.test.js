@@ -146,7 +146,7 @@ describe("createMatched", () => {
     const inputData = {
       groupId: "group123",
       mentorId: "mentor123",
-      status: 12222,
+      status: "Pending",
     };
 
     // Mock Matched để tạo lỗi
