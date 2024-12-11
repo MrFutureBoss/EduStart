@@ -1,0 +1,93 @@
+[{
+  "_id": {
+    "$oid": "67507ee553b6c03b04ad8a30"
+  },
+  "groupId": {
+    "$oid": "6749391df0cf740bf4028c5a"
+  },
+  "classId": {
+    "$oid": "674930aa40b65c51e85ff030"
+  },
+  "submitId": {
+    "$oid": "67507d3e53b6c03b04ad8971"
+  },
+  "leaderId": {
+    "$oid": "674930b540b65c51e85ff0b6"
+  },
+  "files": [
+    "/uploads/materials/1.pdf",
+    "/uploads/materials/Logo.png",
+    "/uploads/materials/Ảnh chụp màn hình 2024-10-30 221014.jpg"
+  ],
+  "submittedAt": {
+    "$date": "2024-12-04T16:10:13.887Z"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T16:10:13.891Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T17:36:16.186Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67508d07f3b79a2301c25d98"
+  },
+  "groupId": {
+    "$oid": "674938f1f0cf740bf4028b4e"
+  },
+  "classId": {
+    "$oid": "6749309d40b65c51e85ff02a"
+  },
+  "submitId": {
+    "$oid": "67507d3e53b6c03b04ad8956"
+  },
+  "leaderId": {
+    "$oid": "674930b540b65c51e85ff081"
+  },
+  "files": [
+    "/uploads/materials/error_file (2).xlsx"
+  ],
+  "submittedAt": {
+    "$date": "2024-12-04T17:10:31.648Z"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T17:10:31.842Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T17:10:31.842Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6751248e3794153dd9ebc91d"
+  },
+  "groupId": {
+    "$oid": "6749391df0cf740bf4028c54"
+  },
+  "classId": {
+    "$oid": "674930aa40b65c51e85ff030"
+  },
+  "submitId": {
+    "$oid": "67507d3e53b6c03b04ad8968"
+  },
+  "leaderId": {
+    "$oid": "674930b540b65c51e85ff0a4"
+  },
+  "files": [
+    "/uploads/materials/1.png",
+    "/uploads/materials/AÌnh chuÌ£p maÌn hiÌnh 2024-10-30 221014.jpg"
+  ],
+  "submittedAt": {
+    "$date": "2024-12-05T03:57:02.193Z"
+  },
+  "createdAt": {
+    "$date": "2024-12-05T03:57:02.204Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-05T03:57:02.204Z"
+  },
+  "__v": 0
+}]

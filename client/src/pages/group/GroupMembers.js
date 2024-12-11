@@ -158,6 +158,7 @@ const GroupMembers = () => {
     setProjectData(groupDetails);
     setIsModalVisible(true);
   };
+  // Khi userLogin thay đổi (khi logout)
 
   useEffect(() => {
     if (groupDetails && userLogin?.role === 4 && userLogin.isLeader === true) {
@@ -461,7 +462,7 @@ const GroupMembers = () => {
                   <Empty description="Chưa có lịch hãy vào lịch của các nhóm để tạo" />
                 )}
               </Card>
-              <GroupOutcomeCard groupId={groupId} />
+              <GroupOutcomeCard groupId={groupId} active={isActive} />
               <Badge.Ribbon
                 text={
                   groupDetails.matched[0].status === "Pending"

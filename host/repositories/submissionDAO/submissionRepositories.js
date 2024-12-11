@@ -56,6 +56,18 @@ const findSubmissionBySubmitId = async (submitId) => {
     .populate("leaderId", "username email rollNumber");
 };
 
+const getSubmissionsByGroupId = async (groupId) => {
+  try {
+    const submissions = await Submission.find({ groupId })
+      .populate("groupId", "name")
+      .populate("classId", "name")
+      // .populate("submitId", "name")
+      .populate("leaderId", "name email");
+    return submissions;
+  } catch (error) {
+    throw new Error(`Error fetching submissions by groupId: ${error.message}`);
+  }
+};
 export default {
   createSubmission,
   getSubmissionById,
@@ -63,4 +75,5 @@ export default {
   updateSubmissionById,
   deleteSubmissionById,
   findSubmissionBySubmitId,
+  getSubmissionsByGroupId,
 };

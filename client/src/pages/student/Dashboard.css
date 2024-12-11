@@ -17,3 +17,24 @@
   background-color: rgb(245, 245, 245);
   font-size: 20px;
 }
+.alert-custum-dash .ant-alert-icon {
+  font-size: 21px;
+}
+.alert-custum-dash .ant-alert-message {
+  font-size: 21px;
+}
+.blinking-card {
+  animation: blinking 1.5s infinite;
+}
+
+@keyframes blinking {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}

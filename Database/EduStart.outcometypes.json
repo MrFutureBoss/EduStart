@@ -1,57 +1,57 @@
 [{
   "_id": {
-    "$oid": "67337c896d2abd1a3a7cfcca"
+    "$oid": "67492eee40b65c51e85fec8f"
   },
   "name": "Outcome 1",
   "createdBy": {
     "$oid": "670bb3642eb65e19740ca599"
   },
   "semesterId": {
-    "$oid": "670bacd404ec36ddb74918e9"
+    "$oid": "67492eee40b65c51e85fec8a"
   },
   "createdAt": {
-    "$date": "2024-11-12T16:04:25.478Z"
+    "$date": "2024-11-29T03:03:10.565Z"
   },
   "updatedAt": {
-    "$date": "2024-11-12T16:04:25.478Z"
+    "$date": "2024-11-29T03:03:10.565Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "67337c896d2abd1a3a7cfccc"
+    "$oid": "67492eee40b65c51e85fec91"
   },
   "name": "Outcome 2",
   "createdBy": {
     "$oid": "670bb3642eb65e19740ca599"
   },
   "semesterId": {
-    "$oid": "670bacd404ec36ddb74918e9"
+    "$oid": "67492eee40b65c51e85fec8a"
   },
   "createdAt": {
-    "$date": "2024-11-12T16:04:25.482Z"
+    "$date": "2024-11-29T03:03:10.607Z"
   },
   "updatedAt": {
-    "$date": "2024-11-12T16:04:25.482Z"
+    "$date": "2024-11-29T03:03:10.607Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "67337c896d2abd1a3a7cfcce"
+    "$oid": "67492eee40b65c51e85fec93"
   },
   "name": "Outcome 3",
   "createdBy": {
     "$oid": "670bb3642eb65e19740ca599"
   },
   "semesterId": {
-    "$oid": "670bacd404ec36ddb74918e9"
+    "$oid": "67492eee40b65c51e85fec8a"
   },
   "createdAt": {
-    "$date": "2024-11-12T16:04:25.508Z"
+    "$date": "2024-11-29T03:03:10.614Z"
   },
   "updatedAt": {
-    "$date": "2024-11-12T16:04:25.508Z"
+    "$date": "2024-11-29T03:03:10.614Z"
   },
   "__v": 0
 }]

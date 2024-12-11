@@ -1,212 +1,448 @@
 [{
   "_id": {
-    "$oid": "671e0743f00e69b600bbfbcd"
-  },
-  "name": "Group 1",
-  "description": "This group is focused on data science tasks.",
-  "status": "Active",
-  "projectId": {
-    "$oid": "671e0743f00e69b600bbfbcb"
-  },
-  "classId": {
-    "$oid": "671e0743f00e69b600bbfbca"
-  }
-},
-{
-  "_id": {
-    "$oid": "671e0743f00e69b600bbfbce"
-  },
-  "name": "Group 2",
-  "description": "This group is working on web development.",
-  "status": "Active",
-  "projectId": {
-    "$oid": "671e0743f00e69b600bbfbcc"
-  },
-  "classId": {
-    "$oid": "671e0743f00e69b600bbfbca"
-  }
-},
-{
-  "_id": {
-    "$oid": "671fb8f4a6993a98abdc597f"
-  },
-  "name": "Group 2",
-  "description": "This group is working on web development.",
-  "status": "Active",
-  "classId": {
-    "$oid": "670be1be3fb05896393d5a3e"
-  },
-  "projectId": {
-    "$oid": "67317c7a94d7bf6366070f89"
-  },
-  "updatedAt": {
-    "$date": "2024-11-11T03:39:38.814Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "671e0743f00e69b600bbfbc1"
-  },
-  "name": "Group 3",
-  "description": "This group is focused on data science tasks.",
-  "status": "Active",
-  "projectId": {
-    "$oid": "671e0743f00e69b600bbfbc0"
-  },
-  "classId": {
-    "$oid": "671e0743f00e69b600bbfbca"
-  }
-},
-{
-  "_id": {
-    "$oid": "6729f2d8661eab2247cbbe02"
-  },
-  "name": "Group 1",
-  "description": "nhóm khoa học.",
-  "status": "Active",
-  "classId": {
-    "$oid": "670be1be3fb05896393d5a3e"
-  },
-  "projectId": {
-    "$oid": "6729f80f661eab2247cbbe14"
-  }
-},
-{
-  "_id": {
-    "$oid": "6729f2f0661eab2247cbbe03"
-  },
-  "name": "Group 2",
-  "description": "nhóm khoa học 1.",
-  "status": "Active",
-  "classId": {
-    "$oid": "670be1be3fb05896393d5a3e"
-  },
-  "projectId": {
-    "$oid": "672b3e9564b5433eec4f26b9"
-  },
-  "updatedAt": {
-    "$date": "2024-11-06T10:01:57.505Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6729f301661eab2247cbbe04"
-  },
-  "name": "Group 3",
-  "description": "nhóm khoa học 3.",
-  "status": "Active",
-  "classId": {
-    "$oid": "670be1be3fb05896393d5a3e"
-  },
-  "projectId": {
-    "$oid": "672ae205c0f39056de696238"
-  },
-  "updatedAt": {
-    "$date": "2024-11-06T03:27:01.448Z"
-  }
-},
-{
-  "_id": {
-    "$oid": "6735fcc15b00d998a817ab47"
-  },
-  "name": "Nhóm 2",
-  "description": "",
-  "status": "Active",
-  "projectId": {
-    "$oid": "67429c83377fba891e00dea9"
-  },
-  "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
-  },
-  "createdAt": {
-    "$date": "2024-11-14T13:36:01.203Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-24T03:24:51.800Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "6735fcc15b00d998a817ab4b"
-  },
-  "name": "Nhóm 4",
-  "description": "",
-  "status": "Active",
-  "projectId": {
-    "$oid": "673d4778c980e7599ecff788"
-  },
-  "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
-  },
-  "createdAt": {
-    "$date": "2024-11-14T13:36:01.657Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-20T02:20:40.695Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "6735fcc15b00d998a817ab4d"
-  },
-  "name": "Nhóm 3",
-  "description": "",
-  "status": "Active",
-  "projectId": {
-    "$oid": "673d0336cf3cbc126ed87a9f"
-  },
-  "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
-  },
-  "createdAt": {
-    "$date": "2024-11-14T13:36:01.693Z"
-  },
-  "updatedAt": {
-    "$date": "2024-11-19T21:29:27.033Z"
-  },
-  "__v": 0
-},
-{
-  "_id": {
-    "$oid": "6735fcc15b00d998a817ab4f"
+    "$oid": "674938f1f0cf740bf4028b4e"
   },
   "name": "Nhóm 1",
   "description": "",
   "status": "Active",
   "projectId": {
-    "$oid": "6737fba00b39dadb6261a2c2"
+    "$oid": "67493b069dde94710ec1610e"
   },
   "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
+    "$oid": "6749309d40b65c51e85ff02a"
   },
   "createdAt": {
-    "$date": "2024-11-14T13:36:01.723Z"
+    "$date": "2024-11-29T03:45:53.818Z"
   },
   "updatedAt": {
-    "$date": "2024-11-27T08:11:15.129Z"
+    "$date": "2024-11-29T03:54:46.063Z"
   },
   "__v": 0
 },
 {
   "_id": {
-    "$oid": "6735fcc15b00d998a817ab51"
+    "$oid": "674938f1f0cf740bf4028b50"
   },
   "name": "Nhóm 5",
   "description": "",
   "status": "Active",
   "projectId": {
-    "$oid": "6746ed2efc5f5ad10f95ea07"
+    "$oid": "67493b869dde94710ec16138"
   },
   "classId": {
-    "$oid": "6717cdc43cdaefd84e901ec2"
+    "$oid": "6749309d40b65c51e85ff02a"
   },
   "createdAt": {
-    "$date": "2024-11-14T13:36:01.753Z"
+    "$date": "2024-11-29T03:45:53.847Z"
   },
   "updatedAt": {
-    "$date": "2024-11-27T09:58:06.342Z"
+    "$date": "2024-11-29T03:56:54.366Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "674938f1f0cf740bf4028b52"
+  },
+  "name": "Nhóm 2",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "67493bf29dde94710ec16161"
+  },
+  "classId": {
+    "$oid": "6749309d40b65c51e85ff02a"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:45:53.874Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-29T03:58:42.567Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "674938f1f0cf740bf4028b54"
+  },
+  "name": "Nhóm 4",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "675038cff08df26f0d16278d"
+  },
+  "classId": {
+    "$oid": "6749309d40b65c51e85ff02a"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:45:53.897Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T11:11:11.441Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "674938f1f0cf740bf4028b56"
+  },
+  "name": "Nhóm 3",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "67493fce9dde94710ec16287"
+  },
+  "classId": {
+    "$oid": "6749309d40b65c51e85ff02a"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:45:53.921Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-29T04:15:10.462Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6749391df0cf740bf4028c52"
+  },
+  "name": "Nhóm 5",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "674940149dde94710ec162b0"
+  },
+  "classId": {
+    "$oid": "674930aa40b65c51e85ff030"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:46:37.088Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-29T04:16:20.933Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6749391df0cf740bf4028c54"
+  },
+  "name": "Nhóm 1",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "675128f819fc59897605cd53"
+  },
+  "classId": {
+    "$oid": "674930aa40b65c51e85ff030"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:46:37.112Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-05T04:15:52.362Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6749391df0cf740bf4028c56"
+  },
+  "name": "Nhóm 4",
+  "description": "",
+  "status": "Active",
+  "projectId": null,
+  "classId": {
+    "$oid": "674930aa40b65c51e85ff030"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:46:37.136Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-29T03:46:37.136Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6749391df0cf740bf4028c58"
+  },
+  "name": "Nhóm 2",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6751296019fc59897605ce38"
+  },
+  "classId": {
+    "$oid": "674930aa40b65c51e85ff030"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:46:37.160Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-05T04:17:36.069Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6749391df0cf740bf4028c5a"
+  },
+  "name": "Nhóm 3",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "674d860003ca626c686df781"
+  },
+  "classId": {
+    "$oid": "674930aa40b65c51e85ff030"
+  },
+  "createdAt": {
+    "$date": "2024-11-29T03:46:37.185Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-02T10:03:44.410Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "675058e7cf290098d6f12747"
+  },
+  "name": "Nhóm 4",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "67512cea19fc59897605d31b"
+  },
+  "classId": {
+    "$oid": "6749307f40b65c51e85ff01e"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T13:28:07.683Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-05T04:32:42.939Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "675058e7cf290098d6f12749"
+  },
+  "name": "Nhóm 3",
+  "description": "",
+  "status": "Active",
+  "projectId": null,
+  "classId": {
+    "$oid": "6749307f40b65c51e85ff01e"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T13:28:07.789Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T13:28:07.789Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "675058e7cf290098d6f1274b"
+  },
+  "name": "Nhóm 5",
+  "description": "",
+  "status": "Active",
+  "projectId": null,
+  "classId": {
+    "$oid": "6749307f40b65c51e85ff01e"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T13:28:07.846Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T13:28:07.846Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "675058e7cf290098d6f1274d"
+  },
+  "name": "Nhóm 6",
+  "description": "",
+  "status": "Active",
+  "projectId": null,
+  "classId": {
+    "$oid": "6749307f40b65c51e85ff01e"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T13:28:07.912Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T13:28:07.912Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "675058e7cf290098d6f1274f"
+  },
+  "name": "Nhóm 1",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6750638ccf290098d6f12866"
+  },
+  "classId": {
+    "$oid": "6749307f40b65c51e85ff01e"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T13:28:08.004Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T14:13:32.808Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "675058e8cf290098d6f12751"
+  },
+  "name": "Nhóm 2",
+  "description": "",
+  "status": "Active",
+  "projectId": null,
+  "classId": {
+    "$oid": "6749307f40b65c51e85ff01e"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T13:28:08.063Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T13:28:08.063Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6750a5db6c00fdde9ced13df"
+  },
+  "name": "Nhóm 1",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6750a6766c00fdde9ced1489"
+  },
+  "classId": {
+    "$oid": "6749309040b65c51e85ff024"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T18:56:27.571Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T18:59:02.713Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6750a5db6c00fdde9ced13e1"
+  },
+  "name": "Nhóm 3",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6750ab386c00fdde9ced183d"
+  },
+  "classId": {
+    "$oid": "6749309040b65c51e85ff024"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T18:56:27.646Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T19:19:20.238Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6750a5db6c00fdde9ced13e3"
+  },
+  "name": "Nhóm 6",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6750ac446c00fdde9ced18d3"
+  },
+  "classId": {
+    "$oid": "6749309040b65c51e85ff024"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T18:56:27.704Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T19:23:48.727Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6750a5db6c00fdde9ced13e5"
+  },
+  "name": "Nhóm 2",
+  "description": "",
+  "status": "Active",
+  "projectId": {
+    "$oid": "6750aedc6c00fdde9ced1afa"
+  },
+  "classId": {
+    "$oid": "6749309040b65c51e85ff024"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T18:56:27.760Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T19:34:52.764Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6750a5db6c00fdde9ced13e7"
+  },
+  "name": "Nhóm 5",
+  "description": "",
+  "status": "Active",
+  "projectId": null,
+  "classId": {
+    "$oid": "6749309040b65c51e85ff024"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T18:56:27.829Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T18:56:27.829Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6750a5db6c00fdde9ced13e9"
+  },
+  "name": "Nhóm 4",
+  "description": "",
+  "status": "Active",
+  "projectId": null,
+  "classId": {
+    "$oid": "6749309040b65c51e85ff024"
+  },
+  "createdAt": {
+    "$date": "2024-12-04T18:56:27.910Z"
+  },
+  "updatedAt": {
+    "$date": "2024-12-04T18:56:27.910Z"
   },
   "__v": 0
 }]

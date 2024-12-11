@@ -1,7 +1,7 @@
 import express from "express";
 import { verifyAccessToken, verifyRole } from "../utilities/jwt.js";
 import submissionController from "../controllers/submissionController/submissionController.js";
-import upload, { multipleUpload } from "../middlewares/uploadMiddleware.js";
+import upload, { downloadSubmission, multipleUpload } from "../middlewares/uploadMiddleware.js";
 
 const submissionRouter = express.Router();
 
@@ -48,5 +48,14 @@ submissionRouter.get(
   verifyRole([2, 4]),
   submissionController.getSubmissionBySubmitId
 );
+
+submissionRouter.get(
+  "/group/:groupId",
+  verifyAccessToken,
+  verifyRole([2, 4]),
+  submissionController.fetchSubmissionsByGroupId
+);
+
+submissionRouter.get("/download/:filename", downloadSubmission);
 
 export default submissionRouter;
