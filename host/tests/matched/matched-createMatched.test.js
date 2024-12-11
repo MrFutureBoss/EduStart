@@ -9,7 +9,7 @@ jest.mock("../../models/temporaryMatchingModel.js");
 
 describe("createMatched", () => {
   afterEach(() => {
-    jest.clearAllMocks(); // Xóa mock sau mỗi lần test
+    jest.clearAllMocks(); 
   });
 
   test("nên tạo một bản ghi matched mới và cập nhật currentLoad của mentor", async () => {

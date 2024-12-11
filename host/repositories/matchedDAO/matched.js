@@ -341,7 +341,8 @@ const createNewTimeEvents = async (id, newTimeArray) => {
   }
 };
 
-const updateTimeEventById = async (eventId, updateData) => {
+
+const patchTimeEventById = async (eventId, updateData) => {
   try {
     if (!mongoose.isValidObjectId(eventId)) {
       throw new Error("Invalid Event ID format");
@@ -399,6 +400,6 @@ export default {
   getAllMatchingDetailByMentorId,
   patchMatchedById,
   createNewTimeEvents,
-  updateTimeEventById,
+  patchTimeEventById,
   deleteTimeEventById,
 };

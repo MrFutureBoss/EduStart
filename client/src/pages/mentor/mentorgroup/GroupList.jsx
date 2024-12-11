@@ -432,87 +432,88 @@ const GroupList = () => {
                   !group.matchedDetails.time ||
                   group.matchedDetails.time.length === 0
               ).length !== 0 ? (
-                <AntTabs
-                  defaultActiveKey="all"
-                  onChange={(key) => setGroupFilterKey(key)}
-                  style={{ marginBottom: "20px" }}
-                >
-                  <AntTabs.TabPane
-                    key="all"
-                    tab={
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <span>Tất cả</span>
-                        <Badge count={myGroups.length} />
-                      </div>
-                    }
-                  />
-                  <AntTabs.TabPane
-                    key="hasMeeting"
-                    disabled={
-                      myGroups.filter(
-                        (group) =>
-                          group.matchedDetails.time &&
-                          group.matchedDetails.time.length > 0
-                      ).length === 0
-                    }
-                    tab={
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <span>Đã có lịch họp</span>
-                        <Badge
-                          count={
-                            myGroups.filter(
-                              (group) =>
-                                group.matchedDetails.time &&
-                                group.matchedDetails.time.length > 0
-                            ).length
-                          }
-                        />
-                      </div>
-                    }
-                  />
-                  <AntTabs.TabPane
-                    key="noMeeting"
-                    disabled={
-                      myGroups.filter(
-                        (group) =>
-                          !group.matchedDetails.time ||
-                          group.matchedDetails.time.length === 0
-                      ).length === 0
-                    }
-                    tab={
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <span>Chưa có lịch họp</span>
-                        <Badge
-                          count={
-                            myGroups.filter(
-                              (group) =>
-                                !group.matchedDetails.time ||
-                                group.matchedDetails.time.length === 0
-                            ).length
-                          }
-                        />
-                      </div>
-                    }
-                  />
-                </AntTabs>
+                // <AntTabs
+                //   defaultActiveKey="all"
+                //   onChange={(key) => setGroupFilterKey(key)}
+                //   style={{ marginBottom: "20px" }}
+                // >
+                //   <AntTabs.TabPane
+                //     key="all"
+                //     tab={
+                //       <div
+                //         style={{
+                //           display: "flex",
+                //           alignItems: "center",
+                //           gap: "8px",
+                //         }}
+                //       >
+                //         <span>Tất cả</span>
+                //         <Badge count={myGroups.length} />
+                //       </div>
+                //     }
+                //   />
+                //   <AntTabs.TabPane
+                //     key="hasMeeting"
+                //     disabled={
+                //       myGroups.filter(
+                //         (group) =>
+                //           group.matchedDetails.time &&
+                //           group.matchedDetails.time.length > 0
+                //       ).length === 0
+                //     }
+                //     tab={
+                //       <div
+                //         style={{
+                //           display: "flex",
+                //           alignItems: "center",
+                //           gap: "8px",
+                //         }}
+                //       >
+                //         <span>Đã có lịch họp</span>
+                //         <Badge
+                //           count={
+                //             myGroups.filter(
+                //               (group) =>
+                //                 group.matchedDetails.time &&
+                //                 group.matchedDetails.time.length > 0
+                //             ).length
+                //           }
+                //         />
+                //       </div>
+                //     }
+                //   />
+                //   <AntTabs.TabPane
+                //     key="noMeeting"
+                //     disabled={
+                //       myGroups.filter(
+                //         (group) =>
+                //           !group.matchedDetails.time ||
+                //           group.matchedDetails.time.length === 0
+                //       ).length === 0
+                //     }
+                //     tab={
+                //       <div
+                //         style={{
+                //           display: "flex",
+                //           alignItems: "center",
+                //           gap: "8px",
+                //         }}
+                //       >
+                //         <span>Chưa có lịch họp</span>
+                //         <Badge
+                //           count={
+                //             myGroups.filter(
+                //               (group) =>
+                //                 !group.matchedDetails.time ||
+                //                 group.matchedDetails.time.length === 0
+                //             ).length
+                //           }
+                //         />
+                //       </div>
+                //     }
+                //   />
+                // </AntTabs>
+                <></>
               ) : (
                 <></>
               )}

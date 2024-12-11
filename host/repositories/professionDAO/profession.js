@@ -132,12 +132,16 @@ const searchProfessionsAndSpecialtiesByName = async (name) => {
   }
 };
 
-const createNewProfession = async (name, specialties, status) => {
+const createNewProfessionAndSpecialty = async (name, specialties, status) => {
+  if (!name) {
+    throw new Error("Tên lĩnh vực không được để trống");
+  }
+  if (name.length < 2) {
+    throw new Error("Tên lĩnh vực không đúng định dạng");
+  }
   try {
-    // Kiểm tra xem profession với tên này đã tồn tại chưa
     const existingProfession = await Profession.findOne({ name });
     if (existingProfession) {
-      // Ném lỗi với thông báo cụ thể
       throw new Error("Lĩnh vực đã tồn tại");
     }
 
@@ -156,7 +160,7 @@ const createNewProfession = async (name, specialties, status) => {
 
     return newProfession;
   } catch (error) {
-    throw new Error(error.message); // Ném lại lỗi với message cụ thể
+    throw new Error(error.message);
   }
 };
 
@@ -312,7 +316,7 @@ export default {
   getAllSpecialtyByProfessionID,
   findProfessionAndSpecialtyByName,
   searchProfessionsAndSpecialtiesByName,
-  createNewProfession,
+  createNewProfessionAndSpecialty,
   updateProfessionAndSpecialty,
   updateProfession,
   deleteProfessionAndSpecialties,

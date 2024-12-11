@@ -86,10 +86,10 @@ const searchProfessionsAndSpecialtiesByName = async (req, res, next) => {
   }
 };
 
-const createNewProfession = async (req, res, next) => {
+const createNewProfessionAndSpecialty = async (req, res, next) => {
   try {
     const { name, specialties, status } = req.body;
-    const newProfession = await professionDAO.createNewProfession(
+    const newProfession = await professionDAO.createNewProfessionAndSpecialty(
       name,
       specialties,
       status
@@ -192,7 +192,7 @@ export default {
   getAllSpecialtyByProfessionID,
   findProfessionAndSpecialtyByName,
   searchProfessionsAndSpecialtiesByName,
-  createNewProfession,
+  createNewProfessionAndSpecialty,
   updateProfessionAndSpecialty,
   updateProfession,
   deleteProfessionAndSpecialties,

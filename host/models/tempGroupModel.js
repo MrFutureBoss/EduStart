@@ -27,6 +27,12 @@ const tempGroupSchema = new Schema(
     maxStudent: {
         type: Number,
         required : true,
+        min: 1, 
+        max: 9999,
+        validate: {
+          validator: Number.isInteger,
+          message: "{VALUE} is not an integer value.",
+        },
     }
   },
   {
