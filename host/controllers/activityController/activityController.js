@@ -592,7 +592,7 @@ const assignOutcomeToAllGroups = async ({
   });
 
   const activities = [];
-  const skippedClasses = new Set(); // Lưu trữ các lớp đã được assign trước đó
+  const skippedClasses = new Set();
 
   for (const classId of classIds) {
     const groups = groupsByClassId[classId];
@@ -632,10 +632,6 @@ const assignOutcomeToAllGroups = async ({
   }
 
   if (activities.length === 0) {
-    console.log(
-      "[AUTO-ASSIGN OUTCOMES] No activities to assign. Skipped classes:",
-      Array.from(skippedClasses)
-    );
     throw new Error("No activities to assign.");
   }
 
@@ -737,7 +733,7 @@ const autoAssignOutcomes = async (req, res) => {
         Promise.all(
           classes.map((classInfo) =>
             assignOutcomeToAllGroups({
-              description: `Auto-assigned Outcome ${outcomeId}`,
+              description: `Description for Outcome ${outcomeId}`,
               classIds: [classInfo._id],
               semesterId: semester._id,
               outcomes: [
@@ -757,10 +753,6 @@ const autoAssignOutcomes = async (req, res) => {
     if (res && res.status)
       res.status(200).json({ message: "Outcomes assigned automatically." });
   } catch (error) {
-    console.error(
-      "[AUTO-ASSIGN OUTCOMES] Error auto-assigning outcomes:",
-      error.message
-    );
     if (res && res.status)
       res.status(500).json({ message: "Error auto-assigning outcomes." });
   }

@@ -1,0 +1,50 @@
+.highlight-step-monitor .ant-steps-item-icon {
+  background-color: #1890ff !important;
+  border-color: #1890ff !important;
+}
+
+.highlight-step-monitor .ant-steps-item-title {
+  color: #1890ff !important;
+  font-weight: bold;
+}
+
+.step-title-monitor {
+  font-size: 14px;
+}
+
+.current-step-monitor {
+  color: #1890ff;
+  font-weight: bold;
+}
+
+.hover-highlight {
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.hover-highlight:hover {
+  color: #1890ff;
+  text-decoration: underline;
+}
+
+/* Ant Design issue icon animation */
+.issue-icon {
+  display: inline-block;
+  margin-left: 8px;
+  animation: fadeInOut 1.5s infinite ease-in-out;
+  font-size: 16px;
+  color: #ff4d4f;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}

@@ -107,10 +107,9 @@ cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
 
-cron.schedule("0 * * * *", async () => {
+cron.schedule("*/15 * * * *", async () => {
   try {
     await activityController.autoAssignOutcomes();
-    console.log(`[${new Date().toISOString()}] Auto-assign job completed.`);
   } catch (error) {
     console.error("Error in scheduled auto-assign:", error);
   }
@@ -128,7 +127,6 @@ cron.schedule("0 * * * *", async () => {
 // cron.schedule("0 * * * *", () => {
 //   TempGroupController.autoFillGroupsOnDeadline();
 // });
-
 
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);

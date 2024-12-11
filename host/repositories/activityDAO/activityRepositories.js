@@ -235,12 +235,6 @@ const findUnsubmittedGroups = async (outcomeId, classId) => {
       throw new Error("OutcomeId and ClassId are required.");
     }
 
-    if (
-      !mongoose.Types.ObjectId.isValid(outcomeId) ||
-      !mongoose.Types.ObjectId.isValid(classId)
-    ) {
-      throw new Error("Invalid OutcomeId or ClassId format.");
-    }
     const groups = await Activity.find({
       completed: false,
       activityType: "outcome",
