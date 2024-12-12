@@ -8,6 +8,7 @@ import Project from "../../models/projectModel.js";
 import Specialty from "../../models/specialtyModel.js";
 import TemporaryMatching from "../../models/temporaryMatchingModel.js";
 import User from "../../models/userModel.js";
+import { sendEmailToGroupforNewMatching, sendEmailToGroupforNewMeetingEvent } from "../../utilities/email.js";
 // hàm để tạo matched chờ xác nhận
 const createMatched = async (data) => {
   try {
@@ -308,6 +309,53 @@ const patchMatchedById = async (id, updateData) => {
       throw new Error("Matched record not found");
     }
 
+    // Nếu trạng thái cập nhật là Accepted, tiến hành gửi email
+    if (updateData.status === "Accepted") {
+      const matched = await Matched.findById(id)
+        .populate({
+          path: "groupId",
+          model: "Group",
+          select: "_id",
+        })
+        .populate({
+          path: "mentorId",
+          model: "User",
+          select: "username email phoneNumber",
+        });
+
+      if (!matched) {
+        throw new Error("Matched record not found");
+      }
+
+      const groupId = matched.groupId._id;
+      const mentor = matched.mentorId;
+
+      // Lấy danh sách email của các User trong nhóm
+      const groupMembers = await User.find({ groupId: groupId })
+        .select("email")
+        .lean();
+
+      const recipientEmails = groupMembers.map((member) => member.email);
+
+      // Đẩy các email vào một danh sách promises
+      const emailTasks = recipientEmails.map(async (email) => {
+        try {
+          await sendEmailToGroupforNewMatching(
+            email,
+            mentor.username,
+            mentor.email,
+            mentor.phoneNumber
+          );
+          console.log(`Email sent successfully to: ${email}`);
+        } catch (error) {
+          console.error(`Error sending email to ${email}:`, error.message);
+        }
+      });
+
+      // Chạy các promises song song
+      await Promise.all(emailTasks);
+    }
+
     return updatedMatched;
   } catch (error) {
     console.error("Error updating Matched record:", error.message);
@@ -324,6 +372,8 @@ const createNewTimeEvents = async (id, newTimeArray) => {
     if (!Array.isArray(newTimeArray) || newTimeArray.length === 0) {
       throw new Error("Time data must be a non-empty array");
     }
+
+    // Cập nhật sự kiện thời gian mới
     const updatedMatched = await Matched.findByIdAndUpdate(
       id,
       { $push: { time: { $each: newTimeArray } } },
@@ -334,13 +384,73 @@ const createNewTimeEvents = async (id, newTimeArray) => {
       throw new Error("Matched record not found");
     }
 
+    // Tìm matched và lấy thông tin groupId và mentorId
+    const matched = await Matched.findById(id)
+      .populate({
+        path: "groupId",
+        model: "Group",
+        select: "_id",
+      })
+      .populate({
+        path: "mentorId",
+        model: "User",
+        select: "username email phoneNumber",
+      });
+
+    if (!matched) {
+      throw new Error("Matched record not found");
+    }
+
+    const groupId = matched.groupId._id;
+
+    // Lấy danh sách email của các User trong nhóm
+    const groupMembers = await User.find({ groupId: groupId })
+      .select("email")
+      .lean();
+
+    const recipientEmails = groupMembers.map((member) => member.email);
+
+    // Tạo danh sách tác vụ gửi email song song
+    const emailTasks = recipientEmails.flatMap((email) =>
+      newTimeArray.map(async (event) => {
+        const title = event.title;
+        const date = new Date(event.start).toLocaleDateString();
+        const start = new Date(event.start).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const end = new Date(event.end).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        try {
+          await sendEmailToGroupforNewMeetingEvent(
+            email,
+            title,
+            date,
+            start,
+            end
+          );
+          console.log(`Email sent successfully to: ${email}`);
+        } catch (error) {
+          console.error(
+            `Error sending email to ${email} for event "${title}":`,
+            error.message
+          );
+        }
+      })
+    );
+
+    // Chạy tất cả tác vụ gửi email song song
+    await Promise.all(emailTasks);
+
     return updatedMatched;
   } catch (error) {
     console.error("Error creating new time events:", error.message);
     throw new Error(error.message);
   }
 };
-
 
 const patchTimeEventById = async (eventId, updateData) => {
   try {

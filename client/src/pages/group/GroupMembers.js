@@ -243,6 +243,15 @@ const GroupMembers = () => {
     }
   }, [location]);
 
+  const openMeet = () => {
+    window.open(
+      `https://meet.google.com/new?email=${encodeURIComponent(
+        groupDetails?.mentors[0].email
+      )}`,
+      "_blank"
+    );
+  };
+
   return (
     <div>
       <div className="group-members-container">
@@ -399,7 +408,24 @@ const GroupMembers = () => {
           {groupDetails?.mentors?.length > 0 && (
             <div>
               <Card
-                title="Lịch họp của nhóm"
+                title={
+                  <span>
+                    Lịch họp của nhóm -{" "}
+                    <Tag
+                      color="#EC9A26"
+                      style={{
+                        cursor: "pointer",
+                        fontSize: "1rem",
+                        margin: "0px",
+                        padding: "0.2rem 0.4rem",
+                        color: "#FFF",
+                      }}
+                      onClick={() => openMeet()}
+                    >
+                      MeetUrl
+                    </Tag>
+                  </span>
+                }
                 headStyle={{
                   color: "#000",
                   fontWeight: "bold",
@@ -415,7 +441,12 @@ const GroupMembers = () => {
                   backgroundColor: "#ffffff",
                   borderRadius: "8px",
                   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                  marginBottom: "16px",
+                  marginBottom: "20px",
+                  display:
+                    groupDetails?.matched[0]?.time !== null &&
+                    groupDetails?.matched[0]?.time.length > 0
+                      ? "block"
+                      : "none",
                 }}
               >
                 {groupDetails?.matched[0]?.time !== null ? (
@@ -433,7 +464,10 @@ const GroupMembers = () => {
                       <Row>
                         <Col span={24} style={{ lineHeight: "1.5rem" }}>
                           <p className="remove-default-style-p">
-                            <strong>Buổi {index + 1}:</strong>{" "}
+                            <strong>Buổi {index + 1}:</strong> {meet.title}
+                          </p>
+                          <p className="remove-default-style-p">
+                            <strong>Thời gian:</strong>{" "}
                             {format(
                               new Date(meet.start),
                               "EEEE, dd'-'MM'-'yyyy",
@@ -441,8 +475,7 @@ const GroupMembers = () => {
                                 locale: vi,
                               }
                             )}
-                          </p>
-                          <p className="remove-default-style-p">
+                            &nbsp;từ&nbsp;
                             {format(new Date(meet.start), "HH:mm", {
                               locale: vi,
                             })}{" "}
@@ -450,9 +483,6 @@ const GroupMembers = () => {
                             {format(new Date(meet.end), "HH:mm", {
                               locale: vi,
                             })}
-                          </p>
-                          <p className="remove-default-style-p">
-                            <strong>Nội dung cuộc họp:</strong> {meet.title}
                           </p>
                         </Col>
                       </Row>

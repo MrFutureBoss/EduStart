@@ -6,7 +6,7 @@ import {
   setSpecialtiesData,
 } from "../../redux/slice/ProfessionSlice.js";
 import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import {
   EditOutlined,
@@ -15,6 +15,7 @@ import {
   PlusCircleOutlined,
   UploadOutlined,
   DownOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import {
   Table,
@@ -26,8 +27,8 @@ import {
   Typography,
   Tooltip,
   Dropdown,
-  Menu,
   Space,
+  Input,
 } from "antd";
 import AddNewProfession from "./AddNewProfession.jsx";
 import EditProfession from "./EditProfession.jsx";
@@ -35,15 +36,12 @@ import "../../style/Admin/Profession.css";
 import UpdateButton from "../../components/Button/UpdateButton.jsx";
 import { useLocation } from "react-router-dom";
 import ImportNewProfession from "./ImportNewProfession.jsx";
+import Highlighter from "react-highlight-words";
 
 const ProfessionManagement = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const professions = useSelector((state) => state.profession.professions.data);
-  const specialtiesData = useSelector(
-    (state) => state.profession.specialtiesData.data || []
-  );
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalImportFileOpen, setIsModalImportFileOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -51,7 +49,17 @@ const ProfessionManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [pageSize, setPageSize] = useState(6);
-  const [expanded, setExpanded] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const searchInput = useRef(null);
+  const [expandedRows, setExpandedRows] = useState({}); 
+
+  const toggleRowExpansion = (rowKey) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [rowKey]: !prev[rowKey],
+    }));
+  };
 
   useEffect(() => {
     axios
@@ -73,31 +81,6 @@ const ProfessionManagement = () => {
       handleOpenModal();
     }
   }, [location.state]);
-
-  const fetchSpecialties = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/specialty`);
-      const data = response.data;
-      dispatch(setSpecialtiesData(data));
-    } catch (error) {
-      console.error("Error fetching specialties:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchSpecialties();
-  }, [dispatch]);
-  console.log("dd", specialtiesData);
-
-  const getSpecialtyNameById = (id) => {
-    const define = specialtiesData.find((sp) => sp._id === id);
-    return define ? define.name : "Unknown";
-  };
-
-  const getSpecialtyStatusById = (id) => {
-    const define = specialtiesData.find((sp) => sp._id === id);
-    return define ? define.status : "false";
-  };
 
   const toggleStatus = (id, currentStatus) => {
     const updatedStatus = { status: !currentStatus };
@@ -147,53 +130,124 @@ const ProfessionManagement = () => {
     setIsEditModalOpen(false);
   };
 
+  const getColumnSearchProps = (dataIndex, isNested = false) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={searchInput}
+          placeholder={`Tìm kiếm`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Tìm
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Xóa
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      const fieldValue = isNested
+        ? record[dataIndex].map((item) => item.name).join(", ")
+        : record[dataIndex];
+      return fieldValue
+        ? fieldValue.toString().toLowerCase().includes(value.toLowerCase())
+        : false;
+    },
+    render: (text, record) => {
+      if (isNested) {
+        const specialties = record[dataIndex];
+        const isExpanded = expandedRows[record._id] || false;
+        const displayedSpecialties = isExpanded ? specialties : specialties.slice(0, 3);
+  
+        return (
+          <div>
+            {displayedSpecialties.map((item) => (
+              <Tag key={item.name} color={item.status ? "green" : "red"}>
+                <Highlighter
+                  highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+                  searchWords={[searchText]}
+                  autoEscape
+                  textToHighlight={item.name}
+                />
+              </Tag>
+            ))}
+            {specialties.length > 3 && (
+              <Typography.Link onClick={() => toggleRowExpansion(record._id)}>
+                {isExpanded ? "Thu gọn" : "Xem thêm..."}
+              </Typography.Link>
+            )}
+          </div>
+        );
+      }
+      return searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      );
+    },
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   const columns = [
     {
       title: "STT",
       key: "index",
-      render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+      render: (_, __, index) => index + 1,
       width: "10%",
     },
     {
       title: "Tên lĩnh vực",
       dataIndex: "name",
       key: "name",
+      ...getColumnSearchProps("name"),
       width: "20%",
     },
     {
       title: "Tên chuyên môn",
       dataIndex: "specialty",
       key: "specialty",
-      render: (specialty) => {
-        const handleToggle = () => setExpanded((prev) => !prev);
-
-        return (
-          <div>
-            {specialty.slice(0, expanded ? specialty.length : 5).map((sp) => (
-              <Tooltip
-                title={
-                  getSpecialtyStatusById(sp)
-                    ? "Đang hoạt động"
-                    : "Dừng hoạt động"
-                }
-                key={sp}
-              >
-                <Tag
-                  style={{ marginBottom: "0.3rem" }}
-                  color={getSpecialtyStatusById(sp) ? "green" : "red"}
-                >
-                  {getSpecialtyNameById(sp)}
-                </Tag>
-              </Tooltip>
-            ))}
-            {specialty.length > 5 && (
-              <Typography.Link onClick={handleToggle}>
-                {expanded ? "Thu gọn" : "Xem thêm"}
-              </Typography.Link>
-            )}
-          </div>
-        );
-      },
+      ...getColumnSearchProps("specialty", true), // Search for nested specialty
       width: "40%",
     },
     {
