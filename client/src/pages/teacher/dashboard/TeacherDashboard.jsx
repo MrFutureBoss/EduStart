@@ -11,8 +11,17 @@ import {
   List,
   Steps,
   Tooltip,
+  Typography,
+  Popover,
 } from "antd";
-import { TeamOutlined, SolutionOutlined } from "@ant-design/icons";
+import {
+  TeamOutlined,
+  SolutionOutlined,
+  CheckCircleOutlined,
+  FileDoneOutlined,
+  UserAddOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import { BASE_URL } from "../../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,10 +33,15 @@ import {
 import TeacherSemester from "../../semester/TeacherSemester";
 import { useNavigate, Link } from "react-router-dom";
 import PieChartDashboard from "./PieChartDashboard";
+import {
+  setClassSummaries,
+  setLoadingClasses,
+} from "../../../redux/slice/ClassSlice";
+import { fetchClassSummaryData } from "../../../api";
 
 const { Content } = Layout;
 const { Step } = Steps;
-
+const { Text } = Typography;
 const TeacherDashboard = () => {
   const dispatch = useDispatch();
   const userId = localStorage.getItem("userId");
@@ -429,18 +443,65 @@ const TeacherDashboard = () => {
     if (outcomes.length === 0) {
       return null;
     }
+    const getPopoverContent = (description) => (
+      <div style={{ maxWidth: 200 }}>
+        <Text>{description}</Text>
+      </div>
+    );
+    const getTitleWithInfo = (title, description) => (
+      <span style={{ display: "flex", alignItems: "center" }}>
+        <Popover
+          content={getPopoverContent(description)}
+          placement="bottom"
+          trigger="hover"
+        >
+          {title}
+        </Popover>
+      </span>
+    );
 
     return (
-      <Steps direction="horizontal" size="default" progressDot>
-        <Step key="create-group" title="Tạo nhóm" status="process" />
+      <Steps
+        direction="horizontal"
+        size="default"
+        progressDot={(dot, { status, index }) => (
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              backgroundColor:
+                status === "process"
+                  ? "#1890ff"
+                  : status === "finish"
+                  ? "#52c41a"
+                  : "#d9d9d9",
+              borderRadius: "50%",
+              display: "inline-block",
+            }}
+          />
+        )}
+        current={2}
+      >
         <Step
-          key="assign-mentor"
-          title="Chọn mentor cho nhóm"
+          key="create-group"
+          title={getTitleWithInfo("Tạo nhóm", "Tạo nhóm cho lớp")}
           status="process"
         />
-        <Step key="approve-project" title="Duyệt dự án" status="process" />
-        {outcomes.map((outcome) => (
-          <Step key={outcome._id} title={`${outcome.name}`} status="process" />
+        <Step
+          key="assign-mentor"
+          title={getTitleWithInfo(
+            "Chọn mentor cho nhóm",
+            "Chọn mentor cho nhóm"
+          )}
+          status="process"
+        />
+        <Step
+          key="approve-project"
+          title={getTitleWithInfo("Duyệt dự án", "Duyệt dự án")}
+          status="process"
+        />
+        {outcomes.map((outcome, index) => (
+          <Step key={outcome._id} title={outcome.name} status="process" />
         ))}
       </Steps>
     );
@@ -615,6 +676,24 @@ const TeacherDashboard = () => {
     setSortedClassData(sortedData);
   };
 
+  const { classSummaries } = useSelector((state) => state.class);
+  useEffect(() => {
+    const loadData = async () => {
+      dispatch(setLoadingClasses(true));
+      try {
+        const classResponse = await fetchClassSummaryData(userId);
+        const { classSummaries: fetchedClassSummaries } = classResponse.data;
+        dispatch(setClassSummaries(fetchedClassSummaries));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.warning("Lỗi khi tải dữ liệu lớp học.");
+      }
+      dispatch(setLoadingClasses(false));
+    };
+
+    loadData();
+  }, [userId, dispatch]);
+
   return (
     <Layout>
       <Content style={{ margin: "0", minHeight: 280 }}>
@@ -646,6 +725,45 @@ const TeacherDashboard = () => {
                 loading={loading}
                 className="table-issue-dashboard"
               />
+            </Card>
+            <br />
+            <Card
+              title="Tình hình mentor"
+              bordered={false}
+              size="small"
+              headStyle={{
+                backgroundColor: "rgb(96, 178, 199)",
+                minHeight: "33px",
+                color: "white",
+                fontSize: "16px",
+              }}
+              bodyStyle={{
+                padding: "8px",
+              }}
+              style={{ height: "200px", overflowY: "auto" }}
+            >
+              {" "}
+              {classSummaries.map((classItem) => {
+                const matchedGroupsCount = classItem.groupDetails
+                  ? classItem.groupDetails.filter(
+                      (group) =>
+                        group.isMatched === true &&
+                        group.isProjectUpdated === true
+                    ).length
+                  : 0;
+                const totalGroupsCount = classItem.groupDetails
+                  ? classItem.groupDetails.filter(
+                      (group) => group.isProjectUpdated === true
+                    ).length
+                  : 0;
+
+                return (
+                  <>
+                    {classItem.className} ({matchedGroupsCount}/
+                    {totalGroupsCount})
+                  </>
+                );
+              })}
             </Card>
           </Col>
 
