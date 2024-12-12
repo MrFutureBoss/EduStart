@@ -753,6 +753,10 @@ const autoAssignOutcomes = async (req, res) => {
     if (res && res.status)
       res.status(200).json({ message: "Outcomes assigned automatically." });
   } catch (error) {
+    console.error(
+      "[AUTO-ASSIGN OUTCOMES] Error auto-assigning outcomes:",
+      error.message
+    );
     if (res && res.status)
       res.status(500).json({ message: "Error auto-assigning outcomes." });
   }
@@ -795,6 +799,12 @@ const getUnsubmittedGroups = async (req, res) => {
       classId
     );
 
+    if (activities === null) {
+      return res.status(404).json({
+        message: `No outcome found for outcomeId: ${outcomeId} and classId: ${classId}`,
+      });
+    }
+
     if (!activities.length) {
       return res.status(404).json({ message: "No unsubmitted groups found" });
     }
@@ -815,6 +825,32 @@ const getUnsubmittedGroups = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+const checkClassOutcome = async (req, res) => {
+  try {
+    const { classId, outcomeId, semesterId } = req.query;
+
+    if (!classId || !outcomeId || !semesterId) {
+      return res
+        .status(400)
+        .json({ message: "Missing classId or outcomeId, semesterId" });
+    }
+
+    const activity = await activityDAO.doesClassHaveOutcome(classId, outcomeId);
+
+    if (!activity) {
+      return res.status(404).json({
+        message: `No outcome activity found for classId: ${classId} and outcomeId: ${outcomeId}`,
+      });
+    }
+
+    return res.status(200).json({ message: "Outcome exists" });
+  } catch (error) {
+    console.error("Error in checkClassOutcome:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const getGroupUpcomingOutcomes = async (req, res) => {
   const userId = req.user._id;
 
@@ -864,4 +900,5 @@ export default {
   getGroupUpcomingOutcomes,
   getUnsubmittedGroups,
   getUnsubmittedGroups,
+  checkClassOutcome,
 };

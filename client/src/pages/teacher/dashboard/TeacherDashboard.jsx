@@ -431,12 +431,7 @@ const TeacherDashboard = () => {
     }
 
     return (
-      <Steps
-        direction="horizontal"
-        size="default"
-        progressDot
-        style={{ margin: "auto" }}
-      >
+      <Steps direction="horizontal" size="default" progressDot>
         <Step key="create-group" title="Tạo nhóm" status="process" />
         <Step
           key="assign-mentor"
@@ -624,6 +619,7 @@ const TeacherDashboard = () => {
     <Layout>
       <Content style={{ margin: "0", minHeight: 280 }}>
         <Row>{renderOutcomes()}</Row>
+        <br />
         <Row gutter={16} style={{ marginBottom: "16px" }}>
           <Col span={15}>
             <Card
@@ -655,7 +651,7 @@ const TeacherDashboard = () => {
 
           <Col span={9}>
             <Card
-              title="Thông báo quan trọng"
+              title="Tình hình chung"
               bordered={false}
               size="small"
               headStyle={{ fontSize: "16px", minHeight: "33px" }}
@@ -674,13 +670,9 @@ const TeacherDashboard = () => {
                     <List.Item.Meta
                       avatar={
                         item.type === "new_class" ? (
-                          <SolutionOutlined
-                            style={{ fontSize: "20px", color: "orange" }}
-                          />
+                          <SolutionOutlined style={{ fontSize: "20px" }} />
                         ) : item.type === "unfinished_groups" ? (
-                          <TeamOutlined
-                            style={{ fontSize: "20px", color: "red" }}
-                          />
+                          <TeamOutlined style={{ fontSize: "20px" }} />
                         ) : item.type === "no_notifications" ? (
                           <></>
                         ) : null
