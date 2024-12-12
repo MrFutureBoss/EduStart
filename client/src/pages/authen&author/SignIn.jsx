@@ -148,7 +148,7 @@ function SignIn() {
                   borderBottomLeftRadius: "20px",
                 }}
               />
-              <div
+              {/* <div
                 style={{
                   position: "absolute",
                   top: "50%", // Căn giữa theo chiều dọc
@@ -164,7 +164,7 @@ function SignIn() {
                 }}
               >
                 Chào mừng bạn đến với EduStart, nơi kết nốt tri thức!
-              </div>
+              </div> */}
             </div>
           </Col>
           <Col
@@ -183,8 +183,9 @@ function SignIn() {
             <div
               style={{
                 position: "absolute",
-                top: "10px",
-                left: "10px",
+                top: "2.7rem",
+                left: "-3.1rem",
+                // right: "2rem",
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
