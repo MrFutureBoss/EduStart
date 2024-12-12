@@ -208,7 +208,7 @@ const MonitorStep = () => {
       style={{
         display: "flex",
         margin: "auto",
-        width: "95%",
+        width: "90%",
         justifyContent: "space-between",
       }}
     >
@@ -240,7 +240,6 @@ const MonitorStep = () => {
             "day"
           );
           const outcomeGroups = groupsNotSubmittedByOutcome[outcome._id] || {};
-
           const handleMouseEnter = () => {
             if (!isBeforeStart) {
               fetchGroupsNotSubmitted(outcome._id);

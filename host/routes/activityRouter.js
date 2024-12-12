@@ -96,6 +96,12 @@ activityRouters.get(
   verifyRole([2, 4]),
   activityController.getUnsubmittedGroups
 );
+
+activityRouters.get(
+  "/class/check-outcome",
+  activityController.checkClassOutcome
+);
+
 //Outcome type
 activityRouters.get(
   "/outcome-type",

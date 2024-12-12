@@ -235,6 +235,16 @@ const findUnsubmittedGroups = async (outcomeId, classId) => {
       throw new Error("OutcomeId and ClassId are required.");
     }
 
+    const hasOutcomeActivities = await Activity.exists({
+      activityType: "outcome",
+      outcomeId,
+      classId,
+    });
+
+    if (!hasOutcomeActivities) {
+      return null;
+    }
+
     const groups = await Activity.find({
       completed: false,
       activityType: "outcome",
@@ -243,6 +253,7 @@ const findUnsubmittedGroups = async (outcomeId, classId) => {
     })
       .populate("groupId", "name")
       .populate("classId", "className");
+
     return groups || [];
   } catch (error) {
     console.error(`Error in findUnsubmittedGroups: ${error.message}`);
@@ -292,6 +303,20 @@ const findOutcomesByGroupId = async (groupId) => {
   }
 };
 
+const doesClassHaveOutcome = async (classId, outcomeId, semesterId) => {
+  try {
+    return await Activity.exists({
+      activityType: "outcome",
+      classId,
+      outcomeId,
+      semesterId
+    })
+  } catch (error) {
+    console.error("Error in doesClassHaveOutcome:", error.message);
+    throw new Error("Database query failed.");
+  }
+};
+
 export default {
   createActivity,
   findActivitiesByClassAndTeacher,
@@ -320,4 +345,5 @@ export default {
   getGroupOutcomesByGroupId,
   findUnsubmittedGroups,
   findOutcomesByGroupId,
+  doesClassHaveOutcome,
 };
