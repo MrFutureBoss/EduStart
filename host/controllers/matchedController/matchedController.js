@@ -254,6 +254,49 @@ const deleteTimeEventHandler = async (req, res) => {
   }
 };
 
+const getMatchedInfoByClassId = async (req, res) => {
+  const { classId } = req.params;
+
+  try {
+    // Gọi hàm getGroupsByClassId để lấy danh sách nhóm trong lớp
+    const { groups } = await groupDAO.getGroupsByClassId(classId);
+
+    if (!groups || groups.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy nhóm nào trong lớp này." });
+    }
+    // Lọc các nhóm chưa có mentor
+    const groupsWithoutMentor = groups.filter((group) => group.mentor);
+    console.log(groupsWithoutMentor);
+
+    if (groupsWithoutMentor.length === 0) {
+      return res.status(200).json({
+        message: "Tất cả các nhóm trong lớp đã có mentor.",
+        groups,
+      });
+    }
+
+    // Lấy thông tin matched cho từng nhóm chưa có mentor
+    const detailedGroups = await Promise.all(
+      groupsWithoutMentor.map(async (group) => {
+        const matchedInfo = await matchedDAO.getMatchedInfoByGroupId(group._id);
+        return {
+          group,
+          matchedInfo,
+        };
+      })
+    );
+    res.status(200).json({
+      message: "Thông tin nhóm và matched trong lớp được lấy thành công.",
+      groups: detailedGroups,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin nhóm và matched:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
@@ -263,4 +306,5 @@ export default {
   createNewTimeEventsHandler,
   patchTimeEventHandler,
   deleteTimeEventHandler,
+  getMatchedInfoByClassId,
 };

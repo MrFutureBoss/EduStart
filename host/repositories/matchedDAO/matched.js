@@ -25,19 +25,36 @@ const createMatched = async (data) => {
       status: data.status || "Pending",
     });
 
-    // Count the number of Matched records for the mentor
+    // Đếm số lượng bản ghi Matched của mentor
     const currentLoad = await Matched.countDocuments({
       mentorId: data.mentorId,
     });
+    console.log("Current load for mentor:", currentLoad);
 
-    // Retrieve the mentor's maxLoad
+    // Lấy thông tin maxLoad của mentor
     const mentorCategory = await MentorCategory.findOne({
       mentorId: data.mentorId,
     });
 
+    // Xóa gợi ý của nhóm hiện tại khỏi TemporaryMatching
+    console.log(`Removing suggestions for group ${data.groupId}`);
+    await TemporaryMatching.deleteOne(
+      { groupId: data.groupId },
+      {
+        $pull: {
+          mentorPreferred: { mentorId: data.mentorId },
+          teacherPreferredMentors: { mentorId: data.mentorId },
+          matchingMentors: { mentorId: data.mentorId },
+        },
+      }
+    );
+
+    // Nếu mentor đạt maxLoad, xóa khỏi tất cả các nhóm
     if (mentorCategory && currentLoad >= mentorCategory.maxLoad) {
-      // Remove the mentor from all suggestions in TemporaryMatching
-      await TemporaryMatching.updateMany(
+      console.log(
+        `Mentor ${data.mentorId} reached maxLoad. Removing from all suggestions.`
+      );
+      await TemporaryMatching.deleteOne(
         {
           $or: [
             { "mentorPreferred.mentorId": data.mentorId },
@@ -55,10 +72,13 @@ const createMatched = async (data) => {
       );
     }
 
-    // Save the new matched record
+    // Lưu bản ghi Matched mới
     const savedMatched = await matched.save();
+    console.log("Matched created successfully:", savedMatched);
+
     return savedMatched;
   } catch (error) {
+    console.error("Error in createMatched:", error);
     throw error;
   }
 };
@@ -193,8 +213,27 @@ const getMatchedInfoByGroupId = async (groupId) => {
         select: "name",
       });
 
-    // Thêm projectCategory vào matchedInfo để trả về đầy đủ dữ liệu
-    return { ...matchedInfo.toObject(), projectCategory };
+    // Lấy thêm thông tin mentor từ MentorCategory
+    const mentorProfession = await MentorCategory.findOne({
+      mentorId: matchedInfo.mentorId?._id,
+    })
+      .populate({
+        path: "professionIds",
+        model: "Profession",
+        select: "name",
+      })
+      .populate({
+        path: "specialties.specialtyId",
+        model: "Specialty",
+        select: "name",
+      });
+
+    // Thêm projectCategory và mentorProfession vào matchedInfo để trả về đầy đủ dữ liệu
+    return {
+      ...matchedInfo.toObject(),
+      projectCategory,
+      mentorProfession: mentorProfession || null, // Nếu không có, trả null
+    };
   } catch (error) {
     console.error("Chi tiết lỗi khi lấy thông tin matched từ database:", error);
     throw new Error(

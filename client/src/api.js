@@ -68,6 +68,13 @@ export const fetchProjectData = (teacherId, classId) => {
     getConfig()
   );
 };
+// api để lấy dự án trong lớp
+export const fetchSuggestMentors = (classId) => {
+  return axios.get(
+    `${BASE_URL}/tempMatching/mentor-suggestions/${classId}`,
+    getConfig()
+  );
+};
 // api lấy danh sách gợi ý các mentor cho dự án trong lớp
 export const fetchMentorsTempMatching = (classId, teacherId) => {
   const config = {
@@ -101,6 +108,13 @@ export const getProjectGroupData = (groupId) => {
 // api để lấy thông tin matches của nhóm
 export const getMatchedProject = (groupId) => {
   return axios.get(`${BASE_URL}/matched/infor-matched/${groupId}`, getConfig());
+};
+// api để lấy thông tin matches của lớp
+export const getMatchedProjectClass = (classId) => {
+  return axios.get(
+    `${BASE_URL}/matched/matched-by-class/${classId}`,
+    getConfig()
+  );
 };
 // API để kiểm tra kỳ học hiện tại và kỳ học sắp tới
 export const checkSemesterStatus = (semesterId) => {

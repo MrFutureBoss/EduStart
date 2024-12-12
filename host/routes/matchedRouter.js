@@ -50,4 +50,10 @@ matchedRouter.get(
   verifyAccessToken,
   matchedController.getAllMatchingDetailByMentorId
 );
+
+matchedRouter.get(
+  "/matched-by-class/:classId",
+  verifyAccessToken,
+  matchedController.getMatchedInfoByClassId
+);
 export default matchedRouter;

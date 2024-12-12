@@ -58,20 +58,12 @@ const ChooseMentor = () => {
           </Col>
           <Col span={6}>
             <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
-              <Statistic
-                title="Chuyên môn đã chọn"
-                value={updatedCount}
-                valueStyle={{ color: "#52c41a" }}
-              />
+              <Statistic title="Chuyên môn đã chọn" value={updatedCount} />
             </Card>
           </Col>
           <Col span={6}>
             <Card style={{ boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
-              <Statistic
-                title="Chuyên môn chưa chọn"
-                value={notUpdatedCount}
-                valueStyle={{ color: "orange" }}
-              />
+              <Statistic title="Chuyên môn chưa chọn" value={notUpdatedCount} />
             </Card>
           </Col>
         </Row>
