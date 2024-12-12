@@ -217,10 +217,17 @@ const findProjectsByTeacherAndClass = async (teacherId, classId) => {
     }
 
     // Tìm các nhóm trong lớp học đó và populate projectId với điều kiện project.status = "InProgress"
-    const groups = await Group.find({ classId }).populate({
-      path: "projectId",
-      match: { status: "InProgress" },
-    });
+    const groups = await Group.find({ classId })
+      .populate({
+        path: "projectId",
+        match: { status: "InProgress" },
+        select: "name description status",
+      })
+      .populate({
+        path: "classId",
+        model: "Class",
+        select: "className status",
+      });
 
     const validGroups = groups.filter((group) => group.projectId != null);
 
@@ -271,6 +278,8 @@ const findProjectsByTeacherAndClass = async (teacherId, classId) => {
         return {
           ...group.projectId.toObject(),
           groupId: group._id,
+          groupName: group.name, // Thêm tên nhóm
+          className: group.classId?.className || null, // Thêm tên lớp
           projectCategory: projectCategory || null,
           isMatched,
           statusMatched,

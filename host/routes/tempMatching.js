@@ -3,9 +3,12 @@ import tempMatchingController from "../controllers/tempMatchingController/index.
 const tempMatchingRouter = express.Router();
 
 // Lấy danh sách mentor khả dụng
+tempMatchingRouter.get(
+  "/mentor-suggestions/:classId",
+  tempMatchingController.getClassSuggestions
+);
 tempMatchingRouter.post(
   "/recommend",
   tempMatchingController.recommendMentorsForClassGroups
 );
-
 export default tempMatchingRouter;

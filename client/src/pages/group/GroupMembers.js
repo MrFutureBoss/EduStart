@@ -234,14 +234,16 @@ const GroupMembers = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tabParam = searchParams.get("tab");
-    console.log(tabParam);
 
     if (tabParam === "update-project") {
-      handleOpenModal();
+      // Chỉ mở modal khi groupDetails và project đã sẵn sàng
+      if (groupDetails) {
+        handleOpenModal();
+      }
     } else if (tabParam === "update-outcome") {
       setIsActive(true);
     }
-  }, [location]);
+  }, [location, groupDetails]);
 
   return (
     <div>

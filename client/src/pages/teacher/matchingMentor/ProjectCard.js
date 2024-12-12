@@ -3,18 +3,23 @@ import React from "react";
 import { Card, Tag, Space, Tooltip } from "antd";
 import "../teacherCSS/ProjectCard.css";
 
-const ProjectCard = ({ project, style, className, onSelect = () => {} }) => {
+const ProjectCard = ({
+  project,
+  style,
+  className,
+  onSelect = () => {},
+  group,
+}) => {
   return (
     <div className={`project-outer-container ${className}`}>
       {/* Thẻ Tag cho professions nằm ở bên ngoài viền của Card */}
       <div className="project-tag-container">
-        {project.projectCategory?.professionId?.map((profession) => (
-          <Tooltip title="Lĩnh vực" key={profession._id}>
-            <Tag key={profession._id} className="tag-overlay">
-              {profession.name}
-            </Tag>
-          </Tooltip>
-        ))}
+        {group?.className && (
+          <Tag className="tag-overlay">{group.className}</Tag>
+        )}
+        {group?.groupName && (
+          <Tag className="tag-overlay">{group.groupName}</Tag>
+        )}
       </div>
 
       {/* Thẻ Card chính */}
@@ -30,9 +35,10 @@ const ProjectCard = ({ project, style, className, onSelect = () => {} }) => {
         </div>
 
         <h2 className="project-title">
-          {project.name || project?.groupId?.projectId?.name}
+          Tên dự án: {project.name || project?.groupId?.projectId?.name}
         </h2>
         <p className="project-description">
+          Mô tả:{" "}
           {project.description || project?.groupId?.projectId?.description}
         </p>
 

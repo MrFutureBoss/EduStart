@@ -456,20 +456,12 @@ const SemesterDetailsCard = () => {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <TeamOutlined
-                      style={{
-                        fontSize: "18px",
-                        color: "#3f8600",
-                        marginRight: "8px",
-                      }}
-                    />
                     <span style={{ fontSize: "14px", fontWeight: "500" }}>
                       Số sinh viên
                     </span>
                     <span
                       style={{
                         fontSize: "16px",
-                        color: "#3f8600",
                         marginLeft: 5,
                       }}
                     >
@@ -489,20 +481,12 @@ const SemesterDetailsCard = () => {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <UserOutlined
-                      style={{
-                        fontSize: "18px",
-                        color: "#cf1322",
-                        marginRight: "8px",
-                      }}
-                    />
                     <span style={{ fontSize: "14px", fontWeight: "500" }}>
                       Số giáo viên
                     </span>
                     <span
                       style={{
                         fontSize: "16px",
-                        color: "#cf1322",
                         marginLeft: 5,
                       }}
                     >
@@ -522,20 +506,12 @@ const SemesterDetailsCard = () => {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <SolutionOutlined
-                      style={{
-                        fontSize: "18px",
-                        color: "#1890ff",
-                        marginRight: "8px",
-                      }}
-                    />
                     <span style={{ fontSize: "14px", fontWeight: "500" }}>
                       Số người hướng dẫn:
                     </span>
                     <span
                       style={{
                         fontSize: "16px",
-                        color: "#1890ff",
                         marginLeft: 5,
                       }}
                     >
@@ -555,57 +531,12 @@ const SemesterDetailsCard = () => {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <svg
-                      style={{
-                        fontSize: "18px",
-                        color: "#faad14",
-                        marginRight: "8px",
-                      }}
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      width="20"
-                      height="20"
-                      color="#000000"
-                      fill="none"
-                    >
-                      <path
-                        d="M3 8H21V12C21 14.357 21 15.5355 20.2678 16.2678C19.5355 17 18.357 17 16 17H8C5.64298 17 4.46447 17 3.73223 16.2678C3 15.5355 3 14.357 3 12V8Z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M7 6C7 4.11438 7 3.17157 7.58579 2.58579C8.17157 2 9.11438 2 11 2H13C14.8856 2 15.8284 2 16.4142 2.58579C17 3.17157 17 4.11438 17 6V8H7V6Z"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M5 17V22M19 17V22"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M8 17V20M16 17V20"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M2 8L3.81818 8M20.1818 8L22 8"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
                     <span style={{ fontSize: "14px", fontWeight: "500" }}>
                       Số lớp học:
                     </span>
                     <span
                       style={{
                         fontSize: "16px",
-                        color: "#faad14",
                         marginLeft: 5,
                       }}
                     >

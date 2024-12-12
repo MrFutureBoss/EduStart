@@ -22,6 +22,7 @@ import CustomModal from "../../components/Modal/LargeModal";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
 import { useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const { CheckableTag } = Tag;
 
@@ -40,10 +41,13 @@ const ProjectUpdateModal = ({
   const [selectedSpecialties, setSelectedSpecialties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [hasChanges, setHasChanges] = useState(false); // Thêm trạng thái để theo dõi sự thay đổi
+  const [hasChanges, setHasChanges] = useState(false);
   const { userLogin } = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!projectData) return;
+
     const fetchProfessions = async () => {
       try {
         const jwt = localStorage.getItem("jwt");
@@ -60,18 +64,18 @@ const ProjectUpdateModal = ({
         const specialtyMap = {};
 
         res.data.forEach((prof) => {
-          specialtyMap[prof._id] = prof.specialty; // Map specialties theo professionId
+          specialtyMap[prof._id] = prof.specialty;
         });
 
         setSpecialtiesMap(specialtyMap);
 
-        if (projectData && projectData.professionDetails) {
+        if (projectData.professionDetails) {
           const selectedProfIds =
             projectData.professionDetails?.map((prof) => prof.id) || [];
           setSelectedProfessions(selectedProfIds);
         }
 
-        if (projectData && projectData.specialtyDetails) {
+        if (projectData.specialtyDetails) {
           const selectedSpecIds =
             projectData.specialtyDetails?.map((spec) => spec.id) || [];
           setSelectedSpecialties(selectedSpecIds);
@@ -97,7 +101,7 @@ const ProjectUpdateModal = ({
     let nextSelectedProfessions = [...selectedProfessions];
     if (checked) {
       if (nextSelectedProfessions.length >= 2) {
-        message.warning("Bạn chỉ có thể chọn tối đa 2 ngành nghề.");
+        message.warning("Bạn chỉ có thể chọn tối đa 2 lĩnh vực.");
         return;
       }
       nextSelectedProfessions.push(professionId);
@@ -210,8 +214,8 @@ const ProjectUpdateModal = ({
       };
 
       const apiUrl = isUpdating
-        ? `${BASE_URL}/project/${projectData._id}/revise_project`
-        : `${BASE_URL}/project/${projectData._id}/update_project`;
+        ? `${BASE_URL}/project/${projectData?._id}/revise_project`
+        : `${BASE_URL}/project/${projectData?._id}/update_project`;
 
       const jwt = localStorage.getItem("jwt");
       const config = {
@@ -229,11 +233,16 @@ const ProjectUpdateModal = ({
 
       message.success("Cập nhật dự án thành công!");
       onUpdateSuccess();
+      navigate("/student/group-detail");
     } catch (error) {
       console.error("Error updating project:", error);
       message.error("Lỗi khi cập nhật dự án.");
     }
   };
+
+  if (!projectData) {
+    return null; // Không hiển thị gì nếu projectData chưa sẵn sàng
+  }
 
   return (
     <CustomModal
@@ -377,13 +386,12 @@ const ProjectUpdateModal = ({
                             <Tooltip title={spec.name}>
                               <CheckableTag
                                 checked={selectedSpecialties.includes(spec._id)}
-                                onChange={
-                                  (checked) =>
-                                    handleSpecialtyChange(
-                                      spec._id,
-                                      checked,
-                                      profId
-                                    ) // Truyền thêm professionId
+                                onChange={(checked) =>
+                                  handleSpecialtyChange(
+                                    spec._id,
+                                    checked,
+                                    profId
+                                  )
                                 }
                                 style={{
                                   borderRadius: "6px",

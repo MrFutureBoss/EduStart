@@ -242,18 +242,6 @@ const countStudentsInClass = async (classId, semesterId) => {
   });
 };
 
-// Tăng số lượng học sinh trong lớp (Nếu bạn lưu studentCount trong Class model)
-const incrementStudentCount = async (classId) => {
-  // Nếu không lưu studentCount trong Class model, có thể bỏ qua
-  // await Class.findByIdAndUpdate(classId, { $inc: { studentCount: 1 } });
-};
-
-// Giảm số lượng học sinh trong lớp (Nếu bạn lưu studentCount trong Class model)
-const decrementStudentCount = async (classId) => {
-  // Nếu không lưu studentCount trong Class model, có thể bỏ qua
-  // await Class.findByIdAndUpdate(classId, { $inc: { studentCount: -1 } });
-};
-
 // Thêm semesterId vào người dùng
 const addSemesterIdToUser = async (userId, semesterId) => {
   try {
@@ -289,8 +277,6 @@ export default {
   addSemesterToUser,
   findClassByNameAndSemester,
   addSemesterIdToUser,
-  decrementStudentCount,
-  incrementStudentCount,
   countStudentsInClass,
   findClassById,
   findUserById,
