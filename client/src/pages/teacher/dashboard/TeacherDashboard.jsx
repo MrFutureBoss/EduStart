@@ -431,11 +431,14 @@ const TeacherDashboard = () => {
     }
 
     return (
-      <Steps
-        direction="horizontal"
-        size="default"
-        style={{ width: "80%", margin: "auto" }}
-      >
+      <Steps direction="horizontal" size="default" progressDot>
+        <Step key="create-group" title="Tạo nhóm" status="process" />
+        <Step
+          key="assign-mentor"
+          title="Chọn mentor cho nhóm"
+          status="process"
+        />
+        <Step key="approve-project" title="Duyệt dự án" status="process" />
         {outcomes.map((outcome) => (
           <Step key={outcome._id} title={`${outcome.name}`} status="process" />
         ))}
@@ -615,9 +618,6 @@ const TeacherDashboard = () => {
   return (
     <Layout>
       <Content style={{ margin: "0", minHeight: 280 }}>
-        <h5 style={{ textAlign: "center", marginBottom: "8px" }}>
-          Các giai đoạn Outcome
-        </h5>
         <Row>{renderOutcomes()}</Row>
         <br />
         <Row gutter={16} style={{ marginBottom: "16px" }}>
@@ -635,7 +635,7 @@ const TeacherDashboard = () => {
               bodyStyle={{
                 padding: "8px",
               }}
-              style={{ height: "340px", overflowY: "auto" }}
+              style={{ height: "300px", overflowY: "auto" }}
             >
               <Table
                 dataSource={sortedClassData}
@@ -651,7 +651,7 @@ const TeacherDashboard = () => {
 
           <Col span={9}>
             <Card
-              title="Thông báo quan trọng"
+              title="Tình hình chung"
               bordered={false}
               size="small"
               headStyle={{ fontSize: "16px", minHeight: "33px" }}
@@ -670,13 +670,9 @@ const TeacherDashboard = () => {
                     <List.Item.Meta
                       avatar={
                         item.type === "new_class" ? (
-                          <SolutionOutlined
-                            style={{ fontSize: "20px", color: "orange" }}
-                          />
+                          <SolutionOutlined style={{ fontSize: "20px" }} />
                         ) : item.type === "unfinished_groups" ? (
-                          <TeamOutlined
-                            style={{ fontSize: "20px", color: "red" }}
-                          />
+                          <TeamOutlined style={{ fontSize: "20px" }} />
                         ) : item.type === "no_notifications" ? (
                           <></>
                         ) : null

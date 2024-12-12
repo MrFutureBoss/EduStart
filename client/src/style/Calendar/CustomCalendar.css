@@ -8,7 +8,7 @@
 .rbc-header {
   color: white;
   font-size: 14px !important;
-  background: #149cdb;
+  background: #60B2C7;
 }
 
 .rbc-allday-cell {
@@ -16,7 +16,7 @@
 }
 
 .rbc-time-header-cell .rbc-today {
-  background-color: #17405d !important;
+  background-color: #149cdb !important;
 }
 
 .rbc-time-slot {

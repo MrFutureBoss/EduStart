@@ -5,6 +5,7 @@ const initialValue = {
   group: {},
   allGroups: [],
   groupInClass: [],
+  teacherInfor:[],
   projectStatus: [],
   outcomes: [],
   groupStatus: [],
@@ -37,6 +38,9 @@ const groupSlice = createSlice({
     setAllGroupInClass: (state, action) => {
       state.groupInClass = action.payload;
     },
+    setTeacherInfoInClass: (state, action) => {
+      state.teacherInfor = action.payload;
+    },
     setGroupStatus: (state, action) => {
       state.groupStatus = action.payload;
     },
@@ -67,5 +71,6 @@ export const {
   setProjectStatus,
   setOutcomes,
   setCurrentStage,
+  setTeacherInfoInClass,
 } = actions;
 export default reducer;

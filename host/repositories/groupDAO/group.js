@@ -4,6 +4,7 @@ import Project from "../../models/projectModel.js";
 import Matched from "../../models/matchedModel.js";
 import mongoose from "mongoose";
 import ProjectCategory from "../../models/projectCategoryModel.js";
+import Class from "../../models/classModel.js";
 
 const getGroupById = async (id) => {
   try {
@@ -261,6 +262,17 @@ const getGroupsByClassId = async (classId) => {
     }
 
     const objectIdClassId = new mongoose.Types.ObjectId(classId);
+    const classData = await Class.findById(objectIdClassId).populate({
+      path: "teacherId",
+      model: "User",
+      select: "username email phoneNumber degree status role",
+    });
+
+    if (!classData) {
+      throw new Error("Class not found");
+    }
+
+    const teacher = classData.teacherId;
 
     const groups = await Group.find({ classId: objectIdClassId })
       .populate({
@@ -304,10 +316,11 @@ const getGroupsByClassId = async (classId) => {
         };
       })
     );
-
     return {
-      message: "Groups with project, user, and mentor details fetched successfully",
+      message:
+        "Groups with project, user, and mentor details fetched successfully",
       groups: populatedGroups,
+      teacher,
     };
   } catch (error) {
     console.error("Error fetching detailed groups by classId:", error);

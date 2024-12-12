@@ -36,7 +36,7 @@ matchedRouter.post(
 matchedRouter.patch(
   "/time/:eventId",
   verifyAccessToken,
-  matchedController.updateTimeEventHandler
+  matchedController.patchTimeEventHandler
 );
 
 matchedRouter.delete(

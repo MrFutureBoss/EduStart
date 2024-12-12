@@ -24,7 +24,6 @@ const { Sider } = Layout;
 const { SubMenu } = Menu;
 
 const TeacherSider = ({ collapsed, toggleCollapse }) => {
-  const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const jwt = localStorage.getItem("jwt");
   const dispatch = useDispatch();

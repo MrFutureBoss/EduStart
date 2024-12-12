@@ -218,6 +218,12 @@ const ProjectRequest = () => {
 
   const columns = [
     {
+      title: "Tên lớp",
+      dataIndex: "className",
+      key: "className",
+      render: (text) => <Text>{text || "Không có thông tin"}</Text>,
+    },
+    {
       title: "Tên nhóm",
       dataIndex: "groupName",
       key: "groupName",

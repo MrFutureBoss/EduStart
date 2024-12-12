@@ -2,22 +2,29 @@ import mongoose from "mongoose";
 import Profession from "../../models/professionModel.js";
 import Specialty from "../../models/specialtyModel.js";
 
-const getAllProfessions = async (status, skip, limit, search) => {
+const getAllProfessionsAndSpecialty = async (status, skip, limit, search) => {
   try {
     let query = {};
     if (status) query.status = status;
     if (search) query.name = { $regex: search, $options: "i" };
+
     const result = await Profession.find(query)
+      .populate({
+        path: "specialty",
+        model: "Specialty",
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .exec();
+
     const total = await Profession.countDocuments({});
     return { data: result, total };
   } catch (error) {
     throw new Error(error);
   }
 };
+
 
 const getProfessionById = async (id) => {
   try {
@@ -132,12 +139,16 @@ const searchProfessionsAndSpecialtiesByName = async (name) => {
   }
 };
 
-const createNewProfession = async (name, specialties, status) => {
+const createNewProfessionAndSpecialty = async (name, specialties, status) => {
+  if (!name) {
+    throw new Error("Tên lĩnh vực không được để trống");
+  }
+  if (name.length < 2) {
+    throw new Error("Tên lĩnh vực không đúng định dạng");
+  }
   try {
-    // Kiểm tra xem profession với tên này đã tồn tại chưa
     const existingProfession = await Profession.findOne({ name });
     if (existingProfession) {
-      // Ném lỗi với thông báo cụ thể
       throw new Error("Lĩnh vực đã tồn tại");
     }
 
@@ -156,7 +167,7 @@ const createNewProfession = async (name, specialties, status) => {
 
     return newProfession;
   } catch (error) {
-    throw new Error(error.message); // Ném lại lỗi với message cụ thể
+    throw new Error(error.message);
   }
 };
 
@@ -307,12 +318,12 @@ const createMultipleProfessions = async (professionsData) => {
 };
 
 export default {
-  getAllProfessions,
+  getAllProfessionsAndSpecialty,
   getProfessionById,
   getAllSpecialtyByProfessionID,
   findProfessionAndSpecialtyByName,
   searchProfessionsAndSpecialtiesByName,
-  createNewProfession,
+  createNewProfessionAndSpecialty,
   updateProfessionAndSpecialty,
   updateProfession,
   deleteProfessionAndSpecialties,

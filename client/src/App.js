@@ -11,6 +11,7 @@ import UserProfile from "./pages/UserProfile.jsx";
 import StudentRouter from "./routers/student/StudentRouter.js";
 import MentorRouter from "./routers/mentor/MentorRouter.js";
 import "../src/style/Common.css";
+import AccessDenied from "./components/Result/AccessDenied.jsx";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
       <Routes>
         {AdminRouter()}
         {TeacherRouter()}
-        
+
         <Route
           path="/student-dashboard"
           element={
@@ -32,7 +33,7 @@ function App() {
         {MentorRouter()}
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/" element={<SignIn />} />
-        <Route path="/unauthorized" element={<h1>Access Denied</h1>} />
+        <Route path="/unauthorized" element={<AccessDenied />} />
       </Routes>
     </BrowserRouter>
   );

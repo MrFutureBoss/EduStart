@@ -592,7 +592,7 @@ const assignOutcomeToAllGroups = async ({
   });
 
   const activities = [];
-  const skippedClasses = new Set(); // Lưu trữ các lớp đã được assign trước đó
+  const skippedClasses = new Set();
 
   for (const classId of classIds) {
     const groups = groupsByClassId[classId];
@@ -632,10 +632,6 @@ const assignOutcomeToAllGroups = async ({
   }
 
   if (activities.length === 0) {
-    console.log(
-      "[AUTO-ASSIGN OUTCOMES] No activities to assign. Skipped classes:",
-      Array.from(skippedClasses)
-    );
     throw new Error("No activities to assign.");
   }
 
@@ -737,7 +733,7 @@ const autoAssignOutcomes = async (req, res) => {
         Promise.all(
           classes.map((classInfo) =>
             assignOutcomeToAllGroups({
-              description: `Auto-assigned Outcome ${outcomeId}`,
+              description: `Description for Outcome ${outcomeId}`,
               classIds: [classInfo._id],
               semesterId: semester._id,
               outcomes: [
@@ -754,7 +750,6 @@ const autoAssignOutcomes = async (req, res) => {
       )
     );
 
-    console.log("[AUTO-ASSIGN OUTCOMES] Outcomes assigned successfully.");
     if (res && res.status)
       res.status(200).json({ message: "Outcomes assigned automatically." });
   } catch (error) {
@@ -804,6 +799,12 @@ const getUnsubmittedGroups = async (req, res) => {
       classId
     );
 
+    if (activities === null) {
+      return res.status(404).json({
+        message: `No outcome found for outcomeId: ${outcomeId} and classId: ${classId}`,
+      });
+    }
+
     if (!activities.length) {
       return res.status(404).json({ message: "No unsubmitted groups found" });
     }
@@ -824,6 +825,32 @@ const getUnsubmittedGroups = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+const checkClassOutcome = async (req, res) => {
+  try {
+    const { classId, outcomeId, semesterId } = req.query;
+
+    if (!classId || !outcomeId || !semesterId) {
+      return res
+        .status(400)
+        .json({ message: "Missing classId or outcomeId, semesterId" });
+    }
+
+    const activity = await activityDAO.doesClassHaveOutcome(classId, outcomeId);
+
+    if (!activity) {
+      return res.status(404).json({
+        message: `No outcome activity found for classId: ${classId} and outcomeId: ${outcomeId}`,
+      });
+    }
+
+    return res.status(200).json({ message: "Outcome exists" });
+  } catch (error) {
+    console.error("Error in checkClassOutcome:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const getGroupUpcomingOutcomes = async (req, res) => {
   const userId = req.user._id;
 
@@ -873,4 +900,5 @@ export default {
   getGroupUpcomingOutcomes,
   getUnsubmittedGroups,
   getUnsubmittedGroups,
+  checkClassOutcome,
 };

@@ -265,7 +265,7 @@ const AssignOutcome = ({ onAssigned }) => {
           >
             <Col
               xs={24}
-              md={12}
+              md={11}
               style={{
                 borderRight: "1px solid #d9d9d9",
                 background: "#ffffff",
@@ -319,7 +319,7 @@ const AssignOutcome = ({ onAssigned }) => {
                     onClick={showModal}
                     icon={<SendOutlined />}
                     style={{
-                      width: "40%",
+                      width: "65%",
                       backgroundColor: "#1890ff",
                       borderColor: "#1890ff",
                       fontSize: "16px",
@@ -333,7 +333,7 @@ const AssignOutcome = ({ onAssigned }) => {
             </Col>
             <Col
               xs={24}
-              md={12}
+              md={13}
               style={{
                 background: "#ffffff",
                 padding: "16px",

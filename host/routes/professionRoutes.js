@@ -7,7 +7,7 @@ professionRouters.get(
   "/get-all",
   professionController.getProfessionsAndSpecialties
 );
-professionRouters.get("/", professionController.getAllProfessions);
+professionRouters.get("/", professionController.getAllProfessionsAndSpecialty);
 professionRouters.get(
   "/search",
   professionController.findProfessionAndSpecialtyByName
@@ -25,7 +25,7 @@ professionRouters.put(
   "/:id/specialties",
   professionController.updateProfessionAndSpecialty
 );
-professionRouters.post("/", professionController.createNewProfession);
+professionRouters.post("/", professionController.createNewProfessionAndSpecialty);
 professionRouters.post("/bulk", professionController.createProfessionsInBulk);
 professionRouters.patch("/:id", professionController.updateProfession);
 professionRouters.delete(
