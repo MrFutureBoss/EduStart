@@ -18,14 +18,9 @@ import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfessions } from "../../redux/slice/ProfessionSlice.js";
-import { setSpecialties } from "../../redux/slice/SpecialtySlice.js";
-
 const EditProfession = ({ _id, show, close }) => {
   const dispatch = useDispatch();
   const professions = useSelector((state) => state.profession.professions.data);
-  // const specialtiesData = useSelector(
-  //   (state) => state.specialty.specialties.data || []
-  // );
   const [isFormValid, setIsFormValid] = useState(false);
   const [specialties, setSpecialtiesData] = useState([]);
   const [specialtyInput, setSpecialtyInput] = useState("");
@@ -48,7 +43,6 @@ const EditProfession = ({ _id, show, close }) => {
   const [showAddSpecialtyInput, setShowAddSpecialtyInput] = useState(false);
   const [showEditSpecialtyInput, setShowEditSpecialtyInput] = useState(false);
   const [showAddPopconfirm, setShowAddPopconfirm] = useState(false);
-  const [showEditPopconfirm, setShowEditPopconfirm] = useState(false);
   const [editingSpecialty, setEditingSpecialty] = useState(null);
   const [editSpecialtyInput, setEditSpecialtyInput] = useState("");
   const [closedSpecialties, setClosedSpecialties] = useState([]);
@@ -164,26 +158,11 @@ const EditProfession = ({ _id, show, close }) => {
       );
       if (response.status === 200 || response.status === 201) {
         message.success("Cập nhật lĩnh vực và chuyên môn thành công.");
-
-        const updatedProfession = response.data;
-
-        // Cập nhật lại danh sách professions trong Redux
-        const updatedProfessions = professions.map((profession) =>
-          profession._id === _id ? updatedProfession : profession
+        const updatedProfession = await axios.get(
+          `${BASE_URL}/profession`
         );
 
-        dispatch(
-          setProfessions({
-            data: updatedProfessions,
-            total: updatedProfessions.length,
-          })
-        );
-
-        // Cập nhật specialties lại nếu cần thiết
-        const specialtiesResponse = await axios.get(`${BASE_URL}/specialty`);
-        if (specialtiesResponse.status === 200) {
-          dispatch(setSpecialties(specialtiesResponse.data));
-        }
+        dispatch(setProfessions(updatedProfession.data));
 
         // Reset form sau khi cập nhật thành công
         setProfessionName("");
@@ -642,7 +621,6 @@ const EditProfession = ({ _id, show, close }) => {
                 className="limitwords"
                 style={{
                   display:
-                    // professionName.length > 1 ||
                     professionData.name.length > 1 ? "none" : "block",
                 }}
               >

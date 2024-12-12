@@ -298,7 +298,7 @@ const GroupOutcomeCard = ({ groupId, active }) => {
           }
           className="group-outcomes-card"
           // hoverable
-          style={{ marginTop: "40px" }}
+          style={{ marginBottom: "20px" }}
           extra={
             role === 4 &&
             isLeader &&

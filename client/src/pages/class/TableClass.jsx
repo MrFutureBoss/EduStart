@@ -18,7 +18,6 @@ const TableClass = ({ ungroup, emptygroup }) => {
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
-  const navigate = useNavigate(); // Khai báo useNavigate
 
   const config = useMemo(
     () => ({

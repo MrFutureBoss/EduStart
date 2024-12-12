@@ -163,3 +163,119 @@ export async function sendReminderEmail(email, assignmentTitle, deadline) {
     throw new Error("Unable to send reminder email.");
   }
 }
+
+export async function sendEmailToGroupforNewMatching(
+  email,
+  username,
+  mentorEmail,
+  phoneNumber
+) {
+  if (process.env.EMAIL_ENABLED === "true") {
+    return;
+  }
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MY_EMAIL,
+      pass: process.env.MY_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.MY_EMAIL,
+    to: email,
+    subject: "Thông báo người hướng dẫn hỗ trợ dự án môn học khởi nghiệp mới",
+    html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Thông báo giáo viên ghép người hướng dẫn mới cho nhóm bạn</title>
+</head>
+<body>
+<div style="font-family: Helvetica, Arial, sans-serif; min-width: 1000px; overflow: auto; line-height: 2;">
+  <div style="margin: 50px auto; width: 70%; padding: 20px 0;">
+    <div style="border-bottom: 1px solid #eee;">
+      <a href="" style="font-size: 1.4em; color: #00466a; text-decoration: none; font-weight: 600;">EduStart system</a>
+    </div>
+    <p style="font-size: 1.1em;">Xin chào,</p>
+    <p>Hệ thống EduStart gửi nhóm bạn thông tin liên hệ với người hướng dẫn:</p>
+    <p>Họ và tên: <strong>${username}</strong></p>
+    <p>Email: <strong>${mentorEmail}</strong></p>
+    <p>Liên hệ: <strong>${phoneNumber}</strong></p>
+    <p>Vui lòng nhóm chủ động liên hệ với người hướng dẫn và vào trang EduStart để bắt đầu làm việc với nhau.</p>
+    <p style="font-size: 0.9em;">Trân trọng,<br />Đội ngũ quản trị EduStart</p>
+    <hr style="border: none; border-top: 1px solid #eee;" />
+    <div style="float: right; padding: 8px 0; color: #aaa; font-size: 0.8em; line-height: 1; font-weight: 300;">
+      <p>FPTU</p>
+      <p>Viet Nam</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw new Error("Unable to send email.");
+  }
+}
+
+export async function sendEmailToGroupforNewMeetingEvent(
+  email,
+  title,
+  date,
+  start,
+  end
+) {
+  if (process.env.EMAIL_ENABLED === "true") {
+    return;
+  }
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MY_EMAIL,
+      pass: process.env.MY_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.MY_EMAIL,
+    to: email,
+    subject: "Thông báo người hướng dẫn của bạn đã thêm lịch họp mới",
+    html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Thông báo lịch họp nhóm${title}</title>
+</head>
+<body>
+<div style="font-family: Helvetica, Arial, sans-serif; min-width: 1000px; overflow: auto; line-height: 2;">
+  <div style="margin: 50px auto; width: 70%; padding: 20px 0;">
+    <div style="border-bottom: 1px solid #eee;">
+      <a href="" style="font-size: 1.4em; color: #00466a; text-decoration: none; font-weight: 600;">EduStart system</a>
+    </div>
+    <p style="font-size: 1.1em;">Xin chào,</p>
+    <p>Hệ thống EduStart gửi lịch họp với người hướng dẫn của bạn:</p>
+    <p>Tiêu đề lịch họp: <strong>${title}</strong></p>
+    <strong>Thời gian từ ${start} ${date} đến ${end}</strong>
+    <p>Vui lòng nhóm trưởng chủ động phản hồi thời gian họp nhóm trên hệ thống EduStart để người hướng dẫn điều chỉnh lại lịch họp (nếu có vấn đề).</p>
+    <p style="font-size: 0.9em;">Trân trọng,<br />Đội ngũ quản trị EduStart</p>
+    <hr style="border: none; border-top: 1px solid #eee;" />
+    <div style="float: right; padding: 8px 0; color: #aaa; font-size: 0.8em; line-height: 1; font-weight: 300;">
+      <p>FPTU</p>
+      <p>Viet Nam</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw new Error("Unable to send email.");
+  }
+}

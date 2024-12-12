@@ -143,61 +143,29 @@ const patchMatched = async (req, res) => {
 const createNewTimeEventsHandler = async (req, res) => {
   const { id } = req.params;
   const { time } = req.body;
+
   try {
-    console.log("Received time data:", time); // Debug giá trị time
     if (!time || !Array.isArray(time) || time.length === 0) {
-      console.error("Invalid time input:", time);
       return res.status(400).json({ message: "No valid time data provided" });
     }
-    
+
     const updatedMatched = await matchedDAO.createNewTimeEvents(id, time);
+
     if (!updatedMatched) {
       return res.status(404).json({ message: "Matched record not found" });
     }
-    // const groupId = updatedMatched.groupId;
-    // const mentorId = updatedMatched.mentorId;
 
-    // if (!groupId || !mentorId) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Group ID or Mentor ID missing in Matched" });
-    // }
-
-    // const group = await projectDAO.findGroupById(groupId);
-    // const groupMembers = await groupDAO.getGroupMembers(group._id);
-    // const recipients = groupMembers.map((member) => member._id);
-    // if (!group) {
-    //   return res.status(404).json({ message: "Group not found" });
-    // }
-    // const notificationMessage = `Người hướng dẫn của bạn đã thêm lịch họp mới.`;
-    // await notificationDAO.createNotifications({
-    //   message: notificationMessage,
-    //   type: "AddMeetingTimeNotification",
-    //   recipients,
-    //   filters: { groupId: group._id, groupName: group.name },
-    //   senderId: group._id,
-    //   io: req.io,
-    // });
-    // // kết nối socket.io
-    // const io = req.io; // Lấy `io` từ req
-    // io.to(`user:${mentorId}`).emit("newEventTime", {
-    //   message: "Add new event time",
-    //   groupId,
-    // });
-    // res.status(200).json({
-    //   message: "New time events added successfully",
-    //   matched: updatedMatched,
-    // });
+    res.status(200).json({
+      message: "New time events added successfully",
+      matched: updatedMatched,
+    });
   } catch (error) {
     console.error("Error in createNewTimeEventsHandler:", error.message);
-    if (error.message === "Invalid Matched ID format") {
-      return res.status(400).json({ error: error.message });
-    }
-    if (error.message === "Matched record not found") {
-      return res.status(404).json({ error: error.message });
-    }
 
-    res.status(500).json({ error: error.message });
+    const statusCode =
+      error.message.includes("Invalid Matched ID") ? 400 : 500;
+
+    res.status(statusCode).json({ error: error.message });
   }
 };
 

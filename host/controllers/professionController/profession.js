@@ -1,13 +1,13 @@
 import professionDAO from "../../repositories/professionDAO/index.js";
 import mongoose from "mongoose";
 
-const getAllProfessions = async (req, res, next) => {
+const getAllProfessionsAndSpecialty = async (req, res, next) => {
   try {
     const { status, search, limit = 10, page = 1 } = req.query;
     const limitInt = parseInt(limit, 10);
     const pageInt = parseInt(page, 10);
     const skip = (pageInt - 1) * limitInt;
-    const professions = await professionDAO.getAllProfessions(
+    const professions = await professionDAO.getAllProfessionsAndSpecialty(
       status,
       skip,
       limitInt,
@@ -187,7 +187,7 @@ const createProfessionsInBulk = async (req, res, next) => {
 };
 
 export default {
-  getAllProfessions,
+  getAllProfessionsAndSpecialty,
   getProfessionById,
   getAllSpecialtyByProfessionID,
   findProfessionAndSpecialtyByName,

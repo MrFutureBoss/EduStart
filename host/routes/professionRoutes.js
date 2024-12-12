@@ -7,7 +7,7 @@ professionRouters.get(
   "/get-all",
   professionController.getProfessionsAndSpecialties
 );
-professionRouters.get("/", professionController.getAllProfessions);
+professionRouters.get("/", professionController.getAllProfessionsAndSpecialty);
 professionRouters.get(
   "/search",
   professionController.findProfessionAndSpecialtyByName

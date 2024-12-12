@@ -2,22 +2,29 @@ import mongoose from "mongoose";
 import Profession from "../../models/professionModel.js";
 import Specialty from "../../models/specialtyModel.js";
 
-const getAllProfessions = async (status, skip, limit, search) => {
+const getAllProfessionsAndSpecialty = async (status, skip, limit, search) => {
   try {
     let query = {};
     if (status) query.status = status;
     if (search) query.name = { $regex: search, $options: "i" };
+
     const result = await Profession.find(query)
+      .populate({
+        path: "specialty",
+        model: "Specialty",
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .exec();
+
     const total = await Profession.countDocuments({});
     return { data: result, total };
   } catch (error) {
     throw new Error(error);
   }
 };
+
 
 const getProfessionById = async (id) => {
   try {
@@ -311,7 +318,7 @@ const createMultipleProfessions = async (professionsData) => {
 };
 
 export default {
-  getAllProfessions,
+  getAllProfessionsAndSpecialty,
   getProfessionById,
   getAllSpecialtyByProfessionID,
   findProfessionAndSpecialtyByName,
