@@ -8,7 +8,10 @@ import Project from "../../models/projectModel.js";
 import Specialty from "../../models/specialtyModel.js";
 import TemporaryMatching from "../../models/temporaryMatchingModel.js";
 import User from "../../models/userModel.js";
-import { sendEmailToGroupforNewMatching, sendEmailToGroupforNewMeetingEvent } from "../../utilities/email.js";
+import {
+  sendEmailToGroupforNewMatching,
+  sendEmailToGroupforNewMeetingEvent,
+} from "../../utilities/email.js";
 // hàm để tạo matched chờ xác nhận
 const createMatched = async (data) => {
   try {
@@ -29,7 +32,6 @@ const createMatched = async (data) => {
     const currentLoad = await Matched.countDocuments({
       mentorId: data.mentorId,
     });
-    console.log("Current load for mentor:", currentLoad);
 
     // Lấy thông tin maxLoad của mentor
     const mentorCategory = await MentorCategory.findOne({
@@ -37,7 +39,6 @@ const createMatched = async (data) => {
     });
 
     // Xóa gợi ý của nhóm hiện tại khỏi TemporaryMatching
-    console.log(`Removing suggestions for group ${data.groupId}`);
     await TemporaryMatching.deleteOne(
       { groupId: data.groupId },
       {
@@ -51,9 +52,6 @@ const createMatched = async (data) => {
 
     // Nếu mentor đạt maxLoad, xóa khỏi tất cả các nhóm
     if (mentorCategory && currentLoad >= mentorCategory.maxLoad) {
-      console.log(
-        `Mentor ${data.mentorId} reached maxLoad. Removing from all suggestions.`
-      );
       await TemporaryMatching.deleteOne(
         {
           $or: [
@@ -74,7 +72,6 @@ const createMatched = async (data) => {
 
     // Lưu bản ghi Matched mới
     const savedMatched = await matched.save();
-    console.log("Matched created successfully:", savedMatched);
 
     return savedMatched;
   } catch (error) {
@@ -158,9 +155,9 @@ const updateMatchedById = async (id, updateData) => {
 };
 
 // hàm để xoá matched
-const deleteMatchedById = async (id) => {
+const deleteMatchedById = async (groupId) => {
   try {
-    const deletedMatched = await Matched.findByIdAndDelete(id);
+    const deletedMatched = await Matched.deleteMany({ groupId });
     return deletedMatched;
   } catch (error) {
     throw error;
@@ -385,7 +382,6 @@ const patchMatchedById = async (id, updateData) => {
             mentor.email,
             mentor.phoneNumber
           );
-          console.log(`Email sent successfully to: ${email}`);
         } catch (error) {
           console.error(`Error sending email to ${email}:`, error.message);
         }
@@ -471,7 +467,6 @@ const createNewTimeEvents = async (id, newTimeArray) => {
             start,
             end
           );
-          console.log(`Email sent successfully to: ${email}`);
         } catch (error) {
           console.error(
             `Error sending email to ${email} for event "${title}":`,

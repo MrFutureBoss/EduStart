@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
   Card,
@@ -13,158 +12,194 @@ import {
   Col,
   Typography,
   Tabs,
+  Spin,
 } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import ProjectCard from "../ProjectCard";
 import "../../teacherCSS/DetailedSelection.css";
-import {
-  setAssignedMentorsMap,
-  setProjectData,
-} from "../../../../redux/slice/MatchingSlice";
-import { assignMentorToProject, fetchProjectData } from "../../../../api";
+import { assignMentorToProject } from "../../../../api";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
 
 const DetailedSelection = () => {
-  const { projectId } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const teacherId = localStorage.getItem("userId");
 
-  // Lấy dữ liệu từ Redux
-  const projectData = useSelector((state) => state.matching.projectData);
-  const mentorsData = useSelector((state) => state.matching.mentorsData);
-  const assignedMentorsMap = useSelector(
-    (state) => state.matching.assignedMentorsMap
-  );
-  const selectedClassId = useSelector(
-    (state) => state.matching.selectedClassId
-  );
-
-  // Kiểm tra và tìm project và mentors trong Redux, nếu không có sẽ lấy từ localStorage
-  const storedProjectData = JSON.parse(
-    localStorage.getItem("selectedProjectData")
-  );
-  const storedMentorsData = JSON.parse(
-    localStorage.getItem("selectedMentorsData")
-  );
-
-  const project =
-    projectData?.find((p) => p._id === projectId) || storedProjectData;
-  const mentors = mentorsData?.[projectId] || storedMentorsData;
-
-  // Lưu project và mentors vào localStorage nếu chưa có
-  useEffect(() => {
-    if (project && mentors) {
-      localStorage.setItem("selectedProjectData", JSON.stringify(project));
-      localStorage.setItem("selectedMentorsData", JSON.stringify(mentors));
-    }
-  }, [project, mentors]);
-
-  // Nếu không có dữ liệu project hoặc mentors, điều hướng về trang trước
-  useEffect(() => {
-    if (!project || !mentors) {
-      message.warning("Dữ liệu không tồn tại. Quay lại trang trước.");
-      navigate(-1);
-    }
-  }, [project, mentors, navigate]);
-
-  // Lấy mentor từ assignedMentorsMap hoặc danh sách ưu tiên
-  const initialAssignedMentor =
-    (assignedMentorsMap[projectId] && assignedMentorsMap[projectId][0]) ||
-    mentors?.mentorPreferred?.[0] ||
-    mentors?.teacherPreferredMentors?.[0] ||
-    mentors?.matchingMentors?.[0] ||
-    null;
-
-  const [assignedMentor, setAssignedMentor] = useState(initialAssignedMentor);
+  const [project, setProject] = useState(null);
+  const [mentorPreferred, setMentorPreferred] = useState([]);
+  const [teacherPreferredMentors, setTeacherPreferredMentors] = useState([]);
+  const [matchingMentors, setMatchingMentors] = useState([]);
+  const [assignedMentor, setAssignedMentor] = useState(null);
+  const [activeTab, setActiveTab] = useState("mentorPreferred");
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [filteredMentors, setFilteredMentors] = useState({
-    mentorPreferred: [],
-    teacherPreferredMentors: [],
-    matchingMentors: [],
-  });
-
-  // Hàm lọc mentor dựa trên ưu tiên và loại trừ mentor đã được gán
-  const filterMentors = () => {
-    const assignedMentorId = assignedMentor ? assignedMentor.mentorId : null;
-
-    const mentorPreferredFiltered =
-      mentors?.mentorPreferred?.filter(
-        (mentor) => mentor.mentorId !== assignedMentorId
-      ) || [];
-    const teacherPreferredMentorsFiltered =
-      mentors?.teacherPreferredMentors?.filter(
-        (mentor) =>
-          mentor.mentorId !== assignedMentorId &&
-          !mentorPreferredFiltered.some((m) => m.mentorId === mentor.mentorId)
-      ) || [];
-    const matchingMentorsFiltered =
-      mentors?.matchingMentors?.filter(
-        (mentor) =>
-          mentor.mentorId !== assignedMentorId &&
-          !mentorPreferredFiltered.some(
-            (m) => m.mentorId === mentor.mentorId
-          ) &&
-          !teacherPreferredMentorsFiltered.some(
-            (m) => m.mentorId === mentor.mentorId
-          )
-      ) || [];
-
-    setFilteredMentors({
-      mentorPreferred: mentorPreferredFiltered,
-      teacherPreferredMentors: teacherPreferredMentorsFiltered,
-      matchingMentors: matchingMentorsFiltered,
-    });
-  };
-
-  // Lọc mentor khi assignedMentor hoặc mentors thay đổi
+  const storedProject = JSON.parse(localStorage.getItem("selectedProject"));
+  // Lấy project từ localStorage
   useEffect(() => {
-    filterMentors();
-  }, [assignedMentor, mentors]);
+    if (!storedProject || !storedProject.project) {
+      message.warning("Dữ liệu không tồn tại. Quay lại trang trước.");
+      navigate(-1);
+      return;
+    }
+    setProject(storedProject.project);
+  }, [navigate]);
 
-  // Hàm xác định tab active dựa trên nguồn của assignedMentor
+  // Gọi API và chuẩn hóa dữ liệu mentor
+  useEffect(() => {
+    const fetchMentorSuggestions = async () => {
+      if (!project || !project.groupId) return;
+      setIsLoading(true);
+      try {
+        const { data } = await axios.post(
+          "http://localhost:9999/tempMatching/recommend-group",
+          {
+            teacherId,
+            groupId: project.groupId,
+          }
+        );
+
+        // Chuẩn hóa mentorPreferred
+        const normalizedMentorPreferred = data.mentorPreferred.map((m) => ({
+          mentorId: String(m.mentorId),
+          username: m.username,
+          email: m.email,
+          phoneNumber: m.phoneNumber,
+          currentLoad: m.currentLoad,
+          maxLoad: m.maxLoad,
+          isPreferredGroup: m.isPreferredGroup,
+          matchedProfessions: m.matchedProfessions,
+          matchedSpecialties: m.matchedSpecialties,
+          avatarUrl: m.avatarUrl || "/default-avatar.png",
+          origin: "mentorPreferred", // Gán origin
+        }));
+
+        // Chuẩn hóa teacherPreferredMentors
+        const normalizedTeacherPreferredMentors =
+          data.teacherPreferredMentors.map((m) => ({
+            mentorId: String(m.mentorId._id),
+            username: m.mentorId.username,
+            email: m.mentorId.email,
+            phoneNumber: m.mentorId.phoneNumber,
+            priority: m.priority,
+            matchedSpecialties: m.matchedSpecialties,
+            matchCount: m.matchCount,
+            professions: m.professions,
+            currentLoad: m.currentLoad,
+            maxLoad: m.maxLoad,
+            avatarUrl: m.mentorId.avatarUrl || "/default-avatar.png",
+            origin: "teacherPreferred", // Gán origin
+          }));
+
+        // Chuẩn hóa matchingMentors
+        const normalizedMatchingMentors = data.matchingMentors
+          .filter((m) => m !== null)
+          .map((m) => ({
+            mentorId: String(m.mentorId),
+            username: m.username,
+            email: m.email,
+            phoneNumber: m.phoneNumber,
+            matchedSpecialties: m.matchedSpecialties,
+            matchCount: m.matchCount,
+            professions: m.professions,
+            currentLoad: m.currentLoad,
+            maxLoad: m.maxLoad,
+            avatarUrl: m.avatarUrl || "/default-avatar.png",
+            origin: "matching", // Gán origin
+          }));
+
+        // Loại bỏ mentor trùng lặp theo độ ưu tiên
+        const mentorIdsPreferred = new Set(
+          normalizedMentorPreferred.map((m) => m.mentorId)
+        );
+        const filteredTeacherPreferredMentors =
+          normalizedTeacherPreferredMentors.filter(
+            (m) => !mentorIdsPreferred.has(m.mentorId)
+          );
+
+        const mentorIdsTeacherPreferred = new Set(
+          filteredTeacherPreferredMentors.map((m) => m.mentorId)
+        );
+        const filteredMatchingMentors = normalizedMatchingMentors.filter(
+          (m) =>
+            !mentorIdsPreferred.has(m.mentorId) &&
+            !mentorIdsTeacherPreferred.has(m.mentorId)
+        );
+
+        setMentorPreferred(normalizedMentorPreferred);
+        setTeacherPreferredMentors(filteredTeacherPreferredMentors);
+        setMatchingMentors(filteredMatchingMentors);
+
+        // Chọn mentor ban đầu
+        let initialMentor = null;
+        if (normalizedMentorPreferred.length > 0)
+          initialMentor = { ...normalizedMentorPreferred[0] };
+        else if (filteredTeacherPreferredMentors.length > 0)
+          initialMentor = { ...filteredTeacherPreferredMentors[0] };
+        else if (filteredMatchingMentors.length > 0)
+          initialMentor = { ...filteredMatchingMentors[0] };
+
+        if (initialMentor) {
+          setAssignedMentor(initialMentor);
+          // Loại bỏ mentor vừa gán ra khỏi danh sách gợi ý tương ứng
+          if (initialMentor.origin === "mentorPreferred") {
+            setMentorPreferred((prev) =>
+              prev.filter((m) => m.mentorId !== initialMentor.mentorId)
+            );
+          } else if (initialMentor.origin === "teacherPreferred") {
+            setTeacherPreferredMentors((prev) =>
+              prev.filter((m) => m.mentorId !== initialMentor.mentorId)
+            );
+          } else if (initialMentor.origin === "matching") {
+            setMatchingMentors((prev) =>
+              prev.filter((m) => m.mentorId !== initialMentor.mentorId)
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy gợi ý mentor:", error);
+        message.error("Không thể lấy gợi ý mentor cho nhóm.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (project && project.groupId) {
+      fetchMentorSuggestions();
+    }
+  }, [project, teacherId]);
+
+  // Xác định tab active
   const determineActiveTab = () => {
     if (!assignedMentor) {
-      if (mentors?.mentorPreferred?.length > 0) return "mentorPreferred";
-      if (mentors?.teacherPreferredMentors?.length > 0)
-        return "teacherPreferredMentors";
-      if (mentors?.matchingMentors?.length > 0) return "matchingMentors";
+      if (mentorPreferred.length > 0) return "mentorPreferred";
+      if (teacherPreferredMentors.length > 0) return "teacherPreferredMentors";
+      if (matchingMentors.length > 0) return "matchingMentors";
       return "mentorPreferred";
     }
 
-    if (
-      mentors?.mentorPreferred?.some(
-        (m) => m.mentorId === assignedMentor.mentorId
-      )
-    ) {
+    // Dựa trên origin
+    if (assignedMentor.origin === "mentorPreferred") {
       return "mentorPreferred";
-    }
-    if (
-      mentors?.teacherPreferredMentors?.some(
-        (m) => m.mentorId === assignedMentor.mentorId
-      )
-    ) {
+    } else if (assignedMentor.origin === "teacherPreferred") {
       return "teacherPreferredMentors";
-    }
-    if (
-      mentors?.matchingMentors?.some(
-        (m) => m.mentorId === assignedMentor.mentorId
-      )
-    ) {
+    } else {
       return "matchingMentors";
     }
-    return "mentorPreferred";
   };
 
-  const [activeTab, setActiveTab] = useState(determineActiveTab());
-
-  // Cập nhật activeTab khi assignedMentor hoặc mentors thay đổi
   useEffect(() => {
     setActiveTab(determineActiveTab());
-  }, [assignedMentor, mentors]);
+    // eslint-disable-next-line
+  }, [
+    assignedMentor,
+    mentorPreferred,
+    teacherPreferredMentors,
+    matchingMentors,
+  ]);
 
   const handleGoBack = () => {
     navigate(-1);
@@ -175,42 +210,45 @@ const DetailedSelection = () => {
   };
 
   const handleSelectMentor = (mentor) => {
-    if (assignedMentor) {
-      const newFilteredMentors = { ...filteredMentors };
-      if (
-        mentors.mentorPreferred.some(
-          (m) => m.mentorId === assignedMentor.mentorId
-        )
-      ) {
-        newFilteredMentors.mentorPreferred.push(assignedMentor);
-      } else if (
-        mentors.teacherPreferredMentors.some(
-          (m) => m.mentorId === assignedMentor.mentorId
-        )
-      ) {
-        newFilteredMentors.teacherPreferredMentors.push(assignedMentor);
-      } else {
-        newFilteredMentors.matchingMentors.push(assignedMentor);
+    // Nếu có mentor đã gán trước đó và khác mentor mới
+    if (assignedMentor && assignedMentor.mentorId !== mentor.mentorId) {
+      // Thêm mentor cũ về đúng danh sách dựa trên origin
+      if (assignedMentor.origin === "mentorPreferred") {
+        setMentorPreferred((prev) =>
+          prev.some((m) => m.mentorId === assignedMentor.mentorId)
+            ? prev
+            : [...prev, assignedMentor]
+        );
+      } else if (assignedMentor.origin === "teacherPreferred") {
+        setTeacherPreferredMentors((prev) =>
+          prev.some((m) => m.mentorId === assignedMentor.mentorId)
+            ? prev
+            : [...prev, assignedMentor]
+        );
+      } else if (assignedMentor.origin === "matching") {
+        setMatchingMentors((prev) =>
+          prev.some((m) => m.mentorId === assignedMentor.mentorId)
+            ? prev
+            : [...prev, assignedMentor]
+        );
       }
-      setFilteredMentors(newFilteredMentors);
     }
 
+    // Mentor mới giữ nguyên origin của mình
     setAssignedMentor(mentor);
 
-    setFilteredMentors((prev) => ({
-      mentorPreferred: prev.mentorPreferred.filter(
-        (m) => m.mentorId !== mentor.mentorId
-      ),
-      teacherPreferredMentors: prev.teacherPreferredMentors.filter(
-        (m) => m.mentorId !== mentor.mentorId
-      ),
-      matchingMentors: prev.matchingMentors.filter(
-        (m) => m.mentorId !== mentor.mentorId
-      ),
-    }));
+    // Loại mentor mới khỏi tất cả các danh sách gợi ý
+    setMentorPreferred((prev) =>
+      prev.filter((m) => m.mentorId !== mentor.mentorId)
+    );
+    setTeacherPreferredMentors((prev) =>
+      prev.filter((m) => m.mentorId !== mentor.mentorId)
+    );
+    setMatchingMentors((prev) =>
+      prev.filter((m) => m.mentorId !== mentor.mentorId)
+    );
   };
 
-  // Chỉnh sửa hàm handleSaveMentor
   const handleSaveMentor = async () => {
     if (!project || !assignedMentor) {
       message.error("Không tìm thấy dự án hoặc mentor để lưu.");
@@ -218,7 +256,6 @@ const DetailedSelection = () => {
     }
 
     setIsSaving(true);
-
     try {
       await assignMentorToProject(
         project.groupId,
@@ -226,12 +263,6 @@ const DetailedSelection = () => {
         teacherId
       );
       message.success("Mentor đã được lưu vào dự án.");
-      const projectResponse = await fetchProjectData(
-        teacherId,
-        selectedClassId
-      );
-      const projects = projectResponse.data.projects;
-      dispatch(setProjectData(projects));
       navigate(-1);
     } catch (error) {
       console.error("Lỗi khi lưu mentor:", error);
@@ -241,23 +272,13 @@ const DetailedSelection = () => {
     }
   };
 
-  // Effect để tự động gán mentor nếu không có dữ liệu
-  useEffect(() => {
-    if (
-      !assignedMentorsMap[projectId] ||
-      assignedMentorsMap[projectId].length === 0
-    ) {
-      if (initialAssignedMentor) {
-        dispatch(
-          setAssignedMentorsMap({
-            ...assignedMentorsMap,
-            [projectId]: [initialAssignedMentor],
-          })
-        );
-        message.success("Đã tự động gán mentor cho dự án.");
-      }
-    }
-  }, [projectId, initialAssignedMentor]);
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="detailed-selection-container">
@@ -272,15 +293,18 @@ const DetailedSelection = () => {
       <Row gutter={[16, 16]} className="main-row">
         <Col xs={24} md={24} className="left-column">
           <div className="left-content">
-            {/* Kiểm tra xem project có tồn tại không */}
             {project && (
               <ProjectCard
                 project={project}
-                style={{ width: "178%", height: "102%", marginLeft: "-10px" }}
+                style={{ width: "171%", height: "102%", marginLeft: "-10px" }}
                 className="always-hover"
+                group={{
+                  groupName: storedProject?.project?.groupName,
+                  className: storedProject?.project?.className,
+                }}
               />
             )}
-            {/* Kiểm tra assignedMentor */}
+
             {assignedMentor && (
               <div className="assigned-mentor-section">
                 <Title
@@ -299,8 +323,6 @@ const DetailedSelection = () => {
                       mentor={assignedMentor}
                       onSave={handleSaveMentor}
                       isSaving={isSaving}
-                      mentorPreferred={mentors?.mentorPreferred}
-                      teacherPreferredMentors={mentors?.teacherPreferredMentors}
                       projectSpecialties={
                         project?.projectCategory?.specialtyIds || []
                       }
@@ -316,17 +338,13 @@ const DetailedSelection = () => {
           <div className="mentors-list-container">
             <Tabs activeKey={activeTab} onChange={handleTabChange} centered>
               <TabPane tab="Mentor Ưu Tiên Nhóm" key="mentorPreferred">
-                {filteredMentors.mentorPreferred.length > 0 ? (
+                {mentorPreferred.length > 0 ? (
                   <Row gutter={[16, 16]}>
-                    {filteredMentors.mentorPreferred.map((mentor) => (
+                    {mentorPreferred.map((mentor) => (
                       <Col xs={24} sm={12} md={8} key={mentor.mentorId}>
                         <MentorDetailCard
                           mentor={mentor}
                           onSelect={() => handleSelectMentor(mentor)}
-                          mentorPreferred={mentors?.mentorPreferred}
-                          teacherPreferredMentors={
-                            mentors?.teacherPreferredMentors
-                          }
                           projectSpecialties={
                             project?.projectCategory?.specialtyIds || []
                           }
@@ -337,25 +355,20 @@ const DetailedSelection = () => {
                 ) : (
                   <div style={{ textAlign: "center", marginTop: "20px" }}>
                     <Title level={4}>Không có mentor nào trong mục này!</Title>
-                    <Title level={5}>Lựa chọn mục khác để xem thêm.</Title>
                   </div>
                 )}
               </TabPane>
 
               <TabPane tab="Mentor Bạn Ưu Tiên" key="teacherPreferredMentors">
-                {filteredMentors.teacherPreferredMentors.length > 0 ? (
+                {teacherPreferredMentors.length > 0 ? (
                   <Row gutter={[16, 16]}>
-                    {filteredMentors.teacherPreferredMentors.map((mentor) => (
+                    {teacherPreferredMentors.map((mentor) => (
                       <Col xs={24} sm={12} md={8} key={mentor.mentorId}>
                         <MentorDetailCard
                           mentor={mentor}
                           onSelect={() => handleSelectMentor(mentor)}
-                          mentorPreferred={mentors.mentorPreferred}
-                          teacherPreferredMentors={
-                            mentors.teacherPreferredMentors
-                          }
                           projectSpecialties={
-                            project?.projectCategory?.specialtyIds
+                            project?.projectCategory?.specialtyIds || []
                           }
                         />
                       </Col>
@@ -369,19 +382,15 @@ const DetailedSelection = () => {
               </TabPane>
 
               <TabPane tab="Mentor Phù Hợp" key="matchingMentors">
-                {filteredMentors.matchingMentors.length > 0 ? (
+                {matchingMentors.length > 0 ? (
                   <Row gutter={[16, 16]}>
-                    {filteredMentors.matchingMentors.map((mentor) => (
+                    {matchingMentors.map((mentor) => (
                       <Col xs={24} sm={12} md={8} key={mentor.mentorId}>
                         <MentorDetailCard
                           mentor={mentor}
                           onSelect={() => handleSelectMentor(mentor)}
-                          mentorPreferred={mentors.mentorPreferred}
-                          teacherPreferredMentors={
-                            mentors.teacherPreferredMentors
-                          }
                           projectSpecialties={
-                            project?.projectCategory?.specialtyIds
+                            project?.projectCategory?.specialtyIds || []
                           }
                         />
                       </Col>
@@ -401,36 +410,30 @@ const DetailedSelection = () => {
   );
 };
 
-// Component để hiển thị mentor đã được gán với tùy chọn lưu
 const AssignedMentorCard = ({
   mentor,
   onSave,
-  isSaving, // Thêm prop này
-  mentorPreferred,
-  teacherPreferredMentors,
+  isSaving,
   projectSpecialties,
 }) => {
-  const isPreferredGroup = mentorPreferred?.some(
-    (m) => m.mentorId === mentor.mentorId
-  );
-  const isTeacherPreferred = teacherPreferredMentors?.some(
-    (m) => m.mentorId === mentor.mentorId
-  );
+  const isPreferredGroup = mentor.origin === "mentorPreferred";
+  const isTeacherPreferred = mentor.origin === "teacherPreferred";
 
   const highlightedSpecialties =
-    mentor.specialties?.map((spec) => ({
+    mentor.matchedSpecialties?.map((spec) => ({
       name: spec.name,
-      isMatch: projectSpecialties?.some(
-        (projSpec) => projSpec._id === spec.specialtyId
-      ),
+      isMatch: projectSpecialties?.includes(spec.specialtyId),
     })) || [];
+
+  const matchedProfessions =
+    mentor.matchedProfessions || mentor.professions || [];
 
   return (
     <Card className="assigned-mentor-card" hoverable>
       <Button
         onClick={onSave}
-        disabled={isSaving} // Vô hiệu hóa khi đang lưu
-        loading={isSaving} // Hiển thị loading khi đang lưu
+        disabled={isSaving}
+        loading={isSaving}
         style={{
           position: "absolute",
           right: 16,
@@ -482,7 +485,7 @@ const AssignedMentorCard = ({
           <>
             <p style={{ marginBottom: 2 }}>
               <strong>Lĩnh Vực: </strong>
-              {mentor.professions?.map((spec) => spec.name).join(", ") ||
+              {matchedProfessions.map((spec) => spec.name).join(", ") ||
                 "Không có"}
             </p>
             <p style={{ marginBottom: 2 }}>
@@ -522,28 +525,17 @@ const AssignedMentorCard = ({
   );
 };
 
-// Component để hiển thị chi tiết mentor với tùy chọn chọn
-const MentorDetailCard = ({
-  mentor,
-  onSelect,
-  mentorPreferred,
-  teacherPreferredMentors,
-  projectSpecialties,
-}) => {
-  const isPreferredGroup = mentorPreferred?.some(
-    (m) => m.mentorId === mentor.mentorId
-  );
-  const isTeacherPreferred = teacherPreferredMentors?.some(
-    (m) => m.mentorId === mentor.mentorId
-  );
+const MentorDetailCard = ({ mentor, onSelect, projectSpecialties }) => {
+  const isPreferredGroup = mentor.origin === "mentorPreferred";
+  const isTeacherPreferred = mentor.origin === "teacherPreferred";
 
   const highlightedSpecialties =
-    mentor.specialties?.map((spec) => ({
+    mentor.matchedSpecialties?.map((spec) => ({
       name: spec.name,
-      isMatch: projectSpecialties?.some(
-        (projSpec) => projSpec._id === spec.specialtyId
-      ),
+      isMatch: projectSpecialties?.includes(spec.specialtyId),
     })) || [];
+
+  const professions = mentor.matchedProfessions || mentor.professions || [];
 
   return (
     <Card className={"mentor-card-detail-select"} hoverable>
@@ -599,8 +591,7 @@ const MentorDetailCard = ({
           <>
             <p style={{ marginBottom: 2 }}>
               <strong>Lĩnh Vực: </strong>
-              {mentor.professions?.map((spec) => spec.name).join(", ") ||
-                "Không có"}
+              {professions.map((spec) => spec.name).join(", ") || "Không có"}
             </p>
             <p style={{ marginBottom: 2 }}>
               <strong>Chuyên môn: </strong>

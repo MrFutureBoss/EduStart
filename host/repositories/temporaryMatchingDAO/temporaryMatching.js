@@ -26,14 +26,12 @@ const findMentorPreferencesByGroupId = async (
     .lean();
 
   // Debugging: Log fetched preferences
-  console.log("Mentor Preferences for Project:", preferences);
 
   // Enhance preferences with MentorCategory and current load
   const enhancedPreferences = await Promise.all(
     preferences.map(async (preference) => {
       // Validate mentorId existence
       if (!preference.mentorId || !preference.mentorId._id) {
-        console.warn("Invalid mentorId in preference:", preference);
         return null; // Skip invalid mentor
       }
 
@@ -41,12 +39,6 @@ const findMentorPreferencesByGroupId = async (
       const currentLoad = await Matched.countDocuments({
         mentorId: preference.mentorId._id,
       });
-      console.log(
-        "Current Load for Mentor:",
-        preference.mentorId._id,
-        "=",
-        currentLoad
-      );
 
       // Fetch MentorCategory for the mentor
       const mentorCategory = await MentorCategory.findOne({
@@ -98,7 +90,7 @@ const findMentorPreferencesByGroupId = async (
           phoneNumber: preference.mentorId.phoneNumber,
           currentLoad,
           maxLoad: mentorCategory.maxLoad,
-          isPreferredProject: true, // Mentor preferred this project
+          isPreferredGroup: true, // Mentor preferred this project
           matchedProfessions,
           matchedSpecialties,
         };
@@ -113,7 +105,7 @@ const findMentorPreferencesByGroupId = async (
           email: preference.mentorId.email,
           degree: preference.mentorId.degree,
           phoneNumber: preference.mentorId.phoneNumber,
-          isPreferredProject: true, // Mentor preferred this project
+          isPreferredGroup: true, // Mentor preferred this project
           matchedProfessions: [],
           matchedSpecialties: [],
         };
@@ -123,12 +115,11 @@ const findMentorPreferencesByGroupId = async (
 
   // Filter out null values
   const validPreferences = enhancedPreferences.filter((item) => item !== null);
-  console.log("Enhanced Preferences for Project:", validPreferences);
   return validPreferences;
 };
 
 // Hàm để tìm các mentor được giáo viên ưu tiên (theo teacherId, professionId và specialtyIds)
-export const findPreferredMentorsByTeacher = async (
+const findPreferredMentorsByTeacher = async (
   teacherId,
   professionId,
   specialtyIds
@@ -197,11 +188,11 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
   for (const group of groups) {
     // Check if the group's groupId is already matched
     const isMatched = await Matched.exists({ groupId: group._id });
-    if (isMatched) continue; // Skip this group if the groupId is already matched
+    if (isMatched) continue;
 
     // Fetch the project's details
     const project = await Project.findById(group.projectId).lean();
-    if (!project || project.status !== "InProgress") continue; // Skip if the project is not InProgress
+    if (!project || project.status !== "InProgress") continue;
 
     const projectCategory = await ProjectCategory.findOne({
       projectId: group.projectId,
@@ -219,7 +210,7 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
 
     const structuredPreferredMentors = await Promise.all(
       preferredMentors
-        .filter((mentor) => mentor.mentorId) // Loại bỏ mentor không hợp lệ
+        .filter((mentor) => mentor.mentorId)
         .map(async (mentor) => {
           const currentLoad = await Matched.countDocuments({
             mentorId: mentor.mentorId,
@@ -229,9 +220,8 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
             currentLoad,
           };
         })
-    ).then(
-      (mentors) =>
-        mentors.filter((mentor) => mentor.currentLoad < mentor.maxLoad) // Loại bỏ mentor đạt maxLoad
+    ).then((mentors) =>
+      mentors.filter((mentor) => mentor.currentLoad < mentor.maxLoad)
     );
 
     // 2. Mentor được giáo viên ưu tiên trong lĩnh vực
@@ -257,7 +247,7 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
           mentorId: preferredMentorData.mentorId,
         });
 
-        if (currentLoad >= mentorCategory.maxLoad) continue; // Loại bỏ mentor đạt maxLoad
+        if (currentLoad >= mentorCategory.maxLoad) continue;
 
         const matchedProfessions = (mentorCategory.professionIds || [])
           .filter((profession) =>
@@ -305,13 +295,13 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
         specialtyIds
       );
 
-    const filteredMatchingMentors = await Promise.all(
+    const finalMatchingMentors = await Promise.all(
       matchingMentors.map(async (mentor) => {
         const currentLoad = await Matched.countDocuments({
-          mentorId: new mongoose.Types.ObjectId(mentor.mentorId._id),
+          mentorId: mentor.mentorId._id,
         });
 
-        if (currentLoad >= mentor.maxLoad) return null; // Loại bỏ mentor đạt maxLoad
+        if (currentLoad >= mentor.maxLoad) return null;
 
         const matchedSpecialties = (mentor.specialties || [])
           .filter((specialty) =>
@@ -336,17 +326,11 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
             name: profession.name,
           }));
 
-        // Thêm trường specialties đầy đủ từ mentorCategory
         return {
           mentorId: mentor.mentorId._id,
           matchedSpecialties,
           matchCount: matchedSpecialties.length,
           professions: matchedProfessions,
-          specialties: (mentor.specialties || []).map((specialty) => ({
-            specialtyId: specialty.specialtyId._id,
-            name: specialty.specialtyId.name,
-            proficiencyLevel: specialty.proficiencyLevel,
-          })),
           username: mentor.mentorId.username,
           email: mentor.mentorId.email,
           degree: mentor.mentorId.degree,
@@ -355,10 +339,8 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
           maxLoad: mentor.maxLoad,
         };
       })
-    );
-
-    const finalMatchingMentors = filteredMatchingMentors
-      .filter(
+    ).then((mentors) =>
+      mentors.filter(
         (mentor) =>
           mentor &&
           !structuredPreferredMentors.some(
@@ -368,10 +350,7 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
             (tp) => tp.mentorId.toString() === mentor.mentorId.toString()
           )
       )
-      .map((mentor) => ({
-        ...mentor,
-        currentLoad: mentor.currentLoad, // Đảm bảo currentLoad được thêm vào
-      }));
+    );
 
     const mentorSuggestions = {
       groupId: group._id,
@@ -382,7 +361,8 @@ const recommendAndSaveMentorsForClassGroups = async (classId, teacherId) => {
       status: "Pending",
     };
     recommendations.push(mentorSuggestions);
-    const savedRecommendation = await TemporaryMatching.findOneAndUpdate(
+
+    await TemporaryMatching.findOneAndUpdate(
       { groupId: group._id },
       mentorSuggestions,
       { upsert: true, new: true }
@@ -433,7 +413,7 @@ const getSuggestionsByClassId = async (classId) => {
             return {
               ...mentor,
               currentLoad,
-              isPreferredProject: true, // Explicitly set isPreferredGroup to true
+              isPreferredGroup: true, // Explicitly set isPreferredGroup to true
             };
           })
         );
@@ -482,10 +462,192 @@ const getSuggestionsByClassId = async (classId) => {
   }
 };
 
+const recommendAndSaveMentorsForSingleGroup = async (groupId, teacherId) => {
+  const group = await Group.findById(groupId).lean();
+  if (!group) throw new Error("Không tìm thấy nhóm này");
+
+  // Check if the group's groupId is already matched
+  const isMatched = await Matched.exists({ groupId: group._id });
+  if (isMatched) throw new Error("Nhóm này đã được ghép mentor");
+
+  // Fetch the project's details
+  const project = await Project.findById(group.projectId).lean();
+  if (!project || project.status !== "InProgress") {
+    throw new Error(
+      "Dự án của nhóm này không hợp lệ hoặc chưa ở trạng thái InProgress"
+    );
+  }
+
+  const projectCategory = await ProjectCategory.findOne({
+    projectId: group.projectId,
+  }).lean();
+  if (!projectCategory) {
+    throw new Error("Không tìm thấy danh mục dự án cho nhóm này");
+  }
+
+  const { professionId: professionIds, specialtyIds } = projectCategory;
+
+  // 1. Mentor đã chọn nhóm này
+  const preferredMentors = await findMentorPreferencesByGroupId(
+    group.projectId,
+    professionIds,
+    specialtyIds
+  );
+
+  const structuredPreferredMentors = await Promise.all(
+    preferredMentors
+      .filter((mentor) => mentor.mentorId) // Loại bỏ các mentor không hợp lệ
+      .map(async (mentor) => {
+        const currentLoad = await Matched.countDocuments({
+          mentorId: mentor.mentorId,
+        });
+        return {
+          ...mentor,
+          currentLoad,
+          maxLoad: mentor.maxLoad,
+        };
+      })
+  ).then(
+    (mentors) => mentors.filter((mentor) => mentor.currentLoad < mentor.maxLoad) // Loại bỏ mentor đã đạt maxLoad
+  );
+
+  // 2. Mentor được giáo viên ưu tiên trong lĩnh vực
+  const teacherPreferredMentorsRaw = await findPreferredMentorsByTeacher(
+    teacherId,
+    professionIds[0],
+    specialtyIds
+  );
+
+  const teacherPreferredMentors = [];
+  if (
+    teacherPreferredMentorsRaw &&
+    teacherPreferredMentorsRaw.selectedMentors
+  ) {
+    for (const preferredMentorData of teacherPreferredMentorsRaw.selectedMentors) {
+      const mentorCategory = await findMentorCategoryByMentorId(
+        preferredMentorData.mentorId
+      );
+
+      if (!mentorCategory) continue;
+
+      const currentLoad = await Matched.countDocuments({
+        mentorId: preferredMentorData.mentorId,
+      });
+      if (currentLoad >= mentorCategory.maxLoad) continue;
+      const matchedProfessions = (mentorCategory.professionIds || [])
+        .filter((profession) =>
+          professionIds
+            .map((id) => id.toString())
+            .includes(profession._id.toString())
+        )
+        .map((profession) => ({
+          professionId: profession._id,
+          name: profession.name,
+        }));
+
+      const matchedSpecialties = (mentorCategory.specialties || [])
+        .filter((specialty) =>
+          specialtyIds
+            .map((id) => id.toString())
+            .includes(specialty.specialtyId._id.toString())
+        )
+        .map((specialty) => ({
+          specialtyId: specialty.specialtyId._id,
+          name: specialty.specialtyId.name,
+          proficiencyLevel: specialty.proficiencyLevel,
+        }));
+
+      teacherPreferredMentors.push({
+        mentorId: preferredMentorData.mentorId,
+        priority: preferredMentorData.priority,
+        matchedSpecialties,
+        matchCount: matchedSpecialties.length,
+        professions: matchedProfessions,
+        username: preferredMentorData.mentorId.username,
+        email: preferredMentorData.mentorId.email,
+        degree: preferredMentorData.mentorId.degree,
+        phoneNumber: preferredMentorData.mentorId.phoneNumber,
+        currentLoad,
+        maxLoad: mentorCategory.maxLoad, // Giữ lại maxLoad
+      });
+    }
+  }
+
+  // 3. Mentor trùng profession và specialty nhưng không có ưu tiên đặc biệt
+  const matchingMentors = await Promise.all(
+    (
+      await findMentorCategoriesByProfessionsAndSpecialties(
+        professionIds,
+        specialtyIds
+      )
+    ).map(async (mentor) => {
+      const currentLoad = await Matched.countDocuments({
+        mentorId: mentor.mentorId._id,
+      });
+      if (currentLoad >= mentor.maxLoad) return null;
+      const matchedSpecialties = (mentor.specialties || [])
+        .filter((specialty) =>
+          specialtyIds
+            .map((id) => id.toString())
+            .includes(specialty.specialtyId._id.toString())
+        )
+        .map((specialty) => ({
+          specialtyId: specialty.specialtyId._id,
+          name: specialty.specialtyId.name,
+          proficiencyLevel: specialty.proficiencyLevel,
+        }));
+
+      const matchedProfessions = (mentor.professionIds || [])
+        .filter((profession) =>
+          professionIds
+            .map((id) => id.toString())
+            .includes(profession._id.toString())
+        )
+        .map((profession) => ({
+          professionId: profession._id,
+          name: profession.name,
+        }));
+
+      return {
+        mentorId: mentor.mentorId._id,
+        matchedSpecialties,
+        matchCount: matchedSpecialties.length,
+        professions: matchedProfessions,
+        username: mentor.mentorId.username,
+        email: mentor.mentorId.email,
+        degree: mentor.mentorId.degree,
+        phoneNumber: mentor.mentorId.phoneNumber,
+        currentLoad,
+        maxLoad: mentor.maxLoad, // Giữ lại maxLoad
+      };
+    })
+  );
+
+  const mentorSuggestions = {
+    groupId: group._id,
+    teacherId,
+    mentorPreferred: structuredPreferredMentors,
+    teacherPreferredMentors,
+    matchingMentors,
+    status: "Pending",
+  };
+
+  // Lưu dữ liệu vào TemporaryMatching mà không thay đổi cấu trúc
+  await TemporaryMatching.findOneAndUpdate(
+    { groupId: group._id },
+    mentorSuggestions,
+    { upsert: true, new: true }
+  );
+
+  return mentorSuggestions;
+};
+
 export default {
   findMentorPreferencesByGroupId,
   findMentorCategoriesByProfessionsAndSpecialties,
   findMentorCategoryByMentorId,
   recommendAndSaveMentorsForClassGroups,
   getSuggestionsByClassId,
+  findPreferredMentorsByTeacher,
+  recommendAndSaveMentorsForSingleGroup,
 };

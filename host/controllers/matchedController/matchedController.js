@@ -162,8 +162,7 @@ const createNewTimeEventsHandler = async (req, res) => {
   } catch (error) {
     console.error("Error in createNewTimeEventsHandler:", error.message);
 
-    const statusCode =
-      error.message.includes("Invalid Matched ID") ? 400 : 500;
+    const statusCode = error.message.includes("Invalid Matched ID") ? 400 : 500;
 
     res.status(statusCode).json({ error: error.message });
   }
@@ -297,6 +296,21 @@ const getMatchedInfoByClassId = async (req, res) => {
   }
 };
 
+const deleteMatched = async (req, res) => {
+  try {
+    const { groupId } = req.params; // Lấy id từ URL params
+    const deletedMatched = await matchedDAO.deleteMatchedById(groupId);
+    return res
+      .status(200)
+      .json({ message: "Xóa dữ liệu thành công.", data: deletedMatched });
+  } catch (error) {
+    console.error("Lỗi khi xóa dữ liệu:", error);
+    return res.status(500).json({
+      message: "Đã xảy ra lỗi khi xóa dữ liệu.",
+      error: error.message,
+    });
+  }
+};
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
@@ -307,4 +321,5 @@ export default {
   patchTimeEventHandler,
   deleteTimeEventHandler,
   getMatchedInfoByClassId,
+  deleteMatched,
 };

@@ -75,6 +75,13 @@ export const fetchSuggestMentors = (classId) => {
     getConfig()
   );
 };
+// api để xoá matched
+export const deleteMatched = (groupId) => {
+  return axios.delete(
+    `${BASE_URL}/matched/delete-matched/${groupId}`,
+    getConfig()
+  );
+};
 // api lấy danh sách gợi ý các mentor cho dự án trong lớp
 export const fetchMentorsTempMatching = (classId, teacherId) => {
   const config = {

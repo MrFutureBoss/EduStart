@@ -5,6 +5,11 @@ import { Tag, Tooltip, Badge, Avatar, Progress, Button, message } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import { assignMentorToProject } from "../../../../api";
+import { useDispatch } from "react-redux";
+import {
+  setIsAssig,
+  setReloadRequired,
+} from "../../../../redux/slice/MatchingSlice";
 
 const MentorDropZone = ({
   projectId,
@@ -14,29 +19,41 @@ const MentorDropZone = ({
   activeId,
   onMentorAssigned,
   teacherId,
+  selectedClassId,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `project-${projectId}`,
   });
-  console.log("mentors,", mentors);
-
+  const dispatch = useDispatch();
   const [draggedMentor, setDraggedMentor] = useState(null);
-  console.log("draggedMentor", draggedMentor);
+
+  // Helper function to get mentorId as string
+  const getMentorId = (mentor) =>
+    String(mentor.mentorId?._id || mentor.mentorId);
 
   useEffect(() => {
     if (isOver && activeId) {
+      // Trích xuất mentorId từ activeId
       const mentorId = activeId.split("-").pop();
+
+      // Kiểm tra mentor trong cả hai danh sách
+      const isTeacherPreferred = mentors?.teacherPreferredMentors?.some(
+        (m) => getMentorId(m) === mentorId
+      );
+      const isPreferredProject = mentors?.mentorPreferred?.some(
+        (m) => getMentorId(m) === mentorId
+      );
+
+      // Tìm mentor trong danh sách
       const mentor =
-        mentors?.mentorPreferred?.find((m) => m.mentorId === mentorId) ||
+        mentors?.mentorPreferred?.find((m) => getMentorId(m) === mentorId) ||
         mentors?.teacherPreferredMentors?.find(
-          (m) => m.mentorId === mentorId
+          (m) => getMentorId(m) === mentorId
         ) ||
-        mentors?.matchingMentors?.find((m) => m.mentorId === mentorId);
+        mentors?.matchingMentors?.find((m) => getMentorId(m) === mentorId);
+
       if (mentor) {
-        const isTeacherPreferred = mentors?.teacherPreferredMentors?.some(
-          (teacherMentor) => teacherMentor.mentorId === mentorId
-        );
-        setDraggedMentor({ ...mentor, isTeacherPreferred });
+        setDraggedMentor({ ...mentor, isTeacherPreferred, isPreferredProject });
       }
     } else {
       setDraggedMentor(null);
@@ -49,9 +66,12 @@ const MentorDropZone = ({
       assignMentorToProject(groupId, mentor.mentorId, teacherId)
         .then(() => {
           message.success("Gán mentor thành công!");
-          if (onMentorAssigned) {
-            onMentorAssigned();
-          }
+          // Đặt reloadRequired cho lớp này là true
+          dispatch(
+            setReloadRequired({ classId: selectedClassId, required: true })
+          );
+          // Sau đó gọi handleClassChange để load lại
+          onMentorAssigned();
         })
         .catch((error) => {
           console.error("Lỗi khi gán mentor:", error);
@@ -105,7 +125,7 @@ const MentorDropZone = ({
               }}
             >
               <div style={{ position: "absolute", top: 0, right: 0 }}>
-                {draggedMentor.isPreferredProject && (
+                {draggedMentor.isPreferredGroup && (
                   <Badge
                     count="C"
                     style={{
@@ -128,7 +148,7 @@ const MentorDropZone = ({
                       color: "black",
                       transform: "scale(0.7)",
                       transformOrigin: "center",
-                      zIndex: 10,
+                      zIndex: 1000,
                     }}
                     offset={[-29, -22]}
                   />
@@ -190,7 +210,7 @@ const MentorDropZone = ({
                     ? mentor.matchedSpecialties.length
                     : "0"
                 }
-                offset={[-11, -12]}
+                offset={[-9, -12]}
                 style={{
                   backgroundColor: "rgb(168, 220, 209)",
                   color: "black",
@@ -199,7 +219,7 @@ const MentorDropZone = ({
                 }}
               >
                 <div style={{ position: "absolute", top: 0, right: 0 }}>
-                  {mentor.isPreferredProject && (
+                  {mentor.isPreferredGroup && (
                     <Badge
                       count="C"
                       style={{
@@ -210,7 +230,7 @@ const MentorDropZone = ({
                         transformOrigin: "center",
                         zIndex: 10,
                       }}
-                      offset={[7, 1]}
+                      offset={[14, -13]}
                     />
                   )}
                 </div>
@@ -279,6 +299,9 @@ const MentorDropZone = ({
             icon={<CheckOutlined />}
             onClick={handleConfirmMentor}
           ></Button>
+          <strong style={{ position: "relative", left: 237, bottom: 24 }}>
+            Lưu Mentor
+          </strong>
         </Tooltip>
       )}
     </div>
@@ -293,6 +316,7 @@ MentorDropZone.propTypes = {
   activeId: PropTypes.string,
   onMentorAssigned: PropTypes.func,
   teacherId: PropTypes.string.isRequired,
+  selectedClassId: PropTypes.string.isRequired, // Thêm prop này
 };
 
 MentorDropZone.defaultProps = {

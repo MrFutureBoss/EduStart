@@ -1,15 +1,27 @@
 // src/components/ProjectCardMain/ProjectCardMain.jsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Select, Spin, Button, message, Tag, Tabs, Row, Col, Card } from "antd";
+import {
+  Select,
+  Spin,
+  Button,
+  message,
+  Tabs,
+  Row,
+  Col,
+  Card,
+  Alert,
+  Badge,
+  Modal,
+} from "antd";
 import "../../teacherCSS/ProjectCardMain.css";
 import {
   fetchClassSummaryData,
   fetchProjectData,
-  assignMentorToProject,
   fetchMentorsTempMatching,
   getMatchedProjectClass,
   fetchSuggestMentors,
+  deleteMatched,
 } from "../../../../api";
 import {
   setClassesWithUnupdatedProjects,
@@ -19,7 +31,6 @@ import {
   setLoadingClasses,
   setMatchedClasses,
   setNotMatchedClasses,
-  setPendingGroups,
 } from "../../../../redux/slice/ClassSlice";
 import ProjectCard from "../ProjectCard";
 import {
@@ -29,28 +40,20 @@ import {
   PointerSensor,
   pointerWithin,
 } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import {
   CheckCircleOutlined,
-  CheckOutlined,
   ClockCircleOutlined,
+  ExclamationCircleOutlined,
   SelectOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import {
   setSelectedClassId,
-  setProjectData,
-  setMentorsData,
-  setAssignedMentorsMap,
   setLoadingProjects,
-  setLoadingMentors,
-  setShowSuggestions,
   setActiveId,
   updateAssignedMentorsMap,
-  setPendingAcceptedGroups,
-  setDeclinedGroups,
   setClassMentorsData,
-  removeMentorFromProject,
+  setIsAssig,
 } from "../../../../redux/slice/MatchingSlice";
 import MentorSuggestionRow from "./MentorSuggestionRow";
 import MentorDropZone from "./MentorDropZone";
@@ -65,19 +68,9 @@ const ProjectCardMain = () => {
   const { classSummaries, loadingClasses } = useSelector(
     (state) => state.class
   );
-  const {
-    selectedClassId,
-    projectData,
-    mentorsData,
-    assignedMentorsMap,
-    loadingProjects,
-    showSuggestions,
-    activeId,
-    pendingAcceptedGroups,
-    declinedGroups,
-    classMentorsData, // object { [classId]: { mentorsData, assignedMentorsMap, showSuggestions } }
-  } = useSelector((state) => state.matching);
-
+  const { selectedClassId, loadingProjects, activeId, classData } = useSelector(
+    (state) => state.matching
+  );
   const teacherId = localStorage.getItem("userId");
 
   const sensors = useSensors(
@@ -87,9 +80,12 @@ const ProjectCardMain = () => {
   );
 
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
-  const [matchedGroups, setMatchedGroups] = useState([]);
   const [showAllProfessions, setShowAllProfessions] = useState(false);
   const [showAllSpecialties, setShowAllSpecialties] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [groupIdToDelete, setGroupIdToDelete] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -120,106 +116,179 @@ const ProjectCardMain = () => {
     loadData();
   }, [teacherId, dispatch]);
 
-  const restoreClassMentorData = (classId) => {
-    const data = classMentorsData[classId];
-    if (data) {
-      dispatch(setMentorsData(data.mentorsData));
-      dispatch(setAssignedMentorsMap(data.assignedMentorsMap));
-      dispatch(setShowSuggestions(data.showSuggestions));
-    } else {
-      // Nếu chưa có dữ liệu trong Redux, thì set showSuggestions = false
-      dispatch(setShowSuggestions(false));
-    }
-  };
-
+  // bắt sự kiện chọn lại mentor
+  useEffect(() => {
+    handleFetchClass(selectedClassId);
+  }, [navigate]);
+  // hàm để chuyển lớp
   const handleClassChange = async (classId) => {
     dispatch(setSelectedClassId(classId));
     localStorage.setItem("selectedClassId", classId);
+
+    // Check if class data is already cached
+    const existingClassData = classData[classId];
+
+    if (existingClassData) {
+      // Data exists in Redux; no need to fetch
+      // Optionally, you can perform any additional actions if needed
+      return;
+    }
+    dispatch(setIsAssig(false));
+    // Data does not exist; fetch it
     dispatch(setLoadingProjects(true));
-
     try {
-      // Kiểm tra xem lớp này đã có dữ liệu mentorsData trong redux chưa
-      const existingData = classMentorsData[classId];
-
-      // Fetch project data như thường
+      // Fetch project data
       const projectResponse = await fetchProjectData(teacherId, classId);
       const projects = projectResponse.data.projects;
-      dispatch(setProjectData(projects));
 
-      if (!existingData) {
-        // Chưa có dữ liệu mentorsData cho lớp này => tạo assignedMentorsMap trống
-        const initialAssignedMap = {};
-        projects.forEach((project) => {
-          initialAssignedMap[project._id] = [];
-        });
-        dispatch(setAssignedMentorsMap(initialAssignedMap));
-        dispatch(setShowSuggestions(false));
-      } else {
-        // Đã có dữ liệu mentorsData cho lớp này => khôi phục
-        // assignedMentorsMap, mentorsData, showSuggestions
-        const { mentorsData, assignedMentorsMap, showSuggestions } =
-          existingData;
-        dispatch(setMentorsData(mentorsData));
-        dispatch(setAssignedMentorsMap(assignedMentorsMap));
-        dispatch(setShowSuggestions(showSuggestions));
-      }
+      // Initialize assignedMentorsMap
+      const initialAssignedMap = {};
+      projects.forEach((project) => {
+        initialAssignedMap[project._id] = [];
+      });
 
-      // Gọi getMatchedProjectClass để lấy danh sách matched groups
+      // Fetch matched groups
       const matchedResponse = await getMatchedProjectClass(classId);
       const matchedData = matchedResponse.data;
+      let pendingAccepted = [];
+      let declined = [];
+      let matchedGroups = [];
+
       if (matchedData.groups && Array.isArray(matchedData.groups)) {
-        const pendingAccepted = matchedData.groups.filter(
+        pendingAccepted = matchedData.groups.filter(
           (g) =>
             g.matchedInfo &&
             (g.matchedInfo.status === "Pending" ||
               g.matchedInfo.status === "Accepted")
         );
-        const declined = matchedData.groups.filter(
+        declined = matchedData.groups.filter(
           (g) => g.matchedInfo && g.matchedInfo.status === "Rejected"
         );
+        matchedGroups = matchedData.groups; // Assuming you need to store all matched groups
+      }
 
-        dispatch(setPendingAcceptedGroups(pendingAccepted));
-        dispatch(setDeclinedGroups(declined));
-      } else {
-        dispatch(setPendingAcceptedGroups([]));
-        dispatch(setDeclinedGroups([]));
-      }
-      if (!existingData) {
-        fetchSuggestedMentors();
-      }
+      // Fetch mentor suggestions if necessary
+      const mentorSuggestions = await fetchSuggestedMentors(
+        classId,
+        projects,
+        initialAssignedMap
+      );
+
+      // Consolidate all fetched data
+      const { mentorsData, assignedMentorsMap, showSuggestions } =
+        mentorSuggestions;
+
+      // Dispatch to set all class data at once
+      dispatch(
+        setClassMentorsData({
+          classId,
+          projectData: projects,
+          mentorsData,
+          assignedMentorsMap,
+          showSuggestions,
+          pendingAcceptedGroups: pendingAccepted,
+          declinedGroups: declined,
+          matchedGroups: matchedGroups,
+        })
+      );
     } catch (error) {
       console.error("Error in handleClassChange:", error);
-      dispatch(setPendingAcceptedGroups([]));
-      dispatch(setDeclinedGroups([]));
+      message.error("Có lỗi xảy ra khi tải dữ liệu lớp học.");
     } finally {
       dispatch(setLoadingProjects(false));
     }
   };
 
-  const fetchSuggestedMentors = async () => {
-    if (!selectedClassId) {
-      message.warning("Vui lòng chọn lớp trước khi xem gợi ý.");
-      return;
-    }
+  const handleFetchClass = async (classId) => {
+    dispatch(setSelectedClassId(classId));
+    localStorage.setItem("selectedClassId", classId);
 
-    setIsFetchingSuggestions(true);
+    // Check if class data is already cached
+
+    dispatch(setIsAssig(false));
+    // Data does not exist; fetch it
     dispatch(setLoadingProjects(true));
     try {
-      // Lấy ra các dự án chưa ghép mentor
-      const unmatchedProjects = projectData.filter((p) => !p.isMatched);
+      // Fetch project data
+      const projectResponse = await fetchProjectData(teacherId, classId);
+      const projects = projectResponse.data.projects;
+
+      // Initialize assignedMentorsMap
+      const initialAssignedMap = {};
+      projects.forEach((project) => {
+        initialAssignedMap[project._id] = [];
+      });
+
+      // Fetch matched groups
+      const matchedResponse = await getMatchedProjectClass(classId);
+      const matchedData = matchedResponse.data;
+      let pendingAccepted = [];
+      let declined = [];
+      let matchedGroups = [];
+
+      if (matchedData.groups && Array.isArray(matchedData.groups)) {
+        pendingAccepted = matchedData.groups.filter(
+          (g) =>
+            g.matchedInfo &&
+            (g.matchedInfo.status === "Pending" ||
+              g.matchedInfo.status === "Accepted")
+        );
+        declined = matchedData.groups.filter(
+          (g) => g.matchedInfo && g.matchedInfo.status === "Rejected"
+        );
+        matchedGroups = matchedData.groups; // Assuming you need to store all matched groups
+      }
+
+      // Fetch mentor suggestions if necessary
+      const mentorSuggestions = await fetchSuggestedMentors(
+        classId,
+        projects,
+        initialAssignedMap
+      );
+
+      // Consolidate all fetched data
+      const { mentorsData, assignedMentorsMap, showSuggestions } =
+        mentorSuggestions;
+
+      // Dispatch to set all class data at once
+      dispatch(
+        setClassMentorsData({
+          classId,
+          projectData: projects,
+          mentorsData,
+          assignedMentorsMap,
+          showSuggestions,
+          pendingAcceptedGroups: pendingAccepted,
+          declinedGroups: declined,
+          matchedGroups: matchedGroups,
+        })
+      );
+    } catch (error) {
+      console.error("Error in handleClassChange:", error);
+      message.error("Có lỗi xảy ra khi tải dữ liệu lớp học.");
+    } finally {
+      dispatch(setLoadingProjects(false));
+    }
+  };
+  const fetchSuggestedMentors = async (
+    classId,
+    projects,
+    assignedMentorsMap
+  ) => {
+    setIsFetchingSuggestions(true);
+    try {
+      const unmatchedProjects = projects.filter((p) => !p.isMatched);
       const unmatchedProjectsMap = new Map(
         unmatchedProjects.map((proj) => [proj.groupId, proj])
       );
 
-      // Gọi API fetchSuggestMentors để lấy gợi ý mentor
-      const suggestResponse = await fetchSuggestMentors(selectedClassId);
+      const suggestResponse = await fetchSuggestMentors(classId);
       const suggestions = suggestResponse.data.suggestions || [];
 
       let mentorDataMap = {};
-      let finalAssignedMentorsMap = { ...assignedMentorsMap }; // Copy hiện tại
+      let finalAssignedMentorsMap = { ...assignedMentorsMap };
 
       if (suggestions.length > 0) {
-        // Lọc suggestions chỉ giữ lại các nhóm có trong unmatchedProjects
         const filteredSuggestions = suggestions.filter((item) =>
           unmatchedProjectsMap.has(item.groupId?._id)
         );
@@ -237,21 +306,18 @@ const ProjectCardMain = () => {
               matchingMentors: item.matchingMentors || [],
             };
 
-            let initialMentor = null;
             const {
               mentorPreferred,
               teacherPreferredMentors,
               matchingMentors,
             } = mentorDataMap[projectId];
 
-            if (mentorPreferred && mentorPreferred.length > 0) {
+            let initialMentor = null;
+            if (mentorPreferred.length > 0) {
               initialMentor = mentorPreferred[0];
-            } else if (
-              teacherPreferredMentors &&
-              teacherPreferredMentors.length > 0
-            ) {
+            } else if (teacherPreferredMentors.length > 0) {
               initialMentor = teacherPreferredMentors[0];
-            } else if (matchingMentors && matchingMentors.length > 0) {
+            } else if (matchingMentors.length > 0) {
               initialMentor = matchingMentors[0];
             }
 
@@ -261,73 +327,27 @@ const ProjectCardMain = () => {
           }
         });
 
-        dispatch(setMentorsData(mentorDataMap));
-        dispatch(setAssignedMentorsMap(finalAssignedMentorsMap));
-        dispatch(setShowSuggestions(true));
-      } else {
-        // Nếu không có suggestions, gọi fetchMentorsTempMatching
-        const tempMatchingResponse = await fetchMentorsTempMatching(
-          selectedClassId,
-          teacherId
-        );
-        const tempMatchingData = tempMatchingResponse.data || [];
-
-        tempMatchingData.forEach((matchingResult) => {
-          const groupId = matchingResult.groupId;
-          const project = unmatchedProjectsMap.get(groupId);
-          if (project) {
-            const projectId = project._id;
-            mentorDataMap[projectId] = {
-              mentorPreferred: matchingResult.mentorPreferred || [],
-              teacherPreferredMentors: (
-                matchingResult.teacherPreferredMentors || []
-              ).sort((a, b) => a.priority - b.priority),
-              matchingMentors: matchingResult.matchingMentors || [],
-            };
-
-            let initialMentor = null;
-            const {
-              mentorPreferred,
-              teacherPreferredMentors,
-              matchingMentors,
-            } = mentorDataMap[projectId];
-
-            if (mentorPreferred && mentorPreferred.length > 0) {
-              initialMentor = mentorPreferred[0];
-            } else if (
-              teacherPreferredMentors &&
-              teacherPreferredMentors.length > 0
-            ) {
-              initialMentor = teacherPreferredMentors[0];
-            } else if (matchingMentors && matchingMentors.length > 0) {
-              initialMentor = matchingMentors[0];
-            }
-
-            finalAssignedMentorsMap[projectId] = initialMentor
-              ? [initialMentor]
-              : [];
-          }
-        });
-
-        dispatch(setMentorsData(mentorDataMap));
-        dispatch(setAssignedMentorsMap(finalAssignedMentorsMap));
-        dispatch(setShowSuggestions(true));
-      }
-
-      // Lưu lại dữ liệu mentorsData, assignedMentorsMap, showSuggestions vào redux
-      dispatch(
-        setClassMentorsData({
-          classId: selectedClassId,
+        return {
           mentorsData: mentorDataMap,
           assignedMentorsMap: finalAssignedMentorsMap,
           showSuggestions: true,
-        })
-      );
+        };
+      } else {
+        return {
+          mentorsData: {},
+          assignedMentorsMap,
+          showSuggestions: false,
+        };
+      }
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu mentor:", error);
+      console.error("Error fetching mentor suggestions:", error);
       message.error("Không thể lấy danh sách mentor gợi ý.");
+      return {
+        mentorsData: {},
+        assignedMentorsMap,
+        showSuggestions: false,
+      };
     } finally {
-      dispatch(setLoadingProjects(false));
       setIsFetchingSuggestions(false);
     }
   };
@@ -340,72 +360,18 @@ const ProjectCardMain = () => {
     setIsFetchingSuggestions(true);
     dispatch(setLoadingProjects(true));
     try {
-      // Lấy ra các dự án chưa ghép mentor
-      const unmatchedProjects = projectData.filter((p) => !p.isMatched);
-      const unmatchedProjectsMap = new Map(
-        unmatchedProjects.map((proj) => [proj.groupId, proj])
-      );
+      const currentClassData = classData[selectedClassId];
+      if (!currentClassData) {
+        message.warning("Dữ liệu lớp không tồn tại.");
+        return;
+      }
+      // Fetch temporary matching
+      await fetchMentorsTempMatching(selectedClassId, teacherId);
 
-      let mentorDataMap = {};
-      let finalAssignedMentorsMap = { ...assignedMentorsMap }; // Copy hiện tại
-
-      // Nếu không có suggestions, gọi fetchMentorsTempMatching
-      const tempMatchingResponse = await fetchMentorsTempMatching(
-        selectedClassId,
-        teacherId
-      );
-      const tempMatchingData = tempMatchingResponse.data || [];
-
-      tempMatchingData.forEach((matchingResult) => {
-        const groupId = matchingResult.groupId;
-        const project = unmatchedProjectsMap.get(groupId);
-        if (project) {
-          const projectId = project._id;
-          mentorDataMap[projectId] = {
-            mentorPreferred: matchingResult.mentorPreferred || [],
-            teacherPreferredMentors: (
-              matchingResult.teacherPreferredMentors || []
-            ).sort((a, b) => a.priority - b.priority),
-            matchingMentors: matchingResult.matchingMentors || [],
-          };
-
-          let initialMentor = null;
-          const { mentorPreferred, teacherPreferredMentors, matchingMentors } =
-            mentorDataMap[projectId];
-
-          if (mentorPreferred && mentorPreferred.length > 0) {
-            initialMentor = mentorPreferred[0];
-          } else if (
-            teacherPreferredMentors &&
-            teacherPreferredMentors.length > 0
-          ) {
-            initialMentor = teacherPreferredMentors[0];
-          } else if (matchingMentors && matchingMentors.length > 0) {
-            initialMentor = matchingMentors[0];
-          }
-
-          finalAssignedMentorsMap[projectId] = initialMentor
-            ? [initialMentor]
-            : [];
-        }
-      });
-
-      dispatch(setMentorsData(mentorDataMap));
-      dispatch(setAssignedMentorsMap(finalAssignedMentorsMap));
-      dispatch(setShowSuggestions(true));
-
-      // Lưu lại dữ liệu mentorsData, assignedMentorsMap, showSuggestions vào redux
-      dispatch(
-        setClassMentorsData({
-          classId: selectedClassId,
-          mentorsData: mentorDataMap,
-          assignedMentorsMap: finalAssignedMentorsMap,
-          showSuggestions: true,
-        })
-      );
+      await handleFetchClass(selectedClassId);
     } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu mentor:", error);
-      message.error("Không thể lấy danh sách mentor gợi ý.");
+      console.error("Error in fetchMatchingMentor:", error);
+      message.error("Có lỗi xảy ra khi gợi ý mentor.");
     } finally {
       dispatch(setLoadingProjects(false));
       setIsFetchingSuggestions(false);
@@ -418,85 +384,108 @@ const ProjectCardMain = () => {
       const projectId = over.id.replace("project-", "");
       const uniqueId = active.id;
       const mentorId = uniqueId.split("-").pop();
+
+      const currentClassData = classData[selectedClassId];
+      if (!currentClassData) {
+        message.error("Dữ liệu lớp không tồn tại.");
+        return;
+      }
+
       const mentor =
-        mentorsData[projectId]?.mentorPreferred?.find(
+        currentClassData.mentorsData[projectId]?.mentorPreferred?.find(
           (m) => String(m.mentorId) === String(mentorId)
         ) ||
-        mentorsData[projectId]?.teacherPreferredMentors?.find(
+        currentClassData.mentorsData[projectId]?.teacherPreferredMentors?.find(
           (m) => String(m.mentorId) === String(mentorId)
         ) ||
-        mentorsData[projectId]?.matchingMentors?.find(
+        currentClassData.mentorsData[projectId]?.matchingMentors?.find(
           (m) => String(m.mentorId) === String(mentorId)
         );
 
       if (mentor) {
         dispatch(
           updateAssignedMentorsMap({
+            classId: selectedClassId,
             projectId,
             mentors: [mentor],
           })
         );
 
-        // Mỗi khi update assignedMentorsMap, cũng cập nhật classMentorsData
+        // Update classMentorsData's assignedMentorsMap directly
         const updatedAssigned = {
-          ...assignedMentorsMap,
+          ...currentClassData.assignedMentorsMap,
           [projectId]: [mentor],
         };
+
         dispatch(
           setClassMentorsData({
             classId: selectedClassId,
-            mentorsData,
+            projectData: currentClassData.projectData,
+            mentorsData: currentClassData.mentorsData,
             assignedMentorsMap: updatedAssigned,
-            showSuggestions,
+            showSuggestions: currentClassData.showSuggestions,
+            pendingAcceptedGroups: currentClassData.pendingAcceptedGroups,
+            declinedGroups: currentClassData.declinedGroups,
+            matchedGroups: currentClassData.matchedGroups,
           })
         );
       }
     }
   };
 
-  const handleViewDetailSelection = (projectId) => {
-    const project = projectData.find((p) => p._id === projectId);
-    const mentors = mentorsData[projectId];
-    const assignedMentors = assignedMentorsMap[projectId];
-    localStorage.setItem(
-      "selectedProject",
-      JSON.stringify({ project, mentors, assignedMentors })
-    );
-    navigate(`detailed-selection/${projectId}`);
-  };
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      await deleteMatched(groupIdToDelete);
+      await handleFetchClass(selectedClassId);
 
-  useEffect(() => {
-    if (matchedGroups.length > 0) {
-      const pendingAccepted = matchedGroups.filter(
-        (g) =>
-          g.matchedInfo.status === "Pending" ||
-          g.matchedInfo.status === "Accepted"
-      );
-      const declined = matchedGroups.filter(
-        (g) => g.matchedInfo.status === "Rejected"
-      );
-
-      dispatch(setPendingAcceptedGroups(pendingAccepted));
-      dispatch(setDeclinedGroups(declined));
+      message.success("Ghép hiện tại đã bị xoá thành công!");
+      navigate(`/teacher/temp-matching/select-mentor`);
+    } catch (error) {
+      console.error("Lỗi khi xoá ghép:", error);
+      message.error("Có lỗi xảy ra khi xoá ghép, vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+      setModalVisible(false);
     }
-  }, [matchedGroups, dispatch]);
+  };
+  // Retrieve data for the selected class
+  const selectedClassData = classData[selectedClassId] || {};
 
-  const unmatchedProjects = projectData.filter((project) => !project.isMatched);
-
-  // Hàm xử lý khi nhấn "Chọn Lại Mentor"
-  const handleReselectMentor = (projectId) => {
-    // Xác nhận hành động từ người dùng
-    message.loading("Đang xử lý...", 1).then(() => {
-      // Dispatch hành động để loại bỏ mentor từ dự án
-      dispatch(removeMentorFromProject({ projectId }));
-
-      // Thông báo thành công
-      message.success(
-        "Đã loại bỏ mentor hiện tại. Nhóm đã được đưa trở lại tab 'Chưa chọn mentor'."
-      );
-    });
+  //Mở model xác nhận
+  const openModal = (groupId, projectId) => {
+    setGroupIdToDelete(groupId);
+    setModalVisible(true);
+    const project = selectedClassData.projectData.find(
+      (p) => p._id === projectId
+    );
+    localStorage.setItem("selectedProject", JSON.stringify({ project }));
   };
 
+  const unmatchedProjects = selectedClassData.projectData
+    ? selectedClassData.projectData.filter((project) => !project.isMatched)
+    : [];
+
+  const pendingAcceptedGroups = selectedClassData.pendingAcceptedGroups || [];
+  const declinedGroups = selectedClassData.declinedGroups || [];
+
+  const badgeMeanings = [
+    {
+      type: "C",
+      description: "Mentor lựa chọn nhóm này",
+      color: "#3390C1",
+    },
+    {
+      type: "UT",
+      description: "Mentor được giáo viên ưu tiên",
+      color: "#faad14",
+    },
+    {
+      type: "1",
+      description: "Số chuyên môn trùng khớp",
+      color: "#a8dcd1",
+    },
+  ];
   return (
     <DndContext
       sensors={sensors}
@@ -510,7 +499,7 @@ const ProjectCardMain = () => {
       <div className="main-project-container">
         <div className="header-bar">
           <div className="class-select-container" style={{ padding: "9px" }}>
-            <label className="class-select-label">Chọn Lớp:</label>
+            <label className="class-select-label">Lớp Được Chọn:</label>
             {loadingClasses ? (
               <Spin />
             ) : (
@@ -552,56 +541,96 @@ const ProjectCardMain = () => {
 
           <div className="button-group">
             {unmatchedProjects.length > 0 && (
-              <>
-                <Button
-                  style={{ marginRight: "10px" }}
-                  onClick={fetchMatchingMentor}
-                  disabled={isFetchingSuggestions}
-                >
-                  Gợi Ý Ghép Mới
-                </Button>
-              </>
+              <Button
+                style={{ marginRight: "10px" }}
+                onClick={fetchMatchingMentor}
+                disabled={isFetchingSuggestions}
+              >
+                Gợi Ý Ghép Mentor
+              </Button>
             )}
           </div>
         </div>
 
         <div
           className={`container-projects ${
-            showSuggestions ? "single-column" : "grid-layout"
+            selectedClassData.showSuggestions ? "single-column" : "grid-layout"
           }`}
         >
+          {visible && (
+            <Alert
+              type="info"
+              closable
+              onClose={() => setVisible(false)}
+              message="Ý nghĩa của các biểu tượng"
+              description={
+                <div
+                  style={{
+                    display: "flex",
+                    marginLeft: 25,
+                    marginTop: -1,
+                  }}
+                >
+                  {badgeMeanings.map((badge) => (
+                    <div
+                      key={badge.type}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <Badge
+                        count={badge.type}
+                        style={{
+                          backgroundColor: badge.color,
+                          color: badge.type === "C" ? "white" : "black",
+                          borderRadius: "12px",
+                        }}
+                      />
+                      <span style={{ marginRight: 30 }}>
+                        {badge.description}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              }
+            />
+          )}
           {loadingProjects ? (
             <Spin />
-          ) : projectData.length > 0 || matchedGroups.length > 0 ? (
+          ) : unmatchedProjects.length > 0 ||
+            pendingAcceptedGroups.length > 0 ||
+            declinedGroups.length > 0 ? (
             <Tabs
               defaultActiveKey="1"
               style={{ width: "100%" }}
               destroyInactiveTabPane
             >
+              {/* Tab Pane: Chưa chọn mentor */}
               <TabPane
                 tab={`Chưa chọn mentor (${unmatchedProjects.length})`}
                 key="1"
               >
                 {unmatchedProjects.map((project) => {
-                  // Collect all existing mentorIds to exclude them in lower categories
                   const mentorPreferredIds = new Set(
-                    (mentorsData[project._id]?.mentorPreferred || []).map((m) =>
-                      String(m.mentorId)
-                    )
+                    (
+                      selectedClassData.mentorsData[project._id]
+                        ?.mentorPreferred || []
+                    ).map((m) => String(m.mentorId))
                   );
 
                   const teacherPreferredIds = new Set(
                     (
-                      mentorsData[project._id]?.teacherPreferredMentors || []
+                      selectedClassData.mentorsData[project._id]
+                        ?.teacherPreferredMentors || []
                     ).map((m) => String(m.mentorId))
                   );
-
-                  const existingMentorIds = new Set([...mentorPreferredIds]);
 
                   return (
                     <div
                       className={`single-project-row ${
-                        showSuggestions && !project.isMatched
+                        selectedClassData.showSuggestions && !project.isMatched
                           ? "suggestion-layout"
                           : "grid-layout"
                       }`}
@@ -618,104 +647,126 @@ const ProjectCardMain = () => {
                           }}
                           project={project}
                           assignedMentors={
-                            assignedMentorsMap[project._id] || []
+                            selectedClassData.assignedMentorsMap[project._id] ||
+                            []
                           }
                         />
                       </div>
 
-                      {showSuggestions && mentorsData[project._id] && (
-                        <div className="suggestions-and-drop-zone">
-                          <div className="mentor-suggestions-wrapper">
-                            {/* Mentor Ưu Tiên Nhóm */}
-                            <MentorSuggestionRow
-                              title="Mentor Ưu Tiên Nhóm:"
-                              mentors={mentorsData[project._id].mentorPreferred}
-                              assignedMentors={
-                                assignedMentorsMap[project._id] || []
-                              }
+                      {selectedClassData.showSuggestions &&
+                        selectedClassData.mentorsData[project._id] && (
+                          <div className="suggestions-and-drop-zone">
+                            <div className="mentor-suggestions-wrapper">
+                              {/* Mentor Ưu Tiên Nhóm */}
+                              <MentorSuggestionRow
+                                title="Mentor Ưu Tiên Chọn Nhóm:"
+                                mentors={
+                                  selectedClassData.mentorsData[project._id]
+                                    .mentorPreferred
+                                }
+                                assignedMentors={
+                                  selectedClassData.assignedMentorsMap[
+                                    project._id
+                                  ] || []
+                                }
+                                projectId={project._id}
+                                existingMentorIds={new Set()} // No exclusions for the first category
+                                colorClass="mentor-preferred-card"
+                                teacherPreferredMentors={
+                                  selectedClassData.mentorsData[project._id]
+                                    .teacherPreferredMentors
+                                }
+                              />
+                              {/* Mentor Bạn Ưu Tiên */}
+                              <MentorSuggestionRow
+                                title="Mentor Được Giáo Viên Ưu Tiên:"
+                                mentors={
+                                  selectedClassData.mentorsData[project._id]
+                                    .teacherPreferredMentors
+                                }
+                                projectId={project._id}
+                                assignedMentors={
+                                  selectedClassData.assignedMentorsMap[
+                                    project._id
+                                  ] || []
+                                }
+                                existingMentorIds={mentorPreferredIds} // Exclude mentors already in mentorPreferred
+                                colorClass="teacher-preferred-card"
+                                teacherPreferredMentors={
+                                  selectedClassData.mentorsData[project._id]
+                                    .teacherPreferredMentors
+                                }
+                              />
+                              {/* Mentor Phù Hợp */}
+                              <MentorSuggestionRow
+                                title="Mentor Có Chuyên Môn Phù Hợp:"
+                                mentors={
+                                  selectedClassData.mentorsData[project._id]
+                                    .matchingMentors
+                                }
+                                assignedMentors={
+                                  selectedClassData.assignedMentorsMap[
+                                    project._id
+                                  ] || []
+                                }
+                                projectId={project._id}
+                                existingMentorIds={
+                                  new Set([
+                                    ...mentorPreferredIds,
+                                    ...teacherPreferredIds,
+                                  ])
+                                } // Exclude mentors already in mentorPreferred and teacherPreferred
+                                colorClass="matching-mentors-card"
+                                teacherPreferredMentors={
+                                  selectedClassData.mentorsData[project._id]
+                                    .teacherPreferredMentors
+                                }
+                              />
+                            </div>
+                            <MentorDropZone
                               projectId={project._id}
-                              existingMentorIds={new Set()} // No exclusions for the first category
-                              colorClass="mentor-preferred-card"
-                              teacherPreferredMentors={
-                                mentorsData[project._id].teacherPreferredMentors
+                              groupId={project.groupId}
+                              assignedMentors={
+                                selectedClassData.assignedMentorsMap[
+                                  project._id
+                                ]?.map((mentor) => ({
+                                  ...mentor,
+                                  isTeacherPreferred:
+                                    selectedClassData.mentorsData[
+                                      project._id
+                                    ].teacherPreferredMentors.some(
+                                      (teacherPreferred) =>
+                                        String(teacherPreferred.mentorId) ===
+                                        String(mentor.mentorId)
+                                    ),
+                                  isPreferredGroup:
+                                    selectedClassData.mentorsData[
+                                      project._id
+                                    ].mentorPreferred.some(
+                                      (preferredMentor) =>
+                                        String(preferredMentor.mentorId) ===
+                                        String(mentor.mentorId)
+                                    ),
+                                })) || []
                               }
-                            />
-                            {/* Mentor Bạn Ưu Tiên */}
-                            <MentorSuggestionRow
-                              title="Mentor Bạn Ưu Tiên:"
                               mentors={
-                                mentorsData[project._id].teacherPreferredMentors
+                                selectedClassData.mentorsData[project._id]
                               }
-                              projectId={project._id}
-                              assignedMentors={
-                                assignedMentorsMap[project._id] || []
+                              activeId={activeId}
+                              onMentorAssigned={() =>
+                                handleFetchClass(selectedClassId)
                               }
-                              existingMentorIds={mentorPreferredIds} // Exclude mentors already in mentorPreferred
-                              colorClass="teacher-preferred-card"
-                              teacherPreferredMentors={
-                                mentorsData[project._id].teacherPreferredMentors
-                              }
-                            />
-                            {/* Mentor Phù Hợp */}
-                            <MentorSuggestionRow
-                              title="Mentor Phù Hợp:"
-                              mentors={mentorsData[project._id].matchingMentors}
-                              assignedMentors={
-                                assignedMentorsMap[project._id] || []
-                              }
-                              projectId={project._id}
-                              existingMentorIds={
-                                new Set([
-                                  ...mentorPreferredIds,
-                                  ...teacherPreferredIds,
-                                ])
-                              } // Exclude mentors already in mentorPreferred and teacherPreferred
-                              colorClass="matching-mentors-card"
-                              teacherPreferredMentors={
-                                mentorsData[project._id].teacherPreferredMentors
-                              }
+                              teacherId={teacherId}
+                              selectedClassId={selectedClassId} // Thêm prop này
                             />
                           </div>
-                          <MentorDropZone
-                            projectId={project._id}
-                            groupId={project.groupId}
-                            assignedMentors={
-                              assignedMentorsMap[project._id]?.map(
-                                (mentor) => ({
-                                  ...mentor,
-                                  isTeacherPreferred: mentorsData[
-                                    project._id
-                                  ].teacherPreferredMentors.some(
-                                    (teacherPreferred) =>
-                                      String(teacherPreferred.mentorId) ===
-                                      String(mentor.mentorId)
-                                  ),
-                                })
-                              ) || []
-                            }
-                            mentors={mentorsData[project._id]}
-                            activeId={activeId}
-                            onMentorAssigned={() => fetchMatchingMentor()}
-                            teacherId={teacherId}
-                          />
-                          <h6 className="view-more-suggest">
-                            <p
-                              style={{ cursor: "pointer" }}
-                              onClick={() =>
-                                handleViewDetailSelection(project._id)
-                              }
-                            >
-                              <SelectOutlined /> Lựa Chọn Chi Tiết
-                            </p>
-                          </h6>
-                        </div>
-                      )}
+                        )}
                     </div>
                   );
                 })}
               </TabPane>
 
-              {/* Other TabPanes */}
+              {/* Tab Pane: Đã ghép mentor */}
               <TabPane
                 style={{
                   display: "flex",
@@ -742,7 +793,7 @@ const ProjectCardMain = () => {
                         (profession) => profession.name
                       ) || [];
 
-                    // Lấy danh sách specialty
+                    // Lấy danh sách specialties
                     const specialties =
                       mentorCate?.specialties?.map(
                         (specialty) => specialty.specialtyId.name
@@ -807,7 +858,7 @@ const ProjectCardMain = () => {
                               ]}
                             />
                             <div className="assigned-mentors">
-                              {/* You can reuse MentorInfoCard here */}
+                              {/* Mentor Info Card */}
                               <div
                                 className="elevated-card"
                                 style={{
@@ -928,7 +979,7 @@ const ProjectCardMain = () => {
                                                   : 1
                                               )
                                               .join(", ")}
-                                            {specialties.length > 3 && (
+                                            {specialties.length > 1 && (
                                               <button
                                                 onClick={() =>
                                                   setShowAllSpecialties(
@@ -955,15 +1006,39 @@ const ProjectCardMain = () => {
                                   />
                                 </div>
                               </div>
+
                               <Button
                                 type="link"
                                 onClick={() =>
-                                  handleReselectMentor(group.projectId._id)
+                                  openModal(group?._id, group?.projectId?._id)
                                 }
                                 style={{ color: "blue", padding: 0 }}
                               >
                                 <SelectOutlined /> Chọn Lại Mentor
                               </Button>
+                              <Modal
+                                title={
+                                  <>
+                                    <ExclamationCircleOutlined
+                                      style={{ color: "red", marginRight: 10 }}
+                                    />
+                                    <span style={{ color: "red" }}>
+                                      Cảnh Báo
+                                    </span>
+                                  </>
+                                }
+                                visible={modalVisible}
+                                onOk={handleConfirm} // Gọi API khi nhấn OK
+                                onCancel={() => setModalVisible(false)}
+                                confirmLoading={loading} // Hiển thị trạng thái loading khi đang xử lý
+                                okText="Đồng ý"
+                                cancelText="Hủy"
+                              >
+                                <p>
+                                  Bạn có chắc chắn muốn chọn lại mentor không?
+                                  Mentor đang được ghép hiện tại sẽ bị xoá.
+                                </p>
+                              </Modal>
                             </div>
                           </div>
                         </div>
@@ -973,6 +1048,7 @@ const ProjectCardMain = () => {
                 </Row>
               </TabPane>
 
+              {/* Tab Pane: Bị từ chối */}
               <TabPane
                 style={{
                   display: "flex",
@@ -996,6 +1072,16 @@ const ProjectCardMain = () => {
                       mentorCate?.specialties?.map(
                         (specialty) => specialty.specialtyId.name
                       ) || [];
+                    const statusIcon =
+                      matchedInfo.status === "Pending" ? (
+                        <ClockCircleOutlined
+                          style={{ color: "#faad14", marginLeft: 8 }}
+                        />
+                      ) : (
+                        <CheckCircleOutlined
+                          style={{ color: "#52c41a", marginLeft: 8 }}
+                        />
+                      );
 
                     return (
                       <Col
@@ -1041,7 +1127,7 @@ const ProjectCardMain = () => {
                               ]}
                             />
                             <div className="assigned-mentors">
-                              {/* You can reuse MentorInfoCard here */}
+                              {/* Mentor Info Card */}
                               <div
                                 className="elevated-card"
                                 style={{
