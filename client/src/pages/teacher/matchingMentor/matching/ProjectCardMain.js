@@ -496,6 +496,14 @@ const ProjectCardMain = () => {
       );
     });
   };
+  useEffect(() => {
+    const classId = selectedClassId || localStorage.getItem("selectedClassId");
+    if (classId) {
+      handleClassChange(classId);
+    } else {
+      // message.warning("Vui lòng chọn lớp trước khi xem gợi ý.");
+    }
+  }, [selectedClassId]);
 
   return (
     <DndContext

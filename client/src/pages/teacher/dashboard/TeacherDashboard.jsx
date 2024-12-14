@@ -5,21 +5,16 @@ import {
   Row,
   Col,
   Table,
-  Button,
   Tag,
   message,
   List,
   Steps,
   Tooltip,
   Typography,
-  Popover,
 } from "antd";
 import {
   TeamOutlined,
   SolutionOutlined,
-  CheckCircleOutlined,
-  FileDoneOutlined,
-  UserAddOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
@@ -33,15 +28,14 @@ import {
 import TeacherSemester from "../../semester/TeacherSemester";
 import { useNavigate, Link } from "react-router-dom";
 import PieChartDashboard from "./PieChartDashboard";
-import {
-  setClassSummaries,
-  setLoadingClasses,
-} from "../../../redux/slice/ClassSlice";
+import { setLoadingClasses } from "../../../redux/slice/ClassSlice";
 import { fetchClassSummaryData } from "../../../api";
+import { setSelectedClassId } from "../../../redux/slice/MatchingSlice";
 
 const { Content } = Layout;
 const { Step } = Steps;
 const { Text } = Typography;
+
 const TeacherDashboard = () => {
   const dispatch = useDispatch();
   const userId = localStorage.getItem("userId");
@@ -140,17 +134,22 @@ const TeacherDashboard = () => {
     return groupIdToClassId;
   };
 
-  const handleIssueClick = (issueType, className) => {
+  const handleIssueClick = (issueType, classId) => {
     if (issueType === "Dự án cần duyệt") {
       navigate(`/teacher/project-request?tab=1`);
     } else if (issueType === "Dự án cập nhật lại") {
       navigate(`/teacher/project-request?tab=2`);
-    } else if (issueType === "Nhóm chưa chốt đề tài") {
-      navigate(
-        `/teacher/class/detail/${encodeURIComponent(
-          className
-        )}?filter=unfinished`
-      );
+    } else if (
+      issueType === "Nhóm chưa chốt đề tài" ||
+      issueType === "Nhóm chưa chọn mentor"
+    ) {
+      if (issueType === "Nhóm chưa chốt đề tài") {
+        navigate(`/teacher/class/detail?filter=unfinished`);
+      } else if (issueType === "Nhóm chưa chọn mentor") {
+        dispatch(setSelectedClassId(classId));
+        localStorage.setItem("selectedClassId", classId);
+        navigate(`/teacher/temp-matching`);
+      }
     }
   };
 
@@ -273,6 +272,45 @@ const TeacherDashboard = () => {
           );
         }
       });
+
+      const classSummariesRes = await fetchClassSummaryData(userId);
+      const fetchedClassSummaries = classSummariesRes.data.classSummaries || [];
+
+      fetchedClassSummaries.forEach((classSummary) => {
+        const className = classSummary.className;
+        const unmatchedGroupsCount = classSummary.groupDetails
+          ? classSummary.groupDetails.filter(
+              (group) => group.isMatched === false
+            ).length
+          : 0;
+
+        if (unmatchedGroupsCount > 0 && classDataMap[className]) {
+          const issueType = "Nhóm chưa chọn mentor";
+          const issue = classDataMap[className].issues.find(
+            (issue) => issue.type === issueType
+          );
+
+          if (issue) {
+            issue.items.push({
+              count: unmatchedGroupsCount,
+              link: `/teacher/temp-matching`,
+              classId: classSummary.classId,
+            });
+          } else {
+            classDataMap[className].issues.push({
+              type: issueType,
+              items: [
+                {
+                  count: unmatchedGroupsCount,
+                  link: `/teacher/temp-matching`,
+                  classId: classSummary.classId,
+                },
+              ],
+            });
+          }
+        }
+      });
+
       const groupFetchPromises = fetchedClasses.map((cls) =>
         fetchGroupsForClass(cls._id).then((groups) => ({
           className: cls.className,
@@ -315,54 +353,30 @@ const TeacherDashboard = () => {
           }
         }
       });
-      const tempGroupPromises = fetchedClasses.map((cls) =>
-        fetchTempGroups(cls._id).then((tempGroups) => ({
-          className: cls.className,
-          tempGroups,
-        }))
-      );
-
-      const tempGroupsByClass = await Promise.all(tempGroupPromises);
 
       const newNotifications = [];
 
-      tempGroupsByClass.forEach(({ className, tempGroups }) => {
-        if (tempGroups.length === 0) {
+      // Xử lý notifications như trước
+      groupsByClass.forEach(({ className, groups }) => {
+        const unfinished = groups.filter(
+          (group) => !group.projectId || !group.projectId._id
+        ).length;
+        if (unfinished > 0) {
+          const total = groups.length;
           newNotifications.push({
-            type: "new_class",
+            type: "unfinished_groups",
             message: (
-              <Link
-                style={{ textDecoration: "none" }}
-                to={`/teacher/class/detail/${encodeURIComponent(className)}`}
-              >
-                {`Lớp ${className} vừa được tạo mới, hãy tạo nhóm cho lớp ngay.`}
-              </Link>
+              <>
+                {unfinished}/{total} nhóm chưa chốt đủ thành viên trong lớp{" "}
+                <Link
+                  to={`/teacher/class/detail/${encodeURIComponent(className)}`}
+                >
+                  {className}
+                </Link>
+                .
+              </>
             ),
           });
-        } else {
-          const unfinished = tempGroups.filter(
-            (group) => group.status === false
-          ).length;
-          if (unfinished > 0) {
-            const total = tempGroups.length;
-            newNotifications.push({
-              type: "unfinished_groups",
-              message: (
-                <>
-                  {unfinished} nhóm/{total} nhóm chưa chốt đủ thành viên trong
-                  lớp{" "}
-                  <Link
-                    to={`/teacher/class/detail/${encodeURIComponent(
-                      className
-                    )}`}
-                  >
-                    {className}
-                  </Link>
-                  .
-                </>
-              ),
-            });
-          }
         }
       });
       if (newNotifications.length === 0) {
@@ -403,6 +417,7 @@ const TeacherDashboard = () => {
 
       setClassData(updatedClassData);
     } catch (error) {
+      console.error("Error fetching data:", error);
       message.error("Lỗi khi tải dữ liệu!");
     } finally {
       setLoading(false);
@@ -450,13 +465,8 @@ const TeacherDashboard = () => {
     );
     const getTitleWithInfo = (title, description) => (
       <span style={{ display: "flex", alignItems: "center" }}>
-        <Popover
-          content={getPopoverContent(description)}
-          placement="bottom"
-          trigger="hover"
-        >
-          {title}
-        </Popover>
+        <Tooltip title={description}></Tooltip>
+        {title}
       </span>
     );
 
@@ -481,6 +491,15 @@ const TeacherDashboard = () => {
           />
         )}
         current={2}
+        style={{
+          backgroundColor: "#fff",
+          padding: "12px 8px 6px 8px",
+          borderTopRightRadius: "10px",
+          borderTopLeftRadius: "10px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          borderLeft: "5px solid #60b2c7",
+          borderRight: "5px solid #60b2c7",
+        }}
       >
         <Step
           key="create-group"
@@ -557,6 +576,7 @@ const TeacherDashboard = () => {
           if (issue.items && issue.items.length > 0) {
             let tab = null;
             let isGroup = false;
+            let isMentorIssue = false;
 
             if (issue.type === "Dự án cần duyệt") {
               tab = 1;
@@ -564,36 +584,35 @@ const TeacherDashboard = () => {
               tab = 2;
             } else if (issue.type === "Nhóm chưa chốt đề tài") {
               isGroup = true;
+            } else if (issue.type === "Nhóm chưa chọn mentor") {
+              isMentorIssue = true;
+              isGroup = true; // Vì liên quan đến nhóm
             }
-
-            const itemNames = issue.items.map((item) => item.name).join(", ");
-
-            const tooltipContent = issue.items.map((item, index) => (
-              <span key={item.projectId || item.groupId}>
-                <Link
-                  to={item.link}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleProjectClick(
-                      isGroup ? item.className : item.projectId || item.groupId,
-                      tab,
-                      isGroup,
-                      isGroup
-                    );
-                  }}
-                >
-                  {item.name}
-                </Link>
-                {index < issue.items.length - 1 && ", "}{" "}
-              </span>
-            ));
 
             return (
               <div key={issue.type} style={{ marginBottom: "8px" }}>
                 <span style={{ fontSize: "13.5px", fontWeight: "450" }}>
                   {issue.type} :
                 </span>{" "}
-                {issue.items.length === 1 ? (
+                {issue.type === "Nhóm chưa chọn mentor" ? (
+                  <Link
+                    to={issue.items[0].link}
+                    style={{
+                      marginRight: 4,
+                      marginTop: 4,
+                      cursor: "pointer",
+                      color: "red",
+                      textDecoration: "none",
+                      fontSize: "13.5px",
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleIssueClick(issue.type, issue.items[0].classId);
+                    }}
+                  >
+                    {issue.items[0].count}
+                  </Link>
+                ) : issue.items.length === 1 ? (
                   <Tag
                     color="red"
                     key={issue.items[0].projectId || issue.items[0].groupId}
@@ -626,7 +645,27 @@ const TeacherDashboard = () => {
                           maxWidth: "300px",
                         }}
                       >
-                        {tooltipContent}
+                        {issue.items.map((item, index) => (
+                          <span key={item.projectId || item.groupId}>
+                            <Link
+                              to={item.link}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleProjectClick(
+                                  isGroup
+                                    ? item.className
+                                    : item.projectId || item.groupId,
+                                  tab,
+                                  isGroup,
+                                  isGroup
+                                );
+                              }}
+                            >
+                              {item.name}
+                            </Link>
+                            {index < issue.items.length - 1 && ", "}{" "}
+                          </span>
+                        ))}
                       </div>
                     }
                   >
@@ -676,24 +715,6 @@ const TeacherDashboard = () => {
     setSortedClassData(sortedData);
   };
 
-  const { classSummaries } = useSelector((state) => state.class);
-  useEffect(() => {
-    const loadData = async () => {
-      dispatch(setLoadingClasses(true));
-      try {
-        const classResponse = await fetchClassSummaryData(userId);
-        const { classSummaries: fetchedClassSummaries } = classResponse.data;
-        dispatch(setClassSummaries(fetchedClassSummaries));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        message.warning("Lỗi khi tải dữ liệu lớp học.");
-      }
-      dispatch(setLoadingClasses(false));
-    };
-
-    loadData();
-  }, [userId, dispatch]);
-
   return (
     <Layout>
       <Content style={{ margin: "0", minHeight: 280 }}>
@@ -714,7 +735,11 @@ const TeacherDashboard = () => {
               bodyStyle={{
                 padding: "8px",
               }}
-              style={{ height: "300px", overflowY: "auto" }}
+              style={{
+                maxHeight: "300px",
+                overflowY: "auto",
+                height: "fit-content",
+              }}
             >
               <Table
                 dataSource={sortedClassData}
@@ -726,7 +751,8 @@ const TeacherDashboard = () => {
                 className="table-issue-dashboard"
               />
             </Card>
-            <br />
+            {/* Loại bỏ bảng "Tình hình mentor" */}
+            {/* <br />
             <Card
               title="Tình hình mentor"
               bordered={false}
@@ -756,15 +782,17 @@ const TeacherDashboard = () => {
                       (group) => group.isProjectUpdated === true
                     ).length
                   : 0;
+                const unmatchedGroupsCount =
+                  totalGroupsCount - matchedGroupsCount;
 
                 return (
                   <>
-                    {classItem.className} ({matchedGroupsCount}/
-                    {totalGroupsCount})
+                    {classItem.className} {unmatchedGroupsCount} nhóm chưa chọn
+                    mentor
                   </>
                 );
               })}
-            </Card>
+            </Card> */}
           </Col>
 
           <Col span={9}>

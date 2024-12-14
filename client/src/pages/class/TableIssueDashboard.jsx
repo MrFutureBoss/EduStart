@@ -60,178 +60,6 @@ const TableIssueDashboard = ({ userId, jwt }) => {
     }
   };
 
-  //   const fetchData = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const classRes = await axios.get(
-  //         `${BASE_URL}/class/info/${userId}`,
-  //         config
-  //       );
-  //       dispatch(setClassInfoData(classRes.data));
-
-  //       const fetchedClasses = classRes.data.classes || [];
-  //       const classIdToClassName = {};
-  //       fetchedClasses.forEach((cls) => {
-  //         classIdToClassName[cls._id] = cls.className;
-  //       });
-
-  //       const projectsRes = await axios.get(
-  //         `${BASE_URL}/project/planning-projects/${userId}`,
-  //         config
-  //       );
-  //       const projects = projectsRes.data || [];
-
-  //       dispatch(setProjects(projects));
-
-  //       const changingProjectsRes = await axios.get(
-  //         `${BASE_URL}/project/changing-projects/${userId}`,
-  //         config
-  //       );
-  //       const fetchedChangingProjects = changingProjectsRes.data || [];
-
-  //       const projectGroupIds = projects.map((project) => project.groupId);
-  //       const changingProjectGroupIds = fetchedChangingProjects.map(
-  //         (project) => project.groupId
-  //       );
-  //       const allGroupIds = [
-  //         ...new Set([...projectGroupIds, ...changingProjectGroupIds]),
-  //       ];
-
-  //       const fetchedGroupIdToClassId = await fetchGroupInfo(allGroupIds);
-  //       const groupIdToClassName = {};
-  //       for (const groupId of allGroupIds) {
-  //         const classId = fetchedGroupIdToClassId[groupId];
-  //         const className = classIdToClassName[classId];
-  //         if (className) {
-  //           groupIdToClassName[groupId] = className;
-  //         }
-  //       }
-
-  //       const classDataMap = {};
-
-  //       fetchedClasses.forEach((cls) => {
-  //         classDataMap[cls.className] = {
-  //           className: cls.className,
-  //           totalStudents: cls.totalStudents || cls.limitStudent || 0,
-  //           totalGroups: cls.totalGroups || 0,
-  //           issues: [],
-  //         };
-  //       });
-
-  //       projects.forEach((project) => {
-  //         const className = groupIdToClassName[project.groupId];
-  //         if (className && classDataMap[className]) {
-  //           const issueType = "Dự án cần duyệt";
-  //           const issue = classDataMap[className].issues.find(
-  //             (issue) => issue.type === issueType
-  //           );
-
-  //           if (issue) {
-  //             issue.items.push({
-  //               name: project.projectName,
-  //               projectId: project.projectId,
-  //               link: `/teacher/project-request?tab=1`,
-  //             });
-  //           } else {
-  //             classDataMap[className].issues.push({
-  //               type: issueType,
-  //               items: [
-  //                 {
-  //                   name: project.projectName,
-  //                   projectId: project.projectId,
-  //                   link: `/teacher/project-request?tab=1`,
-  //                 },
-  //               ],
-  //             });
-  //           }
-  //         }
-  //       });
-
-  //       fetchedChangingProjects.forEach((project) => {
-  //         const className = groupIdToClassName[project.groupId];
-  //         if (className && classDataMap[className]) {
-  //           const issueType = "Dự án cập nhật lại";
-  //           const issue = classDataMap[className].issues.find(
-  //             (issue) => issue.type === issueType
-  //           );
-
-  //           if (issue) {
-  //             issue.items.push({
-  //               name: project.projectName,
-  //               projectId: project.projectId,
-  //               link: `/teacher/project-request?tab=2`,
-  //             });
-  //           } else {
-  //             classDataMap[className].issues.push({
-  //               type: issueType,
-  //               items: [
-  //                 {
-  //                   name: project.projectName,
-  //                   projectId: project.projectId,
-  //                   link: `/teacher/project-request?tab=2`,
-  //                 },
-  //               ],
-  //             });
-  //           }
-  //         }
-  //       });
-  //       fetchedClasses.forEach((cls) => {
-  //         const className = cls.className;
-  //         const groups = cls.groups || [];
-
-  //         const groupWithoutProject = groups.filter(group => !group.projectId);
-  //         if (groupWithoutProject.length > 0) {
-  //           const issueType = "Nhóm chưa chốt đề tài";
-  //           const issue = classDataMap[className].issues.find(
-  //             (issue) => issue.type === issueType
-  //           );
-
-  //           if (issue) {
-  //             issue.items.push(...groupWithoutProject.map(group => ({
-  //               name: group.name,
-  //               groupId: group._id,
-  //               link: `/teacher/group-detail/${group._id}`,
-  //             })));
-  //           } else {
-  //             classDataMap[className].issues.push({
-  //               type: issueType,
-  //               items: groupWithoutProject.map(group => ({
-  //                 name: group.name,
-  //                 groupId: group._id,
-  //                 link: `/teacher/group-detail/${group._id}`,
-  //               })),
-  //             });
-  //           }
-  //         }
-  //       });
-  //       const updatedClassData = Object.values(classDataMap)
-  //         .filter((cls) => cls.issues && cls.issues.length > 0)
-  //         .map((cls) => {
-  //           const totalIssues = cls.issues.reduce(
-  //             (sum, issue) => sum + (issue.items ? issue.items.length : 0),
-  //             0
-  //           );
-  //           return {
-  //             ...cls,
-  //             totalIssues,
-  //             totalTypes: cls.issues.length,
-  //           };
-  //         })
-  //         .sort((a, b) => {
-  //           if (b.totalTypes !== a.totalTypes) {
-  //             return b.totalTypes - a.totalTypes;
-  //           }
-  //           return b.totalIssues - a.totalIssues;
-  //         });
-
-  //       setClassData(updatedClassData);
-  //     } catch (error) {
-  //       message.error("Lỗi khi tải dữ liệu!");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -464,26 +292,22 @@ const TableIssueDashboard = ({ userId, jwt }) => {
       render: (_, __, index) => (
         <span style={{ fontSize: "13.5px" }}>{index + 1}</span>
       ),
-      width: "5%"
+      width: "5%",
     },
     {
       title: (
-        <span style={{ fontSize: "13.5px", fontWeight: "600" }}>
+        <span style={{ fontSize: "13.5px", fontWeight: "500" }}>
           Tên lớp ({classData.length})
         </span>
       ),
       dataIndex: "className",
       key: "className",
-      render: (text) => (
-        <span style={{ fontSize: "13.5px" }}>
-          {text}
-        </span>
-      ),
-      width: "25%"
+      render: (text) => <span style={{ fontSize: "13.5px" }}>{text}</span>,
+      width: "25%",
     },
     {
       title: (
-        <span style={{ fontSize: "13.5px", fontWeight: "600" }}>
+        <span style={{ fontSize: "13.5px", fontWeight: "500" }}>
           Vấn đề ({classData.reduce((total, cls) => total + cls.totalIssues, 0)}
           )
         </span>
@@ -510,7 +334,8 @@ const TableIssueDashboard = ({ userId, jwt }) => {
             }
 
             const groupList = issue.items.map((item, index) => (
-              <Link
+              <Tag
+                color="red"
                 key={item.projectId || item.groupId}
                 to={
                   issue.type === "Dự án cần duyệt"
@@ -524,13 +349,14 @@ const TableIssueDashboard = ({ userId, jwt }) => {
                 style={{
                   marginRight: "4px",
                   textDecoration: "none",
-                  color: "black",
+                  color: "red",
+                  cursor: "pointer",
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.color = "#60b2c7";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = "black";
+                  e.target.style.color = "red";
                 }}
                 onClick={(e) => {
                   e.preventDefault();
@@ -544,12 +370,12 @@ const TableIssueDashboard = ({ userId, jwt }) => {
               >
                 {item.name}
                 {index < issue.items.length - 1 && ", "}
-              </Link>
+              </Tag>
             ));
 
             return (
               <div key={issue.type} style={{ marginBottom: "8px" }}>
-                <span style={{ fontSize: "13.5px", fontWeight: "600" }}>
+                <span style={{ fontSize: "13.5px", fontWeight: "500" }}>
                   {issue.type}{" "}
                   {issue.items.length > 1 ? (
                     <Tooltip
@@ -615,7 +441,12 @@ const TableIssueDashboard = ({ userId, jwt }) => {
       bodyStyle={{
         padding: "8px",
       }}
-      style={{ marginBottom: "16px", height: "340px", overflowY: "auto" }}
+      style={{
+        marginBottom: "16px",
+        height: "fit-content",
+        maxHeight: "340px",
+        overflowY: "auto",
+      }}
     >
       <Table
         dataSource={classData}

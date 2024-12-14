@@ -47,6 +47,7 @@ const ClassManagement = () => {
   const userId = localStorage.getItem("userId");
   const [showUngropColumn, setShowUngropColumn] = useState(false);
   const [showEmptyColumn, setShowEmptygropColumn] = useState(false);
+  const [activeTable, setActiveTable] = useState("classList");
 
   const config = useMemo(
     () => ({
@@ -103,137 +104,102 @@ const ClassManagement = () => {
     }
   }, []);
 
+  const handleTableChange = (e) => {
+    setActiveTable(e.target.value);
+  };
+
   return (
     <div>
-      <Row gutter={[32, 16]}>
+      <Row gutter={[16, 16]}>
         <MonitorStep />
       </Row>
       <br />
-      <Row gutter={[32, 16]}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} sm={24} md={24} lg={9} xl={9}>
-          <TableIssueDashboard userId={userId} jwt={jwt} />
+          <TableIssueDashboard
+            userId={userId}
+            jwt={jwt}
+            style={{ boxShadow: "2px 0 8px rgba(0,0,0,0.9)" }}
+          />
         </Col>
         <Col xs={24} sm={24} md={24} lg={15} xl={15}>
-          <Tabs
-            defaultActiveKey="1"
-            style={{ backgroundColor: "white", borderRadius: "8px" }}
+          <Card
+            title="Danh sách lớp học"
+            bordered={false}
+            size="small"
+            headStyle={{
+              backgroundColor: "rgb(96, 178, 199)",
+              minHeight: "45px",
+              color: "white",
+              fontSize: "17px",
+            }}
+            bodyStyle={{
+              padding: "16px",
+            }}
           >
-            <Tabs.TabPane
-              tab={
-                <span
+            <Row>
+              <Col lg={24}>
+                <p className="remove-default-style-p">
+                  Tổng số lớp bạn dạy kì này:{" "}
+                  <span>{classInfo?.totalClasses} lớp</span>
+                </p>
+              </Col>
+            </Row>
+
+            <Row style={{ marginBottom: "16px" }}>
+              <Col span={24}>
+                <Radio.Group
+                  onChange={handleTableChange}
+                  value={activeTable}
                   style={{
-                    fontSize: "17px",
-                    fontWeight: "bold",
+                    display: "flex",
+                    gap: "8px",
+                    paddingTop: "0.8rem",
                   }}
                 >
-                  Danh sách lớp học đang quản lý
-                </span>
-              }
-              key="1"
-            >
-              <Card bordered={true}>
-                <Row style={{ width: "100%", marginBottom: "1rem" }}>
-                  <Col
-                    lg={24}
+                  <Radio.Button
+                    value="classList"
+                    style={{
+                      padding: "0 16px",
+                    }}
+                  >
+                    <Tooltip title="Chi tiết lớp học">
+                      <Space>
+                        <TeamOutlined />
+                      </Space>
+                    </Tooltip>
+                  </Radio.Button>
+                  <Radio.Button
+                    value="outcomeMonitor"
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      marginLeft: "0.7rem",
-                      marginTop: "1rem",
-                      gap: "1rem",
+                      padding: "0 16px",
                     }}
                   >
-                    <Tooltip title="Làm mới bảng">
-                      <Button
-                        onClick={() => handleResetFilterTable()}
-                        style={{
-                          padding: "8px",
-                        }}
-                      >
-                        <SyncOutlined /> Làm mới bảng
-                      </Button>
+                    <Tooltip title="Theo dõi tiến độ outcome">
+                      <Space>
+                        <FieldTimeOutlined />
+                      </Space>
                     </Tooltip>
-                    <Space direction="vertical">
-                      <Radio.Group>
-                        <Radio.Button style={{ display: "none" }}>
-                          <Tooltip title="Vấn đề nhóm chưa chốt đề tài">
-                            <Space>
-                              <ProjectOutlined />
-                              <Badge count="1" />
-                            </Space>
-                          </Tooltip>
-                        </Radio.Button>
-                        <Radio.Button
-                          value={showEmptyColumn}
-                          onClick={() => handleFilterClassHaveEmptyGroup()}
-                        >
-                          <Tooltip title="Vấn đề lớp chưa có nhóm">
-                            <Space>
-                              <MdOutlineGroupOff />
-                              <Badge count="1" />
-                            </Space>
-                          </Tooltip>
-                        </Radio.Button>
-                        <Radio.Button
-                          value={showUngropColumn}
-                          onClick={() => handleFilterClassHaveUnGroup()}
-                        >
-                          <Tooltip title="Vấn đề nhóm chưa chốt đủ thành viên">
-                            <Space>
-                              <TeamOutlined />
-                              <Badge count="1" color="#FFBA57" />
-                            </Space>
-                          </Tooltip>
-                        </Radio.Button>
-                        <Radio.Button style={{ display: "none" }}>
-                          <Tooltip title="Vấn đề nhóm chưa nộp bài tập hoặc nộp muộn">
-                            <Space>
-                              <FieldTimeOutlined />
-                              <Badge count="1" />
-                            </Space>
-                          </Tooltip>
-                        </Radio.Button>
-                      </Radio.Group>
-                    </Space>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col lg={24}>
-                    <p className="remove-default-style-p">
-                      Tổng số lớp bạn dạy kì này:{" "}
-                      <span>{classInfo?.totalClasses} lớp</span>
-                    </p>
-                  </Col>
-                </Row>
-                <Card.Grid
-                  id="TaskTable"
-                  style={{ width: "100%", padding: "0px" }}
-                >
+                  </Radio.Button>
+                </Radio.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col span={24}>
+                {activeTable === "classList" ? (
                   <TableClass
                     ungroup={showUngropColumn}
                     emptygroup={showEmptyColumn}
                   />
-                </Card.Grid>
-              </Card>
-            </Tabs.TabPane>
-            <Tabs.TabPane
-              tab={
-                <span
-                  style={{
-                    fontSize: "17px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Theo dõi tiến độ outcome
-                </span>
-              }
-              key="2"
-            >
-              <Card bordered={true} bodyStyle={{ padding: "20px" }}>
-                <AssignOutcome />
-              </Card>
-            </Tabs.TabPane>
-          </Tabs>
+                ) : (
+                  <AssignOutcome />
+                )}
+              </Col>
+            </Row>
+          </Card>
         </Col>
       </Row>
     </div>

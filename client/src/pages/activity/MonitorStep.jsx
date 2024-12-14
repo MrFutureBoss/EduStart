@@ -6,6 +6,8 @@ import { BASE_URL } from "../../utilities/initalValue";
 import { useDispatch, useSelector } from "react-redux";
 import { setClassList } from "../../redux/slice/ClassSlice";
 import {
+  CaretDownOutlined,
+  CaretUpOutlined,
   DownOutlined,
   ExclamationCircleOutlined,
   UpOutlined,
@@ -208,24 +210,52 @@ const MonitorStep = () => {
       style={{
         display: "flex",
         margin: "auto",
-        width: "90%",
+        width: "98.5%",
         justifyContent: "space-between",
+        backgroundColor: "#fff",
+        padding: "12px 8px 6px 8px",
+        borderTopRightRadius: "10px",
+        borderTopLeftRadius: "10px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        borderLeft: "5px solid #60b2c7",
+        borderRight: "5px solid #60b2c7",
       }}
     >
       <div style={{ marginRight: "10px" }}>
         {isTooltipVisibleForAll ? (
-          <UpOutlined
+          <CaretUpOutlined
+            className="toggle-icon"
             onClick={toggleTooltipsForAll}
             style={{ fontSize: "24px", cursor: "pointer" }}
           />
         ) : (
-          <DownOutlined
+          <CaretDownOutlined
+            className="toggle-icon"
             onClick={toggleTooltipsForAll}
             style={{ fontSize: "24px", cursor: "pointer" }}
           />
         )}
       </div>
-      <Steps current={currentStep} direction="horizontal" progressDot>
+      <Steps
+        current={currentStep}
+        direction="horizontal"
+        progressDot={(dot, { status, index }) => (
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              backgroundColor:
+                status === "process"
+                  ? "#1890ff"
+                  : status === "finish"
+                  ? "#52c41a"
+                  : "#d9d9d9",
+              borderRadius: "50%",
+              display: "inline-block",
+            }}
+          />
+        )}
+      >
         <Step key="create-group" title="Tạo nhóm" status="process" />
         <Step
           key="assign-mentor"

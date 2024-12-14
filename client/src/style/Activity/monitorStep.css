@@ -37,6 +37,18 @@
   color: #ff4d4f;
 }
 
+.toggle-icon {
+  font-size: 24px;
+  color: #1890ff;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.toggle-icon:hover {
+  transform: scale(1.2);
+  color: #40a9ff;
+}
+
 @keyframes fadeInOut {
   0% {
     opacity: 0.2;

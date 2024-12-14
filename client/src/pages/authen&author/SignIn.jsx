@@ -183,8 +183,8 @@ function SignIn() {
             <div
               style={{
                 position: "absolute",
-                top: "2.7rem",
-                left: "-3.1rem",
+                top: "2.3rem",
+                left: "-4.5rem",
                 // right: "2rem",
                 display: "flex",
                 alignItems: "center",
@@ -195,14 +195,14 @@ function SignIn() {
                 src={logo}
                 alt="Corner Illustration"
                 style={{
-                  width: "3rem",
-                  height: "3rem",
+                  width: "4.5rem",
+                  height: "4.5rem",
                   borderRadius: "3px",
                 }}
               />
               <h1
                 style={{
-                  fontSize: "1.5rem",
+                  fontSize: "2.5rem",
                   color: "#70c0d8",
                   margin: 0,
                 }}
