@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { setAllGroupInClass } from "../../redux/slice/GroupSlice";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
+import { setSid } from "../../redux/slice/semesterSlide";
 
 const { Link, Text } = Typography;
 
@@ -44,15 +45,31 @@ const GroupList = () => {
 
     fetchUserData();
   }, [className, config]);
+  const { sid } = useSelector((state) => state.semester);
+  const fetchCurrentSemester = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/semester/current`, config);
+      const semesterData = response.data;
+      dispatch(setSid(semesterData._id));
+    } catch (error) {
+      console.error("Error fetching current semester:", error);
+    }
+  };
 
+  useEffect(() => {
+    fetchCurrentSemester();
+  }, [config]);
   //Danh sách nhóm chính thức
   useEffect(() => {
     if (!classId) return;
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/group/class/${classId}`, {
-          ...config,
-        });
+        const response = await axios.get(
+          `${BASE_URL}/group/class/${classId}/${sid}`,
+          {
+            ...config,
+          }
+        );
         dispatch(setAllGroupInClass(response.data?.groups));
       } catch (error) {
         console.log(
@@ -76,7 +93,7 @@ const GroupList = () => {
   const filteredGroupInClass = filterByUnfinished
     ? groupInClass.filter((group) => !group.projectId || !group.projectId.name)
     : groupInClass;
-    
+
   return (
     <Row gutter={[16, 16]}>
       <Col span={24} style={{ textAlign: "center", marginBottom: "16px" }}>
