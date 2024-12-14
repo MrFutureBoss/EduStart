@@ -27,6 +27,8 @@ import {
   PlusOutlined,
   StarFilled,
 } from "@ant-design/icons";
+import { FaExclamationCircle } from "react-icons/fa";
+import { MdGroup } from "react-icons/md";
 import { BASE_URL } from "../../../utilities/initalValue";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -164,8 +166,8 @@ const GroupList = () => {
   );
 
   const allGroups = useMemo(
-    () => [...pendingGroups, ...myGroups],
-    [pendingGroups, myGroups]
+    () => [...myGroups, ...pendingGroups],
+    [myGroups, pendingGroups]
   );
 
   const startIndex = (currentPage - 1) * pageSize;
@@ -221,7 +223,6 @@ const GroupList = () => {
       moment(meeting.start).isAfter(now)
     );
 
-    // Sắp xếp các cuộc họp theo thời gian bắt đầu
     upcomingMeetings.sort((a, b) => moment(a.start) - moment(b.start));
 
     if (upcomingMeetings.length > 0) {
@@ -411,6 +412,102 @@ const GroupList = () => {
             backgroundColor: "#F0F2F5",
           }}
         >
+          <Card
+            title={
+              <h5
+                style={{
+                  fontSize: "18px",
+                  padding: "16px",
+                  margin: "0",
+                  color: "#FFF",
+                  fontWeight: "bold",
+                  width: "fit-content",
+                }}
+              >
+                Thông tin chung các nhóm
+              </h5>
+            }
+            headStyle={{
+              backgroundColor: "rgb(96, 178, 199)",
+              padding: "0",
+            }}
+            bodyStyle={{
+              padding: "0px 1rem",
+              backgroundColor: "#f5f5f5",
+            }}
+            style={{
+              marginBottom: "1rem",
+              borderRadius: "8px",
+              overflow: "hidden",
+            }}
+          >
+            <Row
+              align="middle"
+              style={{
+                padding: "12px 0",
+                display: pendingGroups === 0 ? "none" : "",
+                borderBottom: "1px solid #e8e8e8",
+              }}
+            >
+              <Col span={16} style={{ textAlign: "start", fontWeight: "bold" }}>
+                Nhóm mới do giảng viên đề cử:
+              </Col>
+              <Col
+                span={8}
+                style={{
+                  textAlign: "end",
+                  color: "rgb(255, 77, 79)",
+                  fontWeight: "bold",
+                }}
+              >
+                {pendingGroups.length} nhóm
+                <FaExclamationCircle className="new-icon" />
+              </Col>
+            </Row>
+            <Row
+              align="middle"
+              style={{
+                padding: "12px 0",
+                borderBottom: "1px solid #e8e8e8",
+              }}
+            >
+              <Col span={16} style={{ textAlign: "start", fontWeight: "bold" }}>
+                Nhóm của bạn:
+              </Col>
+              <Col
+                span={8}
+                style={{
+                  textAlign: "end",
+                  color: "rgb(24, 144, 255)",
+                  fontWeight: "bold",
+                }}
+              >
+                {myGroups.length} nhóm
+                <MdGroup className="supported-icon" />
+              </Col>
+            </Row>
+            <Row
+              align="middle"
+              style={{
+                padding: "12px 0",
+                display: pendingGroups === 0 ? "none" : "",
+                borderBottom: "1px solid #e8e8e8",
+              }}
+            >
+              <Col span={16} style={{ textAlign: "start", fontWeight: "bold" }}>
+                Buổi họp sắp tới:
+              </Col>
+              <Col
+                span={8}
+                style={{
+                  textAlign: "end",
+                  color: "rgb(255, 77, 79)",
+                  fontWeight: "bold",
+                }}
+              ></Col>
+            </Row>
+          </Card>
+
           {pendingGroups.length > 0 ? (
             <Tabs
               type="card"
@@ -442,26 +539,6 @@ const GroupList = () => {
                 }
               >
                 <h5>Bạn có tất cả {allGroups.length} nhóm</h5>
-                {isDetailOpen ? (
-                  <Button
-                    color="primary"
-                    variant="solid"
-                    onClick={() => {
-                      HandleViewGroupSchedule();
-                    }}
-                  >
-                    <CalendarOutlined /> Xem lịch họp nhóm
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    variant="solid"
-                    onClick={() => HandleViewGroupDetail()}
-                  >
-                    <InfoCircleOutlined />
-                    Xem thông tin nhóm
-                  </Button>
-                )}
                 {currentGroups.map((group, index) => {
                   // Card cho nhóm "Nhóm của bạn"
                   if (myGroups.includes(group)) {
@@ -488,6 +565,29 @@ const GroupList = () => {
                             <h4 style={{ margin: "0px", fontSize: "1.1rem" }}>
                               Lớp {group.class.className} - {group.group.name}
                             </h4>
+                            {isDetailOpen ? (
+                              <Tooltip title="Xem lịch họp">
+                                <Button
+                                  color="primary"
+                                  variant="solid"
+                                  onClick={() => {
+                                    HandleViewGroupSchedule();
+                                  }}
+                                >
+                                  <CalendarOutlined />
+                                </Button>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip title="Xem chi tiết nhóm">
+                                <Button
+                                  color="primary"
+                                  variant="solid"
+                                  onClick={() => HandleViewGroupDetail()}
+                                >
+                                  <InfoCircleOutlined />
+                                </Button>
+                              </Tooltip>
+                            )}
                           </div>
                           <p
                             style={{ marginBottom: "4px", fontSize: "0.8rem" }}
@@ -605,9 +705,23 @@ const GroupList = () => {
                             className="remove-default-style-p"
                             style={{
                               fontWeight: "500",
-                              fontSize: "0.8rem",
+                              fontSize: "0.7rem",
                               marginBottom: "0.4rem",
                               color: "red",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            Giảng viên {group.teacher?.email} muốn bạn hỗ trợ
+                            nhóm này
+                          </p>
+                          <p
+                            className="remove-default-style-p"
+                            style={{
+                              fontWeight: "500",
+                              fontSize: "0.7rem",
+                              marginBottom: "0.4rem",
+                              color: "red",
+                              lineHeight: "0.7rem",
                             }}
                           >
                             {hoursRemaining > 0
@@ -664,6 +778,132 @@ const GroupList = () => {
                 />
               </Tabs.TabPane>
               <Tabs.TabPane
+                key="pending"
+                disabled={pendingGroups.length === 0}
+                tab={
+                  <Tooltip
+                    title={
+                      pendingGroups.length === 0
+                        ? "Hiện tại không có nhóm mới nào"
+                        : null
+                    }
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <span>Nhóm chờ duyệt</span>
+                      <Badge count={pendingGroups.length} />
+                    </div>
+                  </Tooltip>
+                }
+              >
+                <div style={{ padding: "10px" }}>
+                  {paginatedPendingGroups.map((group, index) => {
+                    const updatedAt = moment(group.matchedDetails?.updatedAt);
+                    const now = moment();
+                    const hoursRemaining = 48 - now.diff(updatedAt, "hours");
+                    const daysRemaining = Math.floor(hoursRemaining / 24);
+                    const remainingHours = hoursRemaining % 24;
+                    const isTimeUp = hoursRemaining <= 0;
+
+                    return (
+                      <Card
+                        key={index}
+                        bordered={false}
+                        className={`mentor-group-card ${
+                          selectedGroup === group
+                            ? "mentor-group-card-selected"
+                            : ""
+                        }`}
+                        onClick={() => setSelectedGroup(group)}
+                        hoverable
+                      >
+                        <div>
+                          <h4 style={{ marginBottom: "8px", fontSize: "18px" }}>
+                            Lớp {group.class.className} - {group.group.name}
+                          </h4>
+                          <p style={{ marginBottom: "4px" }}>
+                            Dự án {group.project.name}
+                          </p>
+                          <p>
+                            Thể loại dự án:
+                            {group.projectCategory?.profession.map(
+                              (profession) => (
+                                <Tag
+                                  key={`profession-${profession._id}`}
+                                  color="#62B6CB"
+                                >
+                                  <Tooltip title="Lĩnh vực">
+                                    {profession.name}
+                                  </Tooltip>
+                                </Tag>
+                              )
+                            )}
+                          </p>
+                          <p
+                            className="remove-default-style-p"
+                            style={{
+                              fontWeight: "500",
+                              fontSize: "0.8rem",
+                              marginBottom: "0.4rem",
+                              color: "red",
+                            }}
+                          >
+                            {hoursRemaining > 0
+                              ? `Thời gian phản hồi: Còn ${
+                                  daysRemaining > 0
+                                    ? `${daysRemaining} ngày`
+                                    : ""
+                                } ${
+                                  remainingHours > 0
+                                    ? `${remainingHours} giờ`
+                                    : ""
+                                }`
+                              : "Hết thời gian phản hồi"}
+                          </p>
+                          {!isTimeUp && (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                justifyContent: "end",
+                              }}
+                            >
+                              <Popconfirm
+                                title={`Bạn có chắc chắn nhận ${group.group?.name} vào danh sách nhóm hỗ trợ không?`}
+                                onConfirm={() =>
+                                  handleApprove(group.matchedDetails._id)
+                                }
+                                okText="Đồng ý"
+                                cancelText="Hủy"
+                              >
+                                <ConfirmButton content={"Đồng ý"} />
+                              </Popconfirm>
+                              <CancelButton
+                                content={"Từ chối"}
+                                onClick={() => showRejectModal(group)}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
+                  <Pagination
+                    current={currentPagePendingGroups}
+                    pageSize={pageSize}
+                    total={pendingGroups.length}
+                    onChange={(page) => setCurrentPagePendingGroups(page)}
+                    style={{ textAlign: "center", marginTop: "20px" }}
+                    hideOnSinglePage
+                  />
+                </div>
+              </Tabs.TabPane>
+              <Tabs.TabPane
                 key="myGroups"
                 tab={
                   <Tooltip
@@ -681,11 +921,11 @@ const GroupList = () => {
                       }}
                     >
                       <span>Nhóm của bạn</span>
-                      <Badge count={myGroups.length} />
                     </div>
                   </Tooltip>
                 }
               >
+                <h5>Bạn đang hỗ trợ {myGroups.length} nhóm</h5>
                 {myGroups.filter(
                   (group) =>
                     !group.matchedDetails.time ||
@@ -776,26 +1016,6 @@ const GroupList = () => {
                 ) : (
                   <></>
                 )}
-                {isDetailOpen ? (
-                  <Button
-                    color="primary"
-                    variant="solid"
-                    onClick={() => {
-                      HandleViewGroupSchedule();
-                    }}
-                  >
-                    <CalendarOutlined /> Xem lịch họp nhóm
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    variant="solid"
-                    onClick={() => HandleViewGroupDetail()}
-                  >
-                    <InfoCircleOutlined />
-                    Xem thông tin nhóm
-                  </Button>
-                )}
                 {paginatedFilteredMyGroups.map((group, index) => (
                   <Card
                     key={index}
@@ -819,6 +1039,29 @@ const GroupList = () => {
                         <h4 style={{ margin: "0px", fontSize: "1.1rem" }}>
                           Lớp {group.class.className} - {group.group.name}
                         </h4>
+                        {isDetailOpen ? (
+                          <Tooltip title="Xem lịch họp">
+                            <Button
+                              color="primary"
+                              variant="solid"
+                              onClick={() => {
+                                HandleViewGroupSchedule();
+                              }}
+                            >
+                              <CalendarOutlined />
+                            </Button>
+                          </Tooltip>
+                        ) : (
+                          <Tooltip title="Xem chi tiết nhóm">
+                            <Button
+                              color="primary"
+                              variant="solid"
+                              onClick={() => HandleViewGroupDetail()}
+                            >
+                              <InfoCircleOutlined />
+                            </Button>
+                          </Tooltip>
+                        )}
                       </div>
                       <p style={{ marginBottom: "4px", fontSize: "0.8rem" }}>
                         Dự án {group.project.name}
@@ -889,132 +1132,6 @@ const GroupList = () => {
                   style={{ textAlign: "center", marginTop: "20px" }}
                   hideOnSinglePage
                 />
-              </Tabs.TabPane>
-              <Tabs.TabPane
-                key="pending"
-                disabled={pendingGroups.length === 0}
-                tab={
-                  <Tooltip
-                    title={
-                      pendingGroups.length === 0
-                        ? "Hiện tại không có nhóm mới nào"
-                        : null
-                    }
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <span>Nhóm chờ duyệt</span>
-                      <Badge count={pendingGroups.length} />
-                    </div>
-                  </Tooltip>
-                }
-              >
-                <div style={{ padding: "10px" }}>
-                  {paginatedPendingGroups.map((group, index) => {
-                    const updatedAt = moment(group.matchedDetails?.updatedAt);
-                    const now = moment();
-                    const hoursRemaining = 48 - now.diff(updatedAt, "hours");
-                    const daysRemaining = Math.floor(hoursRemaining / 24);
-                    const remainingHours = hoursRemaining % 24;
-                    const isTimeUp = hoursRemaining <= 0;
-
-                    return (
-                      <Card
-                        key={index}
-                        bordered={false}
-                        className={`mentor-group-card ${
-                          selectedGroup === group
-                            ? "mentor-group-card-selected"
-                            : ""
-                        }`}
-                        onClick={() => setSelectedGroup(group)}
-                        hoverable
-                      >
-                        <div>
-                          <h4 style={{ marginBottom: "8px", fontSize: "18px" }}>
-                            Lớp {group.class.className} - {group.group.name}
-                          </h4>
-                          <p style={{ marginBottom: "4px" }}>
-                            Dự án {group.project.name}
-                          </p>
-                          <p>
-                            Thể loại dự án:{" "}
-                            {group.projectCategory?.profession.map(
-                              (profession) => (
-                                <Tag
-                                  key={`profession-${profession._id}`}
-                                  color="#62B6CB"
-                                >
-                                  <Tooltip title="Lĩnh vực">
-                                    {profession.name}
-                                  </Tooltip>
-                                </Tag>
-                              )
-                            )}
-                          </p>
-                          <p
-                            className="remove-default-style-p"
-                            style={{
-                              fontWeight: "500",
-                              fontSize: "0.8rem",
-                              marginBottom: "0.4rem",
-                              color: "red",
-                            }}
-                          >
-                            {hoursRemaining > 0
-                              ? `Thời gian phản hồi: Còn ${
-                                  daysRemaining > 0
-                                    ? `${daysRemaining} ngày`
-                                    : ""
-                                } ${
-                                  remainingHours > 0
-                                    ? `${remainingHours} giờ`
-                                    : ""
-                                }`
-                              : "Hết thời gian phản hồi"}
-                          </p>
-                          {!isTimeUp && (
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "10px",
-                                justifyContent: "end",
-                              }}
-                            >
-                              <Popconfirm
-                                title={`Bạn có chắc chắn nhận ${group.group?.name} vào danh sách nhóm hỗ trợ không?`}
-                                onConfirm={() =>
-                                  handleApprove(group.matchedDetails._id)
-                                }
-                                okText="Đồng ý"
-                                cancelText="Hủy"
-                              >
-                                <ConfirmButton content={"Đồng ý"} />
-                              </Popconfirm>
-                              <CancelButton
-                                content={"Từ chối"}
-                                onClick={() => showRejectModal(group)}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-                    );
-                  })}
-                  <Pagination
-                    current={currentPagePendingGroups}
-                    pageSize={pageSize}
-                    total={pendingGroups.length}
-                    onChange={(page) => setCurrentPagePendingGroups(page)}
-                    style={{ textAlign: "center", marginTop: "20px" }}
-                    hideOnSinglePage
-                  />
-                </div>
               </Tabs.TabPane>
             </Tabs>
           ) : (
@@ -1245,7 +1362,11 @@ const GroupList = () => {
               borderRadius: "8px",
               marginTop: "1rem",
               display:
-                isDetailOpen || activeTab === "pending" ? "flex" : "none",
+                isDetailOpen ||
+                activeTab === "pending" ||
+                selectedGroup?.matchedDetails?.status === "Pending"
+                  ? "flex"
+                  : "none",
             }}
           >
             <Col xs={24} md={24} lg={8}>
@@ -1520,7 +1641,8 @@ const GroupList = () => {
               backgroundColor: "#f0f2f5",
               borderRadius: "8px",
               display: !isDetailOpen
-                ? activeTab === "pending"
+                ? activeTab === "pending" ||
+                  selectedGroup?.matchedDetails?.status === "Pending"
                   ? "none"
                   : "flex"
                 : "none",

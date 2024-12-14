@@ -49,6 +49,7 @@ const CreateMeetingDay = ({ open, close }) => {
   const [form] = Form.useForm();
   const [conflictMessage, setConflictMessage] = useState("");
   const [clientReady, setClientReady] = useState(false);
+  const [selectedClass, setSelectedClass] = useState(null); // Chọn lớp
   const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   useEffect(() => {
@@ -86,6 +87,25 @@ const CreateMeetingDay = ({ open, close }) => {
 
     fetchUserData();
   }, [config, dispatch, userId]);
+
+  const classes = useMemo(() => {
+    // Lấy danh sách lớp duy nhất từ groups
+    return [...new Set(groups.map((group) => group.class.className))].map(
+      (className) => ({
+        value: className,
+        label: className,
+      })
+    );
+  }, [groups]);
+
+  const filteredGroups = useMemo(() => {
+    // Lọc nhóm theo lớp được chọn
+    return groups.filter(
+      (group) =>
+        group.class.className === selectedClass &&
+        group.matchedDetails.status === "Accepted"
+    );
+  }, [groups, selectedClass]);
 
   const disabledDate = (current) => {
     const today = moment().startOf("day");
@@ -248,6 +268,15 @@ const CreateMeetingDay = ({ open, close }) => {
     }
   };
 
+  const handleClassChange = (value) => {
+    setSelectedClass(value);
+    setSelectedGroupId(null);
+  };
+
+  const handleGroupChange = (value) => {
+    setSelectedGroupId(value);
+  };
+
   const modalContent = (
     <div
       style={{
@@ -269,7 +298,7 @@ const CreateMeetingDay = ({ open, close }) => {
             <span
               style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
             >
-              Điền nội dung họp
+              Điền tiêu đề lịch họp
             </span>
           }
           name="meetingContent"
@@ -280,7 +309,7 @@ const CreateMeetingDay = ({ open, close }) => {
             <span
               style={{ color: "#888", fontSize: "12px", fontStyle: "italic" }}
             >
-              Chỉ được điền tối đa 40 từ
+              Chỉ được điền tối đa 200 chữ
             </span>
           }
         >
@@ -288,12 +317,13 @@ const CreateMeetingDay = ({ open, close }) => {
             placeholder="VD: Outcome 1"
             count={{
               show: true,
-              max: 40,
+              max: 200,
               strategy: (txt) => runes(txt).length,
               exceedFormatter: (txt, { max }) =>
                 runes(txt).slice(0, max).join(""),
             }}
             style={{ width: "350px" }}
+            minLength={2}
           />
         </Form.Item>
 
@@ -302,32 +332,51 @@ const CreateMeetingDay = ({ open, close }) => {
             <span
               style={{ textAlign: "right", width: "100%", fontWeight: "500" }}
             >
-              Chọn nhóm
+              Chọn lớp và nhóm
             </span>
           }
           name="selectedGroupId"
           rules={[{ required: true, message: "Vui lòng chọn nhóm" }]}
+          labelCol={{ span: 24 }}
+          wrapperCol={{ span: 24 }}
         >
           <Select
+            value={selectedClass}
+            style={{ width: "8rem", marginRight: "0.5rem" }}
+            onChange={handleClassChange}
+            placeholder="Chọn lớp"
             showSearch
-            placeholder="Vui lòng chọn nhóm"
             optionFilterProp="children"
-            onChange={(value) => setSelectedGroupId(value)}
             filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
+              option?.children.toLowerCase().includes(input.toLowerCase())
             }
-            style={{ width: "12rem" }}
           >
-            {groups
-              .filter((group) => group?.matchedDetails.status === "Accepted")
-              .map((group) => (
-                <Option
-                  key={group.matchedDetails._id}
-                  value={group.matchedDetails._id}
-                >
-                  {`${group.class.className} - ${group.group.name}`}
-                </Option>
-              ))}
+            {classes.map((classItem) => (
+              <Option key={classItem.value} value={classItem.value}>
+                {classItem.label}
+              </Option>
+            ))}
+          </Select>
+          <Select
+            value={selectedGroupId}
+            style={{ width: "8rem" }}
+            onChange={handleGroupChange}
+            placeholder="Chọn nhóm"
+            showSearch
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              option?.children.toLowerCase().includes(input.toLowerCase())
+            }
+            disabled={!selectedClass}
+          >
+            {filteredGroups.map((group) => (
+              <Option
+                key={group.matchedDetails._id}
+                value={group.matchedDetails._id}
+              >
+                {group.group.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
 
@@ -528,7 +577,7 @@ const CreateMeetingDay = ({ open, close }) => {
 
   return (
     <SmallModal
-      title="Thêm cuộc họp mới"
+      title="Thêm lịch họp mới"
       content={modalContent}
       footer={modalFooter}
       closeable={true}

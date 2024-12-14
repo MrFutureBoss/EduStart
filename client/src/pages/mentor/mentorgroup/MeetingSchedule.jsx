@@ -15,6 +15,7 @@ import { setMatchedGroups } from "../../../redux/slice/MatchedGroupSlice";
 import axios from "axios";
 import MeetingTimeDetail from "./MeetingTimeDetail";
 import CreateFastMeetingDay from "./CreateFastMeetingDay";
+import { StarFilled } from "@ant-design/icons";
 moment.locale("vi");
 
 const localizer = momentLocalizer(moment);
@@ -63,6 +64,8 @@ const CustomCalendar = ({ selectedEvent }) => {
     start: null,
     end: null,
   });
+  const [currentView, setCurrentView] = useState("week");
+
   const config = useMemo(
     () => ({
       headers: {
@@ -174,7 +177,10 @@ const CustomCalendar = ({ selectedEvent }) => {
     return text;
   };
 
-  const CustomEvent = ({ event }) => {
+  const CustomEvent = ({ event, view }) => {
+    const isCurrentEvent =
+      new Date() >= new Date(event.start) && new Date() <= new Date(event.end);
+    const isSelectedEvent = selectedEventIds.includes(event.id);
     const isPastEvent = new Date() > new Date(event.start);
     const openMeet = () => {
       window.open(
@@ -182,27 +188,10 @@ const CustomCalendar = ({ selectedEvent }) => {
         "_blank"
       );
     };
-    const isCurrentEvent =
-      new Date() >= new Date(event.start) && new Date() <= new Date(event.end);
-    const isSelectedEvent = selectedEventIds.includes(event.id);
-    return (
-      <Tooltip
-        title={
-          <div>
-            <p className="remove-default-style-p">{event.tooltip}</p>
-          </div>
-        }
-      >
+    if (view === "month") {
+      return (
         <div
           style={{
-            width: "100%",
-            height: "100%",
-            flexDirection: "column",
-            display: "flex",
-            alignItems: "start",
-            justifyContent: "space-evenly",
-            fontWeight: "600",
-            padding: "0.55rem 0.5rem",
             backgroundColor: isPastEvent
               ? "grey"
               : isSelectedEvent
@@ -212,61 +201,106 @@ const CustomCalendar = ({ selectedEvent }) => {
               : "#e4e0c2", // Cuộc họp đã qua
             cursor: "pointer",
           }}
-          onClick={() => HandleOpenSchedule(event.id, event.group)}
         >
-          <div style={{ lineHeight: "1.2rem" }}>
-            <span style={{ fontSize: "0.75rem", fontWeight: "bold" }}>
-              {event.group}
-            </span>
-            <br />
-            <span
-              style={{
-                fontSize: "0.74rem",
-                fontWeight: "400",
-                marginTop: "3px",
-              }}
-            >
-              {truncateText(event.title, 20)}
-            </span>
-          </div>
+          <span>{event.group}</span>
+        </div>
+      );
+    } else {
+      return (
+        <Tooltip
+          title={
+            <div>
+              <p className="remove-default-style-p">{event.tooltip}</p>
+            </div>
+          }
+        >
           <div
             style={{
+              width: "100%",
+              height: "100%",
+              flexDirection: "column",
               display: "flex",
-              textAlign: "center",
-              gap: "10px",
+              alignItems: "start",
+              justifyContent: "space-evenly",
+              fontWeight: "600",
+              padding: "0.55rem 0.5rem",
+              backgroundColor: isPastEvent
+                ? "grey"
+                : isSelectedEvent
+                ? "#bdd8ee" // Nhóm bạn chọn
+                : isCurrentEvent
+                ? "#C7E6C1" // Nhóm khác bạn chọn
+                : "#e4e0c2", // Cuộc họp đã qua
+              cursor: "pointer",
             }}
+            onClick={() => HandleOpenSchedule(event.id, event.group)}
           >
-            <Tag
-              color={isPastEvent ? "#a5a6a8" : "#008000"}
+            <div style={{ lineHeight: "1.2rem" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: "bold" }}>
+                {event.group}{" "}
+                <StarFilled
+                  style={{
+                    fontSize: "1rem",
+                    color: isPastEvent
+                      ? "grey"
+                      : isSelectedEvent
+                      ? "#F6E601" // Nhóm bạn chọn
+                      : isCurrentEvent
+                      ? "#C7E6C1" // Nhóm khác bạn chọn
+                      : "#e4e0c2",
+                  }}
+                />
+              </span>
+              <br />
+              <span
+                style={{
+                  fontSize: "0.74rem",
+                  fontWeight: "400",
+                  marginTop: "3px",
+                }}
+              >
+                {truncateText(event.title, 20)}
+              </span>
+            </div>
+            <div
               style={{
-                fontSize: "0.6rem",
-                fontWeight: "600",
-                color: isPastEvent ? "grey" : "#FFF",
-                borderRadius: "4px",
-                margin: "0px",
-                padding: "0px 0.2rem",
+                display: "flex",
+                textAlign: "center",
+                gap: "10px",
               }}
             >
-              {moment(event.start).format("HH:mm")} -{" "}
-              {moment(event.end).format("HH:mm")}
-            </Tag>
-            <Tag
-              color={isPastEvent ? "#a5a6a8" : "#EC9A26"}
-              style={{
-                cursor: "pointer",
-                fontSize: "0.7rem",
-                margin: "0px",
-                padding: "0px 0.2rem",
-                color: isPastEvent ? "grey" : "#FFF",
-              }}
-              onClick={() => openMeet()}
-            >
-              MeetUrl
-            </Tag>
+              <Tag
+                color={isPastEvent ? "#a5a6a8" : "#008000"}
+                style={{
+                  fontSize: "0.6rem",
+                  fontWeight: "600",
+                  color: isPastEvent ? "grey" : "#FFF",
+                  borderRadius: "4px",
+                  margin: "0px",
+                  padding: "0px 0.2rem",
+                }}
+              >
+                {moment(event.start).format("HH:mm")} -{" "}
+                {moment(event.end).format("HH:mm")}
+              </Tag>
+              <Tag
+                color={isPastEvent ? "#a5a6a8" : "#EC9A26"}
+                style={{
+                  cursor: "pointer",
+                  fontSize: "0.7rem",
+                  margin: "0px",
+                  padding: "0px 0.2rem",
+                  color: isPastEvent ? "grey" : "#FFF",
+                }}
+                onClick={() => openMeet()}
+              >
+                MeetUrl
+              </Tag>
+            </div>
           </div>
-        </div>
-      </Tooltip>
-    );
+        </Tooltip>
+      );
+    }
   };
 
   const handleSlotClick = (slot) => {
@@ -379,6 +413,72 @@ const CustomCalendar = ({ selectedEvent }) => {
     });
   };
 
+  const CustomToolbar = ({ label, onNavigate, onView, view }) => {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px 20px",
+          backgroundColor: "#f0f2f5",
+          borderRadius: "8px",
+          marginBottom: "10px",
+        }}
+      >
+        {/* Navigation Buttons */}
+        <div className="rbc-btn-group" style={{ display: "flex" }}>
+          <Tooltip title="Trước">
+            <Button onClick={() => onNavigate("PREV")} type="default">
+              {"<"} Trước
+            </Button>
+          </Tooltip>
+          <Tooltip title="Hôm nay">
+            <Button onClick={() => onNavigate("TODAY")} type="default">
+              Hôm nay
+            </Button>
+          </Tooltip>
+          <Tooltip title="Tiếp theo">
+            <Button onClick={() => onNavigate("NEXT")} type="default">
+              Sau {">"}
+            </Button>
+          </Tooltip>
+        </div>
+
+        {/* Current Date Label */}
+        <div
+          style={{
+            fontWeight: "bold",
+            fontSize: "16px",
+            color: "#333",
+          }}
+        >
+          {label}
+        </div>
+
+        {/* View Switcher */}
+        <div className="rbc-btn-group" style={{ display: "flex" }}>
+          <Tooltip title="Chế độ tuần">
+            <Button
+              type={view === "week" ? "primary" : "default"}
+              onClick={() => onView("week")}
+            >
+              Tuần
+            </Button>
+          </Tooltip>
+          <Tooltip title="Chế độ tháng">
+            <Button
+              type={view === "month" ? "primary" : "default"}
+              onClick={() => onView("month")}
+            >
+              Tháng
+            </Button>
+          </Tooltip>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       <CreateFastMeetingDay
@@ -487,6 +587,7 @@ const CustomCalendar = ({ selectedEvent }) => {
             localizer={localizer}
             events={events}
             defaultView="week"
+            onView={(view) => setCurrentView(view)}
             views={{
               week: true,
               month: true,
@@ -514,13 +615,14 @@ const CustomCalendar = ({ selectedEvent }) => {
             onSelectSlot={(slot) => handleSlotClick(slot)}
             slotPropGetter={slotPropGetter}
             components={{
-              event: CustomEvent,
+              event: (props) => <CustomEvent {...props} view={currentView} />,
               week: {
                 header: CustomDateHeader,
               },
               day: {
                 header: CustomDateHeader,
               },
+              toolbar: CustomToolbar,
             }}
             style={{
               height: "100%",

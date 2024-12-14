@@ -1,6 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import SmallModal from "../../../components/Modal/SmallModal";
-import { Button, Col, Popconfirm, Row, Select, message, Input } from "antd";
+import {
+  Button,
+  Col,
+  Popconfirm,
+  Row,
+  Select,
+  message,
+  Input,
+  TimePicker,
+} from "antd";
 import ConfirmButton from "../../../components/Button/ConfirmButton";
 import CancelButton from "../../../components/Button/CancelButton";
 import { setLoading } from "../../../redux/slice/ClassManagementSlice";
@@ -9,6 +18,7 @@ import { setMatchedGroups } from "../../../redux/slice/MatchedGroupSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import moment from "moment";
+import runes from "runes2";
 
 const { Option } = Select;
 
@@ -16,8 +26,12 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
   const jwt = localStorage.getItem("jwt");
   const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
-  const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null); // Chọn lớp
+  const [selectedGroupId, setSelectedGroupId] = useState(null); // Chọn nhóm
   const [meetingContent, setMeetingContent] = useState("");
+  const [isEditingStartTime, setIsEditingStartTime] = useState(false);
+  const [customStartTime, setCustomStartTime] = useState(null);
+  const [isValidTime, setIsValidTime] = useState(true);
 
   const groups = useSelector((state) => state.matchedGroup.data || []);
 
@@ -52,7 +66,20 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
     fetchUserData();
   }, [config, dispatch, userId]);
 
-  const handleSelectChange = (value) => {
+  useEffect(() => {
+    if (selectedSlotInfo?.start) {
+      setCustomStartTime(moment(selectedSlotInfo.start));
+    } else {
+      setCustomStartTime(null); // Reset giá trị khi không có dữ liệu
+    }
+  }, [selectedSlotInfo]);
+
+  const handleClassChange = (value) => {
+    setSelectedClass(value);
+    setSelectedGroupId(null);
+  };
+
+  const handleGroupChange = (value) => {
     setSelectedGroupId(value);
   };
 
@@ -114,57 +141,209 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
     }
   };
 
+  const toggleEditStartTime = () => {
+    setIsEditingStartTime((prev) => !prev);
+  };
+
+  const handleStartTimeChange = (time) => {
+    if (!time) {
+      message.error("Vui lòng chọn thời gian hợp lệ.");
+      return;
+    }
+
+    if (!selectedSlotInfo?.start) {
+      message.error("Thông tin thời gian không hợp lệ.");
+      return;
+    }
+
+    const selectedDay = moment(selectedSlotInfo.start); // Ngày từ `selectedSlotInfo`
+    const now = moment(); // Thời gian hiện tại
+
+    if (selectedDay.isSame(now, "day")) {
+      // Ngày hiện tại
+      if (time.isBefore(now)) {
+        message.error("Không thể chọn thời gian trong quá khứ."); // Giờ quá khứ
+        return;
+      }
+    }
+
+    setCustomStartTime(time); // Nếu hợp lệ, cập nhật thời gian
+  };
+
+  const disabledHours = () => {
+    const minHour = 7;
+    const maxHour = 21;
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      if (i < minHour || i > maxHour) {
+        hours.push(i);
+      }
+    }
+    return hours;
+  };
+
+  const classes = useMemo(() => {
+    // Lấy danh sách lớp duy nhất từ groups
+    return [...new Set(groups.map((group) => group.class.className))].map(
+      (className) => ({
+        value: className,
+        label: className,
+      })
+    );
+  }, [groups]);
+
+  const filteredGroups = useMemo(() => {
+    // Lọc nhóm theo lớp được chọn
+    return groups.filter(
+      (group) =>
+        group.class.className === selectedClass &&
+        group.matchedDetails.status === "Accepted"
+    );
+  }, [groups, selectedClass]);
+
   const modalContent = (
-    <Row>
-      <Col span={24}>
-        <div style={{ marginBottom: "1rem", width: "fit-content" }}>
-          <strong>Chọn nhóm: </strong>
-          <Select
-            value={selectedGroupId}
-            style={{ width: "12rem" }}
-            onChange={handleSelectChange}
-            placeholder="Vui lòng chọn nhóm"
-          >
-            {groups
-              .filter((group) => group?.matchedDetails.status === "Accepted")
-              .map((group) => (
+    <Row
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "200px",
+      }}
+    >
+      <Col
+        span={24}
+        style={{
+          maxWidth: "600px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "left",
+        }}
+      >
+        <div>
+          <div style={{ marginBottom: "1rem", width: "fit-content" }}>
+            <strong>Chọn lớp và nhóm: </strong>
+            <Select
+              value={selectedClass}
+              style={{ width: "8rem", marginRight: "0.5rem" }}
+              onChange={handleClassChange}
+              placeholder="Chọn lớp"
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option?.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {classes.map((classItem) => (
+                <Option key={classItem.value} value={classItem.value}>
+                  {classItem.label}
+                </Option>
+              ))}
+            </Select>
+            <Select
+              value={selectedGroupId}
+              style={{ width: "8rem" }}
+              onChange={handleGroupChange}
+              placeholder="Chọn nhóm"
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option?.children.toLowerCase().includes(input.toLowerCase())
+              }
+              disabled={!selectedClass}
+            >
+              {filteredGroups.map((group) => (
                 <Option
                   key={group.matchedDetails._id}
                   value={group.matchedDetails._id}
                 >
-                  {`${group.class.className} - ${group.group.name}`}
+                  {group.group.name}
                 </Option>
               ))}
-          </Select>
-        </div>
-        <div style={{ marginBottom: "1rem", width: "fit-content" }}>
-          <strong>Nội dung cuộc họp: </strong>
-          <Input
-            value={meetingContent}
-            onChange={handleContentChange}
-            placeholder="VD: Cuộc họp dự án"
-            style={{ width: "15rem" }}
-          />
-        </div>
-        <div style={{ width: "fit-content", marginTop: "1rem" }}>
-          {selectedSlotInfo && (
-            <div>
-              <p>
-                <strong>Ngày:</strong>{" "}
-                {moment(selectedSlotInfo.start).format("dddd, DD-MM-YYYY")}
-              </p>
-              <p>
-                <strong>Giờ Bắt Đầu:</strong>{" "}
-                {moment(selectedSlotInfo.start).format("HH:mm")}
-              </p>
-              <p>
-                <strong>Giờ Kết Thúc:</strong>{" "}
-                {moment(selectedSlotInfo.start)
-                  .add(2.5, "hours")
-                  .format("HH:mm")}
-              </p>
-            </div>
-          )}
+            </Select>
+          </div>
+          <div style={{ marginBottom: "1rem", width: "fit-content" }}>
+            <strong>Nội dung cuộc họp: </strong>
+            <Input
+              value={meetingContent}
+              onChange={handleContentChange}
+              placeholder="VD: Cuộc họp dự án"
+              style={{ width: "15rem" }}
+              count={{
+                show: true,
+                max: 200,
+                strategy: (txt) => runes(txt).length,
+                exceedFormatter: (txt, { max }) =>
+                  runes(txt).slice(0, max).join(""),
+              }}
+              minLength={2}
+            />
+          </div>
+          <div style={{ width: "fit-content", marginTop: "1rem" }}>
+            {selectedSlotInfo && (
+              <div>
+                <p>
+                  <strong>Ngày:</strong>{" "}
+                  {moment(selectedSlotInfo.start).format("dddd, DD-MM-YYYY")}
+                </p>
+                <p>
+                  <strong>Giờ Bắt Đầu:</strong>{" "}
+                  {!isEditingStartTime ? (
+                    <span>
+                      {customStartTime
+                        ? moment(customStartTime).format("HH:mm")
+                        : moment(selectedSlotInfo.start).format("HH:mm")}
+                      <Button
+                        onClick={toggleEditStartTime}
+                        type="link"
+                        style={{ padding: 0, marginLeft: 8 }}
+                      >
+                        Chỉnh sửa
+                      </Button>
+                    </span>
+                  ) : (
+                    <span>
+                      <TimePicker
+                        value={
+                          customStartTime || moment(selectedSlotInfo.start)
+                        }
+                        onChange={handleStartTimeChange}
+                        format="HH:mm"
+                        style={{ width: "8rem" }}
+                        placeholder="Chọn giờ"
+                        disabledHours={disabledHours}
+                      />
+                      <Button
+                        onClick={() => {
+                          setCustomStartTime(moment(selectedSlotInfo.start));
+                          setIsEditingStartTime(false);
+                        }}
+                        type="link"
+                        style={{
+                          marginLeft: 8,
+                        }}
+                      >
+                        Quay lại
+                      </Button>
+                    </span>
+                  )}
+                </p>
+                <p>
+                  <strong>Giờ Kết Thúc:</strong>{" "}
+                  <span>
+                    {customStartTime
+                      ? moment(customStartTime)
+                          .add(2.5, "hours")
+                          .format("HH:mm")
+                      : moment(selectedSlotInfo.start)
+                          .add(2.5, "hours")
+                          .format("HH:mm")}
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </Col>
     </Row>
@@ -181,8 +360,9 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
           onConfirm={handleMakeNewEvent}
           okText="Đồng ý"
           cancelText="Hủy"
+          disabled={!isValidTime} // Vô hiệu hóa nếu thời gian không hợp lệ
         >
-          <ConfirmButton content="Thêm vào" />
+          <ConfirmButton content="Thêm vào" disabled={!isValidTime} />
         </Popconfirm>
         <CancelButton content="Hủy" onClick={close} />
       </Col>
