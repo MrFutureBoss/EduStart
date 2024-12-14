@@ -9,6 +9,7 @@ import Semester from "../../models/semesterModel.js";
 import CreateGroupSetting from "../../models/CreateGroupSettingModel.js";
 import classDAO from "./classRepositories.js";
 import notificationDAO from "../mentorDAO/notificationDAO/index.js";
+import mongoose from "mongoose";
 const getStudentCountByClassId = async (classId, semesterId) => {
   try {
     const count = await User.countDocuments({
@@ -294,94 +295,104 @@ const findProjectsByTeacherAndClass = async (teacherId, classId) => {
   }
 };
 
-const findTeacherClassSummary = async (teacherId) => {
-  const classes = await Class.find({ teacherId });
+const findTeacherClassSummary = async (teacherId, semesterId) => {
+  try {
+    if (!mongoose.isValidObjectId(semesterId)) {
+      throw new Error("Invalid semesterId format");
+    }
 
-  const classSummaries = await Promise.all(
-    classes.map(async (classItem) => {
-      const groups = await Group.find({ classId: classItem._id });
+    // Find classes by teacherId and semesterId
+    const classes = await Class.find({ teacherId, semesterId });
 
-      if (groups.length === 0) {
+    const classSummaries = await Promise.all(
+      classes.map(async (classItem) => {
+        const groups = await Group.find({ classId: classItem._id });
+
+        if (groups.length === 0) {
+          return {
+            classId: classItem._id,
+            className: classItem.className,
+            matchedCount: 0,
+            unmatchedCount: 0,
+            isFullyMatched: false,
+            groupDetails: [],
+            isEmpty: true,
+            groupsWithoutProject: [], // Always ensure it's an array
+          };
+        }
+
+        const matchedGroupData = await Matched.find({
+          groupId: { $in: groups.map((group) => group._id) },
+        });
+
+        const matchedGroupIds = matchedGroupData.map((matched) =>
+          matched.groupId.toString()
+        );
+        const matchedCount = groups.filter((group) =>
+          matchedGroupIds.includes(group._id.toString())
+        ).length;
+        const unmatchedCount = groups.length - matchedCount;
+        const isFullyMatched = unmatchedCount === 0;
+
+        let groupsWithoutProject = [];
+
+        const groupDetails = await Promise.all(
+          groups.map(async (group) => {
+            const isProjectUpdated = !!group.projectId;
+
+            let projectDetails = null;
+            if (isProjectUpdated) {
+              const project = await Project.findById(group.projectId);
+              if (project) {
+                projectDetails = {
+                  projectId: project._id,
+                  projectName: project.name,
+                  projectStatus: project.status,
+                };
+              }
+            } else {
+              groupsWithoutProject.push({
+                groupId: group._id,
+                groupName: group.name,
+              });
+            }
+
+            const matchedData = matchedGroupData.find(
+              (matched) => matched.groupId.toString() === group._id.toString()
+            );
+            const isMatched = !!matchedData;
+            const matchStatus = isMatched ? matchedData.status : null;
+
+            return {
+              groupId: group._id,
+              groupName: group.name,
+              isMatched,
+              matchStatus, // Group match status
+              isProjectUpdated,
+              projectDetails,
+            };
+          })
+        );
+
         return {
           classId: classItem._id,
           className: classItem.className,
-          matchedCount: 0,
-          unmatchedCount: 0,
-          isFullyMatched: false,
-          groupDetails: [],
-          isEmpty: true,
-          groupsWithoutProject: [], // Đảm bảo luôn là mảng
+          matchedCount,
+          unmatchedCount,
+          isFullyMatched,
+          groupDetails,
+          isEmpty: false,
+          groupsWithoutProject,
         };
-      }
+      })
+    );
 
-      const matchedGroupData = await Matched.find({
-        groupId: { $in: groups.map((group) => group._id) },
-      });
-
-      const matchedGroupIds = matchedGroupData.map((matched) =>
-        matched.groupId.toString()
-      );
-      const matchedCount = groups.filter((group) =>
-        matchedGroupIds.includes(group._id.toString())
-      ).length;
-      const unmatchedCount = groups.length - matchedCount;
-      const isFullyMatched = unmatchedCount === 0;
-
-      let groupsWithoutProject = [];
-
-      const groupDetails = await Promise.all(
-        groups.map(async (group) => {
-          const isProjectUpdated = !!group.projectId;
-
-          let projectDetails = null;
-          if (isProjectUpdated) {
-            const project = await Project.findById(group.projectId);
-            if (project) {
-              projectDetails = {
-                projectId: project._id,
-                projectName: project.name,
-                projectStatus: project.status,
-              };
-            }
-          } else {
-            groupsWithoutProject.push({
-              groupId: group._id,
-              groupName: group.name,
-            });
-          }
-
-          const matchedData = matchedGroupData.find(
-            (matched) => matched.groupId.toString() === group._id.toString()
-          );
-          const isMatched = !!matchedData;
-          const matchStatus = isMatched ? matchedData.status : null;
-
-          return {
-            groupId: group._id,
-            groupName: group.name,
-            isMatched,
-            matchStatus, // Trạng thái của nhóm được ghép
-            isProjectUpdated,
-            projectDetails,
-          };
-        })
-      );
-
-      return {
-        classId: classItem._id,
-        className: classItem.className,
-        matchedCount,
-        unmatchedCount,
-        isFullyMatched,
-        groupDetails,
-        isEmpty: false,
-        groupsWithoutProject,
-      };
-    })
-  );
-
-  // Đảm bảo luôn trả về đối tượng có `classSummaries`
-  return { classSummaries };
+    // Ensure the result always includes `classSummaries`
+    return { classSummaries };
+  } catch (error) {
+    console.error("Error fetching teacher class summary:", error);
+    throw new Error(`Failed to fetch class summary: ${error.message}`);
+  }
 };
 
 const getSemestersAndClassesByTeacherId = async (teacherId) => {

@@ -1,10 +1,24 @@
 // src/components/ProjectCardMain/MentorDropZone.jsx
 import React, { useEffect, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import { Tag, Tooltip, Badge, Avatar, Progress, Button, message } from "antd";
-import { CheckOutlined } from "@ant-design/icons";
+import {
+  Tag,
+  Tooltip,
+  Badge,
+  Avatar,
+  Progress,
+  Button,
+  message,
+  Modal,
+} from "antd";
+import { CheckOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import { assignMentorToProject } from "../../../../api";
+import { useDispatch } from "react-redux";
+import {
+  setIsAssig,
+  setReloadRequired,
+} from "../../../../redux/slice/MatchingSlice";
 
 const MentorDropZone = ({
   projectId,
@@ -14,50 +28,94 @@ const MentorDropZone = ({
   activeId,
   onMentorAssigned,
   teacherId,
+  selectedClassId,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: `project-${projectId}`,
   });
-  console.log("mentors,", mentors);
-
+  const dispatch = useDispatch();
   const [draggedMentor, setDraggedMentor] = useState(null);
-  console.log("draggedMentor", draggedMentor);
+  console.log("assignedMentors", assignedMentors);
+
+  // State cho modal xác nhận
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  // Helper function to get mentorId as string
+  const getMentorId = (mentor) =>
+    String(mentor.mentorId?._id || mentor.mentorId);
 
   useEffect(() => {
     if (isOver && activeId) {
+      // Trích xuất mentorId từ activeId
       const mentorId = activeId.split("-").pop();
+
+      // Kiểm tra mentor trong cả hai danh sách
+      const isTeacherPreferred = mentors?.teacherPreferredMentors?.some(
+        (m) => getMentorId(m) === mentorId
+      );
+      const isPreferredProject = mentors?.mentorPreferred?.some(
+        (m) => getMentorId(m) === mentorId
+      );
+
+      // Tìm mentor trong danh sách
       const mentor =
-        mentors?.mentorPreferred?.find((m) => m.mentorId === mentorId) ||
+        mentors?.mentorPreferred?.find((m) => getMentorId(m) === mentorId) ||
         mentors?.teacherPreferredMentors?.find(
-          (m) => m.mentorId === mentorId
+          (m) => getMentorId(m) === mentorId
         ) ||
-        mentors?.matchingMentors?.find((m) => m.mentorId === mentorId);
+        mentors?.matchingMentors?.find((m) => getMentorId(m) === mentorId);
+
       if (mentor) {
-        const isTeacherPreferred = mentors?.teacherPreferredMentors?.some(
-          (teacherMentor) => teacherMentor.mentorId === mentorId
-        );
-        setDraggedMentor({ ...mentor, isTeacherPreferred });
+        setDraggedMentor({ ...mentor, isTeacherPreferred, isPreferredProject });
       }
     } else {
       setDraggedMentor(null);
     }
   }, [isOver, activeId, mentors]);
 
+  // Hàm để hiển thị modal xác nhận
+  const showConfirmModal = () => {
+    if (assignedMentors.length === 0) {
+      message.warning("Không có mentor nào được gán để lưu.");
+      return;
+    }
+    setIsModalVisible(true);
+  };
+
+  // Hàm xử lý khi người dùng xác nhận lưu mentor
   const handleConfirmMentor = () => {
+    setConfirmLoading(true);
     const mentor = assignedMentors[0];
     if (mentor) {
       assignMentorToProject(groupId, mentor.mentorId, teacherId)
         .then(() => {
           message.success("Gán mentor thành công!");
-          if (onMentorAssigned) {
-            onMentorAssigned();
-          }
+          // Đặt reloadRequired cho lớp này là true
+          dispatch(
+            setReloadRequired({ classId: selectedClassId, required: true })
+          );
+          // Gọi hàm callback để load lại dữ liệu
+          onMentorAssigned();
+          // Đóng modal
+          setIsModalVisible(false);
         })
         .catch((error) => {
           console.error("Lỗi khi gán mentor:", error);
           message.error("Gán mentor thất bại.");
+        })
+        .finally(() => {
+          setConfirmLoading(false);
         });
+    } else {
+      setConfirmLoading(false);
+      setIsModalVisible(false);
     }
+  };
+
+  // Hàm xử lý khi người dùng hủy bỏ modal
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   const style = {
@@ -105,7 +163,7 @@ const MentorDropZone = ({
               }}
             >
               <div style={{ position: "absolute", top: 0, right: 0 }}>
-                {draggedMentor.isPreferredProject && (
+                {draggedMentor.isPreferredGroup && (
                   <Badge
                     count="C"
                     style={{
@@ -128,7 +186,7 @@ const MentorDropZone = ({
                       color: "black",
                       transform: "scale(0.7)",
                       transformOrigin: "center",
-                      zIndex: 10,
+                      zIndex: 1000,
                     }}
                     offset={[-29, -22]}
                   />
@@ -190,7 +248,7 @@ const MentorDropZone = ({
                     ? mentor.matchedSpecialties.length
                     : "0"
                 }
-                offset={[-11, -12]}
+                offset={[-9, -12]}
                 style={{
                   backgroundColor: "rgb(168, 220, 209)",
                   color: "black",
@@ -199,7 +257,7 @@ const MentorDropZone = ({
                 }}
               >
                 <div style={{ position: "absolute", top: 0, right: 0 }}>
-                  {mentor.isPreferredProject && (
+                  {mentor.isPreferredGroup && (
                     <Badge
                       count="C"
                       style={{
@@ -210,7 +268,7 @@ const MentorDropZone = ({
                         transformOrigin: "center",
                         zIndex: 10,
                       }}
-                      offset={[7, 1]}
+                      offset={[14, -13]}
                     />
                   )}
                 </div>
@@ -268,19 +326,43 @@ const MentorDropZone = ({
 
       {assignedMentors.length > 0 && (
         <Tooltip title="Lưu gợi ý">
-          <Button
-            className="button-select-mentor-not-matched"
-            style={{
-              marginLeft: "91%",
-              width: 25,
-              height: 25,
-              borderRadius: "30px",
-            }}
-            icon={<CheckOutlined />}
-            onClick={handleConfirmMentor}
-          ></Button>
+          <div style={{ cursor: "pointer" }} onClick={showConfirmModal}>
+            <Button
+              className="button-select-mentor-not-matched"
+              style={{
+                marginLeft: "91%",
+                width: 25,
+                height: 25,
+                borderRadius: "30px",
+              }}
+              icon={<CheckOutlined />}
+            ></Button>
+            <strong style={{ position: "relative", left: 237, bottom: 24 }}>
+              Lưu Mentor
+            </strong>
+          </div>
         </Tooltip>
       )}
+
+      {/* Modal xác nhận lưu mentor */}
+      <Modal
+        title={
+          <>
+            <ExclamationCircleOutlined
+              style={{ color: "orange", marginRight: 10 }}
+            />
+            <span style={{ color: "orange" }}>Xác Nhận Lưu Mentor</span>
+          </>
+        }
+        visible={isModalVisible}
+        onOk={handleConfirmMentor}
+        onCancel={handleCancel}
+        confirmLoading={confirmLoading}
+        okText="Đồng ý"
+        cancelText="Hủy"
+      >
+        <p>Bạn có chắc chắn muốn lưu Mentor đã được gán cho dự án này không?</p>
+      </Modal>
     </div>
   );
 };
@@ -293,6 +375,7 @@ MentorDropZone.propTypes = {
   activeId: PropTypes.string,
   onMentorAssigned: PropTypes.func,
   teacherId: PropTypes.string.isRequired,
+  selectedClassId: PropTypes.string.isRequired, // Thêm prop này
 };
 
 MentorDropZone.defaultProps = {

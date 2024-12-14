@@ -1,8 +1,15 @@
 // src/components/layout/AppHeader.js
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Badge, Layout, Menu, message, Tooltip } from "antd";
+import { Badge, Layout, Menu, message, Select, Spin, Tooltip } from "antd";
 import { FaUserCircle } from "react-icons/fa";
-import { setLoading } from "../../redux/slice/semesterSlide";
+import {
+  setCurrentSemester,
+  setIsChangeSemester,
+  setLoading,
+  setSemester,
+  setSemesters,
+  setSid,
+} from "../../redux/slice/semesterSlide";
 import { setTeacherData } from "../../redux/slice/ClassManagementSlice";
 import axios from "axios";
 import { BASE_URL } from "../../utilities/initalValue";
@@ -22,6 +29,7 @@ import { getAllNotification } from "../../api";
 const socket = io(BASE_URL);
 
 const { SubMenu } = Menu;
+const { Option } = Select;
 
 const TeacherHeader = ({ collapsed, toggleCollapse }) => {
   const navigate = useNavigate();
@@ -32,10 +40,13 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
   const notificationData = useSelector(
     (state) => state.notification.notificationData
   );
+  const { semesters, semester, isChangeSemester, currentSemester, sid } =
+    useSelector((state) => state.semester);
   const { userLogin } = useSelector((state) => state.user);
   const dropdownRef = useRef(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false); // State to open/close notification dropdown
-
+  const [isLoadingSemesters, setIsLoadingSemesters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const config = useMemo(
     () => ({
       headers: {
@@ -45,6 +56,22 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
     }),
     [jwt]
   );
+  console.log(sid);
+
+  const fetchCurrentSemester = async () => {
+    try {
+      dispatch(setLoading(true));
+      const response = await axios.get(`${BASE_URL}/semester/current`, config);
+      const semester = response.data;
+      dispatch(setSid(semester._id));
+      dispatch(setCurrentSemester(semester));
+      dispatch(setSemester(semester));
+    } catch (error) {
+      console.error("Error fetching current semester:", error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -61,7 +88,7 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
         dispatch(setLoading(false));
       }
     };
-
+    fetchCurrentSemester();
     fetchUserData();
   }, [userId, config, dispatch]);
 
@@ -163,10 +190,146 @@ const TeacherHeader = ({ collapsed, toggleCollapse }) => {
   const clickLogo = () => {
     navigate("/teacher/dashboard");
   };
+
+  // Chọn kỳ học
+  const refreshSemesters = async () => {
+    try {
+      setIsLoadingSemesters(true);
+      const semestersResponse = await axios.get(
+        `${BASE_URL}/semester/all`,
+        config
+      );
+      dispatch(setSemesters(semestersResponse.data));
+    } catch (error) {
+      message.error("Lỗi khi tải danh sách kỳ học.");
+      console.error("Error fetching semesters:", error);
+    } finally {
+      setIsLoadingSemesters(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!semesters || semesters.length === 0) {
+      refreshSemesters();
+    }
+  }, []);
+
+  const handleSemesterChange = async (semesterId) => {
+    const selectedSemester = semesters.find(
+      (semester) => semester._id === semesterId
+    );
+
+    if (!selectedSemester) {
+      message.error("Kỳ học không tồn tại.");
+      return;
+    }
+    try {
+      dispatch(setSid(semesterId)); // Cập nhật ID kỳ học
+      dispatch(setIsChangeSemester(true));
+    } catch (error) {
+      message.error("Lỗi khi tải thông tin kỳ học.");
+      console.log(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (semesters && semesters.length > 0) {
+      // Chỉ auto chọn kỳ nếu chưa có sid và không có sự thay đổi kỳ do người dùng
+      if (!sid && !isChangeSemester) {
+        if (currentSemester && currentSemester._id) {
+          handleSemesterChange(currentSemester._id); // Chọn kỳ hiện tại
+        } else {
+          handleSemesterChange(semesters[0]._id); // Chọn kỳ đầu tiên
+        }
+      }
+    }
+  }, [semesters, currentSemester, sid, isChangeSemester]);
+
+  const filteredSemesters = useMemo(() => {
+    if (!searchTerm) {
+      return semesters;
+    }
+    return semesters.filter((semester) =>
+      semester.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [semesters, searchTerm]);
+
   return (
     <div className="navbar">
       <div onClick={clickLogo} className="logo">
         <p className="logo-title">EduStart</p>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          position: "absolute",
+          left: 269,
+          zIndex: 100,
+        }}
+      >
+        <span style={{ fontWeight: "500" }}>Kỳ học:</span>
+        <Select
+          value={sid} // Sử dụng sid để phản ánh kỳ học được chọn
+          onChange={handleSemesterChange}
+          style={{ minWidth: "135px" }}
+          loading={isLoadingSemesters}
+          placeholder="Chọn kỳ học"
+          showSearch
+          onSearch={(value) => setSearchTerm(value)}
+          filterOption={false} // Sử dụng logic lọc của riêng mình
+          dropdownStyle={{ maxHeight: 135, overflow: "auto" }}
+        >
+          {filteredSemesters.map((semester) => {
+            // Xác định trạng thái của kỳ học
+            const statusColor =
+              semester.status === "Ongoing"
+                ? "dodgerblue" // Xanh biển
+                : semester.status === "Upcoming"
+                ? "orange" // Cam
+                : "gray"; // Xám
+
+            // Kiểm tra xem có phải kỳ hiện tại hay không
+            const isCurrentSemester = semester._id === currentSemester?._id;
+
+            return (
+              <Option key={semester._id} value={semester._id}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  {/* Badge tròn nhỏ */}
+                  <span
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: statusColor,
+                      display: "inline-block",
+                      marginRight: "8px",
+                    }}
+                  />
+                  {/* Tên kỳ học */}
+                  <span>
+                    {semester.name}{" "}
+                    {isCurrentSemester && (
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          color: "dodgerblue",
+                          marginLeft: "8px",
+                        }}
+                      >
+                        (Kỳ hiện tại)
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </Option>
+            );
+          })}
+        </Select>
+
+        {isLoadingSemesters && <Spin size="small" />}
       </div>
       <Menu mode="horizontal" className="menu" style={{ height: "100%" }}>
         <SubMenu

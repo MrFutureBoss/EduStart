@@ -1,11 +1,11 @@
 /* src/components/DetailedSelection.css */
 
 .detailed-selection-container {
-  padding: 20px;
+  padding: 5px;
 }
 
 .back-button {
-  margin-bottom: 20px;
+  margin-top: -10px;
 }
 
 .main-row {

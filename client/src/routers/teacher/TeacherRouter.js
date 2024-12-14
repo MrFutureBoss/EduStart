@@ -33,7 +33,7 @@ const TeacherRouter = () => {
       <Route path="class/detail/:className" element={<ClassDetail />} />
       <Route path="class" element={<ClassManagement />} />
       <Route path="professionmanagement" element={<ProfessionManagement />} />
-      <Route path="dashboard" element={<TeacherDashboard/>} />
+      <Route path="dashboard" element={<TeacherDashboard />} />
       <Route path="dashboard-choose-mentor" element={<ChooseMentor />} />
       <Route path="choose-mentor" element={<MainStep />} />
       <Route
@@ -46,7 +46,7 @@ const TeacherRouter = () => {
       <Route path="summary-class/temp-matching" element={<ProjectCardMain />} />
       <Route path="summary-class" element={<MatchingMentorIndex />} />
       <Route
-        path="temp-matching/detailed-selection/:projectId"
+        path="temp-matching/select-mentor"
         element={<DetailedSelection />}
       />
       <Route

@@ -3,17 +3,12 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   selectedClassId: null,
-  projectData: [],
-  mentorsData: {},
-  assignedMentorsMap: {},
   loadingProjects: false,
   loadingMentors: false,
-  showSuggestions: false,
   activeId: null,
-  pendingAcceptedGroups: [],
-  declinedGroups: [],
-  matchedGroups: [],
-  classMentorsData: {},
+  classData: {},
+  isAssig: false,
+  reloadRequired: {},
 };
 
 const matchingSlice = createSlice({
@@ -23,14 +18,13 @@ const matchingSlice = createSlice({
     setSelectedClassId(state, action) {
       state.selectedClassId = action.payload;
     },
-    setProjectData(state, action) {
-      state.projectData = action.payload;
+    setReloadRequired(state, action) {
+      const { classId, required } = action.payload;
+      state.reloadRequired[classId] = required;
     },
-    setMentorsData(state, action) {
-      state.mentorsData = action.payload;
-    },
-    setAssignedMentorsMap(state, action) {
-      state.assignedMentorsMap = action.payload;
+    clearReloadRequired(state, action) {
+      const classId = action.payload;
+      delete state.reloadRequired[classId];
     },
     setLoadingProjects(state, action) {
       state.loadingProjects = action.payload;
@@ -38,101 +32,167 @@ const matchingSlice = createSlice({
     setLoadingMentors(state, action) {
       state.loadingMentors = action.payload;
     },
-    setShowSuggestions(state, action) {
-      state.showSuggestions = action.payload;
-    },
     setActiveId(state, action) {
       state.activeId = action.payload;
     },
+    setIsAssig(state, action) {
+      state.isAssig = action.payload;
+    },
+    // Project Data
+    setProjectData(state, action) {
+      const { classId, projectData } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].projectData = projectData;
+    },
+    // Mentors Data
+    setMentorsData(state, action) {
+      const { classId, mentorsData } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].mentorsData = mentorsData;
+    },
+    // Assigned Mentors Map
+    setAssignedMentorsMap(state, action) {
+      const { classId, assignedMentorsMap } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].assignedMentorsMap = assignedMentorsMap;
+    },
+    // Show Suggestions
+    setShowSuggestions(state, action) {
+      const { classId, showSuggestions } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].showSuggestions = showSuggestions;
+    },
+    // Pending Accepted Groups
     setPendingAcceptedGroups(state, action) {
-      state.pendingAcceptedGroups = action.payload;
+      const { classId, pendingAcceptedGroups } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].pendingAcceptedGroups = pendingAcceptedGroups;
     },
-    setMatchedGroups(state, action) {
-      state.matchedGroups = action.payload;
-    },
+    // Declined Groups
     setDeclinedGroups(state, action) {
-      state.declinedGroups = action.payload;
+      const { classId, declinedGroups } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].declinedGroups = declinedGroups;
     },
+    // Matched Groups
+    setMatchedGroups(state, action) {
+      const { classId, matchedGroups } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].matchedGroups = matchedGroups;
+    },
+    // Update Assigned Mentors Map for a Specific Project
     updateAssignedMentorsMap(state, action) {
-      const { projectId, mentors } = action.payload;
-      state.assignedMentorsMap[projectId] = mentors;
+      const { classId, projectId, mentors } = action.payload;
+      if (!state.classData[classId]) {
+        state.classData[classId] = {};
+      }
+      state.classData[classId].assignedMentorsMap[projectId] = mentors;
     },
+    // Remove Mentor from Project
+    removeMentorFromProject(state, action) {
+      const { classId, projectId } = action.payload;
+      if (
+        state.classData[classId] &&
+        state.classData[classId].assignedMentorsMap
+      ) {
+        delete state.classData[classId].assignedMentorsMap[projectId];
+      }
+
+      // Update projectData to reset isMatched for this project
+      if (state.classData[classId] && state.classData[classId].projectData) {
+        const project = state.classData[classId].projectData.find(
+          (proj) => proj._id === projectId
+        );
+        if (project) {
+          project.isMatched = false;
+        }
+      }
+
+      // Remove the group from pendingAcceptedGroups and declinedGroups if present
+      if (
+        state.classData[classId] &&
+        state.classData[classId].pendingAcceptedGroups
+      ) {
+        state.classData[classId].pendingAcceptedGroups = state.classData[
+          classId
+        ].pendingAcceptedGroups.filter(
+          ({ group }) => group.projectId._id !== projectId
+        );
+      }
+
+      if (state.classData[classId] && state.classData[classId].declinedGroups) {
+        state.classData[classId].declinedGroups = state.classData[
+          classId
+        ].declinedGroups.filter(
+          ({ group }) => group.projectId._id !== projectId
+        );
+      }
+    },
+    // Set All Class Mentors Data at Once (for initial fetching)
     setClassMentorsData(state, action) {
-      // Add or update mentors data for a specific class
-      const { classId, mentorsData, assignedMentorsMap, showSuggestions } =
-        action.payload;
-      state.classMentorsData[classId] = {
+      const {
+        classId,
+        projectData,
         mentorsData,
         assignedMentorsMap,
         showSuggestions,
+        pendingAcceptedGroups,
+        declinedGroups,
+        matchedGroups,
+      } = action.payload;
+
+      state.classData[classId] = {
+        projectData,
+        mentorsData,
+        assignedMentorsMap,
+        showSuggestions,
+        pendingAcceptedGroups,
+        declinedGroups,
+        matchedGroups,
       };
     },
-    restoreClassMentorsData(state, action) {
-      // Restore mentors data for a specific class
-      const classId = action.payload;
-      const savedData = state.classMentorsData[classId];
-      if (savedData) {
-        state.mentorsData = savedData.mentorsData;
-        state.assignedMentorsMap = savedData.assignedMentorsMap;
-        state.showSuggestions = savedData.showSuggestions;
-      } else {
-        // Clear data if no saved data for the class
-        state.mentorsData = {};
-        state.assignedMentorsMap = {};
-        state.showSuggestions = false;
-      }
-    },
-    removeMentorFromProject(state, action) {
-      const { projectId } = action.payload;
-      delete state.assignedMentorsMap[projectId];
-
-      // Cập nhật projectData để đặt lại isMatched cho dự án này
-      const projectIndex = state.projectData.findIndex(
-        (project) => project._id === projectId
-      );
-      if (projectIndex !== -1) {
-        state.projectData[projectIndex].isMatched = false;
-      }
-
-      // Loại bỏ nhóm khỏi pendingAcceptedGroups và declinedGroups nếu có
-      state.pendingAcceptedGroups = state.pendingAcceptedGroups.filter(
-        ({ group }) => group.projectId._id !== projectId
-      );
-      state.declinedGroups = state.declinedGroups.filter(
-        ({ group }) => group.projectId._id !== projectId
-      );
-
-      // Cập nhật classMentorsData
-      const classId = state.selectedClassId;
-      if (state.classMentorsData[classId]) {
-        const { mentorsData, assignedMentorsMap, showSuggestions } =
-          state.classMentorsData[classId];
-        delete assignedMentorsMap[projectId];
-        state.classMentorsData[classId] = {
-          mentorsData,
-          assignedMentorsMap,
-          showSuggestions,
-        };
-      }
+    resetClassData(state) {
+      state.classData = {};
+      state.selectedClassId = null;
+      state.loadingProjects = false;
+      state.activeId = null;
+      state.isAssig = false;
     },
   },
 });
 
 export const {
   setSelectedClassId,
+  setLoadingProjects,
+  setLoadingMentors,
+  setActiveId,
   setProjectData,
   setMentorsData,
   setAssignedMentorsMap,
-  setLoadingProjects,
-  setLoadingMentors,
   setShowSuggestions,
-  setActiveId,
-  updateAssignedMentorsMap,
   setPendingAcceptedGroups,
   setDeclinedGroups,
   setMatchedGroups,
-  setClassMentorsData,
+  updateAssignedMentorsMap,
   removeMentorFromProject,
+  setClassMentorsData,
+  setReloadRequired,
+  clearReloadRequired,
+  setIsAssig,
+  resetClassData,
 } = matchingSlice.actions;
-
 export default matchingSlice.reducer;

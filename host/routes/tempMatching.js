@@ -8,6 +8,10 @@ tempMatchingRouter.get(
   tempMatchingController.getClassSuggestions
 );
 tempMatchingRouter.post(
+  "/recommend-group",
+  tempMatchingController.recommendMentorsForGroup
+);
+tempMatchingRouter.post(
   "/recommend",
   tempMatchingController.recommendMentorsForClassGroups
 );

@@ -6,8 +6,6 @@ import projectDAO from "../../repositories/projectDAO/index.js";
 const createMatchedHandler = async (req, res) => {
   try {
     const { groupId, mentorId, status, teacherId } = req.body;
-    console.log(teacherId);
-    console.log(groupId);
 
     // Kiểm tra các trường bắt buộc
     if (!groupId || !mentorId) {
@@ -162,8 +160,7 @@ const createNewTimeEventsHandler = async (req, res) => {
   } catch (error) {
     console.error("Error in createNewTimeEventsHandler:", error.message);
 
-    const statusCode =
-      error.message.includes("Invalid Matched ID") ? 400 : 500;
+    const statusCode = error.message.includes("Invalid Matched ID") ? 400 : 500;
 
     res.status(statusCode).json({ error: error.message });
   }
@@ -255,11 +252,12 @@ const deleteTimeEventHandler = async (req, res) => {
 };
 
 const getMatchedInfoByClassId = async (req, res) => {
-  const { classId } = req.params;
+  const { classId, semesterId } = req.params;
+  console.log(semesterId);
 
   try {
     // Gọi hàm getGroupsByClassId để lấy danh sách nhóm trong lớp
-    const { groups } = await groupDAO.getGroupsByClassId(classId);
+    const { groups } = await groupDAO.getGroupsByClassId(classId, semesterId);
 
     if (!groups || groups.length === 0) {
       return res
@@ -268,7 +266,6 @@ const getMatchedInfoByClassId = async (req, res) => {
     }
     // Lọc các nhóm chưa có mentor
     const groupsWithoutMentor = groups.filter((group) => group.mentor);
-    console.log(groupsWithoutMentor);
 
     if (groupsWithoutMentor.length === 0) {
       return res.status(200).json({
@@ -291,12 +288,28 @@ const getMatchedInfoByClassId = async (req, res) => {
       message: "Thông tin nhóm và matched trong lớp được lấy thành công.",
       groups: detailedGroups,
     });
+    console.log(detailedGroups);
   } catch (error) {
     console.error("Lỗi khi lấy thông tin nhóm và matched:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
+const deleteMatched = async (req, res) => {
+  try {
+    const { groupId } = req.params; // Lấy id từ URL params
+    const deletedMatched = await matchedDAO.deleteMatchedById(groupId);
+    return res
+      .status(200)
+      .json({ message: "Xóa dữ liệu thành công.", data: deletedMatched });
+  } catch (error) {
+    console.error("Lỗi khi xóa dữ liệu:", error);
+    return res.status(500).json({
+      message: "Đã xảy ra lỗi khi xóa dữ liệu.",
+      error: error.message,
+    });
+  }
+};
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
@@ -307,4 +320,5 @@ export default {
   patchTimeEventHandler,
   deleteTimeEventHandler,
   getMatchedInfoByClassId,
+  deleteMatched,
 };

@@ -63,7 +63,7 @@ const DraggableMentorCard = ({
           }}
         >
           <div style={{ position: "absolute", top: 0, right: 0 }}>
-            {mentor.isPreferredProject && (
+            {mentor.isPreferredGroup && (
               <Badge
                 count={!isDragging ? "C" : 0}
                 style={{
