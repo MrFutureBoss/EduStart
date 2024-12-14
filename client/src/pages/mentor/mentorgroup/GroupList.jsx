@@ -494,17 +494,64 @@ const GroupList = () => {
                 borderBottom: "1px solid #e8e8e8",
               }}
             >
-              <Col span={16} style={{ textAlign: "start", fontWeight: "bold" }}>
-                Buổi họp sắp tới:
+              <Col span={24} style={{ textAlign: "start", fontWeight: "bold" }}>
+                <span style={{ marginTop: "8px", fontWeight: "500" }}>
+                  {(() => {
+                    const now = moment();
+                    const upcomingMeetings = myGroups
+                      .flatMap((group) =>
+                        (group.matchedDetails?.time || []).map((meeting) => ({
+                          ...meeting,
+                          groupName: `Lớp ${group.class.className} - ${group.group.name}`,
+                        }))
+                      )
+                      .filter((meeting) => moment(meeting.start).isAfter(now))
+                      .sort((a, b) => moment(a.start) - moment(b.start));
+
+                    if (upcomingMeetings.length > 0) {
+                      const nextMeeting = upcomingMeetings[0];
+                      const formattedDate = capitalizeFirstLetter(
+                        moment(nextMeeting.start).format("dddd, DD-MM-YYYY")
+                      );
+                      const formattedTimeStart = moment(
+                        nextMeeting.start
+                      ).format("HH:mm");
+                      const formattedTimeEnd = moment(nextMeeting.end).format(
+                        "HH:mm"
+                      );
+
+                      return (
+                        <div>
+                          Buổi họp sắp tới:&nbsp;
+                          <span
+                            style={{
+                              color: "rgb(0, 0, 0)",
+                              fontWeight: "500",
+                            }}
+                          >
+                            {nextMeeting.groupName}
+                          </span>
+                          <div
+                            style={{
+                              color: "#008315",
+                              marginTop: "4px",
+                            }}
+                          >
+                            {formattedDate} ({formattedTimeStart} -{" "}
+                            {formattedTimeEnd})
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div style={{ color: "rgb(255, 77, 79)" }}>
+                        Không có buổi họp nào sắp tới
+                      </div>
+                    );
+                  })()}
+                </span>
               </Col>
-              <Col
-                span={8}
-                style={{
-                  textAlign: "end",
-                  color: "rgb(255, 77, 79)",
-                  fontWeight: "bold",
-                }}
-              ></Col>
             </Row>
           </Card>
 
@@ -538,7 +585,6 @@ const GroupList = () => {
                   </Tooltip>
                 }
               >
-                <h5>Bạn có tất cả {allGroups.length} nhóm</h5>
                 {currentGroups.map((group, index) => {
                   // Card cho nhóm "Nhóm của bạn"
                   if (myGroups.includes(group)) {
@@ -801,7 +847,7 @@ const GroupList = () => {
                   </Tooltip>
                 }
               >
-                <div style={{ padding: "10px" }}>
+                <div>
                   {paginatedPendingGroups.map((group, index) => {
                     const updatedAt = moment(group.matchedDetails?.updatedAt);
                     const now = moment();
@@ -848,7 +894,20 @@ const GroupList = () => {
                             className="remove-default-style-p"
                             style={{
                               fontWeight: "500",
-                              fontSize: "0.8rem",
+                              fontSize: "0.7rem",
+                              marginBottom: "0.4rem",
+                              color: "red",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            Giảng viên {group.teacher?.email} muốn bạn hỗ trợ
+                            nhóm này
+                          </p>
+                          <p
+                            className="remove-default-style-p"
+                            style={{
+                              fontWeight: "500",
+                              fontSize: "0.7rem",
                               marginBottom: "0.4rem",
                               color: "red",
                             }}
@@ -925,7 +984,6 @@ const GroupList = () => {
                   </Tooltip>
                 }
               >
-                <h5>Bạn đang hỗ trợ {myGroups.length} nhóm</h5>
                 {myGroups.filter(
                   (group) =>
                     !group.matchedDetails.time ||
