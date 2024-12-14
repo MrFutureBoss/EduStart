@@ -9,10 +9,10 @@ const AccessDenied = () => {
     <Result
       status="403"
       title="403"
-      subTitle="Sorry, you are not authorized to access this page."
+      subTitle="Xin lỗi, bạn không có quyền để truy cập trang này."
       extra={
         <Button type="primary" onClick={() => navigate("/")}>
-          Back to Login
+          Quay lại đăng nhập
         </Button>
       }
     />

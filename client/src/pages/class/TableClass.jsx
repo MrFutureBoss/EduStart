@@ -214,7 +214,7 @@ const TableClass = ({ ungroup, emptygroup }) => {
       title: "Số nhóm",
       key: "totalGroups",
       dataIndex: "tempGroupId",
-      width: "15%",
+      width: "10%",
       render: (tempGroupId) => {
         const totalGroups = tempGroupId.length;
         return (
@@ -261,7 +261,7 @@ const TableClass = ({ ungroup, emptygroup }) => {
     {
       title: "Hành động",
       key: "action",
-      width: "15%",
+      width: "20%",
       render: (_, record) => (
         <Link
           to={`/teacher/class/detail/${record.className}`}
@@ -273,13 +273,11 @@ const TableClass = ({ ungroup, emptygroup }) => {
             fontWeight: "500",
           }}
         >
-          <EyeFilled style={{ fontSize: "" }}></EyeFilled>&nbsp; Chi tiết lớp
+          Chi tiết lớp
         </Link>
       ),
     },
   ];
-
-
 
   return (
     <div>
