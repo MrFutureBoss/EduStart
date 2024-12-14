@@ -31,6 +31,12 @@ import PieChartDashboard from "./PieChartDashboard";
 import { setLoadingClasses } from "../../../redux/slice/ClassSlice";
 import { fetchClassSummaryData } from "../../../api";
 import { setSelectedClassId } from "../../../redux/slice/MatchingSlice";
+import {
+  setCurrentSemester,
+  setSemester,
+  setSemesterName,
+  setSid,
+} from "../../../redux/slice/semesterSlide";
 
 const { Content } = Layout;
 const { Step } = Steps;
@@ -49,6 +55,9 @@ const TeacherDashboard = () => {
   const navigate = useNavigate();
 
   const classInfo = useSelector((state) => state.classManagement.classinfo);
+  const { currentSemester, semester, sid, semesterName } = useSelector(
+    (state) => state.semester
+  );
 
   const config = useMemo(
     () => ({
@@ -59,6 +68,23 @@ const TeacherDashboard = () => {
     }),
     [jwt]
   );
+  const fetchCurrentSemester = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/semester/current`, config);
+      const semesterData = response.data;
+      dispatch(setSid(semesterData._id));
+      dispatch(setSemesterName(semesterData.name));
+      dispatch(setCurrentSemester(semesterData));
+      dispatch(setSemester(semesterData));
+    } catch (error) {
+      console.error("Error fetching current semester:", error);
+      message.error("Lỗi khi tải dữ liệu Semester!");
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentSemester();
+  }, [config]);
 
   const handleSemesterIdChange = (id) => {
     setSemesterId(id);
@@ -82,29 +108,18 @@ const TeacherDashboard = () => {
       setOutcomes(fetchedOutcomes);
     } catch (err) {
       console.error("Error fetching outcomes:", err);
-      message.error("Lỗi khi tải dữ liệu Outcome!");
+      // message.error("Lỗi khi tải dữ liệu Outcome!");
     }
   };
-
-  const fetchTempGroups = async (classId) => {
-    try {
-      const res = await axios.get(
-        `${BASE_URL}/tempgroup/class/${classId}`,
-        config
-      );
-      return res.data.data || [];
-    } catch (err) {
-      console.error(`Error fetching temp groups for classId ${classId}:`, err);
+  const fetchGroupsForClass = async (classId) => {
+    if (!classId || typeof classId !== "string" || classId.trim() === "") {
       return [];
     }
-  };
-
-  const fetchGroupsForClass = async (classId) => {
     try {
-      const res = await axios.get(`${BASE_URL}/group/class/${classId}`, config);
-      return res.data.groups || [];
+      const res = await axios.get(`${BASE_URL}/group/class/${classId}/${sid}`, config);
+      return res.data.groups || [];      
     } catch (err) {
-      console.error(`Error fetching groups for classId ${classId}:`, err);
+      // console.error(`Error fetching groups for classId ${classId}:`, err);
       return [];
     }
   };
@@ -273,7 +288,7 @@ const TeacherDashboard = () => {
         }
       });
 
-      const classSummariesRes = await fetchClassSummaryData(userId);
+      const classSummariesRes = await fetchClassSummaryData(userId, sid);
       const fetchedClassSummaries = classSummariesRes.data.classSummaries || [];
 
       fetchedClassSummaries.forEach((classSummary) => {
@@ -388,13 +403,7 @@ const TeacherDashboard = () => {
 
       setNotifications(newNotifications);
 
-      const ongoingSemester = classInfo?.semesters?.find(
-        (semester) => semester.status === "Ongoing"
-      );
-
-      if (ongoingSemester && ongoingSemester._id) {
-        setSemesterId(ongoingSemester._id);
-      }
+      setSemesterId(sid);
       const updatedClassData = Object.values(classDataMap)
         .filter((cls) => cls.issues && cls.issues.length > 0)
         .map((cls) => {
@@ -418,7 +427,7 @@ const TeacherDashboard = () => {
       setClassData(updatedClassData);
     } catch (error) {
       console.error("Error fetching data:", error);
-      message.error("Lỗi khi tải dữ liệu!");
+      // message.error("Lỗi khi tải dữ liệu!");
     } finally {
       setLoading(false);
     }
