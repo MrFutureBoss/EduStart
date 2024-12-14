@@ -24,6 +24,7 @@ import StudentList from "../managegroup/StudentList";
 import { setAllGroupInClass } from "../../redux/slice/GroupSlice";
 import ManageGroup from "../managegroup/ManageGroup";
 import { IoChevronBackOutline } from "react-icons/io5";
+import { setSid } from "../../redux/slice/semesterSlide";
 
 const ClassDetail = () => {
   const { className } = useParams();
@@ -139,15 +140,31 @@ const ClassDetail = () => {
 
     fetchUserData();
   }, [classId, config, dispatch]);
+  const { sid } = useSelector((state) => state.semester);
+  const fetchCurrentSemester = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/semester/current`, config);
+      const semesterData = response.data;
+      dispatch(setSid(semesterData._id));
+    } catch (error) {
+      console.error("Error fetching current semester:", error);
+    }
+  };
 
+  useEffect(() => {
+    fetchCurrentSemester();
+  }, [config]);
   //Danh sách nhóm chính thúc
   useEffect(() => {
     if (!classId) return;
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/group/class/${classId}`, {
-          ...config,
-        });
+        const response = await axios.get(
+          `${BASE_URL}/group/class/${classId}/${sid}`,
+          {
+            ...config,
+          }
+        );
         dispatch(setAllGroupInClass(response.data?.groups));
       } catch (error) {
         console.log(
