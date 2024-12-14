@@ -1017,7 +1017,6 @@ const insertListUsers = async (req, res, next) => {
         user._id = insertedUsers[index]._id;
       }
     });
-    console.log(usersToInsert);
 
     // Kết nối socket và tạo thông báo cho người dùng mới
     const recipients = usersToInsert.map((member) => member._id);
