@@ -15,7 +15,7 @@ classRouter.get(
   classController.getProjectsByTeacherAndClass
 );
 classRouter.get(
-  "/:teacherId/summary_classses",
+  "/:teacherId/:semesterId/summary_classses",
   verifyAccessToken,
   classController.getTeacherClassSummary
 );

@@ -19,7 +19,6 @@ import { BASE_URL } from "../../utilities/initalValue";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserLogin } from "../../redux/slice/UserSlice";
-import AdminHeader from "../../layouts/admin/AdminHeader";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -327,18 +326,20 @@ const ProjectsList = () => {
             key="all"
           >
             {paginatedProjects.length > 0 ? (
-              <Row style={{ gap: "30px" }} gutter={[16, 16]}>
+              <Row style={{ rowGap: 0 }} gutter={[16, 16]}>
                 {paginatedProjects.map((project) => (
-                  <Col key={project._id}>
+                  <Col style={{ padding: 0 }} key={project._id}>
                     <ProjectCard
                       project={project}
                       className="always-hover-1"
                       onSelect={() => handleSelectProject(project._id)}
+                      isFavorite={preferredProjects.includes(project._id)}
                       style={{
                         border: preferredProjects.includes(project._id)
                           ? "3px solid #ff9800"
                           : "",
-                        minHeight: "fit-content",
+
+                        width: 372,
                       }}
                     />
                   </Col>
@@ -371,14 +372,15 @@ const ProjectsList = () => {
                 {paginatedProjects
                   .filter((project) => preferredProjects.includes(project._id))
                   .map((project) => (
-                    <Col key={project._id}>
+                    <Col style={{ padding: 0 }} key={project._id}>
                       <ProjectCard
+                        isFavorite={preferredProjects.includes(project._id)}
                         project={project}
                         className="always-hover-1"
                         onSelect={() => handleSelectProject(project._id)}
                         style={{
                           border: "3px solid #ff9800",
-                          minHeight: "fit-content",
+                          width: 372,
                         }}
                       />
                     </Col>

@@ -77,16 +77,15 @@ const getProjectsByTeacherAndClass = async (req, res) => {
 };
 
 const getTeacherClassSummary = async (req, res) => {
-  const { teacherId } = req.params;
+  const { teacherId, semesterId } = req.params;
 
   try {
-    const summary = await classDAO.findTeacherClassSummary(teacherId);
+    const summary = await classDAO.findTeacherClassSummary(
+      teacherId,
+      semesterId
+    );
 
-    if (!summary.classSummaries.length) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy lớp học nào cho giáo viên này." });
-    }
+    console.log(summary);
 
     res.status(200).json(summary);
   } catch (error) {

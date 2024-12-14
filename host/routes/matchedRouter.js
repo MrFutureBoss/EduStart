@@ -52,8 +52,14 @@ matchedRouter.get(
 );
 
 matchedRouter.get(
-  "/matched-by-class/:classId",
+  "/matched-by-class/:classId/:semesterId",
   verifyAccessToken,
   matchedController.getMatchedInfoByClassId
+);
+
+matchedRouter.delete(
+  "/delete-matched/:groupId",
+  verifyAccessToken,
+  matchedController.deleteMatched
 );
 export default matchedRouter;

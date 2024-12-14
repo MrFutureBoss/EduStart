@@ -9,11 +9,12 @@ import User from "../../models/userModel.js";
 import TeacherSelection from "../../models/teacherSelection.js";
 import MentorPreference from "../../models/mentorPreference.js";
 import Project from "../../models/projectModel.js";
+import Matched from "../../models/matchedModel.js";
 
 // Hàm lấy các dự án phù hợp cho mentor dựa trên profession và specialty
 const getMatchingProjectsForMentor = async (mentorId) => {
   try {
-    // Tìm thông tin của mentor từ MentorCategory
+    // Fetch mentor information from MentorCategory
     const mentorCategory = await MentorCategory.findOne({ mentorId })
       .populate("professionIds")
       .populate("specialties.specialtyId");
@@ -27,7 +28,7 @@ const getMatchingProjectsForMentor = async (mentorId) => {
       (spec) => spec.specialtyId
     );
 
-    // Lấy danh sách các ProjectCategory và project với trạng thái InProgress
+    // Get matching projects based on profession and specialty
     const matchingProjects = await ProjectCategory.find({
       professionId: { $in: mentorProfessionIds },
       specialtyIds: { $in: mentorSpecialtyIds },
@@ -38,19 +39,34 @@ const getMatchingProjectsForMentor = async (mentorId) => {
       })
       .populate("professionId specialtyIds");
 
-    // Lọc các dự án hợp lệ và định dạng dữ liệu theo yêu cầu
+    // Filter valid projects and exclude those already matched
     const projects = await Promise.all(
       matchingProjects
-        .filter((pc) => pc.projectId)
+        .filter((pc) => pc.projectId) // Ensure project exists
         .map(async (projectCategory) => {
           const project = await Project.findById(
             projectCategory.projectId._id
           ).lean();
+
+          // Find the group associated with the project
+          const group = await Group.findOne({ projectId: project._id }).lean();
+
+          // Check if the group is already in Matched
+          const isMatched = group
+            ? await Matched.exists({ groupId: group._id })
+            : false;
+
+          if (isMatched) {
+            // Skip this project if it is already matched
+            return null;
+          }
+
           const professionDetails = await Profession.find({
             _id: { $in: projectCategory.professionId },
           })
             .select("_id name")
             .lean();
+
           const specialtyDetails = await Specialty.find({
             _id: { $in: projectCategory.specialtyIds },
           })
@@ -60,8 +76,7 @@ const getMatchingProjectsForMentor = async (mentorId) => {
           const mentorPreference = await MentorPreference.findOne({
             mentorId,
           }).lean();
-
-          const isPreference = mentorPreference?.projectIds.some(
+          const isPreference = mentorPreference?.projectIds?.some(
             (projectId) => projectId.toString() === project._id.toString()
           );
 
@@ -73,14 +88,17 @@ const getMatchingProjectsForMentor = async (mentorId) => {
               professionId: professionDetails,
               specialtyIds: specialtyDetails,
             },
-            isPreference, // Trả về thông tin là dự án đã được chọn hay chưa
+            isPreference, // Indicates if the project is preferred by the mentor
           };
         })
     );
 
-    return { projects };
+    // Remove null values from projects (i.e., those already matched)
+    const filteredProjects = projects.filter((project) => project !== null);
+
+    return { projects: filteredProjects };
   } catch (error) {
-    throw new Error("Lỗi khi lấy danh sách dự án: " + error.message);
+    throw new Error("Error while fetching matching projects: " + error.message);
   }
 };
 

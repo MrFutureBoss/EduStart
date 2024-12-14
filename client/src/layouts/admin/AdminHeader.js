@@ -150,35 +150,6 @@ const AdminHeader = ({ collapsed, toggleCollapse }) => {
     }
   };
 
-  const handleChageSemester = () => {
-    dispatch(setIsChangeSemester(false));
-  };
-
-  useEffect(() => {
-    if (isChangeSemester) {
-      // Đảm bảo không có Modal nào khác trước khi hiển thị
-      Modal.destroyAll();
-
-      if (semester.status === "Finished") {
-        Modal.confirm({
-          title: `Thông tin kỳ học ${semester?.name}`,
-          content: `Kỳ học đã kết thúc. Bạn chỉ có thể xem các thông tin của kỳ học!`,
-          onOk: handleChageSemester,
-          okText: "Xác nhận",
-          cancelButtonProps: { style: { display: "none" } }, // Ẩn nút Cancel
-        });
-      } else if (semester.status !== "Finished") {
-        Modal.confirm({
-          title: `Thông tin kỳ học ${semester?.name}`,
-          content: `Bạn có thể thực hiện được tất cả hành động với kỳ học này!`,
-          onOk: handleChageSemester,
-          okText: "Xác nhận",
-          cancelButtonProps: { style: { display: "none" } }, // Ẩn nút Cancel
-        });
-      }
-    }
-  }, [isChangeSemester, semester.status]);
-
   useEffect(() => {
     if (semesters && semesters.length > 0) {
       // Chỉ auto chọn kỳ nếu chưa có sid và không có sự thay đổi kỳ do người dùng
