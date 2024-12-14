@@ -19,7 +19,7 @@ semesterRouter.put(
 semesterRouter.get(
   "/all",
   verifyAccessToken,
-  verifyRole([1]),
+  verifyRole([1, 2]),
   semesterController.getAllSemesters
 );
 semesterRouter.get(

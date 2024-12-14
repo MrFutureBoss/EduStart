@@ -55,9 +55,9 @@ export const fetchTeacherSelection = (teacherId, professionId, specialtyId) => {
   return axios.get(`${BASE_URL}/mentorcategory/selection`, config);
 };
 // API này để lấy data tree của dự án của các lớp mà giáo viên đó phụ trách
-export const fetchClassSummaryData = (teacherId) => {
+export const fetchClassSummaryData = (teacherId, semesterId) => {
   return axios.get(
-    `${BASE_URL}/class/${teacherId}/summary_classses`,
+    `${BASE_URL}/class/${teacherId}/${semesterId}/summary_classses`,
     getConfig()
   );
 };
@@ -117,9 +117,13 @@ export const getMatchedProject = (groupId) => {
   return axios.get(`${BASE_URL}/matched/infor-matched/${groupId}`, getConfig());
 };
 // api để lấy thông tin matches của lớp
-export const getMatchedProjectClass = (classId) => {
+export const getMatchedProjectClass = (classId, semesterId) => {
+  if (!semesterId || !classId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
   return axios.get(
-    `${BASE_URL}/matched/matched-by-class/${classId}`,
+    `${BASE_URL}/matched/matched-by-class/${classId}/${semesterId}`,
     getConfig()
   );
 };

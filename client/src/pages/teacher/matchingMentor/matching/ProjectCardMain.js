@@ -1,5 +1,5 @@
 // src/components/ProjectCardMain/ProjectCardMain.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Select,
@@ -13,6 +13,7 @@ import {
   Alert,
   Badge,
   Modal,
+  Input,
 } from "antd";
 import "../../teacherCSS/ProjectCardMain.css";
 import {
@@ -44,6 +45,8 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
+  InfoCircleOutlined,
+  RetweetOutlined,
   SelectOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -54,6 +57,7 @@ import {
   updateAssignedMentorsMap,
   setClassMentorsData,
   setIsAssig,
+  resetClassData,
 } from "../../../../redux/slice/MatchingSlice";
 import MentorSuggestionRow from "./MentorSuggestionRow";
 import MentorDropZone from "./MentorDropZone";
@@ -61,23 +65,29 @@ import MentorDropZone from "./MentorDropZone";
 const { Option } = Select;
 const { TabPane } = Tabs;
 
+const { Search } = Input;
+
+const ALL_PROFESSION = { id: "all", name: "Tất cả Lĩnh Vực" };
+const ALL_SPECIALTY = { id: "all", name: "Tất cả Chuyên Môn" };
+
 const ProjectCardMain = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const jwt = localStorage.getItem("jwt");
 
   const { classSummaries, loadingClasses } = useSelector(
     (state) => state.class
   );
-  const { selectedClassId, loadingProjects, activeId, classData } = useSelector(
-    (state) => state.matching
-  );
+  const { selectedClassId, loadingProjects, activeId, classData, isAssig } =
+    useSelector((state) => state.matching);
   const teacherId = localStorage.getItem("userId");
-
+  const { sid, currentSemester } = useSelector((state) => state.semester);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
     })
   );
+  console.log(selectedClassId);
 
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [showAllProfessions, setShowAllProfessions] = useState(false);
@@ -87,11 +97,25 @@ const ProjectCardMain = () => {
   const [groupIdToDelete, setGroupIdToDelete] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // State cho search và filter
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProfessionId, setSelectedProfessionId] = useState(
+    ALL_PROFESSION.id
+  );
+  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState(
+    ALL_SPECIALTY.id
+  );
+  const [professions, setProfessions] = useState([ALL_PROFESSION]);
+  const [specialties, setSpecialties] = useState([ALL_SPECIALTY]);
+
   useEffect(() => {
     const loadData = async () => {
+      if (!sid) return; // Chỉ tải khi `sid` có giá trị
+
       dispatch(setLoadingClasses(true));
       try {
-        const classResponse = await fetchClassSummaryData(teacherId);
+        const classResponse = await fetchClassSummaryData(teacherId, sid);
+
         const {
           classSummaries: fetchedClassSummaries,
           counts,
@@ -107,20 +131,108 @@ const ProjectCardMain = () => {
         dispatch(setNotMatchedClasses(notMatchedClasses));
         dispatch(setEmptyClasses(emptyClasses));
         dispatch(setClassesWithUnupdatedProjects(classesWithUnupdatedProjects));
+
+        // Kiểm tra và tự động chọn lớp đầu tiên
+        if (fetchedClassSummaries.length > 0) {
+          const firstClassId = fetchedClassSummaries[0].classId;
+          dispatch(setSelectedClassId(firstClassId)); // Cập nhật classId mới
+          localStorage.setItem("selectedClassId", firstClassId);
+          handleClassChange(firstClassId);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
-        message.warning("Lỗi khi tải dữ liệu lớp học.");
+      } finally {
+        dispatch(setLoadingClasses(false));
       }
-      dispatch(setLoadingClasses(false));
     };
-    loadData();
-  }, [teacherId, dispatch]);
 
-  // bắt sự kiện chọn lại mentor
+    loadData();
+  }, [teacherId, sid]); // Chỉ chạy khi `sid` thay đổi
+
+  // Bắt sự kiện chọn lại mentor
   useEffect(() => {
-    handleFetchClass(selectedClassId);
-  }, [navigate]);
-  // hàm để chuyển lớp
+    if (isAssig) {
+      handleFetchClass(selectedClassId);
+    }
+  }, [isAssig, navigate]);
+
+  // Bắt sự kiện chọn lại kỳ
+  useEffect(() => {
+    const loadClassAndProjects = async () => {
+      if (sid && selectedClassId) {
+        dispatch(setLoadingProjects(true));
+
+        try {
+          // Gọi fetchMatchedGroups
+          const matchedData = await fetchMatchedGroups(selectedClassId, sid);
+
+          // Cập nhật Redux state với dữ liệu mới
+          dispatch(
+            setClassMentorsData({
+              classId: selectedClassId,
+              projectData: [], // Hoặc lấy dữ liệu mới nếu cần
+              mentorsData: {}, // Reset mentors
+              assignedMentorsMap: {}, // Reset mapping
+              showSuggestions: false,
+              pendingAcceptedGroups: matchedData.pendingAccepted || [],
+              declinedGroups: matchedData.declined || [],
+              matchedGroups: matchedData.matchedGroups || [],
+            })
+          );
+          if (sid === currentSemester?._id) {
+            await handleFetchClass(selectedClassId);
+          }
+        } catch (error) {
+          console.error("Error fetching class and projects:", error);
+        } finally {
+          dispatch(setLoadingProjects(false));
+        }
+      }
+    };
+
+    loadClassAndProjects();
+  }, [sid]); // Chỉ chạy khi cả sid và selectedClassId thay đổi
+
+  // hàm để khi chuyển kỳ
+  const fetchMatchedGroups = async (classId, sid) => {
+    try {
+      const matchedResponse = await getMatchedProjectClass(classId, sid);
+      const matchedData = matchedResponse?.data;
+
+      if (matchedData?.groups && Array.isArray(matchedData?.groups)) {
+        const pendingAccepted = matchedData?.groups.filter(
+          (g) =>
+            g.matchedInfo &&
+            (g.matchedInfo.status === "Pending" ||
+              g.matchedInfo.status === "Accepted")
+        );
+
+        const declined = matchedData?.groups.filter(
+          (g) => g.matchedInfo && g.matchedInfo.status === "Rejected"
+        );
+
+        return {
+          pendingAccepted,
+          declined,
+          matchedGroups: matchedData?.groups, // Return all matched groups
+        };
+      }
+      return {
+        pendingAccepted: [],
+        declined: [],
+        matchedGroups: [],
+      };
+    } catch (error) {
+      console.error("Error fetching matched groups:", error);
+      return {
+        pendingAccepted: [],
+        declined: [],
+        matchedGroups: [],
+      };
+    }
+  };
+
+  // Hàm để chuyển lớp
   const handleClassChange = async (classId) => {
     dispatch(setSelectedClassId(classId));
     localStorage.setItem("selectedClassId", classId);
@@ -148,7 +260,7 @@ const ProjectCardMain = () => {
       });
 
       // Fetch matched groups
-      const matchedResponse = await getMatchedProjectClass(classId);
+      const matchedResponse = await getMatchedProjectClass(classId, sid);
       const matchedData = matchedResponse.data;
       let pendingAccepted = [];
       let declined = [];
@@ -191,9 +303,11 @@ const ProjectCardMain = () => {
           matchedGroups: matchedGroups,
         })
       );
+      // Xử lý professions & specialties từ projects
+
+      extractProfessionsAndSpecialties(projects);
     } catch (error) {
       console.error("Error in handleClassChange:", error);
-      message.error("Có lỗi xảy ra khi tải dữ liệu lớp học.");
     } finally {
       dispatch(setLoadingProjects(false));
     }
@@ -220,7 +334,7 @@ const ProjectCardMain = () => {
       });
 
       // Fetch matched groups
-      const matchedResponse = await getMatchedProjectClass(classId);
+      const matchedResponse = await getMatchedProjectClass(classId, sid);
       const matchedData = matchedResponse.data;
       let pendingAccepted = [];
       let declined = [];
@@ -263,13 +377,14 @@ const ProjectCardMain = () => {
           matchedGroups: matchedGroups,
         })
       );
+      extractProfessionsAndSpecialties(projects);
     } catch (error) {
       console.error("Error in handleClassChange:", error);
-      message.error("Có lỗi xảy ra khi tải dữ liệu lớp học.");
     } finally {
       dispatch(setLoadingProjects(false));
     }
   };
+
   const fetchSuggestedMentors = async (
     classId,
     projects,
@@ -341,7 +456,6 @@ const ProjectCardMain = () => {
       }
     } catch (error) {
       console.error("Error fetching mentor suggestions:", error);
-      message.error("Không thể lấy danh sách mentor gợi ý.");
       return {
         mentorsData: {},
         assignedMentorsMap,
@@ -362,7 +476,6 @@ const ProjectCardMain = () => {
     try {
       const currentClassData = classData[selectedClassId];
       if (!currentClassData) {
-        message.warning("Dữ liệu lớp không tồn tại.");
         return;
       }
       // Fetch temporary matching
@@ -371,7 +484,6 @@ const ProjectCardMain = () => {
       await handleFetchClass(selectedClassId);
     } catch (error) {
       console.error("Error in fetchMatchingMentor:", error);
-      message.error("Có lỗi xảy ra khi gợi ý mentor.");
     } finally {
       dispatch(setLoadingProjects(false));
       setIsFetchingSuggestions(false);
@@ -387,7 +499,6 @@ const ProjectCardMain = () => {
 
       const currentClassData = classData[selectedClassId];
       if (!currentClassData) {
-        message.error("Dữ liệu lớp không tồn tại.");
         return;
       }
 
@@ -452,7 +563,7 @@ const ProjectCardMain = () => {
   // Retrieve data for the selected class
   const selectedClassData = classData[selectedClassId] || {};
 
-  //Mở model xác nhận
+  // Mở modal xác nhận
   const openModal = (groupId, projectId) => {
     setGroupIdToDelete(groupId);
     setModalVisible(true);
@@ -468,6 +579,88 @@ const ProjectCardMain = () => {
 
   const pendingAcceptedGroups = selectedClassData.pendingAcceptedGroups || [];
   const declinedGroups = selectedClassData.declinedGroups || [];
+
+  // Hàm tách lấy professions và specialties
+  const extractProfessionsAndSpecialties = (projects) => {
+    const uniqueProfessionsMap = new Map();
+    const uniqueSpecialtiesMap = new Map();
+
+    projects.forEach((proj) => {
+      if (proj.projectCategory) {
+        proj.projectCategory.professionId.forEach((p) => {
+          if (!uniqueProfessionsMap.has(p._id)) {
+            uniqueProfessionsMap.set(p._id, p.name);
+          }
+        });
+        proj.projectCategory.specialtyIds.forEach((s) => {
+          if (!uniqueSpecialtiesMap.has(s._id)) {
+            uniqueSpecialtiesMap.set(s._id, s.name);
+          }
+        });
+      }
+    });
+
+    setProfessions([
+      ALL_PROFESSION,
+      ...Array.from(uniqueProfessionsMap, ([id, name]) => ({ id, name })),
+    ]);
+
+    setSpecialties([
+      ALL_SPECIALTY,
+      ...Array.from(uniqueSpecialtiesMap, ([id, name]) => ({ id, name })),
+    ]);
+  };
+
+  // Hàm lọc chung
+  const filterProject = (project) => {
+    if (selectedProfessionId !== ALL_PROFESSION.id) {
+      const hasProfession = project.projectCategory?.professionId?.some(
+        (p) => p._id === selectedProfessionId
+      );
+      if (!hasProfession) return false;
+    }
+
+    if (selectedSpecialtyId !== ALL_SPECIALTY.id) {
+      const hasSpecialty = project.projectCategory?.specialtyIds?.some(
+        (s) => s._id === selectedSpecialtyId
+      );
+      if (!hasSpecialty) return false;
+    }
+
+    if (searchTerm) {
+      const matchesSearch = project.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      if (!matchesSearch) return false;
+    }
+
+    return true;
+  };
+
+  // Lọc dữ liệu cho từng tab
+  const filteredUnmatchedProjects = useMemo(() => {
+    return unmatchedProjects.filter(filterProject);
+  }, [
+    unmatchedProjects,
+    searchTerm,
+    selectedProfessionId,
+    selectedSpecialtyId,
+  ]);
+
+  const filteredPendingAcceptedGroups = useMemo(() => {
+    return pendingAcceptedGroups.filter(({ group }) =>
+      filterProject(group.projectId)
+    );
+  }, [
+    pendingAcceptedGroups,
+    searchTerm,
+    selectedProfessionId,
+    selectedSpecialtyId,
+  ]);
+
+  const filteredDeclinedGroups = useMemo(() => {
+    return declinedGroups.filter(({ group }) => filterProject(group.projectId));
+  }, [declinedGroups, searchTerm, selectedProfessionId, selectedSpecialtyId]);
 
   const badgeMeanings = [
     {
@@ -486,6 +679,7 @@ const ProjectCardMain = () => {
       color: "#a8dcd1",
     },
   ];
+
   return (
     <DndContext
       sensors={sensors}
@@ -500,47 +694,87 @@ const ProjectCardMain = () => {
         <div className="header-bar">
           <div className="class-select-container" style={{ padding: "9px" }}>
             <label className="class-select-label">Lớp Được Chọn:</label>
-            {loadingClasses ? (
-              <Spin />
-            ) : (
-              <Select
-                showSearch
-                placeholder="Chọn lớp"
-                optionFilterProp="children"
-                onChange={handleClassChange}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-                value={selectedClassId}
-                className="class-select"
-              >
-                {classSummaries.map((classItem) => {
-                  const matchedGroupsCount = classItem.groupDetails
-                    ? classItem.groupDetails.filter(
-                        (group) =>
-                          group.isMatched === true &&
-                          group.isProjectUpdated === true
-                      ).length
-                    : 0;
-                  const totalGroupsCount = classItem.groupDetails
-                    ? classItem.groupDetails.filter(
-                        (group) => group.isProjectUpdated === true
-                      ).length
-                    : 0;
+            <Select
+              showSearch
+              placeholder="Chọn lớp"
+              optionFilterProp="children"
+              onChange={handleClassChange}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+              value={selectedClassId}
+              className="class-select"
+            >
+              {classSummaries.map((classItem) => {
+                const matchedGroupsCount = classItem.groupDetails
+                  ? classItem.groupDetails.filter(
+                      (group) =>
+                        group.isMatched === true &&
+                        group.isProjectUpdated === true
+                    ).length
+                  : 0;
+                const totalGroupsCount = classItem.groupDetails
+                  ? classItem.groupDetails.filter(
+                      (group) => group.isProjectUpdated === true
+                    ).length
+                  : 0;
 
-                  return (
-                    <Option key={classItem.classId} value={classItem.classId}>
-                      {classItem.className} ({matchedGroupsCount}/
-                      {totalGroupsCount})
-                    </Option>
-                  );
-                })}
-              </Select>
-            )}
+                return (
+                  <Option key={classItem.classId} value={classItem.classId}>
+                    {classItem.className} ({matchedGroupsCount}/
+                    {totalGroupsCount})
+                  </Option>
+                );
+              })}
+            </Select>
           </div>
 
           <div className="button-group">
-            {unmatchedProjects.length > 0 && (
+            {/* Thanh tìm kiếm và lọc */}
+            <Search
+              placeholder="Tìm kiếm theo tên dự án"
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: 200, marginRight: 10 }}
+              enterButton
+            />
+            <Select
+              placeholder="Lọc Lĩnh Vực"
+              style={{ width: 160, marginRight: 10 }}
+              value={selectedProfessionId}
+              onChange={(value) => {
+                setSelectedProfessionId(value);
+                setSelectedSpecialtyId(ALL_SPECIALTY.id);
+              }}
+              optionFilterProp="children"
+              showSearch
+            >
+              {professions.map((profession) => (
+                <Option key={profession.id} value={profession.id}>
+                  {profession.name}
+                </Option>
+              ))}
+            </Select>
+
+            <Select
+              placeholder="Lọc Chuyên Môn"
+              style={{ width: 160, marginRight: 10 }}
+              value={selectedSpecialtyId}
+              onChange={(value) => setSelectedSpecialtyId(value)}
+              optionFilterProp="children"
+              showSearch
+              disabled={
+                selectedProfessionId === ALL_PROFESSION.id ||
+                specialties.length <= 1
+              }
+            >
+              {specialties.map((specialty) => (
+                <Option key={specialty.id} value={specialty.id}>
+                  {specialty.name}
+                </Option>
+              ))}
+            </Select>
+
+            {filteredUnmatchedProjects.length > 0 && (
               <Button
                 style={{ marginRight: "10px" }}
                 onClick={fetchMatchingMentor}
@@ -559,18 +793,21 @@ const ProjectCardMain = () => {
         >
           {visible && (
             <Alert
+              style={{ padding: 7 }}
               type="info"
               closable
               onClose={() => setVisible(false)}
-              message="Ý nghĩa của các biểu tượng"
               description={
                 <div
                   style={{
                     display: "flex",
-                    marginLeft: 25,
-                    marginTop: -1,
                   }}
                 >
+                  <strong
+                    style={{ marginRight: 20, fontSize: 13, marginLeft: 10 }}
+                  >
+                    Chú thích các biểu tượng:
+                  </strong>
                   {badgeMeanings.map((badge) => (
                     <div
                       key={badge.type}
@@ -586,9 +823,10 @@ const ProjectCardMain = () => {
                           backgroundColor: badge.color,
                           color: badge.type === "C" ? "white" : "black",
                           borderRadius: "12px",
+                          transform: "scale(0.8)",
                         }}
                       />
-                      <span style={{ marginRight: 30 }}>
+                      <span style={{ marginRight: 30, fontSize: 13 }}>
                         {badge.description}
                       </span>
                     </div>
@@ -599,9 +837,9 @@ const ProjectCardMain = () => {
           )}
           {loadingProjects ? (
             <Spin />
-          ) : unmatchedProjects.length > 0 ||
-            pendingAcceptedGroups.length > 0 ||
-            declinedGroups.length > 0 ? (
+          ) : filteredUnmatchedProjects.length > 0 ||
+            filteredPendingAcceptedGroups.length > 0 ||
+            filteredDeclinedGroups.length > 0 ? (
             <Tabs
               defaultActiveKey="1"
               style={{ width: "100%" }}
@@ -609,10 +847,10 @@ const ProjectCardMain = () => {
             >
               {/* Tab Pane: Chưa chọn mentor */}
               <TabPane
-                tab={`Chưa chọn mentor (${unmatchedProjects.length})`}
+                tab={`Chưa chọn mentor (${filteredUnmatchedProjects.length})`}
                 key="1"
               >
-                {unmatchedProjects.map((project) => {
+                {filteredUnmatchedProjects.map((project) => {
                   const mentorPreferredIds = new Set(
                     (
                       selectedClassData.mentorsData[project._id]
@@ -657,7 +895,6 @@ const ProjectCardMain = () => {
                         selectedClassData.mentorsData[project._id] && (
                           <div className="suggestions-and-drop-zone">
                             <div className="mentor-suggestions-wrapper">
-                              {/* Mentor Ưu Tiên Nhóm */}
                               <MentorSuggestionRow
                                 title="Mentor Ưu Tiên Chọn Nhóm:"
                                 mentors={
@@ -670,14 +907,13 @@ const ProjectCardMain = () => {
                                   ] || []
                                 }
                                 projectId={project._id}
-                                existingMentorIds={new Set()} // No exclusions for the first category
+                                existingMentorIds={new Set()}
                                 colorClass="mentor-preferred-card"
                                 teacherPreferredMentors={
                                   selectedClassData.mentorsData[project._id]
                                     .teacherPreferredMentors
                                 }
                               />
-                              {/* Mentor Bạn Ưu Tiên */}
                               <MentorSuggestionRow
                                 title="Mentor Được Giáo Viên Ưu Tiên:"
                                 mentors={
@@ -690,14 +926,13 @@ const ProjectCardMain = () => {
                                     project._id
                                   ] || []
                                 }
-                                existingMentorIds={mentorPreferredIds} // Exclude mentors already in mentorPreferred
+                                existingMentorIds={mentorPreferredIds}
                                 colorClass="teacher-preferred-card"
                                 teacherPreferredMentors={
                                   selectedClassData.mentorsData[project._id]
                                     .teacherPreferredMentors
                                 }
                               />
-                              {/* Mentor Phù Hợp */}
                               <MentorSuggestionRow
                                 title="Mentor Có Chuyên Môn Phù Hợp:"
                                 mentors={
@@ -715,7 +950,7 @@ const ProjectCardMain = () => {
                                     ...mentorPreferredIds,
                                     ...teacherPreferredIds,
                                   ])
-                                } // Exclude mentors already in mentorPreferred and teacherPreferred
+                                }
                                 colorClass="matching-mentors-card"
                                 teacherPreferredMentors={
                                   selectedClassData.mentorsData[project._id]
@@ -757,7 +992,7 @@ const ProjectCardMain = () => {
                                 handleFetchClass(selectedClassId)
                               }
                               teacherId={teacherId}
-                              selectedClassId={selectedClassId} // Thêm prop này
+                              selectedClassId={selectedClassId}
                             />
                           </div>
                         )}
@@ -773,278 +1008,291 @@ const ProjectCardMain = () => {
                   flexDirection: "column",
                   gap: "20px",
                 }}
-                tab={`Đã ghép mentor (${pendingAcceptedGroups.length})`}
+                tab={`Đã ghép mentor (${filteredPendingAcceptedGroups.length})`}
                 key="2"
               >
                 <Row gutter={[16, 16]}>
-                  {pendingAcceptedGroups.map(({ group, matchedInfo }) => {
-                    const statusText =
-                      matchedInfo.status === "Pending"
-                        ? "Chờ Mentor Chấp Nhận"
-                        : "Mentor Đã Chấp Nhận";
-                    const statusColor =
-                      matchedInfo.status === "Pending"
-                        ? "rgb(234 156 0)"
-                        : "#52c41a";
-                    const mentor = matchedInfo.mentorId;
-                    const mentorCate = matchedInfo.mentorProfession;
-                    const professions =
-                      mentorCate?.professionIds?.map(
-                        (profession) => profession.name
-                      ) || [];
+                  {filteredPendingAcceptedGroups.map(
+                    ({ group, matchedInfo }) => {
+                      const statusText =
+                        matchedInfo.status === "Pending"
+                          ? "Chờ Mentor Chấp Nhận"
+                          : "Mentor Đã Chấp Nhận";
+                      const statusColor =
+                        matchedInfo.status === "Pending"
+                          ? "rgb(234 156 0)"
+                          : "#52c41a";
+                      const mentor = matchedInfo.mentorId;
+                      const mentorCate = matchedInfo.mentorProfession;
+                      const professions =
+                        mentorCate?.professionIds?.map(
+                          (profession) => profession.name
+                        ) || [];
 
-                    // Lấy danh sách specialties
-                    const specialties =
-                      mentorCate?.specialties?.map(
-                        (specialty) => specialty.specialtyId.name
-                      ) || [];
-                    const statusIcon =
-                      matchedInfo.status === "Pending" ? (
-                        <ClockCircleOutlined
-                          style={{ color: "#faad14", marginLeft: 8 }}
-                        />
-                      ) : (
-                        <CheckCircleOutlined
-                          style={{ color: "#52c41a", marginLeft: 8 }}
-                        />
-                      );
+                      // Lấy danh sách specialties
+                      const specialties =
+                        mentorCate?.specialties?.map(
+                          (specialty) => specialty.specialtyId.name
+                        ) || [];
+                      const statusIcon =
+                        matchedInfo.status === "Pending" ? (
+                          <ClockCircleOutlined
+                            style={{ color: "#faad14", marginLeft: 8 }}
+                          />
+                        ) : (
+                          <CheckCircleOutlined
+                            style={{ color: "#52c41a", marginLeft: 8 }}
+                          />
+                        );
 
-                    return (
-                      <Col
-                        xs={24}
-                        sm={12}
-                        md={12}
-                        lg={12}
-                        key={matchedInfo._id}
-                      >
-                        <div
-                          className="single-project-row grid-layout"
+                      return (
+                        <Col
+                          xs={24}
+                          sm={12}
+                          md={12}
+                          lg={12}
                           key={matchedInfo._id}
                         >
-                          <div className="project-card-wrapper">
-                            <h6
-                              style={{ color: statusColor }}
-                              className="main-title-suggest"
-                            >
-                              {statusText}
-                              {statusIcon}
-                            </h6>
-                            <ProjectCard
-                              className="always-hover"
-                              group={{
-                                groupName: group.name,
-                                className: group.classId.className,
-                              }}
-                              style={{ width: "533px" }}
-                              project={{
-                                _id: group.projectId._id,
-                                name: group.projectId.name,
-                                description: group.projectId.description,
-                                groupId: group._id,
-                                isMatched: true,
-                                status:
-                                  matchedInfo.status === "Pending"
-                                    ? "Pending"
-                                    : "Accepted",
-                                projectCategory: matchedInfo.projectCategory,
-                              }}
-                              assignedMentors={[
-                                {
-                                  mentorId: mentor._id,
-                                  username: mentor.username,
-                                  email: mentor.email,
-                                  phoneNumber: mentor.phoneNumber,
-                                },
-                              ]}
-                            />
-                            <div className="assigned-mentors">
-                              {/* Mentor Info Card */}
-                              <div
-                                className="elevated-card"
-                                style={{
-                                  boxShadow: "rgb(135, 186, 207) 0px 2px 6px",
-                                  borderRadius: 6,
-                                  border: "none",
-                                  backgroundColor: "#c2e1eb",
-                                  padding: 7,
-                                  marginBottom: 10,
-                                  width: "402px",
-                                  marginLeft: 10,
+                          <div
+                            className="single-project-row grid-layout"
+                            key={matchedInfo._id}
+                          >
+                            <div className="project-card-wrapper">
+                              <h6
+                                style={{ color: statusColor }}
+                                className="main-title-suggest"
+                              >
+                                {statusText}
+                                {statusIcon}
+                              </h6>
+                              <ProjectCard
+                                className="always-hover"
+                                group={{
+                                  groupName: group.name,
+                                  className: group.classId.className,
                                 }}
-                              >
-                                <strong
-                                  style={{
-                                    fontSize: "0.7rem",
-                                    padding: "4px 10px",
-                                    boxShadow: "0 2px 6px #87bacf",
-                                    backgroundColor: "#62b6cb",
-                                    fontWeight: "bold",
-                                    border: "none",
-                                    color: "#f0f8fa",
-                                    borderRadius: "12px",
-                                  }}
-                                >
-                                  Mentor Đã Chọn
-                                </strong>
+                                style={{ width: "533px" }}
+                                project={{
+                                  _id: group.projectId._id,
+                                  name: group.projectId.name,
+                                  description: group.projectId.description,
+                                  groupId: group._id,
+                                  isMatched: true,
+                                  status:
+                                    matchedInfo.status === "Pending"
+                                      ? "Pending"
+                                      : "Accepted",
+                                  projectCategory: matchedInfo.projectCategory,
+                                }}
+                                assignedMentors={[
+                                  {
+                                    mentorId: mentor._id,
+                                    username: mentor.username,
+                                    email: mentor.email,
+                                    phoneNumber: mentor.phoneNumber,
+                                  },
+                                ]}
+                              />
+                              <div className="assigned-mentors">
+                                {/* Mentor Info Card */}
                                 <div
+                                  className="elevated-card"
                                   style={{
-                                    borderRadius: 7,
-                                    padding: 16,
-                                    backgroundColor: "white",
+                                    boxShadow: "rgb(135, 186, 207) 0px 2px 6px",
+                                    borderRadius: 6,
+                                    border: "none",
+                                    backgroundColor: "#c2e1eb",
+                                    padding: 7,
+                                    marginBottom: 10,
+                                    width: "402px",
+                                    marginLeft: 10,
                                   }}
                                 >
-                                  <Card.Meta
-                                    description={
-                                      <>
-                                        <p
-                                          style={{
-                                            marginBottom: 2,
-                                            fontSize: "0.8rem",
-                                          }}
-                                        >
-                                          <strong>Tên: </strong>
-                                          {mentor?.username}
-                                        </p>
-                                        <p
-                                          style={{
-                                            marginBottom: 2,
-                                            fontSize: "0.8rem",
-                                          }}
-                                        >
-                                          <strong>Email: </strong>
-                                          {mentor?.email}
-                                        </p>
-                                        <p
-                                          style={{
-                                            marginBottom: 2,
-                                            fontSize: "0.8rem",
-                                          }}
-                                        >
-                                          <strong>Số điện thoại: </strong>
-                                          {mentor?.phoneNumber}
-                                        </p>
-                                        <p
-                                          style={{
-                                            marginBottom: 2,
-                                            fontSize: "0.8rem",
-                                          }}
-                                        >
-                                          <strong>Danh sách lĩnh vực: </strong>
-                                          <span>
-                                            {professions
-                                              .slice(
-                                                0,
-                                                showAllProfessions
-                                                  ? professions.length
-                                                  : 2
-                                              )
-                                              .join(", ")}
-                                            {professions.length > 2 && (
-                                              <button
-                                                onClick={() =>
-                                                  setShowAllProfessions(
-                                                    !showAllProfessions
-                                                  )
-                                                }
-                                                style={{
-                                                  marginLeft: "8px",
-                                                  color: "blue",
-                                                  border: "none",
-                                                  background: "none",
-                                                  cursor: "pointer",
-                                                }}
-                                              >
-                                                {showAllProfessions
-                                                  ? "Ẩn bớt"
-                                                  : "Xem thêm"}
-                                              </button>
-                                            )}
-                                          </span>
-                                        </p>
-                                        <p
-                                          style={{
-                                            marginBottom: 2,
-                                            fontSize: "0.8rem",
-                                          }}
-                                        >
-                                          <strong>
-                                            Danh sách chuyên môn:{" "}
-                                          </strong>
-                                          <span>
-                                            {specialties
-                                              .slice(
-                                                0,
-                                                showAllSpecialties
-                                                  ? specialties.length
-                                                  : 1
-                                              )
-                                              .join(", ")}
-                                            {specialties.length > 1 && (
-                                              <button
-                                                onClick={() =>
-                                                  setShowAllSpecialties(
-                                                    !showAllSpecialties
-                                                  )
-                                                }
-                                                style={{
-                                                  marginLeft: "8px",
-                                                  color: "blue",
-                                                  border: "none",
-                                                  background: "none",
-                                                  cursor: "pointer",
-                                                }}
-                                              >
-                                                {showAllSpecialties
-                                                  ? "Ẩn bớt"
-                                                  : "Xem thêm"}
-                                              </button>
-                                            )}
-                                          </span>
-                                        </p>
-                                      </>
-                                    }
-                                  />
-                                </div>
-                              </div>
-
-                              <Button
-                                type="link"
-                                onClick={() =>
-                                  openModal(group?._id, group?.projectId?._id)
-                                }
-                                style={{ color: "blue", padding: 0 }}
-                              >
-                                <SelectOutlined /> Chọn Lại Mentor
-                              </Button>
-                              <Modal
-                                title={
-                                  <>
-                                    <ExclamationCircleOutlined
-                                      style={{ color: "red", marginRight: 10 }}
+                                  <strong
+                                    style={{
+                                      fontSize: "0.7rem",
+                                      padding: "4px 10px",
+                                      boxShadow: "0 2px 6px #87bacf",
+                                      backgroundColor: "#62b6cb",
+                                      fontWeight: "bold",
+                                      border: "none",
+                                      color: "#f0f8fa",
+                                      borderRadius: "12px",
+                                    }}
+                                  >
+                                    Mentor Đã Chọn
+                                  </strong>
+                                  <div
+                                    style={{
+                                      borderRadius: 7,
+                                      padding: 16,
+                                      backgroundColor: "white",
+                                    }}
+                                  >
+                                    <Card.Meta
+                                      description={
+                                        <>
+                                          <p
+                                            style={{
+                                              marginBottom: 2,
+                                              fontSize: "0.8rem",
+                                            }}
+                                          >
+                                            <strong>Tên: </strong>
+                                            {mentor?.username}
+                                          </p>
+                                          <p
+                                            style={{
+                                              marginBottom: 2,
+                                              fontSize: "0.8rem",
+                                            }}
+                                          >
+                                            <strong>Email: </strong>
+                                            {mentor?.email}
+                                          </p>
+                                          <p
+                                            style={{
+                                              marginBottom: 2,
+                                              fontSize: "0.8rem",
+                                            }}
+                                          >
+                                            <strong>Số điện thoại: </strong>
+                                            {mentor?.phoneNumber}
+                                          </p>
+                                          <p
+                                            style={{
+                                              marginBottom: 2,
+                                              fontSize: "0.8rem",
+                                            }}
+                                          >
+                                            <strong>
+                                              Danh sách lĩnh vực:{" "}
+                                            </strong>
+                                            <span>
+                                              {professions
+                                                .slice(
+                                                  0,
+                                                  showAllProfessions
+                                                    ? professions.length
+                                                    : 2
+                                                )
+                                                .join(", ")}
+                                              {professions.length > 2 && (
+                                                <button
+                                                  onClick={() =>
+                                                    setShowAllProfessions(
+                                                      !showAllProfessions
+                                                    )
+                                                  }
+                                                  style={{
+                                                    marginLeft: "8px",
+                                                    color: "blue",
+                                                    border: "none",
+                                                    background: "none",
+                                                    cursor: "pointer",
+                                                  }}
+                                                >
+                                                  {showAllProfessions
+                                                    ? "Ẩn bớt"
+                                                    : "Xem thêm"}
+                                                </button>
+                                              )}
+                                            </span>
+                                          </p>
+                                          <p
+                                            style={{
+                                              marginBottom: 2,
+                                              fontSize: "0.8rem",
+                                            }}
+                                          >
+                                            <strong>
+                                              Danh sách chuyên môn:{" "}
+                                            </strong>
+                                            <span>
+                                              {specialties
+                                                .slice(
+                                                  0,
+                                                  showAllSpecialties
+                                                    ? specialties.length
+                                                    : 1
+                                                )
+                                                .join(", ")}
+                                              {specialties.length > 1 && (
+                                                <button
+                                                  onClick={() =>
+                                                    setShowAllSpecialties(
+                                                      !showAllSpecialties
+                                                    )
+                                                  }
+                                                  style={{
+                                                    marginLeft: "8px",
+                                                    color: "blue",
+                                                    border: "none",
+                                                    background: "none",
+                                                    cursor: "pointer",
+                                                  }}
+                                                >
+                                                  {showAllSpecialties
+                                                    ? "Ẩn bớt"
+                                                    : "Xem thêm"}
+                                                </button>
+                                              )}
+                                            </span>
+                                          </p>
+                                        </>
+                                      }
                                     />
-                                    <span style={{ color: "red" }}>
-                                      Cảnh Báo
-                                    </span>
-                                  </>
-                                }
-                                visible={modalVisible}
-                                onOk={handleConfirm} // Gọi API khi nhấn OK
-                                onCancel={() => setModalVisible(false)}
-                                confirmLoading={loading} // Hiển thị trạng thái loading khi đang xử lý
-                                okText="Đồng ý"
-                                cancelText="Hủy"
-                              >
-                                <p>
-                                  Bạn có chắc chắn muốn chọn lại mentor không?
-                                  Mentor đang được ghép hiện tại sẽ bị xoá.
-                                </p>
-                              </Modal>
+                                  </div>
+                                </div>
+
+                                <Button
+                                  type="link"
+                                  onClick={() =>
+                                    openModal(group?._id, group?.projectId?._id)
+                                  }
+                                  style={{
+                                    color: "#fff",
+                                    padding: 10,
+                                    backgroundColor: "#62b6cb",
+                                    fontWeight: 500,
+                                    marginLeft: 10,
+                                  }}
+                                >
+                                  <RetweetOutlined /> Chọn Lại Mentor
+                                </Button>
+                                <Modal
+                                  title={
+                                    <>
+                                      <ExclamationCircleOutlined
+                                        style={{
+                                          color: "red",
+                                          marginRight: 10,
+                                        }}
+                                      />
+                                      <span style={{ color: "red" }}>
+                                        Cảnh Báo
+                                      </span>
+                                    </>
+                                  }
+                                  visible={modalVisible}
+                                  onOk={handleConfirm} // Gọi API khi nhấn OK
+                                  onCancel={() => setModalVisible(false)}
+                                  confirmLoading={loading} // Hiển thị trạng thái loading khi đang xử lý
+                                  okText="Đồng ý"
+                                  cancelText="Hủy"
+                                >
+                                  <p>
+                                    Bạn có chắc chắn muốn chọn lại mentor không?
+                                    Mentor đang được ghép hiện tại sẽ bị xoá.
+                                  </p>
+                                </Modal>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Col>
-                    );
-                  })}
+                        </Col>
+                      );
+                    }
+                  )}
                 </Row>
               </TabPane>
 
@@ -1055,11 +1303,11 @@ const ProjectCardMain = () => {
                   flexDirection: "column",
                   gap: "20px",
                 }}
-                tab={`Bị từ chối (${declinedGroups.length})`}
+                tab={`Bị từ chối (${filteredDeclinedGroups.length})`}
                 key="3"
               >
                 <Row gutter={[16, 16]}>
-                  {declinedGroups.map(({ group, matchedInfo }) => {
+                  {filteredDeclinedGroups.map(({ group, matchedInfo }) => {
                     const mentor = matchedInfo.mentorId;
                     const mentorCate = matchedInfo.mentorProfession;
 
@@ -1275,6 +1523,49 @@ const ProjectCardMain = () => {
                                   />
                                 </div>
                               </div>
+                              <Button
+                                type="link"
+                                onClick={() =>
+                                  openModal(group?._id, group?.projectId?._id)
+                                }
+                                style={{
+                                  color: "#fff",
+                                  padding: 10,
+                                  backgroundColor: "#62b6cb",
+                                  fontWeight: 500,
+                                  marginLeft: 10,
+                                }}
+                              >
+                                <RetweetOutlined /> Chọn Lại Mentor
+                              </Button>
+                              <Modal
+                                title={
+                                  <>
+                                    <InfoCircleOutlined
+                                      style={{ color: "orange" }}
+                                    />
+                                    <span
+                                      style={{
+                                        color: "orange",
+                                        marginLeft: 10,
+                                      }}
+                                    >
+                                      Thông báo
+                                    </span>
+                                  </>
+                                }
+                                visible={modalVisible}
+                                onOk={handleConfirm} // Gọi API khi nhấn OK
+                                onCancel={() => setModalVisible(false)}
+                                confirmLoading={loading} // Hiển thị trạng thái loading khi đang xử lý
+                                okText="Đồng ý"
+                                cancelText="Hủy"
+                              >
+                                <p>
+                                  Hiện tại nhóm này đã bị Mentor từ chối. Hãy
+                                  chọn lại Mentor cho nhóm!
+                                </p>
+                              </Modal>
                             </div>
                           </div>
                         </div>

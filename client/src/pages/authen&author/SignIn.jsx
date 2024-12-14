@@ -74,7 +74,7 @@ function SignIn() {
           } else if (userRole === 4) {
             navigation("/student/dashboard"); // Nếu là học sinh
           } else if (userRole === 3) {
-            navigation("/mentor"); // Nếu là mentor
+            navigation("/mentor/managegroup"); // Nếu là mentor
           } else {
             navigation("/");
           }

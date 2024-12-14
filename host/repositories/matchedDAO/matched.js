@@ -32,6 +32,7 @@ const createMatched = async (data) => {
     const currentLoad = await Matched.countDocuments({
       mentorId: data.mentorId,
     });
+    console.log("currentLoad", currentLoad);
 
     // Lấy thông tin maxLoad của mentor
     const mentorCategory = await MentorCategory.findOne({
@@ -51,8 +52,8 @@ const createMatched = async (data) => {
     );
 
     // Nếu mentor đạt maxLoad, xóa khỏi tất cả các nhóm
-    if (mentorCategory && currentLoad >= mentorCategory.maxLoad) {
-      await TemporaryMatching.deleteOne(
+    if (mentorCategory && currentLoad + 1 >= mentorCategory.maxLoad) {
+      await TemporaryMatching.updateMany(
         {
           $or: [
             { "mentorPreferred.mentorId": data.mentorId },

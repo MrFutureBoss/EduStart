@@ -165,6 +165,13 @@ const matchingSlice = createSlice({
         matchedGroups,
       };
     },
+    resetClassData(state) {
+      state.classData = {};
+      state.selectedClassId = null;
+      state.loadingProjects = false;
+      state.activeId = null;
+      state.isAssig = false;
+    },
   },
 });
 
@@ -186,5 +193,6 @@ export const {
   setReloadRequired,
   clearReloadRequired,
   setIsAssig,
+  resetClassData,
 } = matchingSlice.actions;
 export default matchingSlice.reducer;

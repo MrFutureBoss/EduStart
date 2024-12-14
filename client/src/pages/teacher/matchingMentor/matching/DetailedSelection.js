@@ -19,7 +19,8 @@ import ProjectCard from "../ProjectCard";
 import "../../teacherCSS/DetailedSelection.css";
 import { assignMentorToProject } from "../../../../api";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsAssig } from "../../../../redux/slice/MatchingSlice";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -27,6 +28,7 @@ const { TabPane } = Tabs;
 const DetailedSelection = () => {
   const navigate = useNavigate();
   const teacherId = localStorage.getItem("userId");
+  const dispatch = useDispatch();
 
   const [project, setProject] = useState(null);
   const [mentorPreferred, setMentorPreferred] = useState([]);
@@ -200,6 +202,7 @@ const DetailedSelection = () => {
     teacherPreferredMentors,
     matchingMentors,
   ]);
+  dispatch(setIsAssig(true));
 
   const handleGoBack = () => {
     navigate(-1);

@@ -1,8 +1,17 @@
 // src/components/ProjectCardMain/MentorDropZone.jsx
 import React, { useEffect, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import { Tag, Tooltip, Badge, Avatar, Progress, Button, message } from "antd";
-import { CheckOutlined } from "@ant-design/icons";
+import {
+  Tag,
+  Tooltip,
+  Badge,
+  Avatar,
+  Progress,
+  Button,
+  message,
+  Modal,
+} from "antd";
+import { CheckOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import { assignMentorToProject } from "../../../../api";
 import { useDispatch } from "react-redux";
@@ -26,6 +35,11 @@ const MentorDropZone = ({
   });
   const dispatch = useDispatch();
   const [draggedMentor, setDraggedMentor] = useState(null);
+  console.log("assignedMentors", assignedMentors);
+
+  // State cho modal xác nhận
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   // Helper function to get mentorId as string
   const getMentorId = (mentor) =>
@@ -60,7 +74,18 @@ const MentorDropZone = ({
     }
   }, [isOver, activeId, mentors]);
 
+  // Hàm để hiển thị modal xác nhận
+  const showConfirmModal = () => {
+    if (assignedMentors.length === 0) {
+      message.warning("Không có mentor nào được gán để lưu.");
+      return;
+    }
+    setIsModalVisible(true);
+  };
+
+  // Hàm xử lý khi người dùng xác nhận lưu mentor
   const handleConfirmMentor = () => {
+    setConfirmLoading(true);
     const mentor = assignedMentors[0];
     if (mentor) {
       assignMentorToProject(groupId, mentor.mentorId, teacherId)
@@ -70,14 +95,27 @@ const MentorDropZone = ({
           dispatch(
             setReloadRequired({ classId: selectedClassId, required: true })
           );
-          // Sau đó gọi handleClassChange để load lại
+          // Gọi hàm callback để load lại dữ liệu
           onMentorAssigned();
+          // Đóng modal
+          setIsModalVisible(false);
         })
         .catch((error) => {
           console.error("Lỗi khi gán mentor:", error);
           message.error("Gán mentor thất bại.");
+        })
+        .finally(() => {
+          setConfirmLoading(false);
         });
+    } else {
+      setConfirmLoading(false);
+      setIsModalVisible(false);
     }
+  };
+
+  // Hàm xử lý khi người dùng hủy bỏ modal
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   const style = {
@@ -288,22 +326,43 @@ const MentorDropZone = ({
 
       {assignedMentors.length > 0 && (
         <Tooltip title="Lưu gợi ý">
-          <Button
-            className="button-select-mentor-not-matched"
-            style={{
-              marginLeft: "91%",
-              width: 25,
-              height: 25,
-              borderRadius: "30px",
-            }}
-            icon={<CheckOutlined />}
-            onClick={handleConfirmMentor}
-          ></Button>
-          <strong style={{ position: "relative", left: 237, bottom: 24 }}>
-            Lưu Mentor
-          </strong>
+          <div style={{ cursor: "pointer" }} onClick={showConfirmModal}>
+            <Button
+              className="button-select-mentor-not-matched"
+              style={{
+                marginLeft: "91%",
+                width: 25,
+                height: 25,
+                borderRadius: "30px",
+              }}
+              icon={<CheckOutlined />}
+            ></Button>
+            <strong style={{ position: "relative", left: 237, bottom: 24 }}>
+              Lưu Mentor
+            </strong>
+          </div>
         </Tooltip>
       )}
+
+      {/* Modal xác nhận lưu mentor */}
+      <Modal
+        title={
+          <>
+            <ExclamationCircleOutlined
+              style={{ color: "orange", marginRight: 10 }}
+            />
+            <span style={{ color: "orange" }}>Xác Nhận Lưu Mentor</span>
+          </>
+        }
+        visible={isModalVisible}
+        onOk={handleConfirmMentor}
+        onCancel={handleCancel}
+        confirmLoading={confirmLoading}
+        okText="Đồng ý"
+        cancelText="Hủy"
+      >
+        <p>Bạn có chắc chắn muốn lưu Mentor đã được gán cho dự án này không?</p>
+      </Modal>
     </div>
   );
 };

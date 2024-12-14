@@ -52,7 +52,7 @@ matchedRouter.get(
 );
 
 matchedRouter.get(
-  "/matched-by-class/:classId",
+  "/matched-by-class/:classId/:semesterId",
   verifyAccessToken,
   matchedController.getMatchedInfoByClassId
 );

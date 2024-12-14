@@ -5,6 +5,7 @@ import Matched from "../../models/matchedModel.js";
 import mongoose from "mongoose";
 import ProjectCategory from "../../models/projectCategoryModel.js";
 import Class from "../../models/classModel.js";
+import Semester from "../../models/semesterModel.js";
 
 const getGroupById = async (id) => {
   try {
@@ -255,13 +256,20 @@ const getProjectByGroupId = async (groupId) => {
   }
 };
 
-const getGroupsByClassId = async (classId) => {
+const getGroupsByClassId = async (classId, semesterId) => {
   try {
-    if (!mongoose.isValidObjectId(classId)) {
-      throw new Error("Invalid classId format");
+    const objectIdClassId = new mongoose.Types.ObjectId(classId);
+    const objectIdSemesterId = new mongoose.Types.ObjectId(semesterId);
+
+    // Fetch semester details
+    const semester = await Semester.findById(objectIdSemesterId);
+    if (!semester) {
+      throw new Error("Semester not found");
     }
 
-    const objectIdClassId = new mongoose.Types.ObjectId(classId);
+    const { startDate, endDate } = semester;
+
+    // Fetch class details
     const classData = await Class.findById(objectIdClassId).populate({
       path: "teacherId",
       model: "User",
@@ -274,6 +282,7 @@ const getGroupsByClassId = async (classId) => {
 
     const teacher = classData.teacherId;
 
+    // Fetch groups for the class
     const groups = await Group.find({ classId: objectIdClassId })
       .populate({
         path: "projectId",
@@ -293,13 +302,18 @@ const getGroupsByClassId = async (classId) => {
 
     const populatedGroups = await Promise.all(
       groups.map(async (group) => {
+        // Fetch users for the group
         const users = await User.find({
           classId: objectIdClassId,
           groupId: group._id,
           status: "Active",
         }).select("-password");
 
-        const matched = await Matched.findOne({ groupId: group._id })
+        // Fetch mentor match details within the semester period
+        const matched = await Matched.findOne({
+          groupId: group._id,
+          updatedAt: { $gte: startDate, $lte: endDate },
+        })
           .populate({
             path: "mentorId",
             model: "User",
@@ -316,6 +330,7 @@ const getGroupsByClassId = async (classId) => {
         };
       })
     );
+
     return {
       message:
         "Groups with project, user, and mentor details fetched successfully",
@@ -323,7 +338,10 @@ const getGroupsByClassId = async (classId) => {
       teacher,
     };
   } catch (error) {
-    console.error("Error fetching detailed groups by classId:", error);
+    console.error(
+      "Error fetching detailed groups by classId and semesterId:",
+      error
+    );
     throw new Error(`Failed to fetch groups: ${error.message}`);
   }
 };
