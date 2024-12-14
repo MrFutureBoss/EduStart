@@ -107,7 +107,7 @@ cron.schedule("0 0 * * *", () => {
   semesterController.autoUpdateSemesterStatus();
 });
 
-cron.schedule("*/15 * * * *", async () => {
+cron.schedule("*/20 * * * *", async () => {
   try {
     await activityController.autoAssignOutcomes();
   } catch (error) {

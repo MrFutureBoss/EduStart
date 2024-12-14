@@ -15,12 +15,13 @@
 }
 
 .logo {
-  background-image: url("../../assets/images/logo-2.png");
+  background-image: url("../../assets/images/logo-2-nobg.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   width: 45px;
   height: 43px;
+
   text-decoration: none;
   cursor: pointer;
   border-radius: 32px;
