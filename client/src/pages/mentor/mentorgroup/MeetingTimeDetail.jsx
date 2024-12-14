@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import SmallModal from "../../../components/Modal/SmallModal";
-import { Col, message, Popconfirm, Row } from "antd";
+import { Badge, Col, message, Popconfirm, Row } from "antd";
 import ConfirmButton from "../../../components/Button/ConfirmButton";
 import CancelButton from "../../../components/Button/CancelButton";
 import { useDispatch, useSelector } from "react-redux";
@@ -131,8 +131,15 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
 
     if (!selectedEvent) {
       return (
-        <Row>
-          <Col xs={24}>
+        <Row
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Col xs={24} style={{ textAlign: "center" }}>
             <p>Không tìm thấy thông tin chi tiết cuộc họp</p>
           </Col>
         </Row>
@@ -140,8 +147,23 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
     }
 
     return (
-      <Row>
-        <Col xs={24}>
+      <Row
+        style={{
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Col
+          xs={24}
+          md={20}
+          lg={16}
+          style={{
+            textAlign: "left", // Căn chữ về lề trái
+            lineHeight: "1.6", // Tăng khoảng cách giữa các dòng
+          }}
+        >
           <p>
             <strong>Lớp và nhóm:</strong> {eventGroup}
           </p>
@@ -157,15 +179,26 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
             {format(new Date(selectedEvent.end), "HH:mm", { locale: vi })}
           </p>
           <p>
-            <strong>Nội dung cuộc họp:</strong> {selectedEvent.title}
+            <strong>Tiêu đề lịch họp:</strong> {selectedEvent.title}
           </p>
           <p>
-            <strong>Tình trạng:</strong>{" "}
-            {new Date() < new Date(selectedEvent.start)
-              ? "Sắp diễn ra"
-              : new Date() > new Date(selectedEvent.end)
-              ? "Đã diễn ra"
-              : "Đang diễn ra"}
+            <strong>Tình trạng:&nbsp;</strong>{" "}
+            <Badge
+              status={
+                new Date() < new Date(selectedEvent.start)
+                  ? "success"
+                  : new Date() > new Date(selectedEvent.end)
+                  ? "default"
+                  : "processing"
+              }
+              text={
+                new Date() < new Date(selectedEvent.start)
+                  ? "Sắp diễn ra"
+                  : new Date() > new Date(selectedEvent.end)
+                  ? "Đã diễn ra"
+                  : "Đang diễn ra"
+              }
+            />
           </p>
         </Col>
       </Row>
@@ -200,7 +233,7 @@ const MeetingTimeDetail = ({ open, close, eventId, eventGroup }) => {
   return (
     <>
       <SmallModal
-        title="Chi tiết cuộc họp"
+        title="Chi tiết lịch họp"
         content={modalContent}
         footer={modalFooter}
         isModalOpen={open}

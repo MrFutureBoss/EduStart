@@ -86,7 +86,7 @@ div .rbc-event-content {
   max-height: 500px;
 }
 
-.rbc-time-view{
+.rbc-time-view {
   max-height: 600px;
 }
 
@@ -136,10 +136,58 @@ div .rbc-event-content {
   0% {
     border-color: #1890ff;
   }
+
   100% {
-    border-color: #40a9ff; /* A slight variation of the original color for the animation */
+    border-color: #40a9ff;
+    /* A slight variation of the original color for the animation */
   }
 }
 
+.rbc-btn-group button:hover {
+  background-color: #60B2C7;
+  color: #FFF;
+}
 
+/* Đảm bảo header không bị ảnh hưởng bởi scrollbar */
+.rbc-time-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #F0F2F5;
+  border-bottom: 1px solid #ddd;
+  padding-right: 8px
+}
 
+.rbc-time-content::-webkit-scrollbar {
+  width: 8px;
+  /* Độ rộng scrollbar */
+}
+
+.rbc-time-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.rbc-time-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.rbc-time-header-content {
+  display: flex;
+}
+
+.rbc-time-header-cell {
+  flex: 1 1 auto;
+}
+
+.rbc-time-content>*>.rbc-day-slot {
+  flex: 1 1 auto;
+}
+
+.rbc-time-header-gutter {
+  border: 1px solid #ddd;
+}
+
+.rbc-time-view {
+  border-style: none;
+}
