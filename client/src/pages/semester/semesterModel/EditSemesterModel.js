@@ -17,6 +17,7 @@ const EditSemesterModal = ({
   apiErrors,
 }) => {
   const [form] = Form.useForm();
+  console.log(semester);
 
   // State to store initial values
   const [initialValues, setInitialValues] = useState({});
@@ -58,14 +59,14 @@ const EditSemesterModal = ({
       .then((values) => {
         // Check if changing to "Finished" status
         if (values.status === "Finished") {
-          const endDate = values.endDate;
+          const endDate = dayjs(values.endDate); // Convert to dayjs object
           const today = dayjs();
 
-          // Calculate the difference between today and the end date
+          // Calculate the difference between end date and today
           const daysDifference = today.diff(endDate, "day");
 
-          // If the difference is more than 5 days, prompt for confirmation
-          if (daysDifference > 5) {
+          // If the difference is negative (end date in future), prompt confirmation
+          if (daysDifference < -5) {
             Modal.confirm({
               title: "Xác nhận thay đổi trạng thái kỳ học",
               content: `Hiện tại chưa đến thời gian kỳ học kết thúc. Bạn có chắc chắn muốn thay đổi trạng thái kỳ học về "Đã kết thúc"?`,

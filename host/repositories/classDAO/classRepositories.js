@@ -83,7 +83,7 @@ const createClass = async ({
   //kết nối socket
   const recipients = [teacherId];
   const notificationMessage = `Bạn đã được phân công lớp ${className}`;
-  const notifications = await notificationDAO.createNotifications({
+  await notificationDAO.createNotifications({
     message: notificationMessage,
     type: "classAssignment",
     recipients,
@@ -297,10 +297,6 @@ const findProjectsByTeacherAndClass = async (teacherId, classId) => {
 
 const findTeacherClassSummary = async (teacherId, semesterId) => {
   try {
-    if (!mongoose.isValidObjectId(semesterId)) {
-      throw new Error("Invalid semesterId format");
-    }
-
     // Find classes by teacherId and semesterId
     const classes = await Class.find({ teacherId, semesterId });
 

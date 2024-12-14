@@ -385,11 +385,11 @@ const UserListSemester = () => {
     }
   };
 
-  useEffect(() => {
-    if (!currentSemester) {
-      fetchCurrentSemester();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!currentSemester) {
+  //     fetchCurrentSemester();
+  //   }
+  // }, []);
 
   return (
     <div className="user-details">

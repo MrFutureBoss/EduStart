@@ -145,7 +145,7 @@ const MentorHeader = ({ collapsed, toggleCollapse }) => {
     return nameParts[nameParts.length - 1]; // Lấy phần cuối của mảng
   };
   const clickLogo = () => {
-    navigate("/mentor/dashboard");
+    navigate("/mentor/managegroup");
   };
   return (
     <div className="navbar">

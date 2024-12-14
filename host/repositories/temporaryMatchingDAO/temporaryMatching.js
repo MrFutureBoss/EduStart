@@ -21,7 +21,7 @@ const findMentorPreferencesByGroupId = async (
     .populate({
       path: "mentorId",
       model: "User",
-      select: "username email degree phoneNumber", // Only fetch required fields
+      select: "username email degree phoneNumber avatarUrl", // Only fetch required fields
     })
     .lean();
 
@@ -129,7 +129,10 @@ const findPreferredMentorsByTeacher = async (
     professionId,
     specialtyId: { $in: specialtyIds },
   })
-    .populate("selectedMentors.mentorId", "username email degree phoneNumber") // Chỉ populate các trường cần thiết
+    .populate(
+      "selectedMentors.mentorId",
+      "username email degree phoneNumber avatarUrl"
+    ) // Chỉ populate các trường cần thiết
     .lean();
 };
 
@@ -145,7 +148,7 @@ const findMentorCategoriesByProfessionsAndSpecialties = async (
     .populate({
       path: "mentorId",
       model: User,
-      select: "username email degree phoneNumber",
+      select: "username email degree phoneNumber avatarUrl",
     })
     .populate({
       path: "professionIds",

@@ -264,7 +264,7 @@ const MentorDropZone = ({
                         backgroundColor: "#3390C1",
                         color: "white",
                         marginRight: 2,
-                        transform: "scale(0.8)",
+                        transform: "scale(0.7)",
                         transformOrigin: "center",
                         zIndex: 10,
                       }}
@@ -337,7 +337,7 @@ const MentorDropZone = ({
               }}
               icon={<CheckOutlined />}
             ></Button>
-            <strong style={{ position: "relative", left: 237, bottom: 24 }}>
+            <strong style={{ position: "relative", left: "104%", bottom: 24 }}>
               Lưu Mentor
             </strong>
           </div>

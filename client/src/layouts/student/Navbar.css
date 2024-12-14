@@ -19,11 +19,12 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  /* border-radius: 50%; */
-  width: 55px;
-  height: 48px;
+  width: 45px;
+  height: 43px;
+
   text-decoration: none;
   cursor: pointer;
+  border-radius: 32px;
 }
 
 .logo-title {
@@ -31,7 +32,7 @@
   font-weight: bold;
   /* margin-left: 5px; */
   color: rgb(98, 182, 203);
-  margin: 5px 0 0 65px;
+  margin: 5px 0 0 53px;
 }
 
 .menu {

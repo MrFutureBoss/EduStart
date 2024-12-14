@@ -177,7 +177,7 @@ const fetchTreeData = async (teacherId) => {
   }
 
   // Lấy tất cả Profession cùng Specialty
-  const professions = await Profession.find()
+  const professions = await Profession.find({ status: true })
     .populate("specialty", "_id name status")
     .lean();
 

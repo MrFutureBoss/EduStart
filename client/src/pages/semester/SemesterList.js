@@ -37,9 +37,8 @@ const { Text } = Typography;
 const SemesterList = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { semesters, loading, error, sid, currentSemester } = useSelector(
-    (state) => state.semester
-  );
+  const { semesters, loading, error, sid, currentSemester, semester } =
+    useSelector((state) => state.semester);
 
   const [pagination, setPagination] = useState({ current: 1, pageSize: 9 });
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -123,8 +122,9 @@ const SemesterList = () => {
     }
   };
 
-  const handleEditSemester = () => {
+  const handleEditSemester = (semester) => {
     setIsEditModalVisible(true);
+    dispatch(setSemester(semester));
   };
 
   const handleEditModalOk = async (updatedSemester) => {
@@ -353,7 +353,7 @@ const SemesterList = () => {
         visible={isEditModalVisible}
         onOk={handleEditModalOk}
         onCancel={() => setIsEditModalVisible(false)}
-        semester={currentSemester}
+        semester={semester}
         apiErrors={editApiErrors}
       />
       <CreateSemesterModal
