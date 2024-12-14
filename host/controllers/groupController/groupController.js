@@ -29,9 +29,9 @@ const getInforGroupById = async (req, res, next) => {
 
 const getGroupsByClassId = async (req, res, next) => {
   try {
-    const { classId } = req.params;
+    const { classId, semesterId } = req.params;
 
-    const result = await groupDAO.getGroupsByClassId(classId);
+    const result = await groupDAO.getGroupsByClassId(classId, semesterId);
 
     if (result.groups.length === 0) {
       return res
