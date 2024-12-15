@@ -242,6 +242,7 @@ const fetchTreeData = async (teacherId) => {
 
 // hàm lấy mentor theo chuyên môn
 const getMentorsBySpecialty = async (professionId, specialtyId) => {
+  // Lấy danh sách mentors dựa trên professionId và specialtyId
   const mentors = await MentorCategory.find({
     professionIds: professionId,
     "specialties.specialtyId": specialtyId,
@@ -252,7 +253,43 @@ const getMentorsBySpecialty = async (professionId, specialtyId) => {
     })
     .lean();
 
-  return mentors;
+  if (!mentors || mentors.length === 0) {
+    return [];
+  }
+
+  // Lấy danh sách mentorId từ kết quả tìm kiếm
+  const mentorIds = mentors.map((mentor) => mentor.mentorId._id);
+
+  // Lấy currentLoad của mỗi mentor bằng cách đếm số lần xuất hiện trong bảng Matched
+  const matchedCounts = await Matched.aggregate([
+    {
+      $match: {
+        mentorId: { $in: mentorIds }, // Directly match mentorId field
+      },
+    },
+    {
+      $group: {
+        _id: "$mentorId",
+        count: { $sum: 1 }, // Count occurrences
+      },
+    },
+  ]);
+
+  // Tạo một map từ mentorId đến số lượng matched
+  const matchedCountMap = matchedCounts.reduce((acc, item) => {
+    acc[item._id.toString()] = item.count;
+    return acc;
+  }, {});
+
+  // Gắn currentLoad vào mỗi mentor
+  const mentorsWithCurrentLoad = mentors.map((mentor) => {
+    return {
+      ...mentor,
+      currentLoad: matchedCountMap[mentor.mentorId._id.toString()] || 0, // Default to 0 if not found
+    };
+  });
+
+  return mentorsWithCurrentLoad;
 };
 
 const getMentorCategoryByUserId = async (userId) => {

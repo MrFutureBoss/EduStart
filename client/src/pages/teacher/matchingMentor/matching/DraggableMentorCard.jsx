@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Tooltip, Badge, Avatar } from "antd";
 import { CSS } from "@dnd-kit/utilities";
-import { CheckOutlined } from "@ant-design/icons";
+import { CheckOutlined, StarFilled } from "@ant-design/icons";
 import PropTypes from "prop-types";
 
 const DraggableMentorCard = ({
@@ -65,14 +65,23 @@ const DraggableMentorCard = ({
           <div style={{ position: "absolute", top: 0, right: 0 }}>
             {mentor.isPreferredGroup && (
               <Badge
-                count={!isDragging ? "C" : 0}
+                count={
+                  !isDragging ? (
+                    <StarFilled
+                      style={{ color: "#ff9800", fontSize: "20px" }}
+                    />
+                  ) : (
+                    0
+                  )
+                }
                 style={{
-                  backgroundColor: "#3390C1",
+                  backgroundColor: "#f5f5f5",
                   color: "white",
                   marginRight: 2,
                   transform: "scale(0.7)",
                   transformOrigin: "center",
                   zIndex: 10,
+                  borderRadius: 30,
                 }}
                 offset={[7, 16]}
               />

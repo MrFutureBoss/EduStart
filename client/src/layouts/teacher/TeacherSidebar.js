@@ -334,20 +334,6 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
             Ghép Mentor cho nhóm
           </Link>
         </Menu.Item>
-
-        <Menu.Item
-          key="15"
-          icon={
-            <MdSupportAgent
-              style={{ fontSize: "1.5em" }}
-              className={toggleCollapse ? "" : "custom-icon"}
-            />
-          }
-        >
-          <Link style={{ textDecoration: "none" }} to="">
-            Hỗ trợ
-          </Link>
-        </Menu.Item>
       </Menu>
     </Sider>
   );

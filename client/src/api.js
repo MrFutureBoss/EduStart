@@ -25,6 +25,13 @@ export const fetchTreeData = (teacherId) => {
   );
 };
 
+// API để lấy danh sách profession và specialty
+export const getMatchedCount = (classId) => {
+  if (!classId) {
+    return;
+  }
+  return axios.get(`${BASE_URL}/matched/matched-class/${classId}`, getConfig());
+};
 // API để lấy danh sách mentor dựa trên profession và specialty
 export const fetchMentors = (professionId, specialtyId) => {
   const config = {

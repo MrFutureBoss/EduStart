@@ -310,6 +310,27 @@ const deleteMatched = async (req, res) => {
     });
   }
 };
+
+const getMatchedGroupsCountController = async (req, res) => {
+  try {
+    const { classId } = req.params;
+
+    // Call the service function
+    const result = await matchedDAO.getMatchedGroupsCount(classId);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Lỗi máy chủ. Vui lòng thử lại sau.",
+    });
+  }
+};
+
 export default {
   createMatchedHandler,
   getMatchedInfoByGroupId,
@@ -321,4 +342,5 @@ export default {
   deleteTimeEventHandler,
   getMatchedInfoByClassId,
   deleteMatched,
+  getMatchedGroupsCountController,
 };

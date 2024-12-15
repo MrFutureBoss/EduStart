@@ -41,6 +41,6 @@ mentorCategoryRouters.get(
 mentorCategoryRouters.get(
   "/findmentorcategorybyuserid/:userId",
   mentorCategoryController.getMentorCategoryByUserId,
-  verifyAccessToken,
+  verifyAccessToken
 );
 export default mentorCategoryRouters;

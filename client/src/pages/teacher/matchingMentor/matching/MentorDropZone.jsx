@@ -19,6 +19,7 @@ import {
   setIsAssig,
   setReloadRequired,
 } from "../../../../redux/slice/MatchingSlice";
+import { StarFilled } from "@ant-design/icons"; // Import biểu tượng ngôi sao
 
 const MentorDropZone = ({
   projectId,
@@ -35,7 +36,6 @@ const MentorDropZone = ({
   });
   const dispatch = useDispatch();
   const [draggedMentor, setDraggedMentor] = useState(null);
-  console.log("assignedMentors", assignedMentors);
 
   // State cho modal xác nhận
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -142,7 +142,7 @@ const MentorDropZone = ({
           backgroundColor: "#DCE2C8",
         }}
       >
-        Mentor Được Đề Xuất
+        Mentor đươc chọn
       </Tag>
       {isOver && draggedMentor && (
         <div className="mentor-info-card preview-card">
@@ -165,9 +165,14 @@ const MentorDropZone = ({
               <div style={{ position: "absolute", top: 0, right: 0 }}>
                 {draggedMentor.isPreferredGroup && (
                   <Badge
-                    count="C"
+                    count={
+                      <StarFilled
+                        style={{ color: "#ff9800", fontSize: "20px" }}
+                      />
+                    }
                     style={{
-                      backgroundColor: "#3390C1",
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: 30,
                       color: "white",
                       transform: "scale(0.8)",
                       transformOrigin: "center",
@@ -259,9 +264,14 @@ const MentorDropZone = ({
                 <div style={{ position: "absolute", top: 0, right: 0 }}>
                   {mentor.isPreferredGroup && (
                     <Badge
-                      count="C"
+                      count={
+                        <StarFilled
+                          style={{ color: "#ff9800", fontSize: "20px" }}
+                        />
+                      }
                       style={{
-                        backgroundColor: "#3390C1",
+                        backgroundColor: "#f5f5f5",
+                        borderRadius: 30,
                         color: "white",
                         marginRight: 2,
                         transform: "scale(0.7)",
