@@ -9,6 +9,7 @@ import {
   message,
   Input,
   TimePicker,
+  Collapse,
 } from "antd";
 import ConfirmButton from "../../../components/Button/ConfirmButton";
 import CancelButton from "../../../components/Button/CancelButton";
@@ -19,6 +20,8 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import moment from "moment";
 import runes from "runes2";
+import { CaretRightOutlined } from "@ant-design/icons";
+const { Panel } = Collapse;
 
 const { Option } = Select;
 
@@ -329,6 +332,50 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
                     </span>
                   )}
                 </p>
+                {isEditingStartTime &&
+                  <Collapse
+                    bordered={false}
+                    style={{
+                      marginBottom: "16px",
+                      width: "315px",
+                    }}
+                    expandIcon={({ isActive }) => (
+                      <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                    )}
+                    className="custom-panel-header"
+                  >
+                    <Panel
+                      header={
+                        <p
+                          className="remove-default-style-p"
+                          style={{
+                            fontSize: "0.8rem",
+                            fontWeight: "500",
+                            margin: 0,
+                          }}
+                        >
+                          Lưu ý về chọn giờ !
+                        </p>
+                      }
+                      key="1"
+                      style={{
+                        background: "#f7f7f7",
+                        borderRadius: "8px",
+                        marginTop: "8px",
+                        border: "1px solid #d9d9d9",
+                      }}
+                    >
+                      <small style={{ fontSize: "12px" }}>
+                        (*) Ví dụ nhập: 13:45
+                        <br />
+                        (*) Giới hạn giờ bắt đầu từ 7h đến 20h30
+                        <br />
+                        (*) Lưu ý bạn không thể nhập hoặc chọn giờ đã qua nếu
+                        chọn ngày hôm nay
+                      </small>
+                    </Panel>
+                  </Collapse>
+                }
                 <p>
                   <strong>Giờ Kết Thúc:</strong>{" "}
                   <span>
@@ -360,7 +407,7 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
           onConfirm={handleMakeNewEvent}
           okText="Đồng ý"
           cancelText="Hủy"
-          disabled={!isValidTime} // Vô hiệu hóa nếu thời gian không hợp lệ
+          disabled={!isValidTime}
         >
           <ConfirmButton content="Thêm vào" disabled={!isValidTime} />
         </Popconfirm>

@@ -10,6 +10,7 @@ import {
   setProjects,
   setSelectedProjectToTop,
 } from "../../redux/slice/ProjectSlice";
+import { setSid } from "../../redux/slice/semesterSlide";
 
 const TableIssueDashboard = ({ userId, jwt }) => {
   const [classData, setClassData] = useState([]);
@@ -26,7 +27,23 @@ const TableIssueDashboard = ({ userId, jwt }) => {
     }),
     [jwt]
   );
+  const { sid } = useSelector(
+    (state) => state.semester
+  );
+  const fetchCurrentSemester = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/semester/current`, config);
+      const semesterData = response.data;
+      dispatch(setSid(semesterData._id));
+    } catch (error) {
+      console.error("Error fetching current semester:", error);
+      message.error("Lỗi khi tải dữ liệu Semester!");
+    }
+  };
 
+  useEffect(() => {
+    fetchCurrentSemester();
+  }, [config]);
   const fetchGroupInfo = async (groupIds) => {
     const groupIdToClassId = {};
     const groupInfoPromises = groupIds.map((groupId) =>
@@ -52,7 +69,7 @@ const TableIssueDashboard = ({ userId, jwt }) => {
   };
   const fetchGroupsForClass = async (classId) => {
     try {
-      const res = await axios.get(`${BASE_URL}/group/class/${classId}`, config);
+      const res = await axios.get(`${BASE_URL}/group/class/${classId}/${sid}`, config);
       return res.data.groups || [];
     } catch (err) {
       console.error(`Error fetching groups for classId ${classId}:`, err);
@@ -244,7 +261,7 @@ const TableIssueDashboard = ({ userId, jwt }) => {
 
       setClassData(updatedClassData);
     } catch (error) {
-      message.error("Lỗi khi tải dữ liệu!");
+      // message.error("Lỗi khi tải dữ liệu!");
     } finally {
       setLoading(false);
     }

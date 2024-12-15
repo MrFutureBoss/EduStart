@@ -18,7 +18,7 @@ groupRouter.get(
 );
 
 groupRouter.get(
-  "/class/:classId",
+  "/class/:classId/:semesterId",
   verifyAccessToken,
   groupController.getGroupsByClassId
 );
