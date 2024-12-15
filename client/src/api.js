@@ -25,6 +25,13 @@ export const fetchTreeData = (teacherId) => {
   );
 };
 
+// API để lấy danh sách profession và specialty
+export const getMatchedCount = (classId) => {
+  if (!classId) {
+    return;
+  }
+  return axios.get(`${BASE_URL}/matched/matched-class/${classId}`, getConfig());
+};
 // API để lấy danh sách mentor dựa trên profession và specialty
 export const fetchMentors = (professionId, specialtyId) => {
   const config = {
@@ -56,6 +63,10 @@ export const fetchTeacherSelection = (teacherId, professionId, specialtyId) => {
 };
 // API này để lấy data tree của dự án của các lớp mà giáo viên đó phụ trách
 export const fetchClassSummaryData = (teacherId, semesterId) => {
+  if (!semesterId || !teacherId) {
+    console.warn("Sid is undefined. Skipping API call.");
+    return;
+  }
   return axios.get(
     `${BASE_URL}/class/${teacherId}/${semesterId}/summary_classses`,
     getConfig()

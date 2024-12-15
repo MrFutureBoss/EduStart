@@ -138,7 +138,11 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
             </svg>
           }
         >
-          <Link onClick={checkUpdate} style={{ textDecoration: "none" }} to="managegroup">
+          <Link
+            onClick={checkUpdate}
+            style={{ textDecoration: "none" }}
+            to="managegroup"
+          >
             Quản lý nhóm
           </Link>
         </Menu.Item>
@@ -204,7 +208,7 @@ const MentorSidebar = ({ collapsed, toggleCollapse }) => {
             style={{ textDecoration: "none" }}
             to="project-suggest"
           >
-            Lựa chọn dự án ưu tiên.
+            Lựa chọn dự án muốn hỗ trợ.
           </Link>
         </Menu.Item>
       </Menu>

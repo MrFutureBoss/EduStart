@@ -14,7 +14,7 @@ import {
   Tabs,
   Spin,
 } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, StarFilled } from "@ant-design/icons";
 import ProjectCard from "../ProjectCard";
 import "../../teacherCSS/DetailedSelection.css";
 import { assignMentorToProject } from "../../../../api";
@@ -464,9 +464,12 @@ const AssignedMentorCard = ({
             />
             {isPreferredGroup && (
               <Badge
-                count="C"
+                count={
+                  <StarFilled style={{ color: "#ff9800", fontSize: "20px" }} />
+                }
                 style={{
-                  backgroundColor: "#3390C1",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 30,
                   color: "white",
                   marginLeft: 8,
                 }}
@@ -570,9 +573,12 @@ const MentorDetailCard = ({ mentor, onSelect, projectSpecialties }) => {
             />
             {isPreferredGroup && (
               <Badge
-                count="C"
+                count={
+                  <StarFilled style={{ color: "#ff9800", fontSize: "20px" }} />
+                }
                 style={{
-                  backgroundColor: "#3390C1",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 30,
                   color: "white",
                   marginLeft: 8,
                 }}

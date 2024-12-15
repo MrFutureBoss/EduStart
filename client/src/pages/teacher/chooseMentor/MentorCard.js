@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Card, Avatar, Dropdown, Menu, Button, Progress, Tag } from "antd";
-import { EllipsisOutlined, UpOutlined, DownOutlined } from "@ant-design/icons";
+import { Card, Avatar, Button, Progress, Tag } from "antd";
+import { UpOutlined, DownOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import "../teacherCSS/MentorCard.css";
 
@@ -17,31 +17,19 @@ const MentorCard = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const handleMenuClick = ({ key }) => {
-    if (key === "select") {
-      onMoveToSelected(mentor);
-      setHasChanges(true);
-    } else if (key === "view") {
-      setExpanded(true);
-    } else if (key === "changePosition") {
-      onChangePosition(mentor);
-      setHasChanges(true);
-    }
+  const handleSelectPriority = () => {
+    onMoveToSelected(mentor);
+    setHasChanges(true);
+  };
+
+  const handleChangePriority = () => {
+    onChangePosition(mentor);
+    setHasChanges(true);
   };
 
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
-
-  // Chỉ tạo menu nếu showMenu là true
-  const menu = showMenu ? (
-    <Menu onClick={handleMenuClick}>
-      {!isSelected && <Menu.Item key="select">Chọn độ ưu tiên</Menu.Item>}
-      {isSelected && (
-        <Menu.Item key="changePosition">Thay đổi độ ưu tiên</Menu.Item>
-      )}
-    </Menu>
-  ) : null;
 
   // Tính toán tỷ lệ nhóm hiện tại so với tối đa
   const loadPercentage = (mentor.currentLoad / mentor.maxLoad) * 100;
@@ -98,9 +86,37 @@ const MentorCard = ({
 
         <div className="mentor-card-right">
           {showMenu && (
-            <Dropdown overlay={menu} trigger={["click"]}>
-              <EllipsisOutlined className="mentor-card-menu" />
-            </Dropdown>
+            <>
+              {!isSelected ? (
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={handleSelectPriority}
+                  style={{
+                    marginRight: "8px",
+                    backgroundColor: "#62b6cb",
+                    color: "white",
+                    fontWeight: 500,
+                  }}
+                >
+                  Chọn độ ưu tiên
+                </Button>
+              ) : (
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={handleChangePriority}
+                  style={{
+                    marginRight: "8px",
+                    backgroundColor: "#62b6cb",
+                    color: "white",
+                    fontWeight: 500,
+                  }}
+                >
+                  Thay đổi độ ưu tiên
+                </Button>
+              )}
+            </>
           )}
 
           {/* Nút mở rộng/thu gọn chỉ hiển thị nếu showMenu là true */}
@@ -108,7 +124,7 @@ const MentorCard = ({
             (!expanded ? (
               <Button
                 type="link"
-                style={{ marginRight: -6.4, marginTop: -13 }}
+                style={{ marginRight: -6.4, marginTop: -4 }}
                 className="expand-btn"
                 onClick={toggleExpand}
                 icon={<DownOutlined />}

@@ -12,6 +12,7 @@ import {
   sendEmailToGroupforNewMatching,
   sendEmailToGroupforNewMeetingEvent,
 } from "../../utilities/email.js";
+import Class from "../../models/classModel.js";
 // hàm để tạo matched chờ xác nhận
 const createMatched = async (data) => {
   try {
@@ -537,6 +538,36 @@ const deleteTimeEventById = async (eventId) => {
   }
 };
 
+const getMatchedGroupsCount = async (classId) => {
+  // Validate the class ID
+  const targetClass = await Class.findById(classId);
+
+  // Lấy tất cả group thuộc classId
+  const groupsInClass = await Group.find({ classId }).lean();
+  if (!groupsInClass || groupsInClass.length === 0) {
+    return {
+      classId,
+      className: targetClass.className,
+      totalGroups: 0,
+      matchedGroups: 0,
+    };
+  }
+
+  const groupIds = groupsInClass.map((group) => group._id);
+
+  // Đếm số lượng nhóm đã matched trong Matched
+  const matchedCount = await Matched.countDocuments({
+    groupId: { $in: groupIds },
+  });
+
+  return {
+    classId,
+    className: targetClass.className,
+    totalGroups: groupsInClass.length,
+    matchedGroups: matchedCount,
+  };
+};
+
 export default {
   createMatched,
   updateMatchedById,
@@ -547,4 +578,5 @@ export default {
   createNewTimeEvents,
   patchTimeEventById,
   deleteTimeEventById,
+  getMatchedGroupsCount,
 };

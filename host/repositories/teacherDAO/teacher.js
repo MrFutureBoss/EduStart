@@ -1,3 +1,4 @@
+import Matched from "../../models/matchedModel.js";
 import MentorCategory from "../../models/mentorCategoryModel.js";
 import TeacherSelection from "../../models/teacherSelection.js";
 import User from "../../models/userModel.js";
@@ -71,21 +72,45 @@ const getSelection = async ({ teacherId, professionId, specialtyId }) => {
     })
     .lean();
 
-  // Gắn thêm thông tin priority vào từng mentor
+  // Lấy currentLoad của mỗi mentor bằng cách đếm số lần xuất hiện trong bảng Matched
+  const matchedCounts = await Matched.aggregate([
+    {
+      $match: {
+        mentorId: { $in: mentorIds }, // Directly match the mentorId field
+      },
+    },
+    {
+      $group: {
+        _id: "$mentorId", // Group by mentorId
+        count: { $sum: 1 }, // Count occurrences
+      },
+    },
+  ]);
+
+  // Tạo một map từ mentorId đến số lượng matched
+  const matchedCountMap = matchedCounts.reduce((acc, item) => {
+    acc[item._id.toString()] = item.count;
+    return acc;
+  }, {});
+
+  // Gắn thêm thông tin priority và currentLoad vào từng mentor
   const mentorsWithPriority = mentors.map((mentor) => {
     const priorityData = selection.selectedMentors.find(
       (m) => m.mentorId.toString() === mentor.mentorId._id.toString()
     );
+
+    // Chỉ chèn thêm currentLoad vào mentor
     return {
       ...mentor,
       priority: priorityData.priority,
+      currentLoad: matchedCountMap[mentor.mentorId._id.toString()] || 0, // Default to 0 if not found
     };
   });
 
   return mentorsWithPriority;
 };
 
-// update phone teacher 
+// update phone teacher
 const updatePhoneNumberTeacher = async (teacherId, phoneNumber) => {
   try {
     const teacher = await User.findByIdAndUpdate(

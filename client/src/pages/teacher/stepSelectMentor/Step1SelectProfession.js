@@ -63,7 +63,7 @@ const Step1SelectProfession = ({ onNext }) => {
         <Spin />
       ) : (
         <List
-          itemLayout="horizontal"
+          itemLayout="vertical"
           dataSource={professions}
           renderItem={(profession) => {
             const professionCountInfo = updatedSpecialtyCounts.find(
@@ -78,25 +78,35 @@ const Step1SelectProfession = ({ onNext }) => {
                 ? "green"
                 : "orange";
 
+            // Kiểm tra nếu totalSpecialties = 0, hiển thị thông báo khác
+            const description =
+              professionCountInfo.totalSpecialties === 0
+                ? "Chưa có Mentor nào chọn lĩnh vực này"
+                : `(${professionCountInfo.updatedSpecialtyCount}/${professionCountInfo.totalSpecialties}) chuyên môn đã chọn`;
+
             return (
-              <List.Item
-                actions={[
+              <List.Item>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <Typography.Title level={5}>
+                      {profession.title}
+                    </Typography.Title>
+                    <Typography.Text style={{ color: descriptionColor }}>
+                      {description}
+                    </Typography.Text>
+                  </div>
                   <CustomButton
                     type="primary"
                     onClick={() => handleSelectProfession(profession)}
                     content={"Chọn Mentor trong lĩnh vực này"}
-                  />,
-                ]}
-              >
-                <List.Item.Meta
-                  title={profession.title}
-                  description={
-                    <span style={{ color: descriptionColor }}>
-                      ({professionCountInfo.updatedSpecialtyCount}/
-                      {professionCountInfo.totalSpecialties}) chuyên môn đã chọn
-                    </span>
-                  }
-                />
+                  />
+                </div>
               </List.Item>
             );
           }}

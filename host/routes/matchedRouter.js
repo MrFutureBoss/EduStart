@@ -62,4 +62,10 @@ matchedRouter.delete(
   verifyAccessToken,
   matchedController.deleteMatched
 );
+
+matchedRouter.get(
+  "/matched-class/:classId",
+  verifyAccessToken,
+  matchedController.getMatchedGroupsCountController
+);
 export default matchedRouter;
