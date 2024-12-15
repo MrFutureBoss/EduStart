@@ -116,8 +116,11 @@ const TeacherDashboard = () => {
       return [];
     }
     try {
-      const res = await axios.get(`${BASE_URL}/group/class/${classId}/${sid}`, config);
-      return res.data.groups || [];      
+      const res = await axios.get(
+        `${BASE_URL}/group/class/${classId}/${sid}`,
+        config
+      );
+      return res.data.groups || [];
     } catch (err) {
       // console.error(`Error fetching groups for classId ${classId}:`, err);
       return [];
@@ -294,9 +297,11 @@ const TeacherDashboard = () => {
       fetchedClassSummaries.forEach((classSummary) => {
         const className = classSummary.className;
         const unmatchedGroupsCount = classSummary.groupDetails
-          ? classSummary.groupDetails.filter(
-              (group) => group.isMatched === false
-            ).length
+          ? classSummary.groupDetails.filter((group) => !group.isMatched).length
+          : 0;
+
+        const totalGroupsCount = classSummary.groupDetails
+          ? classSummary.groupDetails.length
           : 0;
 
         if (unmatchedGroupsCount > 0 && classDataMap[className]) {
@@ -310,6 +315,7 @@ const TeacherDashboard = () => {
               count: unmatchedGroupsCount,
               link: `/teacher/temp-matching`,
               classId: classSummary.classId,
+              total: totalGroupsCount,
             });
           } else {
             classDataMap[className].issues.push({
@@ -319,6 +325,7 @@ const TeacherDashboard = () => {
                   count: unmatchedGroupsCount,
                   link: `/teacher/temp-matching`,
                   classId: classSummary.classId,
+                  total: totalGroupsCount,
                 },
               ],
             });
@@ -435,9 +442,9 @@ const TeacherDashboard = () => {
 
   useEffect(() => {
     if (userId && sid) {
-        fetchData();
+      fetchData();
     }
-}, [userId, sid]);
+  }, [userId, sid]);
 
   useEffect(() => {
     if (semesterId) {
@@ -597,6 +604,9 @@ const TeacherDashboard = () => {
               isMentorIssue = true;
               isGroup = true; // Vì liên quan đến nhóm
             }
+            const issueTypeLabel = issue.type.includes("Dự án")
+              ? " dự án"
+              : " nhóm";
 
             return (
               <div key={issue.type} style={{ marginBottom: "8px" }}>
@@ -619,7 +629,7 @@ const TeacherDashboard = () => {
                       handleIssueClick(issue.type, issue.items[0].classId);
                     }}
                   >
-                    {issue.items[0].count}
+                    {issue.items[0].count}/{issue.items[0]?.total} Nhóm
                   </Link>
                 ) : issue.items.length === 1 ? (
                   <Tag
@@ -698,7 +708,7 @@ const TeacherDashboard = () => {
                         handleIssueClick(issue.type, record.className);
                       }}
                     >
-                      {issue.items.length}
+                      {issue.items.length} {issueTypeLabel}
                     </Link>
                   </Tooltip>
                 )}
@@ -760,48 +770,6 @@ const TeacherDashboard = () => {
                 className="table-issue-dashboard"
               />
             </Card>
-            {/* Loại bỏ bảng "Tình hình mentor" */}
-            {/* <br />
-            <Card
-              title="Tình hình mentor"
-              bordered={false}
-              size="small"
-              headStyle={{
-                backgroundColor: "rgb(96, 178, 199)",
-                minHeight: "33px",
-                color: "white",
-                fontSize: "16px",
-              }}
-              bodyStyle={{
-                padding: "8px",
-              }}
-              style={{ height: "200px", overflowY: "auto" }}
-            >
-              {" "}
-              {classSummaries.map((classItem) => {
-                const matchedGroupsCount = classItem.groupDetails
-                  ? classItem.groupDetails.filter(
-                      (group) =>
-                        group.isMatched === true &&
-                        group.isProjectUpdated === true
-                    ).length
-                  : 0;
-                const totalGroupsCount = classItem.groupDetails
-                  ? classItem.groupDetails.filter(
-                      (group) => group.isProjectUpdated === true
-                    ).length
-                  : 0;
-                const unmatchedGroupsCount =
-                  totalGroupsCount - matchedGroupsCount;
-
-                return (
-                  <>
-                    {classItem.className} {unmatchedGroupsCount} nhóm chưa chọn
-                    mentor
-                  </>
-                );
-              })}
-            </Card> */}
           </Col>
 
           <Col span={9}>
