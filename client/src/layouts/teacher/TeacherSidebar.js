@@ -331,7 +331,7 @@ const TeacherSider = ({ collapsed, toggleCollapse }) => {
           }
         >
           <Link style={{ textDecoration: "none" }} to="temp-matching">
-            Gợi ý ghép Mentor
+            Ghép Mentor cho nhóm
           </Link>
         </Menu.Item>
 

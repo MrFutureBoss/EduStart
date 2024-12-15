@@ -189,17 +189,27 @@ const fetchTreeData = async (teacherId) => {
     teacherSelections.map((selection) => selection.specialtyId.toString())
   );
 
-  // Xây dựng treeData với thông tin isUpdated
+  // Lấy danh sách specialtyId có mentor chọn
+  const mentorCategories = await MentorCategory.find().lean();
+  const mentorSpecialtyIds = new Set(
+    mentorCategories.flatMap((category) =>
+      category.specialties.map((specialty) => specialty.specialtyId.toString())
+    )
+  );
+
+  // Xây dựng treeData với thông tin isUpdated, lọc các specialty không có mentor chọn
   const treeData = professions.map((profession) => {
-    const specialties = (profession.specialty || []).map((specialty) => {
-      const isUpdated = updatedSpecialtyIds.has(specialty._id.toString());
-      return {
-        _id: specialty._id,
-        name: specialty.name,
-        status: specialty.status,
-        isUpdated,
-      };
-    });
+    const specialties = (profession.specialty || [])
+      .filter((specialty) => mentorSpecialtyIds.has(specialty._id.toString()))
+      .map((specialty) => {
+        const isUpdated = updatedSpecialtyIds.has(specialty._id.toString());
+        return {
+          _id: specialty._id,
+          name: specialty.name,
+          status: specialty.status,
+          isUpdated,
+        };
+      });
 
     return {
       _id: profession._id,

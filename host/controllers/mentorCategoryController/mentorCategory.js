@@ -61,7 +61,6 @@ const createNewMentorCategory = async (req, res, next) => {
 // hàm lấy danh sách data mentor
 export const fetchTeacherTreeData = async (req, res) => {
   const { teacherId } = req.params;
-  console.log("Teacher ID:", teacherId);
 
   try {
     const data = await mentorCategoryDAO.fetchTreeData(teacherId);
@@ -91,7 +90,9 @@ const getMentorCategoryByUserId = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const mentorCategory = await mentorCategoryDAO.getMentorCategoryByUserId(userId);
+    const mentorCategory = await mentorCategoryDAO.getMentorCategoryByUserId(
+      userId
+    );
 
     if (!mentorCategory) {
       return res
