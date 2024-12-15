@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ConfirmModal from "../../components/Modal/ConfirmModal.jsx";
 import {
-  Button,
   Col,
   ConfigProvider,
   DatePicker,
@@ -11,7 +10,6 @@ import {
   Row,
 } from "antd";
 import SmallModal from "../../components/Modal/SmallModal.jsx";
-import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
 import moment from "moment";
 import locale from "antd/locale/vi_VN";
 import dayjs from "dayjs";
@@ -143,9 +141,7 @@ const CreateGroup = ({ classId, show, close }) => {
   };
 
   const modalHeader = (
-    <div className="modal-title-custom">
       <h3 style={{ color: "#FFF" }}>Tạo nhóm lớp</h3>
-    </div>
   );
 
   const modalBody = (
@@ -186,10 +182,6 @@ const CreateGroup = ({ classId, show, close }) => {
             <small
               style={{ fontSize: "12px", color: "#888", lineHeight: "1.4" }}
             >
-              {/* Nếu bạn chọn{" "}
-              <span style={{ fontWeight: "600", color: "#1890ff" }}>
-                {form.getFieldValue("groupCount")}
-              </span>{" "} */}
               Với sĩ số {totalWaitUsers} thì trung bình mỗi nhóm có{" "}
               <span style={{ fontWeight: "600", color: "#1890ff" }}>
                 {averageMembers}
@@ -228,20 +220,6 @@ const CreateGroup = ({ classId, show, close }) => {
               />
             </ConfigProvider>
           </Form.Item>
-          {/* <Form.Item
-            name="autoFinish"
-            valuePropName="checked"
-            label={
-              <span
-                className="remove-default-style-p"
-                style={{ fontWeight: "600" }}
-              >
-                Tự động hoàn thành xếp nhóm khi hết thời gian
-              </span>
-            }
-          >
-            <Switch />
-          </Form.Item> */}
         </Form>
       </Col>
     </Row>

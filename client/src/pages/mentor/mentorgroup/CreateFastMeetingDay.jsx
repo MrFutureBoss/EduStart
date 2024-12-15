@@ -80,14 +80,24 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
   const handleClassChange = (value) => {
     setSelectedClass(value);
     setSelectedGroupId(null);
+    if (!value) {
+      message.warning("Vui lòng chọn lớp trước khi chọn nhóm.");
+    }
   };
 
   const handleGroupChange = (value) => {
     setSelectedGroupId(value);
+    if (!value) {
+      message.warning("Vui lòng chọn nhóm để tiếp tục.");
+    }
   };
 
   const handleContentChange = (e) => {
-    setMeetingContent(e.target.value);
+    const content = e.target.value;
+    if (runes(content).length > 200) {
+      message.warning("Nội dung họp không được vượt quá 200 ký tự.");
+    }
+    setMeetingContent(content);
   };
 
   const handleMakeNewEvent = async () => {
@@ -99,12 +109,23 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
       message.error("Vui lòng nhập nội dung cuộc họp.");
       return;
     }
+    if (runes(meetingContent).length > 200) {
+      message.error("Nội dung họp không được vượt quá 200 ký tự.");
+      return;
+    }
+    if (!customStartTime) {
+      message.error("Vui lòng chọn thời gian hợp lệ.");
+      return;
+    }
+    const now = moment();
+    if (customStartTime.isBefore(now)) {
+      message.error("Không thể chọn thời gian trong quá khứ.");
+      return;
+    }
 
     try {
-      const start = moment(selectedSlotInfo.start).toISOString();
-      const end = moment(selectedSlotInfo.start)
-        .add(150, "minutes")
-        .toISOString();
+      const start = customStartTime.toISOString();
+      const end = customStartTime.add(150, "minutes").toISOString();
 
       const newEvent = {
         title: meetingContent,
@@ -151,31 +172,32 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
   const handleStartTimeChange = (time) => {
     if (!time) {
       message.error("Vui lòng chọn thời gian hợp lệ.");
-      return;
-    }
-
-    if (!selectedSlotInfo?.start) {
-      message.error("Thông tin thời gian không hợp lệ.");
+      setIsValidTime(false);
       return;
     }
 
     const selectedDay = moment(selectedSlotInfo.start); // Ngày từ `selectedSlotInfo`
     const now = moment(); // Thời gian hiện tại
 
-    if (selectedDay.isSame(now, "day")) {
-      // Ngày hiện tại
-      if (time.isBefore(now)) {
-        message.error("Không thể chọn thời gian trong quá khứ."); // Giờ quá khứ
-        return;
-      }
+    if (selectedDay.isSame(now, "day") && time.isBefore(now)) {
+      message.error("Không thể chọn thời gian trong quá khứ."); // Giờ quá khứ
+      setIsValidTime(false);
+      return;
+    }
+
+    if (time.hour() < 7 || time.hour() > 20) {
+      message.warning("Giờ họp phải nằm trong khoảng từ 7h đến 20h.");
+      setIsValidTime(false);
+      return;
     }
 
     setCustomStartTime(time); // Nếu hợp lệ, cập nhật thời gian
+    setIsValidTime(true);
   };
 
   const disabledHours = () => {
     const minHour = 7;
-    const maxHour = 21;
+    const maxHour = 20;
     const hours = [];
     for (let i = 0; i < 24; i++) {
       if (i < minHour || i > maxHour) {
@@ -203,6 +225,15 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
         group.matchedDetails.status === "Accepted"
     );
   }, [groups, selectedClass]);
+
+  const resetData = () => {
+    setSelectedClass(null);
+    setSelectedGroupId(null);
+    setMeetingContent("");
+    setCustomStartTime(null);
+    setIsEditingStartTime(false);
+    setIsValidTime(true);
+  };
 
   const modalContent = (
     <Row
@@ -332,7 +363,7 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
                     </span>
                   )}
                 </p>
-                {isEditingStartTime &&
+                {isEditingStartTime && (
                   <Collapse
                     bordered={false}
                     style={{
@@ -375,7 +406,7 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
                       </small>
                     </Panel>
                   </Collapse>
-                }
+                )}
                 <p>
                   <strong>Giờ Kết Thúc:</strong>{" "}
                   <span>
@@ -409,9 +440,23 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
           cancelText="Hủy"
           disabled={!isValidTime}
         >
-          <ConfirmButton content="Thêm vào" disabled={!isValidTime} />
+          <ConfirmButton
+            content="Thêm vào"
+            disabled={
+              !isValidTime ||
+              !selectedGroupId ||
+              !meetingContent ||
+              runes(meetingContent).length > 200
+            }
+          />
         </Popconfirm>
-        <CancelButton content="Hủy" onClick={close} />
+        <CancelButton
+          content="Hủy"
+          onClick={() => {
+            resetData();
+            close();
+          }}
+        />
       </Col>
     </Row>
   );
@@ -423,7 +468,10 @@ const CreateFastMeetingDay = ({ open, close, content, selectedSlotInfo }) => {
       footer={modalFooter}
       closeable={true}
       isModalOpen={open}
-      handleCancel={close}
+      handleCancel={() => {
+        resetData();
+        close();
+      }}
     />
   );
 };
