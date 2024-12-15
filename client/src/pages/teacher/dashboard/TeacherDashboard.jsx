@@ -162,7 +162,7 @@ const TeacherDashboard = () => {
       issueType === "Nhóm chưa chọn mentor"
     ) {
       if (issueType === "Nhóm chưa chốt đề tài") {
-        navigate(`/teacher/class/detail?filter=unfinished`);
+        navigate(`/teacher/class/detail/${classId}?filter=unfinished`);
       } else if (issueType === "Nhóm chưa chọn mentor") {
         dispatch(setSelectedClassId(classId));
         localStorage.setItem("selectedClassId", classId);
