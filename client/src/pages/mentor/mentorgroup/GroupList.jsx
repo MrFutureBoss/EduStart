@@ -20,6 +20,7 @@ import {
   List,
   Typography,
   Alert,
+  Select,
 } from "antd";
 import {
   CalendarOutlined,
@@ -42,7 +43,7 @@ import moment from "moment";
 import TextArea from "antd/es/input/TextArea";
 import runes from "runes2";
 import { useLocation } from "react-router-dom";
-import { Tabs as AntTabs } from "antd";
+const { Option } = Select;
 const { Text } = Typography;
 const { Search } = Input;
 
@@ -396,6 +397,53 @@ const GroupList = () => {
     setCurrentPage(page);
   };
 
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  // Hàm thay đổi trạng thái bộ lọc
+  const handleFilterChange = (value) => {
+    setFilterStatus(value);
+  };
+
+  const filteredGroups = useMemo(() => {
+    if (filterStatus === "noMeeting") {
+      // Nhóm đã duyệt nhưng không có lịch họp sắp tới
+      return allGroups.filter((group) => {
+        if (group.matchedDetails.status !== "Accepted") return false;
+
+        // Kiểm tra nếu nhóm không có time hoặc time rỗng
+        if (
+          !group.matchedDetails.time ||
+          group.matchedDetails.time.length === 0
+        )
+          return true;
+
+        // Kiểm tra nếu tất cả thời gian trong time đều đã qua
+        const now = moment();
+        const hasFutureMeeting = group.matchedDetails.time.some((meeting) =>
+          moment(meeting.start).isAfter(now)
+        );
+        return !hasFutureMeeting;
+      });
+    } else if (filterStatus === "hasMeeting") {
+      // Nhóm đã duyệt và có ít nhất một lịch họp trong tương lai
+      return allGroups.filter(
+        (group) =>
+          group.matchedDetails.status === "Accepted" &&
+          group.matchedDetails.time &&
+          group.matchedDetails.time.some((meeting) =>
+            moment(meeting.start).isAfter(moment())
+          )
+      );
+    } else if (filterStatus === "pending") {
+      // Nhóm chờ duyệt
+      return allGroups.filter(
+        (group) => group.matchedDetails.status === "Pending"
+      );
+    }
+    // Hiển thị tất cả nhóm nếu không lọc
+    return allGroups;
+  }, [filterStatus, allGroups]);
+
   return (
     <div className="zoom-better">
       <CreateMeetingDay
@@ -585,7 +633,21 @@ const GroupList = () => {
                   </Tooltip>
                 }
               >
-                {currentGroups.map((group, index) => {
+                <Row gutter={[8, 16]} style={{ marginBottom: "16px" }}>
+                  <Col span={8}>
+                    <Select
+                      defaultValue="all"
+                      onChange={handleFilterChange}
+                      style={{ width: "10rem" }}
+                    >
+                      <Option value="all">Tất cả nhóm</Option>
+                      <Option value="noMeeting">Chưa có lịch họp</Option>
+                      <Option value="hasMeeting">Có lịch họp</Option>
+                      <Option value="pending">Nhóm chờ duyệt</Option>
+                    </Select>
+                  </Col>
+                </Row>
+                {filteredGroups.map((group, index) => {
                   // Card cho nhóm "Nhóm của bạn"
                   if (myGroups.includes(group)) {
                     return (
