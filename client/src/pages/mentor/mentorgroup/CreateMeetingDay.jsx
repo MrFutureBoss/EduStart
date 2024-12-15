@@ -203,6 +203,9 @@ const CreateMeetingDay = ({ open, close }) => {
       });
     }
     setConflictMessage(conflict);
+    if (conflict) {
+      message.error(conflict);
+    }
   };
 
   const handleMakeNewEvent = async () => {
@@ -275,6 +278,16 @@ const CreateMeetingDay = ({ open, close }) => {
 
   const handleGroupChange = (value) => {
     setSelectedGroupId(value);
+  };
+
+  const resetData = () => {
+    setSelectedDate(null);
+    setStartTime(null);
+    setEndTime("Chọn giờ bắt đầu trước");
+    setSelectedClass(null);
+    setSelectedGroupId(null);
+    setConflictMessage("");
+    form.resetFields();
   };
 
   const modalContent = (
@@ -476,9 +489,7 @@ const CreateMeetingDay = ({ open, close }) => {
               picker="time"
               placeholder="Chọn giờ bắt đầu"
               style={{ width: "150px" }}
-              disabledTime={(date) =>
-                selectedDate ? disabledRangeTime(selectedDate, "start") : {}
-              }
+              disabledTime={selectedDate}
               onChange={(value) => {
                 setStartTime(value);
                 if (value) {
@@ -570,7 +581,13 @@ const CreateMeetingDay = ({ open, close }) => {
             }
           />
         </Popconfirm>
-        <CancelButton content="Hủy" onClick={close} />
+        <CancelButton
+          content="Hủy"
+          onClick={() => {
+            resetData();
+            close();
+          }}
+        />
       </Col>
     </Row>
   );
@@ -582,7 +599,10 @@ const CreateMeetingDay = ({ open, close }) => {
       footer={modalFooter}
       closeable={true}
       isModalOpen={open}
-      handleCancel={close}
+      handleCancel={() => {
+        resetData();
+        close();
+      }}
     />
   );
 };

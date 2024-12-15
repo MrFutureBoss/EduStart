@@ -605,7 +605,7 @@ const SortableCards = () => {
           variant="solid"
           style={{
             margin: "20px 0px",
-            display: totalTempGroups > 0 ? "none" : "block",
+            // display: totalTempGroups > 0 ? "none" : "block",
           }}
           onClick={handleOpenAddTypeModal}
         >
