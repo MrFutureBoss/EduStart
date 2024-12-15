@@ -137,34 +137,18 @@ function SignIn() {
                 style={{
                   width: "61.7%",
                   height: "auto",
+                  minHeight: "400px",
                   position: "absolute",
                   right: "0", // Căn bên phải
                   top: "50%", // Căn giữa theo trục y
                   transform: "translateY(-50%)",
-                  maxHeight: "100vh",
+                  // maxHeight: "100vh",
                   objectFit: "contain",
                   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
                   borderTopLeftRadius: "20px",
                   borderBottomLeftRadius: "20px",
                 }}
               />
-              {/* <div
-                style={{
-                  position: "absolute",
-                  top: "50%", // Căn giữa theo chiều dọc
-                  left: "70%", // Căn giữa theo chiều ngang
-                  transform: "translate(-50%, -50%)",
-                  color: "white",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  padding: "10px 22px",
-                  borderRadius: "8px",
-                  fontSize: "1.4rem",
-                  textAlign: "center",
-                  maxWidth: "80%",
-                }}
-              >
-                Chào mừng bạn đến với EduStart, nơi kết nốt tri thức!
-              </div> */}
             </div>
           </Col>
           <Col
@@ -175,7 +159,6 @@ function SignIn() {
             xl={12}
             style={{
               display: "flex",
-              // justifyContent: "center",
               alignItems: "center",
               position: "relative",
             }}
@@ -183,7 +166,7 @@ function SignIn() {
             <div
               style={{
                 position: "absolute",
-                top: "2.3rem",
+                top: "1.9rem",
                 left: "-4.5rem",
                 // right: "2rem",
                 display: "flex",

@@ -77,12 +77,13 @@
 .card-login-body {
   width: 80%;
   border: 1px solid #ccc;
-  padding: 2.5rem;
+  padding: 2.1rem;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   background-color: #fffefe;
   max-width: 473.85px;
+  min-height: 400px;
 }
 
 .label-login {
