@@ -68,11 +68,6 @@ const ClassDetail = () => {
     }),
     [jwt]
   );
-  useEffect(() => {
-    if (isChangeSemester === true) {
-      navigate(-1);
-    }
-  }, [isChangeSemester]);
 
   // Fetch class details
   const fetchClassDetails = async () => {
