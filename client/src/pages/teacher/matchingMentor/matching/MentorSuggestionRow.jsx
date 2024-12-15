@@ -52,11 +52,6 @@ const MentorSuggestionRow = ({
             )}
           />
         ))}
-        {uniqueMentors.length > maxDisplay && (
-          <Button type="link" onClick={handleToggleShowAll}>
-            {showAll ? "Ẩn bớt" : "Xem thêm"}
-          </Button>
-        )}
       </div>
     </div>
   );
