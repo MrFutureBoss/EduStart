@@ -434,10 +434,10 @@ const TeacherDashboard = () => {
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchData();
+    if (userId && sid) {
+        fetchData();
     }
-  }, [userId]);
+}, [userId, sid]);
 
   useEffect(() => {
     if (semesterId) {
