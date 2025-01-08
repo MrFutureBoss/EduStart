@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Specialty from "../../models/SpecialtyModel.js";
+import Specialty from "../../models/specialtyModel.js";
 
 const getAllSpecialties = async (status, skip, limit, search) => {
   try {
