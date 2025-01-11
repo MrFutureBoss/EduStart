@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    restart: always
+    command: mongod --logpath /dev/null --oplogSize 128 --quiet
+    networks:
+      - EduStart
+    ports:
+      - 127.0.0.1:27017:27017
+
+  backend:
+    container_name: backend
+    restart: always
+    build:
+      context: ./host
+      dockerfile: Dockerfile
+    ports:
+      - 9999:9999
+    networks:
+      - EduStart
+    depends_on:
+      - mongodb
+
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+    networks:
+      - EduStart
+    depends_on:
+      - backend
+
+networks:
+  EduStart:
+    driver: bridge
