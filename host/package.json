@@ -6,7 +6,8 @@
   "main": "sever.js",
   "scripts": {
     "test": "jest",
-    "start": "nodemon --inspect server.js"
+    "start": "node functions/server.js",
+    "dev": "nodemon functions/server.js"
   },
   "repository": {
     "type": "git",
