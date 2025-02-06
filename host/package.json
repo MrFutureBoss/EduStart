@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "test": "jest",
-    "start": "node functions/server.js",
-    "dev": "nodemon functions/server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
