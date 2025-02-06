@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "EduStart Backend build by author (Mai Tu)",
   "type": "module",
-  "main": "sever.js",
+  "main": "server.js",
   "scripts": {
     "test": "jest",
     "start": "node functions/server.js",
