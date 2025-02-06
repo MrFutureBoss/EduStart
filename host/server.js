@@ -16,10 +16,22 @@ dotenv.config();
 
 const app = express();
 
-// Enable CORS with specific options for your frontend origin
+// Enable CORS with specific options for your frontend origins
+const allowedOrigins = [
+  "https://edu-start-umber.vercel.app", // Production frontend
+  "http://localhost:3000", // Local development
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
     credentials: true,
   })
@@ -37,8 +49,9 @@ connectDB();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: allowedOrigins, // Allow the same origins for WebSocket connections
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
